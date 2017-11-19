@@ -8,7 +8,8 @@
   "scripts": {
     "build": "webpack",
     "dev": "webpack --watch",
-    "prepublishOnly": "webpack"
+    "prepublishOnly": "webpack",
+    "test": "NODE_ENV=test mocha --require babel-register tests"
   },
   "repository": "https://github.com/liara-ir/liara-cli",
   "author": "Mhe Mrg <mhemrg120@gmail.com> (http://liara.ir/)",
@@ -16,7 +17,9 @@
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
-    "babel-preset-env": "^1.6.1",
+    "babel-preset-backpack": "^0.4.3",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1",
     "shebang-loader": "^0.0.1",
     "webpack": "^3.8.1",
     "webpack-node-externals": "^1.6.0"
