@@ -1,13 +1,9 @@
 import mri from 'mri';
-import chalk from 'chalk';
-import fs from 'fs-extra';
-import help from './config/help';
 import commands from './commands';
-import { homedir } from 'os';
+import error from './util/error';
 
-process.on('uncaughtException', error => {
-  console.log(chalk.red('> Error!'), chalk.white(error.message))
-});
+process.on('uncaughtException', error);
+process.on('unhandledRejection', error);
 
 const args = mri(process.argv.slice(2));
 
