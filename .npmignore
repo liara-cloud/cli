@@ -1,1 +1,9 @@
 src
+tests
+.vscode
+.gitignore
+.babelrc
+webpack.config.js
+*.log
+*.lock
+README.md
