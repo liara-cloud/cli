@@ -2,6 +2,7 @@ import { resolve } from "path";
 import { expect } from 'chai';
 import getFiles from '../src/util/get-files';
 import detectDeploymentType from '../src/util/detect-deployment-type';
+import ensureAppHasDockerfile from '../src/util/ensure-has-dockerfile';
 
 const project = name => resolve(__dirname, 'fixtures/projects', name);
 
@@ -75,5 +76,22 @@ Please specify your deployment type with --node, --docker or --static options.`)
 
     deploymentType = () => detectDeploymentType({ static: true }, []);
     expect(deploymentType).to.throw(/Project is empty!/);
+  });
+
+  it('should ensure app has a Dockerfile', () => {
+    let files, map;
+
+    const filterDockerfiles = files => files.filter(file => file.path === 'Dockerfile');
+
+    files = [{ path: 'Dockerfile' }, { path: 'woof/Dockerfile' }, { path: 'index.php' }];
+    map = new Map;
+    var { filesWithDockerfile } = ensureAppHasDockerfile('docker', files, map);
+    expect(filterDockerfiles(filesWithDockerfile)).to.have.lengthOf(1);
+
+    // This app doesn't have a dockerfile in the root
+    files = [{ path: 'woof/Dockerfile' }, { path: 'index.html' }];
+    map = new Map;
+    var { filesWithDockerfile } = ensureAppHasDockerfile('static', files, map);
+    expect(filterDockerfiles(filesWithDockerfile)).to.have.lengthOf(1);
   });
 });

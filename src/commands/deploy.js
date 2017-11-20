@@ -1,6 +1,7 @@
 import bytes from 'bytes';
 import getFiles from '../util/get-files';
 import detectDeploymentType from '../util/detect-deployment-type';
+import ensureAppHasDockerfile from '../util/ensure-has-dockerfile';
 
 export default async function deploy(args, config) {
   const { path, debug } = args;
@@ -9,7 +10,7 @@ export default async function deploy(args, config) {
   console.log(`Deploying: ${projectPath}`)
 
   debug && console.time('[debug] making hashes')
-  const { files } = await getFiles(projectPath);
+  const { files, mapHashesToFiles } = await getFiles(projectPath);
   debug && console.log('[debug] files count:', files.length);
   debug && console.timeEnd('[debug] making hashes');
 
@@ -18,4 +19,9 @@ export default async function deploy(args, config) {
 
   const deploymentType = detectDeploymentType(args, files);
   console.log(`Detected deployment type: ${deploymentType}`);
+
+  debug && console.time('[debug] Ensure app has Dockerfile');
+  const { filesWithDockerfile, mapHashesToFilesWithDockerfile } =
+    ensureAppHasDockerfile(deploymentType, files, mapHashesToFiles);
+  debug && console.timeEnd('[debug] Ensure app has Dockerfile');
 };
