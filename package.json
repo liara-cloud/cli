@@ -25,7 +25,6 @@
     "webpack-node-externals": "^1.6.0"
   },
   "dependencies": {
-    "async": "^2.6.0",
     "bytes": "^3.0.0",
     "chalk": "^2.3.0",
     "fs-extra": "^4.0.2",
