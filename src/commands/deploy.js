@@ -5,6 +5,7 @@ import { white, cyan, gray } from 'chalk';
 import retry from 'async-retry';
 import auth from '../middlewares/auth';
 import getFiles from '../util/get-files';
+import getDeploymentName from '../util/get-deployment-name';
 import detectDeploymentType from '../util/detect-deployment-type';
 import ensureAppHasDockerfile from '../util/ensure-has-dockerfile';
 
@@ -30,9 +31,11 @@ export default auth(async function deploy(args, config) {
     ensureAppHasDockerfile(deploymentType, files, mapHashesToFiles);
   debug && console.timeEnd('[debug] Ensure app has Dockerfile');
 
+  const name = await getDeploymentName(deploymentType, path);
+
   const deployment = await retry(async bail => {
     const body = {
-      name: 'my-app',
+      name,
       files: filesWithDockerfile,
     };
 

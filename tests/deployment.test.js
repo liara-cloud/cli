@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import getFiles from '../src/util/get-files';
 import detectDeploymentType from '../src/util/detect-deployment-type';
 import ensureAppHasDockerfile from '../src/util/ensure-has-dockerfile';
+import getDeploymentName from '../src/util/get-deployment-name';
 
 const project = name => resolve(__dirname, 'fixtures/projects', name);
 
@@ -93,5 +94,25 @@ Please specify your deployment type with --node, --docker or --static options.`)
     map = new Map;
     var { filesWithDockerfile } = ensureAppHasDockerfile('static', files, map);
     expect(filterDockerfiles(filesWithDockerfile)).to.have.lengthOf(1);
+  });
+
+  it('should return a name for deployment', () => {
+    let name;
+
+    name = getDeploymentName('node', project('npm-package-name'));
+    expect(name).to.be.equal('app-name');
+
+    name = getDeploymentName('node', project('npm-package-without-name'));
+    expect(name).to.be.equal('npm-package-without-name');
+
+    name = getDeploymentName('docker', '/home/user/projects/my-project');
+    expect(name).to.be.equal('my-project');
+
+    // package.json doesn't exists
+    name = getDeploymentName('node', '/home/user/projects/my-project');
+    expect(name).to.be.equal('my-project');
+
+    name = getDeploymentName('static', '//home/user/its-my-project//');
+    expect(name).to.be.equal('its-my-project');
   });
 });
