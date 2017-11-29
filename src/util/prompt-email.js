@@ -1,5 +1,6 @@
 import { green } from 'chalk';
 import promptEmail from 'email-prompt';
+import { red } from 'chalk';
 
 export default async () => {
   let email
@@ -10,7 +11,7 @@ export default async () => {
     console.log(); // \n
 
     if (err.message === 'User abort') {
-      throw new Error('> Aborted! No changes made.')
+      throw new Error(`${red('> Aborted!')} No changes made.`)
     }
 
     if (err.message === 'stdin lacks setRawMode support') {

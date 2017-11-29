@@ -1,6 +1,9 @@
 import mri from 'mri';
+import { join } from 'path';
+import { homedir } from 'os';
 import commands from './commands';
 import error from './util/error';
+import { ensureFileSync } from 'fs-extra';
 
 process.on('uncaughtException', error);
 process.on('unhandledRejection', error);
@@ -12,9 +15,13 @@ const [ command ] = args._;
 
 const apiURL = 'api' in args ? args.api : 'http://liara.ir';
 
+// ensure ~/.liara file exists
+const liaraConfPath = join(homedir(), '.liara.json');
+ensureFileSync(liaraConfPath);
+
 const config = {
   apiURL,
-  token: 'hello',
+  liaraConfPath,
 };
 
 if( ! command) {

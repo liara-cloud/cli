@@ -5,11 +5,13 @@ import { writeFileSync } from 'fs-extra';
 import eraseLines from '../util/erase-lines';
 import promptEmail from '../util/prompt-email';
 import { validate as validateEmail } from 'email-validator';
-import { join } from 'path';
-import { homedir } from 'os';
-import { bold } from 'chalk';
+import { green, red, bold } from 'chalk';
+
+// @TODO Add support for --email and --password args
 
 export default async function login(args, config) {
+  const { debug } = args;
+
   let email;
   let emailIsValid = false;
 
@@ -48,25 +50,35 @@ export default async function login(args, config) {
     }
   });
 
-  const { api_token } = await retry(async bail => {
-    try {
-      const { data } = await axios.post('/api/v1/login', { email, password }, {
-        baseURL: config.apiURL,
-      });
-      return data;
-    }
-    catch(err) {
-      if(err.status === 401) {
-        bail(err);
+  try {
+    const { api_token } = await retry(async bail => {
+      try {
+        const { data } = await axios.post('/api/v1/login', { email, password }, {
+          baseURL: config.apiURL,
+        });
+        return data;
       }
-      throw err;
+      catch(err) {
+        if(err.response.status === 401) {
+          return bail(err);
+        }
+        debug && console.log('[debug] retrying...');
+        throw err;
+      }
+    });
+
+    writeFileSync(config.liaraConfPath, JSON.stringify({
+      api_token,
+    }));
+
+    console.log(`> Auth credentials saved in ${bold(config.liaraConfPath)}`);
+
+    console.log(green('You have logged in successfully.'));
+
+  } catch(err) {
+    if(err.response && err.response.status === 401) {
+      return console.error(`${red('> Error!')} Authentication failed. Please try again.`);
     }
-  });
-
-  const liaraConfPath = join(homedir(), '.liara.json');
-  writeFileSync(liaraConfPath, JSON.stringify({
-    api_token,
-  }));
-
-  console.log(`Auth credentials saved in ${bold(liaraConfPath)}.`);
+    throw err;
+  }
 }
