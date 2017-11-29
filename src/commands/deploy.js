@@ -1,9 +1,10 @@
 import bytes from 'bytes';
+import auth from '../middlewares/auth';
 import getFiles from '../util/get-files';
 import detectDeploymentType from '../util/detect-deployment-type';
 import ensureAppHasDockerfile from '../util/ensure-has-dockerfile';
 
-export default async function deploy(args, config) {
+export default auth(async function deploy(args, config) {
   const { path, debug } = args;
 
   const projectPath = path ? path : process.cwd();
@@ -24,4 +25,4 @@ export default async function deploy(args, config) {
   const { filesWithDockerfile, mapHashesToFilesWithDockerfile } =
     ensureAppHasDockerfile(deploymentType, files, mapHashesToFiles);
   debug && console.timeEnd('[debug] Ensure app has Dockerfile');
-};
+});

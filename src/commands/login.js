@@ -25,7 +25,7 @@ export default async function login(args, config) {
         erase = eraseLines(2);
       }
       console.log(erase + err.message);
-      return 1;
+      return false;
     }
 
     emailIsValid = validateEmail(email);
@@ -77,8 +77,11 @@ export default async function login(args, config) {
 
   } catch(err) {
     if(err.response && err.response.status === 401) {
-      return console.error(`${red('> Error!')} Authentication failed. Please try again.`);
+      console.error(`${red('> Error!')} Authentication failed. Please try again.`);
+      return false;
     }
     throw err;
   }
+
+  return true;
 }
