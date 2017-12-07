@@ -102,6 +102,7 @@ function uploadMissingFiles(mapHashesToFiles, missing_files, config) {
       data: dataStream,
       headers: {
         'X-File-Digest': file,
+        'Content-Type': 'application/octet-stream',
         Authorization: `Bearer ${config.api_token}`,
       },
     });
