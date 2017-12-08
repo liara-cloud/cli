@@ -115,4 +115,30 @@ Please specify your deployment type with --node, --docker or --static options.`)
     name = getDeploymentName('static', '//home/user/its-my-project//');
     expect(name).to.be.equal('its-my-project');
   });
+
+  it('should ignore files that are listed in .gitignore', async () => {
+    const { files } = await getFiles(project('gitignore'));
+
+    expect(files).to.have.lengthOf(1);
+    expect(files[0]).to.have.property('path', 'keep-me.js');
+  });
+
+  it('should ignore files that are listed in .liaraignore', async () => {
+    const { files } = await getFiles(project('liaraignore'));
+
+    expect(files).to.have.lengthOf(1);
+    expect(files[0]).to.have.property('path', 'folder/keep.png');
+
+    // .liaraignore and .gitignore at the same folder
+    const { files: files2 } = await getFiles(project('liaraignore-gitignore'));
+    expect(files2).to.have.lengthOf(1);
+    expect(files2[0]).to.have.property('path', 'dist/bundle.js');
+  });
+
+  it('should override default ignores', async () => {
+    const { files } = await getFiles(project('with-dot-file'));
+
+    expect(files).to.have.lengthOf(1);
+    expect(files[0]).to.have.property('path', '.dotfile');
+  });
 });

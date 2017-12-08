@@ -1,22 +1,55 @@
 import klaw from 'klaw';
 import hash from './hash';
 import through2 from 'through2';
-import { relative } from 'path';
-import { readFile } from 'fs-extra';
+import { relative, join } from 'path';
+import { readFile, readFileSync, existsSync } from 'fs-extra';
+import ignore from 'ignore';
 
-const filterFiles = through2.obj(function (item, enc, next) {
+const defaultIgnores = [
+  '.git',
+  '.*',
+  '*.*~',
+  'node_modules',
+  'bower_components'
+];
+
+const filterFiles = () => through2.obj(function (item, enc, next) {
   if (item.stats.isFile()) this.push(item);
   next();
 });
 
+const ignoreFiles = function (projectPath) {
+  const ig = ignore();
+
+  const liaragnorePath = join(projectPath, '.liaraignore');
+  const gitignorePath = join(projectPath, '.gitignore');
+
+  if(existsSync(liaragnorePath)) {
+    ig.add(defaultIgnores);
+    ig.add(readFileSync(liaragnorePath).toString());
+
+  } else if (existsSync(gitignorePath)) {
+    ig.add(readFileSync(gitignorePath).toString());
+    ig.add(defaultIgnores);
+  }
+
+  return through2.obj(function (item, enc, next) {
+    if( ! ig.ignores(relative(projectPath, item.path))) {
+      this.push(item);
+    }
+    return next();
+  });
+};
+
 export default async function getFiles(projectPath) {
   const mapHashesToFiles = new Map;
-  
+
   await new Promise(resolve => {
     const files = [];
 
     klaw(projectPath)
-      .pipe(filterFiles)
+      .pipe(filterFiles())
+      .pipe(ignoreFiles(projectPath))
       .on('data', file => files.push(file))
       .on('end', async () => {
         await Promise.all(files.map(async ({ path, stats }) => {
