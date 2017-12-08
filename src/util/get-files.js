@@ -1,7 +1,7 @@
 import klaw from 'klaw';
 import hash from './hash';
 import through2 from 'through2';
-import { relative, join } from 'path';
+import { relative, join, basename, dirname } from 'path';
 import { readFile, readFileSync, existsSync } from 'fs-extra';
 import ignore from 'ignore';
 
@@ -18,23 +18,35 @@ const filterFiles = () => through2.obj(function (item, enc, next) {
   next();
 });
 
-const ignoreFiles = function (projectPath) {
-  const ig = ignore();
+const addNestedGitignores = function (ignoreInstance, projectPath) {
+  ignoreInstance.add(defaultIgnores);
 
+  return through2.obj(function (item, enc, next) {
+    if(basename(item.path) === '.gitignore') {
+      const patterns = readFileSync(item.path).toString().split('\n');
+
+      const relativeToProjectPath = patterns.map(pattern => relative(projectPath, join(dirname(item.path), pattern)));
+
+      ignoreInstance.add(relativeToProjectPath);
+    }
+
+    this.push(item);
+    return next();
+  });
+};
+
+const ignoreFiles = function (ignoreInstance, projectPath) {
   const liaragnorePath = join(projectPath, '.liaraignore');
   const gitignorePath = join(projectPath, '.gitignore');
 
   if(existsSync(liaragnorePath)) {
-    ig.add(defaultIgnores);
-    ig.add(readFileSync(liaragnorePath).toString());
-
-  } else if (existsSync(gitignorePath)) {
-    ig.add(readFileSync(gitignorePath).toString());
-    ig.add(defaultIgnores);
+    ignoreInstance = ignore();
+    ignoreInstance.add(defaultIgnores);
+    ignoreInstance.add(readFileSync(liaragnorePath).toString());
   }
 
   return through2.obj(function (item, enc, next) {
-    if( ! ig.ignores(relative(projectPath, item.path))) {
+    if( ! ignoreInstance.ignores(relative(projectPath, item.path))) {
       this.push(item);
     }
     return next();
@@ -44,12 +56,15 @@ const ignoreFiles = function (projectPath) {
 export default async function getFiles(projectPath) {
   const mapHashesToFiles = new Map;
 
+  const ignoreInstance = ignore();
+
   await new Promise(resolve => {
     const files = [];
 
     klaw(projectPath)
       .pipe(filterFiles())
-      .pipe(ignoreFiles(projectPath))
+      .pipe(addNestedGitignores(ignoreInstance, projectPath))
+      .pipe(ignoreFiles(ignoreInstance, projectPath))
       .on('data', file => files.push(file))
       .on('end', async () => {
         await Promise.all(files.map(async ({ path, stats }) => {

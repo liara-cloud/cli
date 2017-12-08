@@ -135,6 +135,22 @@ Please specify your deployment type with --node, --docker or --static options.`)
     expect(files2[0]).to.have.property('path', 'dist/bundle.js');
   });
 
+  it('should ignore files that are listed in nested gitignores', async () => {
+    const { files } = await getFiles(project('nested-ignore-files'));
+    expect(files).to.have.lengthOf(1);
+    expect(files[0]).to.have.property('path', 'package.json');
+  });
+
+  it('should skip nested gitignores when .liaraignore exists', async () => {
+    let { files } = await getFiles(project('liaraignore-overrides-nested-ignore-files'));
+    expect(files).to.have.lengthOf(2);
+
+    // extract pathes
+    files = files.map(({ path }) => ({ path }));
+    expect(files).to.deep.include({ path: 'package.json' });
+    expect(files).to.deep.include({ path: 'folder/app.js' });
+  });
+
   it('should override default ignores', async () => {
     const { files } = await getFiles(project('with-dot-file'));
 
