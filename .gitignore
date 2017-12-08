@@ -6,3 +6,5 @@ dist
 
 # logs
 *.log
+
+!tests/fixtures/**
