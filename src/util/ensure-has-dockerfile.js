@@ -1,7 +1,9 @@
 import hash from './hash';
 
 const dockerfiles = {
-  node: new Buffer('FROM node-platform\nCOPY . /app'),
+  node: `FROM node-platform
+COPY . /app
+RUN npm i && npm run --if-present build`,
   static: new Buffer('FROM static-platform\nCOPY . /app'),
 };
 
