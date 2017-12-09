@@ -4,6 +4,7 @@ import getFiles from '../src/util/get-files';
 import detectDeploymentType from '../src/util/detect-deployment-type';
 import ensureAppHasDockerfile from '../src/util/ensure-has-dockerfile';
 import getDeploymentName from '../src/util/get-deployment-name';
+import convertEnvsToOject from '../src/util/convert-envs-to-object';
 
 const project = name => resolve(__dirname, 'fixtures/projects', name);
 
@@ -156,5 +157,27 @@ Please specify your deployment type with --node, --docker or --static options.`)
 
     expect(files).to.have.lengthOf(1);
     expect(files[0]).to.have.property('path', '.dotfile');
+  });
+
+  it('should convert an array of environment variables to an object (key/value pairs)', () => {
+    let envsObject;
+
+    envsObject = convertEnvsToOject([ 'FOO=bar', 'BAZ=baz' ]);
+
+    expect(Object.keys(envsObject)).to.have.lengthOf(2);
+    expect(envsObject).to.have.property('FOO', 'bar');
+    expect(envsObject).to.have.property('BAZ', 'baz');
+
+    envsObject = convertEnvsToOject([ 'BOO=', 'ba12=23a:sdf', 'foo=baaaz', 'boo=value' ]);
+
+    expect(Object.keys(envsObject)).to.have.lengthOf(4);
+    expect(envsObject).to.have.property('BOO', '');
+    expect(envsObject).to.have.property('boo', 'value');
+    expect(envsObject).to.have.property('ba12', '23a:sdf');
+    expect(envsObject).to.have.property('foo', 'baaaz');
+
+    envsObject = () => convertEnvsToOject([ 'FOO', 'BAZ=baz' ]);
+
+    expect(envsObject).to.throw(/Environment variables must be in the \`FOO=bar\` format/);
   });
 });

@@ -7,11 +7,12 @@ import auth from '../middlewares/auth';
 import getFiles from '../util/get-files';
 import getPort from '../util/get-port';
 import getDeploymentName from '../util/get-deployment-name';
+import convertEnvsToObject from '../util/convert-envs-to-object';
 import detectDeploymentType from '../util/detect-deployment-type';
 import ensureAppHasDockerfile from '../util/ensure-has-dockerfile';
 
 export default auth(async function deploy(args, config) {
-  const { path, debug } = args;
+  const { path, debug, e: envs = [] } = args;
 
   const projectPath = path ? path : process.cwd();
   console.log(`${gray('Deploying:')} ${projectPath}`)
@@ -34,11 +35,13 @@ export default auth(async function deploy(args, config) {
 
   const name = await getDeploymentName(deploymentType, path);
   const port = getPort(deploymentType);
+  const envsObject = convertEnvsToObject(envs);
 
   const deployment = await retry(async bail => {
     const body = {
       name,
       port,
+      envs: envsObject,
       files: filesWithDockerfile,
     };
 
