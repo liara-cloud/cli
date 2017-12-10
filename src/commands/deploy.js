@@ -33,7 +33,7 @@ export default auth(async function deploy(args, config) {
     ensureAppHasDockerfile(deploymentType, files, mapHashesToFiles);
   debug && console.timeEnd('[debug] Ensure app has Dockerfile');
 
-  const name = await getDeploymentName(deploymentType, path);
+  const name = await getDeploymentName(deploymentType, projectPath);
   const port = getPort(deploymentType);
   const envsObject = convertEnvsToObject(envs);
 
