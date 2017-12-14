@@ -13,7 +13,12 @@ const args = mri(process.argv.slice(2));
 // extract first argument as the command name
 const [ command ] = args._;
 
-const apiURL = 'api' in args ? args.api : 'http://liara.ir';
+let apiURL;
+if(args.dev) {
+  apiURL = 'http://liara.dev';
+} else {
+  apiURL = args.api ? args.api : 'http://liara.ir';
+}
 
 const liaraConfPath = join(homedir(), '.liara.json');
 
