@@ -1,10 +1,22 @@
 import hash from './hash';
 
-const dockerfiles = {
-  node: `FROM node-platform
+const nodeDockerfile = `
+FROM node:carbon
+
 COPY . /app
-RUN npm i && npm run --if-present build`,
-  static: new Buffer('FROM static-platform\nCOPY . /app'),
+
+WORKDIR /app
+
+RUN npm install && npm run --if-present build
+
+CMD npm start
+
+EXPOSE 3000
+`;
+
+const dockerfiles = {
+  node: new Buffer(nodeDockerfile),
+  static: new Buffer('FROM static-platform'),
 };
 
 export default function ensureAppHasDockerfile(deploymentType, files, mapHashesToFiles) {
