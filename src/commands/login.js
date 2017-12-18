@@ -53,7 +53,7 @@ export default async function login(args, config) {
   try {
     const { api_token } = await retry(async bail => {
       try {
-        const { data } = await axios.post('/api/v1/login', { email, password }, {
+        const { data } = await axios.post('/v1/login', { email, password }, {
           baseURL: config.apiURL,
         });
         return data;

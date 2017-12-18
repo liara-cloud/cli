@@ -46,7 +46,7 @@ export default auth(async function deploy(args, config) {
     };
 
     try {
-      const { data } = await axios.post(`/api/v1/deployments`, body, {
+      const { data } = await axios.post(`/v1/deployments`, body, {
         baseURL: config.apiURL,
         headers: {
           Authorization: `Bearer ${config.api_token}`,
@@ -103,7 +103,7 @@ function uploadMissingFiles(mapHashesToFiles, missing_files, config) {
 
     return axios({
       method: 'post',
-      url: '/api/v1/files',
+      url: '/v1/files',
       baseURL: config.apiURL,
       data: dataStream,
       headers: {
