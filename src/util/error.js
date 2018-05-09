@@ -1,5 +1,5 @@
 import { red, white } from 'chalk';
 
-export default function error(error) {
-  console.log(red('> Error!'), error);
+export default function error(err) {
+  console.log(red('> Error!'), err);
 }

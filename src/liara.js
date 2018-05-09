@@ -8,7 +8,11 @@ import { readFileSync } from 'fs-extra';
 process.on('uncaughtException', error);
 process.on('unhandledRejection', error);
 
-const args = mri(process.argv.slice(2));
+const args = mri(process.argv.slice(2), {
+  alias: {
+    project: ['p']
+  }
+});
 
 // extract first argument as the command name
 const [ command ] = args._;
