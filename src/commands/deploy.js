@@ -112,7 +112,7 @@ export default auth(async function deploy(args, config) {
     ensureAppHasDockerfile(deploymentType, files, mapHashesToFiles);
   debug && console.timeEnd('[debug] Ensure app has Dockerfile');
 
-  const name = await getDeploymentName(deploymentType, projectPath);
+  const name = getDeploymentName(deploymentType, projectPath);
   const port = getPort(deploymentType);
   const envsObject = convertEnvsToObject(envs);
 
@@ -126,9 +126,9 @@ export default auth(async function deploy(args, config) {
     };
 
     try {
-      const { data } = await axios.post(`/v1/projects/${projectId}/deployments`, body, APIConfig);
-
+      const { data } = await axios.post(`/v1/projects/${projectId}/releases`, body, APIConfig);
       return data;
+
     } catch (err) {
       if (err.response.status === 400 && err.response.data.message === 'missing_files') {
         const { missing_files } = err.response.data;
@@ -148,7 +148,7 @@ export default auth(async function deploy(args, config) {
         return bail(err);
       }
 
-      // Retry deployment if the error is a http error
+      // Retry deployment if the error is an http error
       if (err.response || err.request) {
         throw err;
       }
