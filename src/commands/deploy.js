@@ -120,6 +120,7 @@ export default auth(async function deploy(args, config) {
     const body = {
       name,
       port,
+      type: deploymentType,
       envs: envsObject,
       project: projectId,
       files: filesWithDockerfile,
