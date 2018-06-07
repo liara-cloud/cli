@@ -1,8 +1,10 @@
+import ora from 'ora';
 import axios from 'axios';
 import bytes from 'bytes';
 import stream from 'stream';
 import { basename } from 'path';
 import retry from 'async-retry';
+import EventEmitter from 'events';
 import inquirer, { prompt } from 'inquirer';
 import { white, cyan, gray, green } from 'chalk';
 
@@ -17,6 +19,8 @@ import detectDeploymentType from '../util/detect-deployment-type';
 import ensureAppHasDockerfile from '../util/ensure-has-dockerfile';
 
 export default auth(async function deploy(args, config) {
+  const spinner = ora('Loading projects...').start();
+  
   const { project, path, debug, e: envs = [], dev } = args;
 
   let projectId;
@@ -32,8 +36,10 @@ export default auth(async function deploy(args, config) {
 
   if (typeof project === 'boolean' || !project) {
     let promptResult;
-
+    
     const { data: { projects } } = await axios.get(`/v1/projects`, APIConfig);
+
+    spinner.stop();
 
     const createProject = async () => {
       promptResult = await prompt({
@@ -44,8 +50,13 @@ export default auth(async function deploy(args, config) {
       });
 
       try {
+        spinner.text = 'Creating the project...';
+        spinner.start();
+        
         const body = { projectId: promptResult.projectId };
         await axios.post(`/v1/projects`, body, APIConfig);
+
+        spinner.succeed('Project created.');
 
       } catch (error) {
         if (!error.response) {
@@ -92,9 +103,17 @@ export default auth(async function deploy(args, config) {
     projectId = promptResult.projectId;
   }
 
-  console.log(`${gray('Project:')} ${projectId}`);
+  spinner.start('Deploying...');
 
-  console.log(`${gray('Deploying:')} ${projectPath}`);
+  const logInfo = (title, value) => {
+    spinner.clear();
+    spinner.frame();
+    console.log(`${gray(`${title}:`)} ${value}`);
+  }
+
+
+  logInfo('Project', projectId);
+  logInfo('Deploying', projectPath);
 
   debug && console.time('[debug] making hashes')
   const { files, mapHashesToFiles } = await getFiles(projectPath);
@@ -102,10 +121,10 @@ export default auth(async function deploy(args, config) {
   debug && console.timeEnd('[debug] making hashes');
 
   const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
-  console.log(gray('Project size:'), bytes(totalBytes));
+  logInfo('Project size', bytes(totalBytes));
 
   const deploymentType = detectDeploymentType(args, files);
-  console.log(`${gray('Detected deployment type:')} ${deploymentType}`);
+  logInfo('Detected deployment type', deploymentType);
 
   debug && console.time('[debug] Ensure app has Dockerfile');
   const { filesWithDockerfile, mapHashesToFilesWithDockerfile } =
@@ -164,14 +183,65 @@ export default auth(async function deploy(args, config) {
       }
     });
 
-  console.log();
-  console.log(green('Deployment finished successfully.'));
-  console.log(white('Open up the url below in your browser:'));
-  console.log()
-  dev
-    ? console.log(`    ${cyan(`http://${projectId}.liara.localhost`)}`)
-    : console.log(`    ${cyan(`http://${projectId}.liara.run`)}`);
-  console.log();
+  spinner.start('Building...');
+
+  const { releaseId } = deployment;
+
+  const releaseStateEmitter = new EventEmitter();
+
+  const fetchRelease = () => retry(async bail => {
+    try {
+      const { data: { release } } =
+        await axios.get(`/v1/releases/${releaseId}`, APIConfig);
+
+      return release;
+
+    } catch (error) {
+      // Retry fetching if the error is an http error
+      if (error.response || error.request) {
+        debug && console.log('[debug] Retrying fetchRelease...');
+        throw error;
+      }
+      return bail(error);
+    }
+  });
+
+  const getState = () => {
+    setTimeout(async () => {
+      const release = await fetchRelease();
+
+      if (release.state === 'READY') {
+        releaseStateEmitter.emit('READY');
+        return;
+      }
+
+      if (release.state === 'CREATING_SERVICE') {
+        releaseStateEmitter.emit('CREATING_SERVICE');
+      }
+
+      getState();
+
+    }, 3000);
+  };
+
+  getState();
+
+  releaseStateEmitter.on('CREATING_SERVICE', () => {
+    spinner.text = 'Starting...';
+  });
+
+  releaseStateEmitter.on('READY', READY => {
+    spinner.stop();
+
+    console.log();
+    console.log(green('Deployment finished successfully.'));
+    console.log(white('Open up the url below in your browser:'));
+    console.log()
+    dev
+      ? console.log(`    ${cyan(`http://${projectId}.liara.localhost`)}`)
+      : console.log(`    ${cyan(`http://${projectId}.liara.run`)}`);
+    console.log();
+  });
 });
 
 function uploadMissingFiles(mapHashesToFiles, missing_files, config) {
