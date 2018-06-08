@@ -2,11 +2,12 @@ import ora from 'ora';
 import axios from 'axios';
 import bytes from 'bytes';
 import stream from 'stream';
-import { basename } from 'path';
 import retry from 'async-retry';
 import EventEmitter from 'events';
+import { basename, join } from 'path';
 import inquirer, { prompt } from 'inquirer';
 import { white, cyan, gray, green } from 'chalk';
+import { existsSync, readJSONSync } from 'fs-extra';
 
 import showError from '../util/error';
 import auth from '../middlewares/auth';
@@ -20,12 +21,15 @@ import ensureAppHasDockerfile from '../util/ensure-has-dockerfile';
 
 export default auth(async function deploy(args, config) {
   const spinner = ora('Loading projects...').start();
-  
+
   const { project, path, debug, e: envs = [], dev } = args;
 
-  let projectId;
-
+  let port;
+  let platform;
+  let liaraJSON;
+  let projectId = typeof project === 'boolean' ? null : project;
   const projectPath = path ? path : process.cwd();
+  const liaraJSONPath = join(projectPath, 'liara.json');
 
   const APIConfig = {
     baseURL: config.apiURL,
@@ -34,9 +38,40 @@ export default auth(async function deploy(args, config) {
     }
   };
 
-  if (typeof project === 'boolean' || !project) {
+  const logInfo = (title, value) => {
+    spinner.clear();
+    spinner.frame();
+    console.log(`${gray(`${title}:`)} ${value}`);
+  }
+
+  const hasLiaraJSONFile = existsSync(liaraJSONPath);
+  if (hasLiaraJSONFile) {
+    try {
+      const liaraJSON = readJSONSync(liaraJSONPath);
+    } catch (error) {
+      throw new Error('Syntax error in `liara.json`!');
+    }
+
+    if (!project) {
+      projectId = liaraJSON.project;
+    }
+
+    if(liaraJSON.port) {
+      port = Number(liaraJSON.port);
+      if(isNaN(port)) {
+        throw new TypeError('The `port` field in `liara.json` must be a number.');
+      }
+    }
+
+    platform = liaraJSON.platform;
+    if(platform && typeof platform !== 'string') {
+      throw new TypeError('The `platform` field in `liara.json` must be a string.');
+    }
+  }
+
+  if (!projectId) {
     let promptResult;
-    
+
     const { data: { projects } } = await axios.get(`/v1/projects`, APIConfig);
 
     spinner.stop();
@@ -52,7 +87,7 @@ export default auth(async function deploy(args, config) {
       try {
         spinner.text = 'Creating the project...';
         spinner.start();
-        
+
         const body = { projectId: promptResult.projectId };
         await axios.post(`/v1/projects`, body, APIConfig);
 
@@ -105,18 +140,15 @@ export default auth(async function deploy(args, config) {
 
   spinner.start('Deploying...');
 
-  const logInfo = (title, value) => {
-    spinner.clear();
-    spinner.frame();
-    console.log(`${gray(`${title}:`)} ${value}`);
-  }
-
-
   logInfo('Project', projectId);
   logInfo('Deploying', projectPath);
 
-  const deploymentType = detectDeploymentType(args, projectPath);
-  logInfo('Detected deployment type', deploymentType);
+  if(platform) {
+    logInfo('Platform', platform);    
+  } else {
+    platform = detectDeploymentType(args, projectPath);
+    logInfo('Detected platform', platform);
+  }
 
   debug && console.time('[debug] making hashes')
   const { files, directories, mapHashesToFiles } = await getFiles(projectPath);
@@ -128,20 +160,19 @@ export default auth(async function deploy(args, config) {
 
   debug && console.time('[debug] Ensure app has Dockerfile');
   const { filesWithDockerfile, mapHashesToFilesWithDockerfile } =
-    ensureAppHasDockerfile(deploymentType, files, mapHashesToFiles);
+    ensureAppHasDockerfile(platform, files, mapHashesToFiles);
   debug && console.timeEnd('[debug] Ensure app has Dockerfile');
 
-  const name = getDeploymentName(deploymentType, projectPath);
-  const port = getPort(deploymentType);
-  const envsObject = convertEnvsToObject(envs);
+  if(!port) {
+    port = getPort(platform);
+    debug && console.log('[debug] default port:', port);
+  }
 
   const deployment = await retry(async bail => {
     const body = {
-      name,
       port,
       directories,
-      type: deploymentType,
-      envs: envsObject,
+      type: platform,
       project: projectId,
       files: filesWithDockerfile,
     };
