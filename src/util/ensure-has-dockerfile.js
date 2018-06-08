@@ -1,22 +1,9 @@
 import hash from './hash';
 
-const nodeDockerfile = `
-FROM node:carbon
-
-COPY . /app
-
-WORKDIR /app
-
-RUN npm install && npm run --if-present build
-
-CMD npm start
-
-EXPOSE 3000
-`;
-
 const dockerfiles = {
-  node: new Buffer(nodeDockerfile),
+  node: new Buffer('FROM node-platform'),
   static: new Buffer('FROM static-platform'),
+  laravel: new Buffer('FROM laravel-platform'),
 };
 
 export default function ensureAppHasDockerfile(deploymentType, files, mapHashesToFiles) {

@@ -115,16 +115,16 @@ export default auth(async function deploy(args, config) {
   logInfo('Project', projectId);
   logInfo('Deploying', projectPath);
 
+  const deploymentType = detectDeploymentType(args, projectPath);
+  logInfo('Detected deployment type', deploymentType);
+
   debug && console.time('[debug] making hashes')
-  const { files, mapHashesToFiles } = await getFiles(projectPath);
+  const { files, directories, mapHashesToFiles } = await getFiles(projectPath);
   debug && console.log('[debug] files count:', files.length);
   debug && console.timeEnd('[debug] making hashes');
 
   const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
   logInfo('Project size', bytes(totalBytes));
-
-  const deploymentType = detectDeploymentType(args, files);
-  logInfo('Detected deployment type', deploymentType);
 
   debug && console.time('[debug] Ensure app has Dockerfile');
   const { filesWithDockerfile, mapHashesToFilesWithDockerfile } =
@@ -139,6 +139,7 @@ export default auth(async function deploy(args, config) {
     const body = {
       name,
       port,
+      directories,
       type: deploymentType,
       envs: envsObject,
       project: projectId,

@@ -23,7 +23,10 @@ const addNestedGitignores = function (ignoreInstance, projectPath) {
 
   return through2.obj(function (item, enc, next) {
     if(basename(item.path) === '.gitignore') {
-      const patterns = readFileSync(item.path).toString().split('\n');
+      const removeEmptyLines = lines => lines.filter(line => line.trim().length > 0);
+      const patterns = removeEmptyLines(
+        readFileSync(item.path).toString().split('\n')
+      );
 
       const relativeToProjectPath = patterns.map(pattern => relative(projectPath, join(dirname(item.path), pattern)));
 
@@ -55,6 +58,7 @@ const ignoreFiles = function (ignoreInstance, projectPath) {
 
 export default async function getFiles(projectPath) {
   const mapHashesToFiles = new Map;
+  const directories = [];
 
   const ignoreInstance = ignore();
 
@@ -62,12 +66,23 @@ export default async function getFiles(projectPath) {
     const files = [];
 
     klaw(projectPath)
-      .pipe(filterFiles())
+      // .pipe(filterFiles())
       .pipe(addNestedGitignores(ignoreInstance, projectPath))
       .pipe(ignoreFiles(ignoreInstance, projectPath))
       .on('data', file => files.push(file))
       .on('end', async () => {
         await Promise.all(files.map(async ({ path, stats }) => {
+
+          if(!stats.isFile()) {
+            const dir = {
+              path: relative(projectPath, path),
+              mode: stats.mode,
+              isDir: true,
+            };
+
+            return directories.push(dir);
+          }
+
           const data = await readFile(path);
           const checksum = hash(data);
 
@@ -94,16 +109,16 @@ export default async function getFiles(projectPath) {
         resolve();
       });
   });
-  
+
   // flatten files
   const files = Array
     .from(mapHashesToFiles)
     .reduce((prevFiles, [ checksum, { files } ]) => {
-    return [
-      ...prevFiles,
-      ...files,
-    ];
-  }, []);
+      return [
+        ...prevFiles,
+        ...files,
+      ];
+    }, []);
 
-  return { files, mapHashesToFiles };
+  return { files, directories, mapHashesToFiles };
 }
