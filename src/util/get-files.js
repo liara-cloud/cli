@@ -75,9 +75,9 @@ export default async function getFiles(projectPath) {
 
           if(!stats.isFile()) {
             const dir = {
-              path: relative(projectPath, path),
+              name: relative(projectPath, path),
               mode: stats.mode,
-              isDir: true,
+              type: 'directory',
             };
 
             return directories.push(dir);
