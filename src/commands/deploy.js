@@ -46,8 +46,10 @@ export default auth(async function deploy(args, config) {
 
   const hasLiaraJSONFile = existsSync(liaraJSONPath);
   if (hasLiaraJSONFile) {
+    let liaraJSON;
+
     try {
-      const liaraJSON = readJSONSync(liaraJSONPath);
+      liaraJSON = readJSONSync(liaraJSONPath) || {};
     } catch (error) {
       throw new Error('Syntax error in `liara.json`!');
     }
@@ -144,7 +146,7 @@ export default auth(async function deploy(args, config) {
   logInfo('Deploying', projectPath);
 
   if(platform) {
-    logInfo('Platform', platform);    
+    logInfo('Platform', platform);
   } else {
     platform = detectDeploymentType(args, projectPath);
     logInfo('Detected platform', platform);
@@ -196,7 +198,7 @@ export default auth(async function deploy(args, config) {
         throw err; // retry deployment
       }
 
-      if (err.response.status > 400 && err.response.status < 500) {
+      if (err.response.status >= 400 && err.response.status < 500) {
         return bail(err);
       }
 
