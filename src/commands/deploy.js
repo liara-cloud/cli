@@ -38,10 +38,14 @@ export default auth(async function deploy(args, config) {
     }
   };
 
-  const logInfo = (title, value) => {
+  const clearAndLog = (...texts) => {
     spinner.clear();
     spinner.frame();
-    console.log(`${gray(`${title}:`)} ${value}`);
+    console.log(...texts);
+  }
+
+  const logInfo = (title, value) => {
+    clearAndLog(`${gray(`${title}:`)} ${value}`);
   }
 
   const hasLiaraJSONFile = existsSync(liaraJSONPath);
@@ -58,15 +62,15 @@ export default auth(async function deploy(args, config) {
       projectId = liaraJSON.project;
     }
 
-    if(liaraJSON.port) {
+    if (liaraJSON.port) {
       port = Number(liaraJSON.port);
-      if(isNaN(port)) {
+      if (isNaN(port)) {
         throw new TypeError('The `port` field in `liara.json` must be a number.');
       }
     }
 
     platform = liaraJSON.platform;
-    if(platform && typeof platform !== 'string') {
+    if (platform && typeof platform !== 'string') {
       throw new TypeError('The `platform` field in `liara.json` must be a string.');
     }
   }
@@ -145,7 +149,7 @@ export default auth(async function deploy(args, config) {
   logInfo('Project', projectId);
   logInfo('Deploying', projectPath);
 
-  if(platform) {
+  if (platform) {
     logInfo('Platform', platform);
   } else {
     platform = detectDeploymentType(args, projectPath);
@@ -165,12 +169,12 @@ export default auth(async function deploy(args, config) {
     ensureAppHasDockerfile(platform, files, mapHashesToFiles);
   debug && console.timeEnd('[debug] Ensure app has Dockerfile');
 
-  if(!port) {
+  if (!port) {
     port = getPort(platform);
     debug && console.log('[debug] default port:', port);
   }
 
-  const deployment = await retry(async bail => {
+  await retry(async bail => {
     const body = {
       port,
       directories,
@@ -179,15 +183,65 @@ export default auth(async function deploy(args, config) {
       files: filesWithDockerfile,
     };
 
-    try {
-      const { data } = await axios.post(`/v1/projects/${projectId}/releases`, body, APIConfig);
-      return data;
+    const url = `/v1/projects/${projectId}/releases`;
 
-    } catch (err) {
-      if (err.response.status === 400 && err.response.data.message === 'missing_files') {
-        const { missing_files } = err.response.data;
+    try {
+      const { data: stream } = await axios.post(url, body, {
+        ...APIConfig,
+        responseType: 'stream'
+      });
+
+      stream
+        .on('data', data => {
+          const line = JSON.parse(data.toString().slice(6));
+
+          if (line.state === 'BUILD_FINISHED') {
+            spinner.succeed('Build finished.');
+            spinner.start('Pushing the image...');
+            return;
+          }
+
+          if (line.state === 'CREATING_SERVICE') {
+            spinner.succeed('Image pushed.');
+            spinner.start('Starting the service...');
+            return;
+          }
+
+          if (line.state === 'READY') {
+            spinner.stop();
+
+            console.log();
+            console.log(green('Deployment finished successfully.'));
+            console.log(white('Open up the url below in your browser:'));
+            console.log()
+            dev
+              ? console.log(`    ${cyan(`http://${projectId}.liara.localhost`)}`)
+              : console.log(`    ${cyan(`http://${projectId}.liara.run`)}`);
+            console.log();
+
+            return;
+          }
+
+          clearAndLog(cyan('>'), line.message.trim());
+        });
+
+    }
+    catch (error) {
+      const { response } = error;
+
+      // Unknown error
+      if (!response) return bail(error);
+
+      const data = await new Promise(resolve =>
+        error.response.data.on('data', data => resolve(JSON.parse(data)))
+      );
+
+      if (response.status === 400 && data.message === 'missing_files') {
+        const { missing_files } = data;
 
         debug && console.log(`[debug] missing files: ${missing_files.length}`);
+
+        spinner.start('Uploading...');
 
         await uploadMissingFiles(
           mapHashesToFilesWithDockerfile,
@@ -195,20 +249,14 @@ export default auth(async function deploy(args, config) {
           config,
         );
 
-        throw err; // retry deployment
+        spinner.succeed('Upload finished.');
+
+        throw error; // retry deployment
       }
 
-      if (err.response.status >= 400 && err.response.status < 500) {
-        return bail(err);
+      if (response.status >= 400 && response.status < 500) {
+        return bail(error);
       }
-
-      // Retry deployment if the error is an http error
-      if (err.response || err.request) {
-        throw err;
-      }
-
-      console.error(err);
-      return bail(err);
     }
 
   }, {
@@ -216,66 +264,6 @@ export default auth(async function deploy(args, config) {
         debug && console.log('[debug] Retrying deployment...');
       }
     });
-
-  spinner.start('Building...');
-
-  const { releaseId } = deployment;
-
-  const releaseStateEmitter = new EventEmitter();
-
-  const fetchRelease = () => retry(async bail => {
-    try {
-      const { data: { release } } =
-        await axios.get(`/v1/releases/${releaseId}`, APIConfig);
-
-      return release;
-
-    } catch (error) {
-      // Retry fetching if the error is an http error
-      if (error.response || error.request) {
-        debug && console.log('[debug] Retrying fetchRelease...');
-        throw error;
-      }
-      return bail(error);
-    }
-  });
-
-  const getState = () => {
-    setTimeout(async () => {
-      const release = await fetchRelease();
-
-      if (release.state === 'READY') {
-        releaseStateEmitter.emit('READY');
-        return;
-      }
-
-      if (release.state === 'CREATING_SERVICE') {
-        releaseStateEmitter.emit('CREATING_SERVICE');
-      }
-
-      getState();
-
-    }, 3000);
-  };
-
-  getState();
-
-  releaseStateEmitter.on('CREATING_SERVICE', () => {
-    spinner.text = 'Starting...';
-  });
-
-  releaseStateEmitter.on('READY', READY => {
-    spinner.stop();
-
-    console.log();
-    console.log(green('Deployment finished successfully.'));
-    console.log(white('Open up the url below in your browser:'));
-    console.log()
-    dev
-      ? console.log(`    ${cyan(`http://${projectId}.liara.localhost`)}`)
-      : console.log(`    ${cyan(`http://${projectId}.liara.run`)}`);
-    console.log();
-  });
 });
 
 function uploadMissingFiles(mapHashesToFiles, missing_files, config) {
