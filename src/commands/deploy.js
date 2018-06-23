@@ -6,8 +6,8 @@ import retry from 'async-retry';
 import EventEmitter from 'events';
 import { basename, join } from 'path';
 import inquirer, { prompt } from 'inquirer';
-import { white, cyan, gray, green } from 'chalk';
 import { existsSync, readJSONSync } from 'fs-extra';
+import { white, cyan, gray, green, red } from 'chalk';
 
 import showError from '../util/error';
 import auth from '../middlewares/auth';
@@ -186,6 +186,7 @@ export default auth(async function deploy(args, config) {
     const url = `/v1/projects/${projectId}/releases`;
 
     try {
+      debug && console.time('stream');
       const { data: stream } = await axios.post(url, body, {
         ...APIConfig,
         responseType: 'stream'
@@ -207,6 +208,15 @@ export default auth(async function deploy(args, config) {
             return;
           }
 
+          if (line.state === 'FAILED') {
+            spinner.stop();
+
+            console.log();
+            console.log(red('Deployment failed :('));
+            console.log('Please try again later or contact with us.');
+            console.log();
+          }
+
           if (line.state === 'READY') {
             spinner.stop();
 
@@ -222,7 +232,13 @@ export default auth(async function deploy(args, config) {
             return;
           }
 
-          clearAndLog(cyan('>'), line.message.trim());
+          if(line.message) {
+            clearAndLog(cyan('>'), line.message.trim());
+          }
+        })
+        .on('end', () => {
+          debug && console.log('Stream finished.');
+          debug && console.timeEnd('stream');
         });
 
     }
