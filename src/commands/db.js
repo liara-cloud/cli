@@ -8,13 +8,16 @@ import { cyan, green } from 'chalk';
 import auth from '../middlewares/auth';
 
 export default auth(async function deploy(args, config) {
-  const { debug } = args;
+  const { debug, dev } = args;
 
   const { type } = await prompt({
     type: 'list',
     name: 'type',
     message: 'Select a database to deploy:',
-    choices: [{ name: 'MySQL', value: 'mysql' }],
+    choices: [
+      { name: 'MySQL', value: 'mysql' },
+      { name: 'MongoDB', value: 'mongodb' },
+    ],
   });
 
   const spinner = ora(`Deploying ${type}`).start();
@@ -36,25 +39,56 @@ export default auth(async function deploy(args, config) {
       text: 'Database created.'
     });
 
-    const command = `mysql -u ${user} -p${password} -h ${host} -P ${port} ${database}`;
-    const url = `mysql://${user}:${password}@${host}:${port}/${database}`;
+    const mysqlHelp = () => {
+      const command = `mysql -u ${user} -p${password} -h ${host} -P ${port} ${database}`;
+      const url = `mysql://${user}:${password}@${host}:${port}/${database}`;
 
-    console.log();
-    console.log(boxen(
-`Host: ${cyan(host)}
+      console.log();
+      console.log(boxen(`Host: ${cyan(host)}
 Port: ${cyan(port)}
 User: ${cyan(user)}
 Password: ${cyan(password)}
 Database Name: ${cyan(database)}`, { padding: 1 }))
-    console.log();
-    console.log('    Connect via CLI:');
-    console.log('        ', cyan(command))
-    console.log();
-    console.log('    Database URL:');
-    console.log('        ', cyan(url));
-    console.log();
+      console.log();
+      console.log('    Connect via CLI:');
+      console.log('        ', cyan(command))
+      console.log();
+      console.log('    Database URL:');
+      console.log('        ', cyan(url));
+      console.log();
+    };
 
-  } catch(error) {
+    const mongodbHelp = () => {
+      const host = dev ? 'localhost' : host;
+      const command = `mongo -u ${user} -p ${password} ${host}:${port}/${database}`;
+      const url = `mongodb://${user}:${password}@${host}:${port}/${database}`;
+
+      console.log();
+      console.log(boxen(`Host: ${cyan(host)}
+Port: ${cyan(port)}
+User: ${cyan(user)}
+Password: ${cyan(password)}
+Database Name: ${cyan(database)}`, { padding: 1 }))
+      console.log();
+      console.log('    Connect via CLI:');
+      console.log('        ', cyan(command))
+      console.log();
+      console.log('    Database URL:');
+      console.log('        ', cyan(url));
+      console.log();
+    };
+
+    switch(type) {
+      case 'mysql': 
+        mysqlHelp();
+        break;
+
+      case 'mongodb':
+        mongodbHelp();
+        break;
+    }
+
+  } catch (error) {
     // http error
     spinner.clear();
     showError(error.response || error.request ? error.message : error);
