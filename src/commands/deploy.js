@@ -108,6 +108,16 @@ export default auth(async function deploy(args, config) {
     logInfo('Detected platform', platform);
   }
 
+  if(platform === 'node') {
+    const packageJSON = readJSONSync(join(projectPath, 'package.json'));
+
+    if( ! packageJSON.scripts || ! packageJSON.scripts.start) {
+      showError('A NodeJS project must be runnable with `npm start`.');
+      console.info('You must add a `start` command to your package.json scripts.');
+      process.exit(1);
+    }
+  }
+
   debug && console.time('[debug] making hashes')
   const { files, directories, mapHashesToFiles } = await getFiles(projectPath);
   debug && console.log('[debug] files count:', files.length);

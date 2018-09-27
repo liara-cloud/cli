@@ -26,6 +26,11 @@ export default function detectDeploymentType(args, projectPath) {
     logError(`You can not specify multiple deployment types.`);
   }
 
+  // TODO:
+  // if(files.length === 0) {
+  //   logError('Project is empty!');
+  // }
+
   if(args.laravel) {
     if( ! hasComposerJsonFile) {
       logError(`${bold('`composer.json`')} file doesn't exists.`);
@@ -48,11 +53,6 @@ export default function detectDeploymentType(args, projectPath) {
   }
 
   if(args.static) {
-    // TODO:
-    // if(files.length === 0) {
-    //   logError('Project is empty!');
-    // }
-
     return 'static';
   }
 
@@ -85,11 +85,6 @@ Please specify your deployment type with --node or --docker.`);
   if(hasDockerFile) {
     return 'docker';
   }
-
-  // TODO:
-  // if(files.length === 0) {
-  //   logError('Project is empty!');
-  // }
 
   return 'static';
 }
