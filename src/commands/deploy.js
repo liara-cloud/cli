@@ -78,46 +78,9 @@ export default auth(async function deploy(args, config) {
 
     spinner.stop();
 
-    const createProject = async () => {
-      promptResult = await prompt({
-        name: 'projectId',
-        type: 'input',
-        message: `Enter a name for your project:`,
-        default: basename(projectPath)
-      });
-
-      try {
-        spinner.text = 'Creating the project...';
-        spinner.start();
-
-        const body = { projectId: promptResult.projectId };
-        await axios.post(`/v1/projects`, body, APIConfig);
-
-        spinner.succeed('Project created.');
-
-      } catch (error) {
-        if (!error.response) {
-          throw error;
-        }
-
-        const { status } = error.response;
-
-        if (status === 400) {
-          showError('Only alphanumeric is allowed.');
-
-        } else if (status === 409) {
-          showError('This project ID already exists, try another one.');
-
-        } else {
-          showError('Unknown error.');
-        }
-
-        await createProject();
-      }
-    };
-
-    if (!projects.length) {
-      await createProject();
+    if ( ! projects.length) {
+      console.info('Please go to http://console.liara.ir/projects and create a project, first.');
+      process.exit(1);
 
     } else {
       promptResult = await prompt({
@@ -126,15 +89,8 @@ export default auth(async function deploy(args, config) {
         message: 'Please select a project:',
         choices: [
           ...projects.map(project => project.project_id),
-          new inquirer.Separator(),
-          { name: 'Create a new project', value: 'new' }
         ]
       });
-    }
-
-    if (promptResult.projectId === 'new') {
-      process.stdout.write(eraseLines(2));
-      await createProject();
     }
 
     projectId = promptResult.projectId;
@@ -258,7 +214,7 @@ export default auth(async function deploy(args, config) {
 
         if(response.status === 400 && data.message === 'frozen_project') {
           spinner.fail(`Project is frozen (not enough balance).
-Please open up http://console.liara.ir and unfreeze the project.`);
+Please open up http://console.liara.ir/projects and unfreeze the project.`);
           process.exit(1);
         }
 
