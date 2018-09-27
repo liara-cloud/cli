@@ -3,7 +3,6 @@ import axios from 'axios';
 import bytes from 'bytes';
 import stream from 'stream';
 import retry from 'async-retry';
-import EventEmitter from 'events';
 import { basename, join } from 'path';
 import inquirer, { prompt } from 'inquirer';
 import { existsSync, readJSONSync } from 'fs-extra';
@@ -14,19 +13,16 @@ import auth from '../middlewares/auth';
 import getFiles from '../util/get-files';
 import getPort from '../util/get-port';
 import eraseLines from '../util/erase-lines';
-import getDeploymentName from '../util/get-deployment-name';
-import convertEnvsToObject from '../util/convert-envs-to-object';
 import detectDeploymentType from '../util/detect-deployment-type';
 import ensureAppHasDockerfile from '../util/ensure-has-dockerfile';
 
 export default auth(async function deploy(args, config) {
   const spinner = ora('Loading projects...').start();
 
-  const { project, path, debug, e: envs = [], dev } = args;
+  const { project, path, debug, dev } = args;
 
   let port;
   let platform;
-  let liaraJSON;
   let projectId = typeof project === 'boolean' ? null : project;
   const projectPath = path ? path : process.cwd();
   const liaraJSONPath = join(projectPath, 'liara.json');
@@ -174,112 +170,131 @@ export default auth(async function deploy(args, config) {
     debug && console.log('[debug] default port:', port);
   }
 
-  await retry(async bail => {
-    const body = {
-      port,
-      directories,
-      type: platform,
-      project: projectId,
-      files: filesWithDockerfile,
-    };
-
-    const url = `/v1/projects/${projectId}/releases`;
-
-    try {
-      debug && console.time('stream');
-      const { data: stream } = await axios.post(url, body, {
-        ...APIConfig,
-        responseType: 'stream'
-      });
-
-      stream
-        .on('data', data => {
-          const line = JSON.parse(data.toString().slice(6));
-
-          if (line.state === 'BUILD_FINISHED') {
-            spinner.succeed('Build finished.');
-            spinner.start('Pushing the image...');
-            return;
-          }
-
-          if (line.state === 'CREATING_SERVICE') {
-            spinner.succeed('Image pushed.');
-            spinner.start('Starting the service...');
-            return;
-          }
-
-          if (line.state === 'FAILED') {
-            spinner.stop();
-
-            console.log();
-            console.log(red('Deployment failed :('));
-            console.log('Please try again later or contact with us.');
-            console.log();
-          }
-
-          if (line.state === 'READY') {
-            spinner.stop();
-
-            console.log();
-            console.log(green('Deployment finished successfully.'));
-            console.log(white('Open up the url below in your browser:'));
-            console.log()
-            dev
-              ? console.log(`    ${cyan(`http://${projectId}.liara.localhost`)}`)
-              : console.log(`    ${cyan(`http://${projectId}.liara.run`)}`);
-            console.log();
-
-            return;
-          }
-
-          if(line.message) {
-            clearAndLog(cyan('>'), line.message.trim());
-          }
-        })
-        .on('end', () => {
-          debug && console.log('Stream finished.');
-          debug && console.timeEnd('stream');
+  try {
+    await retry(async bail => {
+      const body = {
+        port,
+        directories,
+        type: platform,
+        project: projectId,
+        files: filesWithDockerfile,
+      };
+  
+      const url = `/v1/projects/${projectId}/releases`;
+  
+      try {
+        debug && console.time('stream');
+        const { data: stream } = await axios.post(url, body, {
+          ...APIConfig,
+          responseType: 'stream'
         });
-
-    }
-    catch (error) {
-      const { response } = error;
-
-      // Unknown error
-      if (!response) return bail(error);
-
-      const data = await new Promise(resolve =>
-        error.response.data.on('data', data => resolve(JSON.parse(data)))
-      );
-
-      if (response.status === 400 && data.message === 'missing_files') {
-        const { missing_files } = data;
-
-        debug && console.log(`[debug] missing files: ${missing_files.length}`);
-
-        spinner.start('Uploading...');
-
-        await uploadMissingFiles(
-          mapHashesToFilesWithDockerfile,
-          missing_files,
-          config,
+  
+        spinner.start('Building...');
+  
+        stream
+          .on('data', data => {
+            const line = JSON.parse(data.toString().slice(6));
+  
+            if (line.state === 'BUILD_FINISHED') {
+              spinner.succeed('Build finished.');
+              spinner.start('Pushing the image...');
+              return;
+            }
+  
+            if (line.state === 'CREATING_SERVICE') {
+              spinner.succeed('Image pushed.');
+              spinner.start('Starting the service...');
+              return;
+            }
+  
+            if (line.state === 'FAILED') {
+              spinner.stop();
+  
+              console.log();
+              console.log(red('Deployment failed :('));
+              console.log('Please try again later or contact us.');
+              console.log();
+            }
+  
+            if (line.state === 'READY') {
+              spinner.stop();
+  
+              console.log();
+              console.log(green('Deployment finished successfully.'));
+              console.log(white('Open up the url below in your browser:'));
+              console.log()
+              dev
+                ? console.log(`    ${cyan(`http://${projectId}.liara.localhost`)}`)
+                : console.log(`    ${cyan(`http://${projectId}.liara.run`)}`);
+              console.log();
+  
+              return;
+            }
+  
+            if(line.message) {
+              clearAndLog(cyan('>'), line.message.trim());
+            }
+          })
+          .on('end', () => {
+            debug && console.log('Stream finished.');
+            debug && console.timeEnd('stream');
+          });
+  
+      }
+      catch (error) {
+        const { response } = error;
+  
+        // Unknown error
+        if (!response) return bail(error);
+  
+        const data = await new Promise(resolve =>
+          error.response.data.on('data', data => resolve(JSON.parse(data)))
         );
 
-        spinner.succeed('Upload finished.');
+        if(response.status === 402) {
+          spinner.fail(`You don't have enough balance. Payment required.`);
+          process.exit(1);
+        }
 
-        throw error; // retry deployment
-      }
+        if(response.status === 400 && data.message === 'frozen_project') {
+          spinner.fail(`Project is frozen (not enough balance).
+Please open up http://console.liara.ir and unfreeze the project.`);
+          process.exit(1);
+        }
 
-      if (response.status >= 400 && response.status < 500) {
-        return bail(error);
+        if (response.status === 400 && data.message === 'missing_files') {
+          const { missing_files } = data;
+  
+          debug && console.log(`[debug] missing files: ${missing_files.length}`);
+  
+          spinner.start('Uploading...');
+  
+          await uploadMissingFiles(
+            mapHashesToFilesWithDockerfile,
+            missing_files,
+            config,
+          );
+  
+          spinner.succeed('Upload finished.');
+  
+          throw error; // retry deployment
+        }
+  
+        if (response.status >= 400 && response.status < 500) {
+          return bail(error);
+        }
       }
-    }
-
-  }, {
-      onRetry(err) {
-        debug && console.log('[debug] Retrying deployment...');
-      }
-    });
+  
+    }, {
+        onRetry() {
+          debug && console.log('[debug] Retrying deployment...');
+        }
+      });
+  } catch (error) {
+    debug && console.error(error);
+    spinner.fail(error.message);
+    console.info('Sorry for inconvenience. Please contact us.');
+  }
 });
 
 function uploadMissingFiles(mapHashesToFiles, missing_files, config) {
