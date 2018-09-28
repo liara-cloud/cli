@@ -1,9 +1,14 @@
 import mri from 'mri';
 import { join } from 'path';
 import { homedir } from 'os';
-import commands from './commands';
-import error from './util/error';
 import { readFileSync } from 'fs-extra';
+import updateNotifier from 'update-notifier';
+
+import error from './util/error';
+import pkg from '../package.json';
+import commands from './commands';
+
+updateNotifier({ pkg }).notify();
 
 process.on('uncaughtException', error);
 process.on('unhandledRejection', error);

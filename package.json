@@ -1,6 +1,6 @@
 {
-  "name": "liara-cli",
-  "version": "0.0.10",
+  "name": "@liara/cli",
+  "version": "0.1.0",
   "description": "The command line interface for Liara",
   "bin": {
     "liara": "dist/liara.js"
@@ -40,6 +40,7 @@
     "klaw": "^2.1.0",
     "mri": "^1.1.0",
     "ora": "^2.1.0",
-    "through2": "^2.0.3"
+    "through2": "^2.0.3",
+    "update-notifier": "^2.5.0"
   }
 }
