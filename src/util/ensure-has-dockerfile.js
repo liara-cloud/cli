@@ -1,9 +1,9 @@
 import hash from './hash';
 
 const dockerfiles = {
-  node: new Buffer('FROM node-platform'),
-  static: new Buffer('FROM static-platform'),
-  laravel: new Buffer('FROM laravel-platform'),
+  node: new Buffer('FROM liararepo/node-platform'),
+  static: new Buffer('FROM liararepo/static-platform'),
+  laravel: new Buffer('FROM liararepo/laravel-platform'),
 };
 
 export default function ensureAppHasDockerfile(deploymentType, files, mapHashesToFiles) {
