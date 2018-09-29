@@ -79,7 +79,7 @@ export default auth(async function deploy(args, config) {
     spinner.stop();
 
     if ( ! projects.length) {
-      console.info('Please go to http://console.liara.ir/projects and create a project, first.');
+      console.info('Please go to https://console.liara.ir/projects and create a project, first.');
       process.exit(1);
 
     } else {
@@ -224,7 +224,7 @@ export default auth(async function deploy(args, config) {
 
         if(response.status === 400 && data.message === 'frozen_project') {
           spinner.fail(`Project is frozen (not enough balance).
-Please open up http://console.liara.ir/projects and unfreeze the project.`);
+Please open up https://console.liara.ir/projects and unfreeze the project.`);
           process.exit(1);
         }
 

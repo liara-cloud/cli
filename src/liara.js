@@ -26,7 +26,7 @@ let apiURL;
 if(args.dev) {
   apiURL = 'http://localhost:3000';
 } else {
-  apiURL = args.api ? args.api : 'http://api.liara.ir';
+  apiURL = args.api ? args.api : 'https://api.liara.ir';
 }
 
 const liaraConfPath = join(homedir(), '.liara.json');
