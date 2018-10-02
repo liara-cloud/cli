@@ -96,8 +96,6 @@ export default auth(async function deploy(args, config) {
     projectId = promptResult.projectId;
   }
 
-  spinner.start('Deploying...');
-
   logInfo('Project', projectId);
   logInfo('Deploying', projectPath);
 
@@ -118,6 +116,39 @@ export default auth(async function deploy(args, config) {
     }
   }
 
+  if(port) {
+    logInfo('Port', port);
+
+  } else {
+    port = getPort(platform);
+
+    if(port) {
+      logInfo('Default port', port);
+
+    } else {
+      const promptResult = await prompt({
+        name: 'port',
+        type: 'input',
+        default: 3000,
+        message: 'Enter the port your app listens to:',
+        validate(input) {
+          input = Number(input);
+          if ( ! input) {
+            return 'Port must be a number.';
+          }
+          if ( ! Number.isInteger(input)) {
+            return 'Port must be an integer.';
+          }
+          return true;
+        }
+      });
+
+      port = promptResult.port;
+    }
+  }
+
+  spinner.start('Deploying...');
+
   debug && console.time('[debug] making hashes')
   const { files, directories, mapHashesToFiles } = await getFiles(projectPath);
   debug && console.log('[debug] files count:', files.length);
@@ -130,11 +161,6 @@ export default auth(async function deploy(args, config) {
   const { filesWithDockerfile, mapHashesToFilesWithDockerfile } =
     ensureAppHasDockerfile(platform, files, mapHashesToFiles);
   debug && console.timeEnd('[debug] Ensure app has Dockerfile');
-
-  if (!port) {
-    port = getPort(platform);
-    debug && console.log('[debug] default port:', port);
-  }
 
   try {
     await retry(async bail => {
