@@ -252,8 +252,9 @@ Please open up https://console.liara.ir/projects and unfreeze the project.`);
       }
   
     }, {
-        onRetry() {
-          debug && console.log('[debug] Retrying deployment...');
+        onRetry(error) {
+          debug && console.log('[debug] Retrying deployment, error:');
+          debug && console.log('[debug]', error.message);
         }
       });
   } catch (error) {
@@ -264,7 +265,7 @@ Please open up https://console.liara.ir/projects and unfreeze the project.`);
 });
 
 function uploadMissingFiles(mapHashesToFiles, missing_files, config) {
-  return new Promise.all(missing_files.map(file => {
+  return Promise.all(missing_files.map(file => {
     const { data } = mapHashesToFiles.get(file);
 
     const dataStream = new stream.PassThrough();
