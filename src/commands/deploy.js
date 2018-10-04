@@ -183,6 +183,8 @@ export default auth(async function deploy(args, config) {
   
       try {
         debug && console.time('stream');
+        debug && console.log('[debug] Calling', url, '...');
+
         const { data: stream } = await axios.post(url, body, {
           ...APIConfig,
           responseType: 'stream'
@@ -192,7 +194,11 @@ export default auth(async function deploy(args, config) {
   
         stream
           .on('data', data => {
+            debug && console.log('[debug] data:', data);
+
             const line = JSON.parse(data.toString().slice(6));
+
+            debug && console.log('[debug] parsed line:', line);
   
             if (line.state === 'BUILD_FINISHED') {
               spinner.succeed('Build finished.');
@@ -232,7 +238,10 @@ export default auth(async function deploy(args, config) {
   
             if(line.message) {
               clearAndLog(cyan('>'), line.message.trim());
+              return;
             }
+
+            console.log(line);
           })
           .on('end', () => {
             debug && console.log('Stream finished.');
