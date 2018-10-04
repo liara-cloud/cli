@@ -3,6 +3,7 @@ import axios from 'axios';
 import bytes from 'bytes';
 import stream from 'stream';
 import retry from 'async-retry';
+import concat from 'concat-stream';
 import { basename, join } from 'path';
 import inquirer, { prompt } from 'inquirer';
 import { existsSync, readJSONSync } from 'fs-extra';
@@ -194,7 +195,7 @@ export default auth(async function deploy(args, config) {
   
         stream
           .on('data', data => {
-            debug && console.log('[debug] data:', data);
+            debug && console.log('[debug] data:', data.toString());
 
             const line = JSON.parse(data.toString().slice(6));
 
@@ -250,14 +251,20 @@ export default auth(async function deploy(args, config) {
   
       }
       catch (error) {
+        debug && console.log('[debug]', error.message);
+
         const { response } = error;
   
         // Unknown error
         if (!response) return bail(error);
   
-        const data = await new Promise(resolve =>
-          error.response.data.on('data', data => resolve(JSON.parse(data)))
-        );
+        const data = await new Promise(resolve => {
+          error.response.data.pipe(
+            concat({ encoding: 'string' }, data => {
+              resolve(JSON.parse(data))
+            })
+          );
+        });
 
         if(response.status === 402) {
           spinner.fail(`You don't have enough balance. Payment required.`);
