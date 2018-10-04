@@ -1,11 +1,6 @@
 import path from 'path';
-import { red, bold } from 'chalk';
-import { readJSONSync, existsSync } from 'fs-extra';
-
-function logError(err) {
-  console.log(red('> Error!'), err);
-  process.exit(1);
-}
+import { bold } from 'chalk';
+import { readJSONSync, existsSync, readdirSync } from 'fs-extra';
 
 export default function detectDeploymentType(args, projectPath) {
   const hasComposerJsonFile = existsSync(path.join(projectPath, 'composer.json'));
@@ -23,31 +18,30 @@ export default function detectDeploymentType(args, projectPath) {
     Object.keys(args).filter(key => deploymentTypes.find(type => type === key));
 
   if(specifiedDeploymentTypes.length > 1) {
-    logError(`You can not specify multiple deployment types.`);
+    throw new Error(`You can not specify multiple deployment types.`);
   }
 
-  // TODO:
-  // if(files.length === 0) {
-  //   logError('Project is empty!');
-  // }
+  if(readdirSync(projectPath).length === 0) {
+    throw new Error('Project is empty!');
+  }
 
   if(args.laravel) {
     if( ! hasComposerJsonFile) {
-      logError(`${bold('`composer.json`')} file doesn't exists.`);
+      throw new Error(`${bold('`composer.json`')} file doesn't exists.`);
     }
     return 'laravel';
   }
 
   if(args.node) {
     if( ! hasPackageFile) {
-        logError(`${bold('`package.json`')} file doesn't exists.`);
+      throw new Error(`${bold('`package.json`')} file doesn't exists.`);
     }
     return 'node';
   }
 
   if(args.docker) {
     if( ! hasDockerFile) {
-      logError(`${bold('`Dockerfile`')} file doesn't exists.`);
+      throw new Error(`${bold('`Dockerfile`')} file doesn't exists.`);
     }
     return 'docker';
   }
@@ -57,16 +51,15 @@ export default function detectDeploymentType(args, projectPath) {
   }
 
   if(hasComposerJsonFile && hasDockerFile) {
-    logError(`The project contains both of the \`composer.json\` and \`Dockerfile\` files.
+    throw new Error(`The project contains both of the \`composer.json\` and \`Dockerfile\` files.
 Please specify your deployment type with --laravel or --docker.`);
   }
 
   if(hasComposerJsonFile) {
-    const { path } = hasComposerJsonFile;
     const composerJson = readJSONSync('composer.json');
 
     if(!composerJson.require || !composerJson.require['laravel/framework']) {
-      logError(`The project contains a \`composer.json\` file but Laravel framework doesn't listed as a dependency.
+      throw new Error(`The project contains a \`composer.json\` file but Laravel framework doesn't listed as a dependency.
 Currently, we only support Laravel projects in the PHP ecosystem.\n`);
     }
 
@@ -74,7 +67,7 @@ Currently, we only support Laravel projects in the PHP ecosystem.\n`);
   }
 
   if(hasPackageFile && hasDockerFile) {
-    logError(`The project contains both of the \`package.json\` and \`Dockerfile\` files.
+    throw new Error(`The project contains both of the \`package.json\` and \`Dockerfile\` files.
 Please specify your deployment type with --node or --docker.`);
   }
 

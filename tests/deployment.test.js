@@ -24,60 +24,57 @@ describe('Deployment', () => {
   });
 
   it('should detect static projects', () => {
-    let deploymentType, files;
+    let deploymentType;
 
-    files = [{ path: 'index.html' }];
-    deploymentType = detectDeploymentType({ static: true }, files);
+    deploymentType = detectDeploymentType({ static: true }, project('static-hello-world'));
     expect(deploymentType).to.be.equal('static');
 
-    deploymentType = detectDeploymentType({}, files);
+    deploymentType = detectDeploymentType({}, project('static-hello-world'));
     expect(deploymentType).to.be.equal('static');
 
-    files = [{ path: 'index.html' }, { path: 'package.json' }];
-    deploymentType = detectDeploymentType({}, files);
+    deploymentType = detectDeploymentType({}, project('static-with-package-json'));
     expect(deploymentType).to.be.not.equal('static');
 
-    files = [{ path: 'index.html' }, { path: 'Dockerfile' }];
-    deploymentType = detectDeploymentType({}, files);
+    deploymentType = detectDeploymentType({}, project('static-with-dockerfile'));
     expect(deploymentType).to.be.not.equal('static');
 
-    files = [{ path: 'index.html' }, { path: 'assets/style.css' }];
-    deploymentType = detectDeploymentType({}, files);
+    deploymentType = detectDeploymentType({}, project('static-with-assets'));
     expect(deploymentType).to.be.equal('static');
   });
 
   it('should throw an error when detects multiple deployment types', () => {
-    let deploymentType, files;
+    let deploymentType;
 
-    deploymentType = () => detectDeploymentType({ static: true, docker: true }, []);
+    deploymentType = () => detectDeploymentType({ static: true, docker: true }, '');
     expect(deploymentType).to.throw(`You can not specify multiple deployment types.`);
 
-    deploymentType = () => detectDeploymentType({ docker: true, node: true }, []);
+    deploymentType = () => detectDeploymentType({ docker: true, node: true }, '');
     expect(deploymentType).to.throw(`You can not specify multiple deployment types.`);
 
-    deploymentType = () => detectDeploymentType({ node: true, static: true }, []);
+    deploymentType = () => detectDeploymentType({ node: true, static: true }, '');
     expect(deploymentType).to.throw(`You can not specify multiple deployment types.`);
 
-    deploymentType = () => detectDeploymentType({ node: true, docker: true, static: true }, []);
+    deploymentType = () => detectDeploymentType({ node: true, docker: true, static: true }, '');
     expect(deploymentType).to.throw(`You can not specify multiple deployment types.`);
 
-    files = [{ path: 'package.json' }, { path: 'Dockerfile' }, { path: 'index.html' }];
-    deploymentType = () => detectDeploymentType({}, files);
+    deploymentType = () => detectDeploymentType({}, project('package-json-and-dockerfile'));
     expect(deploymentType).to.throw(`The project contains both of the \`package.json\` and \`Dockerfile\` files.
-Please specify your deployment type with --node, --docker or --static options.`);
+Please specify your deployment type with --node or --docker.`);
+  });
+
+  it('should throw an error when project is empty', () => {
+    const deploymentType = () => detectDeploymentType({ node: true }, project('empty-project'));
+    expect(deploymentType).to.throw(/Project is empty!/);
   });
 
   it('should throw an error when the project doesn\'t have the required files', () => {
-    let deploymentType, files;
+    let deploymentType;
 
-    deploymentType = () => detectDeploymentType({ node: true }, []);
+    deploymentType = () => detectDeploymentType({ node: true }, project('static-hello-world'));
     expect(deploymentType).to.throw(/file doesn't exists./);
 
-    deploymentType = () => detectDeploymentType({ docker: true }, []);
+    deploymentType = () => detectDeploymentType({ docker: true }, project('static-hello-world'));
     expect(deploymentType).to.throw(/file doesn't exists./);
-
-    deploymentType = () => detectDeploymentType({ static: true }, []);
-    expect(deploymentType).to.throw(/Project is empty!/);
   });
 
   it('should ensure app has a Dockerfile', () => {

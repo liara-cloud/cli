@@ -7,6 +7,8 @@ import ignore from 'ignore';
 
 const defaultIgnores = [
   '.git',
+  '.gitignore',
+  '.liaraignore',
   '*.*~',
   'node_modules',
   'bower_components'

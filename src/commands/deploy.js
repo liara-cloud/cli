@@ -101,9 +101,16 @@ export default auth(async function deploy(args, config) {
 
   if (platform) {
     logInfo('Platform', platform);
+
   } else {
-    platform = detectDeploymentType(args, projectPath);
-    logInfo('Detected platform', platform);
+    try {
+      platform = detectDeploymentType(args, projectPath);
+      logInfo('Detected platform', platform);
+
+    } catch (error) {
+      console.log(red('> Error!'), error.message);
+      process.exit(1);
+    }
   }
 
   if(platform === 'node') {
