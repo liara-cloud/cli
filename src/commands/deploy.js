@@ -220,6 +220,8 @@ export default auth(async function deploy(args, config) {
               console.log(red('Deployment failed :('));
               console.log('Please try again later or contact us.');
               console.log();
+
+              return;
             }
   
             if (line.state === 'READY') {
