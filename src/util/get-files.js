@@ -2,7 +2,7 @@ import klaw from 'klaw';
 import hash from './hash';
 import through2 from 'through2';
 import { relative, join, basename, dirname } from 'path';
-import { readFile, readFileSync, existsSync } from 'fs-extra';
+import fs, { readFile, readFileSync, existsSync } from 'fs-extra';
 import ignore from 'ignore';
 
 const defaultIgnores = [
@@ -74,10 +74,13 @@ export default async function getFiles(projectPath) {
       .on('end', async () => {
         await Promise.all(files.map(async ({ path, stats }) => {
 
-          if(!stats.isFile()) {
+          const mode755 = 16893;
+          const mode644 = 33204;
+
+          if( ! stats.isFile()) {
             const dir = {
               name: relative(projectPath, path),
-              mode: stats.mode,
+              mode: mode755,
               type: 'directory',
             };
 
@@ -90,9 +93,19 @@ export default async function getFiles(projectPath) {
           const file = {
             checksum,
             path: relative(projectPath, path),
-            mode: stats.mode,
             size: stats.size,
           };
+
+          try {
+            // Is file executable?
+            await fs.access(path, fs.constants.X_OK);
+
+            file.mode = mode755;
+
+          } catch (_) {
+            // File is not executable.
+            file.mode = mode644;
+          }
 
           if(mapHashesToFiles.has(checksum)) {
             const { files } = mapHashesToFiles.get(checksum);
