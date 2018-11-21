@@ -9,6 +9,7 @@
     "build": "webpack",
     "dev": "webpack --watch",
     "prepublishOnly": "webpack",
+    "deploy": "npm publish --access public",
     "test": "NODE_ENV=test mocha --require babel-register tests"
   },
   "repository": "https://github.com/liara-ir/liara-cli",
