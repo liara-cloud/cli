@@ -3,6 +3,7 @@ import axios from 'axios';
 import bytes from 'bytes';
 import stream from 'stream';
 import retry from 'async-retry';
+import EventEmitter from 'events';
 import concat from 'concat-stream';
 import { basename, join } from 'path';
 import inquirer, { prompt } from 'inquirer';
@@ -192,15 +193,25 @@ export default auth(async function deploy(args, config) {
         });
   
         spinner.start('Building...');
-  
-        stream
-          .on('data', data => {
-            debug && console.log('[debug] data:', data.toString());
 
-            const line = JSON.parse(data.toString().slice(6));
+        const buildEvents = new EventEmitter;
 
-            debug && console.log('[debug] parsed line:', line);
+        let tmp = '';
+        stream.on('data', data => {
+          tmp += tmp ? data : data.toString().slice(6);
+
+          try {
+            const obj = JSON.parse(tmp);
+            buildEvents.emit('data', obj);
+            tmp = '';
+
+          } catch(_) {
+            // JSON.parse may fail if JSON is not complete yet
+          }
+        });
   
+        buildEvents
+          .on('data', line => {
             if (line.state === 'BUILD_FINISHED') {
               spinner.succeed('Build finished.');
               spinner.start('Pushing the image...');
