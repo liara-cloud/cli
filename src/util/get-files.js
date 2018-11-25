@@ -7,6 +7,8 @@ import ignore from 'ignore';
 
 const defaultIgnores = [
   '.git',
+  '.idea',
+  '.vscode',
   '.gitignore',
   '.liaraignore',
   '*.*~',
