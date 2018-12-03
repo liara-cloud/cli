@@ -244,7 +244,7 @@ export default auth(async function deploy(args, config) {
               console.log()
               dev
                 ? console.log(`    ${cyan(`http://${projectId}.liara.localhost`)}`)
-                : console.log(`    ${cyan(`http://${projectId}.liara.run`)}`);
+                : console.log(`    ${cyan(`https://${projectId}.liara.run`)}`);
               console.log();
   
               return;
