@@ -7,6 +7,7 @@ import EventEmitter from 'events';
 import concat from 'concat-stream';
 import { basename, join } from 'path';
 import inquirer, { prompt } from 'inquirer';
+import followRedirects from 'follow-redirects';
 import { existsSync, readJSONSync } from 'fs-extra';
 import { white, cyan, gray, green, red } from 'chalk';
 
@@ -17,6 +18,8 @@ import getPort from '../util/get-port';
 import eraseLines from '../util/erase-lines';
 import detectDeploymentType from '../util/detect-deployment-type';
 import ensureAppHasDockerfile from '../util/ensure-has-dockerfile';
+
+followRedirects.maxBodyLength = 200 * 1024 * 1024; // 200 MB
 
 export default auth(async function deploy(args, config) {
   const spinner = ora('Loading projects...').start();
