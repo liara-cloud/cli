@@ -5,8 +5,8 @@ import stream from 'stream';
 import retry from 'async-retry';
 import EventEmitter from 'events';
 import concat from 'concat-stream';
-import { basename, join } from 'path';
-import inquirer, { prompt } from 'inquirer';
+import { isAbsolute, join } from 'path';
+import { prompt } from 'inquirer';
 import followRedirects from 'follow-redirects';
 import { existsSync, readJSONSync } from 'fs-extra';
 import { white, cyan, gray, green, red } from 'chalk';
@@ -15,7 +15,6 @@ import showError from '../util/error';
 import auth from '../middlewares/auth';
 import getFiles from '../util/get-files';
 import getPort from '../util/get-port';
-import eraseLines from '../util/erase-lines';
 import detectDeploymentType from '../util/detect-deployment-type';
 import ensureAppHasDockerfile from '../util/ensure-has-dockerfile';
 
@@ -28,6 +27,7 @@ export default auth(async function deploy(args, config) {
 
   let port;
   let platform;
+  let mountPoint;
   let projectId = typeof project === 'boolean' ? null : project;
   const projectPath = path ? path : process.cwd();
   const liaraJSONPath = join(projectPath, 'liara.json');
@@ -73,6 +73,14 @@ export default auth(async function deploy(args, config) {
     platform = liaraJSON.platform;
     if (platform && typeof platform !== 'string') {
       throw new TypeError('The `platform` field in `liara.json` must be a string.');
+    }
+
+    if(liaraJSON.volume) {
+      mountPoint = liaraJSON.volume;
+
+      if( ! isAbsolute(mountPoint)) {
+        throw new Error('The `volume` field in `liara.json` must be an absolute path.');
+      }
     }
   }
 
@@ -178,6 +186,7 @@ export default auth(async function deploy(args, config) {
     await retry(async bail => {
       const body = {
         port,
+        mountPoint,
         directories,
         type: platform,
         project: projectId,
