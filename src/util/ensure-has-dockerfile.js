@@ -4,6 +4,8 @@ const dockerfiles = {
   node: Buffer.from('FROM liararepo/node-platform'),
   static: Buffer.from('FROM liararepo/static-platform'),
   laravel: Buffer.from('FROM liararepo/laravel-platform'),
+  angular: Buffer.from(`FROM liararepo/angular-platform:builder as builder
+FROM liararepo/angular-platform:nginx`),
 };
 
 export default function ensureAppHasDockerfile(deploymentType, files, mapHashesToFiles) {

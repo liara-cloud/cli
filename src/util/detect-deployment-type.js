@@ -3,14 +3,18 @@ import { bold } from 'chalk';
 import { readJSONSync, existsSync, readdirSync } from 'fs-extra';
 
 export default function detectDeploymentType(args, projectPath) {
-  const hasComposerJsonFile = existsSync(path.join(projectPath, 'composer.json'));
-  const hasPackageFile = existsSync(path.join(projectPath, 'package.json'));
+  const packageJsonFilePath = path.join(projectPath, 'package.json');
+  const composeJsonFilePath = path.join(projectPath, 'composer.json');
+
+  const hasPackageFile = existsSync(packageJsonFilePath);
+  const hasComposerJsonFile = existsSync(composeJsonFilePath);
   const hasDockerFile = existsSync(path.join(projectPath, 'Dockerfile'));
 
   const deploymentTypes = [
     'node',
     'docker',
     'static',
+    'angular',
     'laravel',
   ];
 
@@ -39,6 +43,13 @@ export default function detectDeploymentType(args, projectPath) {
     return 'node';
   }
 
+  if(args.angular) {
+    if( ! hasPackageFile) {
+      throw new Error(`${bold('`package.json`')} file doesn't exists.`);
+    }
+    return 'angular';
+  }
+
   if(args.docker) {
     if( ! hasDockerFile) {
       throw new Error(`${bold('`Dockerfile`')} file doesn't exists.`);
@@ -56,7 +67,7 @@ Please specify your deployment type with --laravel or --docker.`);
   }
 
   if(hasComposerJsonFile) {
-    const composerJson = readJSONSync('composer.json');
+    const composerJson = readJSONSync(composeJsonFilePath);
 
     if(!composerJson.require || !composerJson.require['laravel/framework']) {
       throw new Error(`The project contains a \`composer.json\` file but Laravel framework doesn't listed as a dependency.
@@ -72,6 +83,12 @@ Please specify your deployment type with --node or --docker.`);
   }
 
   if(hasPackageFile) {
+    const packageJson = readJSONSync(packageJsonFilePath);
+
+    if(packageJson.dependencies && packageJson.dependencies['@angular/core']) {
+      return 'angular';
+    }
+
     return 'node';
   }
 

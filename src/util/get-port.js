@@ -2,8 +2,9 @@
 export default function getPort(deploymentType) {
     return ({
         node: null,
-        static: 5000,
+        static: 80,
         docker: null,
-        laravel: 80
+        laravel: 80,
+        angular: 80,
     })[deploymentType];
 }
