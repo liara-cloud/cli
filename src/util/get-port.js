@@ -6,5 +6,6 @@ export default function getPort(deploymentType) {
         docker: null,
         laravel: 80,
         angular: 80,
+        wordpress: 80,
     })[deploymentType];
 }

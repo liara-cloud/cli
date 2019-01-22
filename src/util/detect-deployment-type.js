@@ -9,6 +9,7 @@ export default function detectDeploymentType(args, projectPath) {
   const hasPackageFile = existsSync(packageJsonFilePath);
   const hasComposerJsonFile = existsSync(composeJsonFilePath);
   const hasDockerFile = existsSync(path.join(projectPath, 'Dockerfile'));
+  const hasWPContent = existsSync(path.join(projectPath, 'wp-content'));
 
   const deploymentTypes = [
     'node',
@@ -16,6 +17,7 @@ export default function detectDeploymentType(args, projectPath) {
     'static',
     'angular',
     'laravel',
+    'wordpress',
   ];
 
   const specifiedDeploymentTypes =
@@ -48,6 +50,13 @@ export default function detectDeploymentType(args, projectPath) {
       throw new Error(`${bold('`package.json`')} file doesn't exists.`);
     }
     return 'angular';
+  }
+
+  if(args.wordpress) {
+    if( ! hasWPContent) {
+      throw new Error(`${bold('`wp-content`')} file doesn't exists.`);
+    }
+    return 'wordpress';
   }
 
   if(args.docker) {
@@ -90,6 +99,15 @@ Please specify your deployment type with --node or --docker.`);
     }
 
     return 'node';
+  }
+
+  if(hasWPContent && hasDockerFile) {
+    throw new Error(`The project contains a \`Dockerfile\`.
+Please specify your deployment type with --wordpress or --docker.`);
+  }
+
+  if(hasWPContent) {
+    return 'wordpress';
   }
 
   if(hasDockerFile) {

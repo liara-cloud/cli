@@ -6,6 +6,7 @@ const dockerfiles = {
   laravel: Buffer.from('FROM liararepo/laravel-platform'),
   angular: Buffer.from(`FROM liararepo/angular-platform:builder as builder
 FROM liararepo/angular-platform:nginx`),
+  wordpress: Buffer.from('FROM liararepo/wordpress-platform'),
 };
 
 export default function ensureAppHasDockerfile(deploymentType, files, mapHashesToFiles) {
