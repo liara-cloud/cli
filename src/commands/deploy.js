@@ -139,6 +139,10 @@ export default auth(async function deploy(args, config) {
     }
   }
 
+  if(platform === 'wordpress') {
+    mountPoint = '/var/www/html';
+  }
+
   if(port) {
     logInfo('Port', port);
 
