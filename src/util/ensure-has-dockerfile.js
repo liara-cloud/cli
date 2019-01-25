@@ -28,7 +28,7 @@ export default function ensureAppHasDockerfile(deploymentType, files, mapHashesT
       dockerfile,
     ],
     mapHashesToFilesWithDockerfile: (new Map(mapHashesToFiles)).set(dockerfile.checksum, {
-      names: [...(mapHashesToFiles.get(dockerfile.checksum) || { names: [] }).names, 'Dockerfile'],
+      files: [...(mapHashesToFiles.get(dockerfile.checksum) || { files: [] }).files, 'Dockerfile'],
       data: dockerfiles[deploymentType],
     }),
   };

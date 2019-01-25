@@ -1,15 +1,18 @@
 import ora from 'ora';
 import axios from 'axios';
 import bytes from 'bytes';
-import stream from 'stream';
+import { tmpdir } from 'os';
+import request from 'request';
+import archiver from 'archiver';
 import retry from 'async-retry';
 import EventEmitter from 'events';
+import { prompt } from 'inquirer';
+import ProgressBar from 'progress';
 import concat from 'concat-stream';
 import { isAbsolute, join } from 'path';
-import { prompt } from 'inquirer';
 import followRedirects from 'follow-redirects';
-import { existsSync, readJSONSync } from 'fs-extra';
 import { white, cyan, gray, green, red } from 'chalk';
+import fs, { existsSync, readJSONSync } from 'fs-extra';
 
 import showError from '../util/error';
 import auth from '../middlewares/auth';
@@ -167,7 +170,7 @@ export default auth(async function deploy(args, config) {
     }
   }
 
-  spinner.start('Deploying...');
+  spinner.start('Compressing...');
 
   debug && console.time('[debug] making hashes')
   const { files, directories, mapHashesToFiles } = await getFiles(projectPath);
@@ -306,17 +309,14 @@ Please open up https://console.liara.ir/projects and unfreeze the project.`);
           const { missing_files } = data;
   
           debug && console.log(`[debug] missing files: ${missing_files.length}`);
-  
-          spinner.start('Uploading...');
-  
+    
           await uploadMissingFiles(
             mapHashesToFilesWithDockerfile,
             missing_files,
             config,
+            spinner,
           );
-  
-          spinner.succeed('Upload finished.');
-  
+    
           throw error; // retry deployment
         }
   
@@ -338,23 +338,68 @@ Please open up https://console.liara.ir/projects and unfreeze the project.`);
   }
 });
 
-function uploadMissingFiles(mapHashesToFiles, missing_files, config) {
-  return Promise.all(missing_files.map(file => {
-    const { data } = mapHashesToFiles.get(file);
+async function uploadMissingFiles(mapHashesToFiles, missing_files, config, spinner) {
+  const archive = archiver('tar', {
+    gzip: true,
+    gzipOptions: { level: 9 },
+  });
 
-    const dataStream = new stream.PassThrough();
-    dataStream.end(data);
+  archive.on('error', function(err) {
+    throw err;
+  });
 
-    return axios({
-      method: 'post',
-      url: '/v1/files',
-      baseURL: config.apiURL,
-      data: dataStream,
+  for(const hash of missing_files) {
+    const { data } = mapHashesToFiles.get(hash);
+    archive.append(data, { name: hash });
+  }
+
+  archive.finalize();
+  spinner.stop();
+
+  const tmpArchivePath = join(tmpdir(), `${Date.now()}.tar.gz`);
+
+  const archiveSize = await new Promise((resolve, reject) => {
+    archive.pipe(fs.createWriteStream(tmpArchivePath))
+      .on('error', reject)
+      .on('close', function () {
+        const { size } = fs.statSync(tmpArchivePath);
+        resolve(size);
+      });
+  });
+
+  console.log(`${gray('Compressed size:')} ${bytes(archiveSize)}`);
+
+  const tmpArchiveStream = fs.createReadStream(tmpArchivePath);
+  const bar = new ProgressBar('Uploading [:bar] :rate/bps :percent :etas', { total: archiveSize });
+
+  return new Promise(resolve => {
+    const req = request.post({
+      url: '/v1/files/archive',
+      baseUrl: config.apiURL,
+      data: tmpArchiveStream,
       headers: {
-        'X-File-Digest': file,
         'Content-Type': 'application/octet-stream',
         Authorization: `Bearer ${config.api_token}`,
       },
     });
-  }));
+
+    const interval = setInterval(function () {
+      bar.tick(req.req.connection._bytesDispatched - bar.curr);
+
+      if(bar.complete) {
+        spinner.succeed('Upload finished.');
+        spinner.start('Extracting...');
+        clearInterval(interval);
+      }
+    }, 250);
+
+    tmpArchiveStream.pipe(req)
+      .on('response', () => {
+        spinner.succeed('Extract finished.');
+        spinner.start('Deploying...');
+        fs.unlink(tmpArchivePath);
+        resolve();
+      });
+  });
+
 }
