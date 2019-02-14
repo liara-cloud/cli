@@ -28,7 +28,7 @@ export default auth(async function deploy(args, config) {
 
   const { project, path, debug, dev } = args;
 
-  let port;
+  let port = args.port;
   let platform;
   let mountPoint;
   let projectId = typeof project === 'boolean' ? null : project;
@@ -66,7 +66,7 @@ export default auth(async function deploy(args, config) {
       projectId = liaraJSON.project;
     }
 
-    if (liaraJSON.port) {
+    if ( ! port && liaraJSON.port) {
       port = Number(liaraJSON.port);
       if (isNaN(port)) {
         throw new TypeError('The `port` field in `liara.json` must be a number.');

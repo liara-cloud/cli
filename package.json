@@ -1,6 +1,6 @@
 {
   "name": "@liara/cli",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "The command line interface for Liara",
   "bin": {
     "liara": "dist/liara.js"
