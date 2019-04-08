@@ -37,7 +37,7 @@ try {
     liaraConf = JSON.parse(readFileSync(liaraConfPath));   
   }else{
     liaraConf = {}
-    liaraConf["api_token"] = args.api_token;
+    liaraConf["api-token"] = args.api_token;
   }
 } catch(err) {
   liaraConf = {};
