@@ -20,10 +20,13 @@ $ npm i
 # remove @liara/cli globaly
 $ npm uninstall -g @liara/cli
 
+# run test suite
+$ npm run test
+
 # start webpack watch for development
 $ npm run dev
 
-# in the other bash run
+# after `npm run dev` in the other bash you can run
 $ npm link
 ```
 
