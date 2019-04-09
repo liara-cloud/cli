@@ -23,7 +23,6 @@
     "mocha": "^4.0.1",
     "shebang-loader": "^0.0.1",
     "webpack": "^3.8.1",
-    "webpack-cli": "^3.3.0",
     "webpack-node-externals": "^1.6.0"
   },
   "dependencies": {

@@ -33,11 +33,11 @@ const liaraConfPath = join(homedir(), '.liara.json');
 
 let liaraConf;
 try {
-  if(!args.api_token){
+  if(!args['api-token']){
     liaraConf = JSON.parse(readFileSync(liaraConfPath));   
   }else{
     liaraConf = {}
-    liaraConf["api-token"] = args.api_token;
+    liaraConf.api_token = args['api-token'];
   }
 } catch(err) {
   liaraConf = {};
