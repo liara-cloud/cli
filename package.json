@@ -1,6 +1,6 @@
 {
   "name": "@liara/cli",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "The command line interface for Liara",
   "bin": {
     "liara": "dist/liara.js"
@@ -16,9 +16,9 @@
   "author": "Mhe Mrg <mhemrg120@gmail.com> (http://liara.ir/)",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.4.3",
-    "babel-loader": "^8.0.5",
-    "babel-preset-backpack": "*",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-backpack": "^0.4.3",
     "chai": "^4.1.2",
     "mocha": "^4.0.1",
     "shebang-loader": "^0.0.1",
