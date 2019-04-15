@@ -16,11 +16,6 @@ const defaultIgnores = [
   'bower_components'
 ];
 
-const filterFiles = () => through2.obj(function (item, enc, next) {
-  if (item.stats.isFile()) this.push(item);
-  next();
-});
-
 const addNestedGitignores = function (ignoreInstance, projectPath) {
   ignoreInstance.add(defaultIgnores);
 
@@ -46,13 +41,14 @@ const ignoreFiles = function (ignoreInstance, projectPath) {
   const gitignorePath = join(projectPath, '.gitignore');
 
   if(existsSync(liaragnorePath)) {
-    ignoreInstance = ignore();
+    ignoreInstance = ignore({ ignorecase: false });
     ignoreInstance.add(defaultIgnores);
     ignoreInstance.add(readFileSync(liaragnorePath).toString());
   }
 
   return through2.obj(function (item, enc, next) {
-    if( ! ignoreInstance.ignores(relative(projectPath, item.path))) {
+    const itemPath = relative(projectPath, item.path);
+    if(itemPath && ! ignoreInstance.ignores(relative(projectPath, item.path))) {
       this.push(item);
     }
     return next();
@@ -63,13 +59,12 @@ export default async function getFiles(projectPath) {
   const mapHashesToFiles = new Map;
   const directories = [];
 
-  const ignoreInstance = ignore();
+  const ignoreInstance = ignore({ ignorecase: false });
 
   await new Promise(resolve => {
     const files = [];
 
     klaw(projectPath)
-      // .pipe(filterFiles())
       .pipe(addNestedGitignores(ignoreInstance, projectPath))
       .pipe(ignoreFiles(ignoreInstance, projectPath))
       .on('data', file => files.push(file))

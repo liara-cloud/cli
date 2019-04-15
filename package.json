@@ -39,7 +39,7 @@
     "email-validator": "^1.1.1",
     "figures": "^2.0.0",
     "fs-extra": "^4.0.2",
-    "ignore": "^3.3.7",
+    "ignore": "^5.1.0",
     "inquirer": "^6.2.1",
     "klaw": "^2.1.0",
     "mri": "^1.1.0",
