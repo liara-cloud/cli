@@ -26,7 +26,10 @@ const addNestedGitignores = function (ignoreInstance, projectPath) {
         readFileSync(item.path).toString().split('\n')
       );
 
-      const relativeToProjectPath = patterns.map(pattern => relative(projectPath, join(dirname(item.path), pattern)));
+      const relativeToProjectPath = patterns.map(pattern => {
+        const prefix = pattern.startsWith('/') ? '/' : '';
+        return prefix + relative(projectPath, join(dirname(item.path), pattern))
+      });
 
       ignoreInstance.add(relativeToProjectPath);
     }
