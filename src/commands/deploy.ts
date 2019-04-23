@@ -516,6 +516,7 @@ You must add a 'start' command to your package.json scripts.`)
       const req = request.post({
         url: '/v1/files/archive',
         baseUrl: this.axiosConfig.baseURL,
+        // @ts-ignore
         data: tmpArchiveStream,
         headers: {
           Authorization: this.axiosConfig.headers.Authorization,
