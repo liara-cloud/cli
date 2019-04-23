@@ -484,7 +484,10 @@ You must add a 'start' command to your package.json scripts.`)
       gzipOptions: {level: 9},
     })
 
-    archive.on('error', (error: Error) => { throw error })
+    archive.on('error', (error: Error) => {
+      this.debug(error)
+      throw error
+    })
 
     for (const hash of missingFiles) {
       const mapItem = mapHashesToFiles.get(hash)
@@ -513,14 +516,11 @@ You must add a 'start' command to your package.json scripts.`)
       const req = request.post({
         url: '/v1/files/archive',
         baseUrl: this.axiosConfig.baseURL,
-        body: tmpArchiveStream,
+        data: tmpArchiveStream,
         headers: {
-          'Content-Type': 'application/octet-stream',
           Authorization: this.axiosConfig.headers.Authorization,
         },
       }) as any
-
-      tmpArchiveStream.pipe(req)
 
       const interval = setInterval(() => {
         bar.tick(req.req.connection._bytesDispatched - bar.curr)
