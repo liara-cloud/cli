@@ -1,52 +1,94 @@
 {
   "name": "@liara/cli",
-  "version": "0.2.11",
   "description": "The command line interface for Liara",
+  "version": "1.0.0",
+  "author": "Mhe <mhemrg120@gmail.com> (http://liara.ir/) @mhemrg",
   "bin": {
-    "liara": "dist/liara.js"
+    "liara": "./bin/run"
   },
-  "scripts": {
-    "build": "webpack",
-    "dev": "webpack --watch",
-    "prepublishOnly": "webpack",
-    "deploy": "npm publish --access public",
-    "test": "NODE_ENV=test mocha --require babel-register tests"
-  },
-  "repository": "https://github.com/liara-ir/liara-cli",
-  "author": "Mhe Mrg <mhemrg120@gmail.com> (http://liara.ir/)",
-  "license": "MIT",
-  "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.2",
-    "babel-preset-backpack": "^0.4.3",
-    "chai": "^4.1.2",
-    "mocha": "^4.0.1",
-    "shebang-loader": "^0.0.1",
-    "webpack": "^3.8.1",
-    "webpack-node-externals": "^1.6.0"
-  },
+  "bugs": "https://github.com/liara-ir/liara-cli/issues",
   "dependencies": {
-    "ansi-escapes": "^3.0.0",
+    "@oclif/command": "^1.5.12",
+    "@oclif/config": "^1.12.12",
+    "@oclif/errors": "^1.2.2",
+    "@oclif/plugin-help": "^2.1.6",
+    "ansi-escapes": "^4.1.0",
     "archiver": "^3.0.0",
-    "async-retry": "^1.1.4",
+    "async-retry": "^1.2.3",
     "axios": "^0.18.0",
-    "babel-runtime": "^6.26.0",
-    "boxen": "^1.3.0",
-    "bytes": "^3.0.0",
-    "chalk": "^2.3.0",
-    "concat-stream": "^1.6.2",
-    "email-prompt": "^0.3.1",
-    "email-validator": "^1.1.1",
-    "figures": "^2.0.0",
-    "fs-extra": "^4.0.2",
+    "bytes": "^3.1.0",
+    "chalk": "^2.4.2",
+    "cli-ux": "^5.2.1",
+    "email-prompt": "^0.3.2",
+    "email-validator": "^2.0.4",
+    "fs-extra": "^7.0.1",
     "ignore": "^5.1.0",
-    "inquirer": "^6.2.1",
-    "klaw": "^2.1.0",
-    "mri": "^1.1.0",
-    "ora": "^2.1.0",
+    "inquirer": "^6.2.2",
+    "klaw": "^3.0.0",
+    "moment": "^2.24.0",
+    "ora": "^3.4.0",
     "progress": "^2.0.3",
     "request": "^2.88.0",
-    "through2": "^2.0.3",
-    "update-notifier": "^2.5.0"
-  }
+    "through2": "^3.0.1",
+    "tslib": "^1.9.3"
+  },
+  "devDependencies": {
+    "@oclif/dev-cli": "^1.22.0",
+    "@oclif/test": "^1.2.4",
+    "@oclif/tslint": "^3.1.1",
+    "@types/chai": "^4.1.7",
+    "@types/concat-stream": "^1.6.0",
+    "@types/fs-extra": "^5.0.5",
+    "@types/inquirer": "^6.0.0",
+    "@types/klaw": "^3.0.0",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^10.14.4",
+    "@types/request": "^2.48.1",
+    "@types/through2": "^2.0.34",
+    "@types/archiver": "^2.1.3",
+    "@types/async-retry": "^1.4.0",
+    "@types/bytes": "^3.0.0",
+    "@types/progress": "^2.0.3",
+    "chai": "^4.2.0",
+    "concat-stream": "^2.0.0",
+    "globby": "^8.0.2",
+    "mocha": "^5.2.0",
+    "nyc": "^13.3.0",
+    "sinon": "^7.3.1",
+    "ts-node": "^8.0.2",
+    "tslint": "^5.12.1",
+    "typescript": "^3.4.1"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    "/bin",
+    "/lib",
+    "/npm-shrinkwrap.json",
+    "/oclif.manifest.json"
+  ],
+  "homepage": "https://github.com/liara-ir/liara-cli",
+  "keywords": [
+    "oclif"
+  ],
+  "license": "MIT",
+  "main": "lib/index.js",
+  "oclif": {
+    "commands": "./lib/commands",
+    "bin": "liara",
+    "plugins": [
+      "@oclif/plugin-help"
+    ]
+  },
+  "repository": "liara-ir/liara-cli",
+  "scripts": {
+    "postpack": "rm -f oclif.manifest.json",
+    "posttest": "tslint -p test -t stylish",
+    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
+    "version": "oclif-dev readme && git add README.md",
+    "readme": "oclif-dev readme"
+  },
+  "types": "lib/index.d.ts"
 }
