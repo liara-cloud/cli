@@ -1,7 +1,7 @@
 {
   "name": "@liara/cli",
   "description": "The command line interface for Liara",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Mhe <mhemrg120@gmail.com> (http://liara.ir/) @mhemrg",
   "bin": {
     "liara": "./bin/run"
@@ -21,6 +21,7 @@
     "cli-ux": "^5.2.1",
     "email-prompt": "^0.3.2",
     "email-validator": "^2.0.4",
+    "follow-redirects": "^1.7.0",
     "fs-extra": "^7.0.1",
     "ignore": "^5.1.0",
     "inquirer": "^6.2.2",
@@ -65,10 +66,10 @@
     "node": ">=8.0.0"
   },
   "files": [
-    "/bin",
-    "/lib",
-    "/npm-shrinkwrap.json",
-    "/oclif.manifest.json"
+    "bin",
+    "lib",
+    "npm-shrinkwrap.json",
+    "oclif.manifest.json"
   ],
   "homepage": "https://github.com/liara-ir/liara-cli",
   "keywords": [

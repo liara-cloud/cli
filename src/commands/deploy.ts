@@ -17,12 +17,12 @@ import Command from '../base'
 import Poller from '../utils/poller'
 import {DEV_MODE} from '../constants'
 import getPort from '../utils/get-port'
+import checkPath from '../utils/check-path'
 import onInterupt from '../utils/on-intrupt'
 import getFiles, {IMapItem} from '../utils/get-files'
 import validatePort from '../utils/validate-port'
 import {createDebugLogger} from '../utils/output'
 import detectPlatform from '../utils/detect-platform'
-import checkPath from '../utils/check-path';
 
 interface ILiaraJSON {
   project?: string,
@@ -66,6 +66,8 @@ interface IBuildOutput {
   releaseID: string,
   createdAt: string,
 }
+
+require('follow-redirects').maxBodyLength = 200 * 1024 * 1024 // 200 MB
 
 export default class Deploy extends Command {
   static description = 'deploy a project'
