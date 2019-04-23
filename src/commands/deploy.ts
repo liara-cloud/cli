@@ -5,6 +5,7 @@ import chalk from 'chalk'
 import bytes from 'bytes'
 import fs from 'fs-extra'
 import axios from 'axios'
+import moment from 'moment'
 import request from 'request'
 import inquirer from 'inquirer'
 import retry from 'async-retry'
@@ -159,7 +160,7 @@ export default class Deploy extends Command {
 
       if (!flags['no-project-logs']) {
         this.log('Reading project logs...')
-        await Logs.run(['--project', config.project])
+        await Logs.run(['--project', config.project, '--since', moment().unix().toString()])
       }
 
     } catch (error) {

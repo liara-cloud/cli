@@ -20,12 +20,13 @@ export default class Logs extends Command {
   static flags = {
     ...Command.flags,
     project: flags.string({char: 'p', description: 'project id', required: true}),
+    since: flags.integer({char: 's', description: 'show logs since timestamp'}),
   }
 
   async run() {
-    let since: string | number = 1
     const {flags} = this.parse(Logs)
     const project = flags.project
+    let since: string | number = flags.since || 1
 
     this.debug = createDebugLogger(flags.debug)
 
