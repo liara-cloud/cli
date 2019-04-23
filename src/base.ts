@@ -1,9 +1,12 @@
 import fs from 'fs-extra'
 import axios, {AxiosRequestConfig} from 'axios'
 import Command, {flags} from '@oclif/command'
+import updateNotifier from 'update-notifier'
 
 import './interceptors'
 import {API_BASE_URL, GLOBAL_CONF_PATH} from './constants'
+
+updateNotifier({pkg: require('../package.json')}).notify()
 
 export interface IGlobalLiaraConfig {
   'api-token'?: string,
