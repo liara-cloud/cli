@@ -95,13 +95,15 @@ export default class Deploy extends Command {
 
     this.debug()
 
-    try {
-      checkPath(config.path)
-    } catch (error) {
-      this.error(error.message)
-    }
+    if (!config.image) {
+      try {
+        checkPath(config.path)
+      } catch (error) {
+        this.error(error.message)
+      }
 
-    this.dontDeployEmptyProjects(config.path)
+      this.dontDeployEmptyProjects(config.path)
+    }
 
     this.setAxiosToken(config)
 
