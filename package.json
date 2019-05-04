@@ -73,7 +73,12 @@
   ],
   "homepage": "https://github.com/liara-ir/liara-cli",
   "keywords": [
-    "oclif"
+    "liara",
+    "liara cli",
+    "deploy",
+    "deployment",
+    "cloud",
+    "docker"
   ],
   "license": "MIT",
   "main": "lib/index.js",
