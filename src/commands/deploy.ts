@@ -30,6 +30,7 @@ interface ILiaraJSON {
   platform?: string,
   port?: number,
   volume?: string,
+  args: string[],
 }
 
 interface IFlags {
@@ -41,6 +42,7 @@ interface IFlags {
   image?: string,
   'api-token'?: string,
   'no-project-logs': boolean,
+  args: string[],
 }
 
 interface IDeploymentConfig extends IFlags {
@@ -82,6 +84,7 @@ export default class Deploy extends Command {
     volume: flags.string({char: 'v', description: 'volume absolute path'}),
     image: flags.string({char: 'i', description: 'docker image to deploy'}),
     'no-project-logs': flags.boolean({description: 'do not stream project logs after deployment', default: false}),
+    args: flags.string({description: 'docker image entrypoint args', multiple: true}),
   }
 
   spinner!: ora.Ora
@@ -181,6 +184,7 @@ Sorry for inconvenience. Please contact us.`)
 
   async deploy(config: IDeploymentConfig) {
     const body: {[k: string]: any} = {
+      args: config.args,
       port: config.port,
       type: config.platform,
       mountPoint: config.volume,
