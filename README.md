@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/1.0.5 linux-x64 node-v10.15.1
+@liara/cli/1.1.0 linux-x64 node-v10.15.1
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -48,13 +48,14 @@ OPTIONS
   -p, --project=project  project id
   -v, --volume=volume    volume absolute path
   --api-token=api-token  your api token to use for authentication
+  --args=args            docker image entrypoint args
   --no-project-logs      do not stream project logs after deployment
   --path=path            project path in your computer
   --platform=platform    the platform your project needs to run
   --port=port            the port that your app listens to
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v1.0.5/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v1.1.0/src/commands/deploy.ts)_
 
 ## `liara help [COMMAND]`
 
@@ -89,7 +90,7 @@ OPTIONS
   --api-token=api-token    your api token to use for authentication
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v1.0.5/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v1.1.0/src/commands/login.ts)_
 
 ## `liara logs`
 
@@ -107,5 +108,5 @@ OPTIONS
   --api-token=api-token  your api token to use for authentication
 ```
 
-_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v1.0.5/src/commands/logs.ts)_
+_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v1.1.0/src/commands/logs.ts)_
 <!-- commandsstop -->
