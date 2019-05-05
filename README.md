@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/1.1.0 linux-x64 node-v10.15.1
+@liara/cli/1.1.0 linux-x64 node-v10.15.3
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -32,6 +32,7 @@ USAGE
 * [`liara help [COMMAND]`](#liara-help-command)
 * [`liara login`](#liara-login)
 * [`liara logs`](#liara-logs)
+* [`liara envs`](#liara-envs)
 
 ## `liara deploy`
 
@@ -106,6 +107,24 @@ OPTIONS
   -p, --project=project  (required) project id
   -s, --since=since      show logs since timestamp
   --api-token=api-token  your api token to use for authentication
+```
+
+_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v1.1.0/src/commands/logs.ts)_
+<!-- commandsstop -->
+
+## `liara envs`
+
+see a project's environment variables
+
+```
+USAGE
+  $ liara envs
+
+OPTIONS
+  -p, --project            specify target project
+  -c, --command             can be ( set ) or ( delete ) and nothing for show varables
+  -n, --name-key of value    name of varable you want set or delete 
+  -v, --value of varable      value to set on varable 
 ```
 
 _See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v1.1.0/src/commands/logs.ts)_
