@@ -1,0 +1,17 @@
+environment:
+  nodejs_version: "10"
+cache:
+  - '%AppData%\npm-cache -> appveyor.yml'
+  - node_modules -> package-lock.json
+
+install:
+  - ps: Install-Product node $env:nodejs_version x64
+  - npm install
+test_script:
+  - .\bin\run --version
+  - .\bin\run --help
+  - npm test
+
+
+build: off
+
