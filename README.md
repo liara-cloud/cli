@@ -112,19 +112,18 @@ OPTIONS
 _See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v1.1.0/src/commands/logs.ts)_
 <!-- commandsstop -->
 
-## `liara envs`
+## `liara config`
 
-see a project's environment variables
+see/set a project's environment variables
 
 ```
 USAGE
-  $ liara envs
+  $ liara config:get  //get all varables
+  $ liara config:get key  //get specify varable
+  $ liara config:set key=value //set value or add new varable
 
 OPTIONS
   -p, --project            specify target project
-  -c, --command             can be ( set ) or ( delete ) and nothing for show varables
-  -n, --name-key of value    name of varable you want set or delete 
-  -v, --value of varable      value to set on varable 
 ```
 
 _See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v1.1.0/src/commands/logs.ts)_
