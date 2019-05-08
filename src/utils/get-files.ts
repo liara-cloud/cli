@@ -16,6 +16,7 @@ const defaultIgnores: string[] = [
   '.liaraignore',
   '.dockerignore',
   '*.*~',
+  'liara.json',
   'node_modules',
   'bower_components',
 ]

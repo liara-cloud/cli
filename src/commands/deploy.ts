@@ -25,12 +25,26 @@ import validatePort from '../utils/validate-port'
 import {createDebugLogger} from '../utils/output'
 import detectPlatform from '../utils/detect-platform'
 
+interface ILaravelPlatformConfig {
+  routeCache?: boolean,
+  configCache?: boolean,
+  buildAssets?: boolean,
+}
+
+interface INodePlatformConfig {
+  version?: number,
+}
+
 interface ILiaraJSON {
   project?: string,
   platform?: string,
   port?: number,
   volume?: string,
-  args: string[],
+  args?: string[],
+  'build-arg'?: string[],
+  cron?: string[],
+  laravel?: ILaravelPlatformConfig,
+  node?: INodePlatformConfig,
 }
 
 interface IFlags {
@@ -42,10 +56,11 @@ interface IFlags {
   image?: string,
   'api-token'?: string,
   'no-project-logs': boolean,
-  args: string[],
+  args?: string[],
+  'build-arg'?: string[],
 }
 
-interface IDeploymentConfig extends IFlags {
+interface IDeploymentConfig extends IFlags, ILiaraJSON {
   path: string,
 }
 
@@ -85,6 +100,7 @@ export default class Deploy extends Command {
     image: flags.string({char: 'i', description: 'docker image to deploy'}),
     'no-project-logs': flags.boolean({description: 'do not stream project logs after deployment', default: false}),
     args: flags.string({description: 'docker image entrypoint args', multiple: true}),
+    'build-arg': flags.string({description: 'docker image build args', multiple: true}),
   }
 
   spinner!: ora.Ora
@@ -184,6 +200,8 @@ Sorry for inconvenience. Please contact us.`)
 
   async deploy(config: IDeploymentConfig) {
     const body: {[k: string]: any} = {
+      build: {},
+      cron: config.cron,
       args: config.args,
       port: config.port,
       type: config.platform,
@@ -194,6 +212,13 @@ Sorry for inconvenience. Please contact us.`)
       body.image = config.image
       return this.createRelease(config.project as string, body)
     }
+
+    if (config['build-arg']) {
+      body.build.args = config['build-arg']
+    }
+
+    // @ts-ignore
+    body.platformConfig = config[config.platform]
 
     this.spinner.start('Collecting project files...')
     const {files, directories, mapHashesToFiles} = await getFiles(config.path, this.debug)
@@ -229,7 +254,7 @@ Sorry for inconvenience. Please contact us.`)
         if (response.status === 400 && response.data.message === 'missing_files') {
           const {missingFiles} = response.data.data
 
-          this.spinner.start(`Files to upload: ${missingFiles.length}`)
+          this.logKeyValue('Files to upload:', missingFiles.length)
 
           await this.uploadMissingFiles(
             mapHashesToFiles,
