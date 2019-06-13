@@ -38,6 +38,14 @@ Please specify your platform with --platform=node or docker.`)
       return 'angular'
     }
 
+    if (packageJson.devDependencies && packageJson.devDependencies['@vue/cli-service']) {
+      return 'vue'
+    }
+
+    if (packageJson.dependencies && packageJson.dependencies['react-scripts']) {
+      return 'react'
+    }
+
     return 'node'
   }
 
