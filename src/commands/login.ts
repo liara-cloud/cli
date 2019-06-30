@@ -104,7 +104,7 @@ export default class Login extends Command {
         }
         return true
       }
-    })
+    }) as {password: string}
 
     return password
   }

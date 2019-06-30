@@ -450,7 +450,7 @@ Sorry for inconvenience. Please contact us.`)
         choices: [
           ...projects.map(project => project.project_id),
         ]
-      })
+      }) as {project: string}
 
       return project
 
@@ -467,7 +467,7 @@ Sorry for inconvenience. Please contact us.`)
       default: 3000,
       message: 'Enter the port your app listens to:',
       validate: validatePort,
-    })
+    }) as {port: number}
 
     return port
   }
@@ -539,7 +539,7 @@ You must add a 'start' command to your package.json scripts.`)
           const {size} = fs.statSync(tmpArchivePath)
           resolve(size)
         })
-    })
+    }) as number
 
     this.logKeyValue('Compressed size', bytes(archiveSize))
 

@@ -19,7 +19,7 @@
     "bytes": "^3.1.0",
     "chalk": "^2.4.2",
     "cli-ux": "^5.2.1",
-    "email-prompt": "^0.3.2",
+    "email-prompt": "https://github.com/mhemrg/email-prompt#patch-1",
     "email-validator": "^2.0.4",
     "follow-redirects": "^1.7.0",
     "fs-extra": "^7.0.1",
@@ -93,7 +93,7 @@
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
     "posttest": "tslint -p test -t stylish",
-    "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
+    "prepack": "set -ex; rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md",
     "readme": "oclif-dev readme"
