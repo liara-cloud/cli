@@ -239,6 +239,7 @@ Sorry for inconvenience. Please contact us.`)
     }
     return retry(async bail => {
       try {
+        this.spinner.start('Preparing for release...')
         return await this.createRelease(config.project as string, body)
 
       } catch (error) {
@@ -255,6 +256,8 @@ Sorry for inconvenience. Please contact us.`)
           const {missingFiles} = response.data.data
 
           this.logKeyValue('Files to upload:', missingFiles.length)
+
+          this.spinner.stop()
 
           await this.uploadMissingFiles(
             mapHashesToFiles,
