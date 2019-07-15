@@ -30,6 +30,7 @@ USAGE
 <!-- commands -->
 * [`liara deploy`](#liara-deploy)
 * [`liara help [COMMAND]`](#liara-help-command)
+* [`liara login`](#liara-login)
 * [`liara logs`](#liara-logs)
 
 ## `liara deploy`
@@ -73,6 +74,24 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.1.6/src/commands/help.ts)_
+
+## `liara login`
+
+login to your account
+
+```
+USAGE
+  $ liara login
+
+OPTIONS
+  -d, --debug              show debug logs
+  -e, --email=email        your email
+  -h, --help               show CLI help
+  -p, --password=password  your password
+  --api-token=api-token    your api token to use for authentication
+```
+
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v1.6.1/src/commands/login.ts)_
 
 ## `liara logs`
 

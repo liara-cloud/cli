@@ -3,7 +3,7 @@ import axios from 'axios'
 import fs from 'fs-extra'
 import retry from 'async-retry'
 import {prompt} from 'inquirer'
-import promptEmail from 'email-prompt'
+import promptEmail from 'email-prompt-ts'
 import {flags} from '@oclif/command'
 import {validate as validateEmail} from 'email-validator'
 
