@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/1.6.0 linux-x64 node-v10.15.1
+@liara/cli/1.6.1 linux-x64 node-v10.15.1
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -30,7 +30,6 @@ USAGE
 <!-- commands -->
 * [`liara deploy`](#liara-deploy)
 * [`liara help [COMMAND]`](#liara-help-command)
-* [`liara login`](#liara-login)
 * [`liara logs`](#liara-logs)
 
 ## `liara deploy`
@@ -56,7 +55,7 @@ OPTIONS
   --port=port            the port that your app listens to
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v1.6.0/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v1.6.1/src/commands/deploy.ts)_
 
 ## `liara help [COMMAND]`
 
@@ -75,24 +74,6 @@ OPTIONS
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.1.6/src/commands/help.ts)_
 
-## `liara login`
-
-login to your account
-
-```
-USAGE
-  $ liara login
-
-OPTIONS
-  -d, --debug              show debug logs
-  -e, --email=email        your email
-  -h, --help               show CLI help
-  -p, --password=password  your password
-  --api-token=api-token    your api token to use for authentication
-```
-
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v1.6.0/src/commands/login.ts)_
-
 ## `liara logs`
 
 see a project's logs
@@ -109,5 +90,5 @@ OPTIONS
   --api-token=api-token  your api token to use for authentication
 ```
 
-_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v1.6.0/src/commands/logs.ts)_
+_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v1.6.1/src/commands/logs.ts)_
 <!-- commandsstop -->
