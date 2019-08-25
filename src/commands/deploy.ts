@@ -87,6 +87,8 @@ interface IBuildOutput {
 
 require('follow-redirects').maxBodyLength = 200 * 1024 * 1024 // 200 MB
 
+class DeployException extends Error {}
+
 export default class Deploy extends Command {
   static description = 'deploy a project'
 
@@ -193,8 +195,12 @@ export default class Deploy extends Command {
         this.error('Build timed out. It took about 10 minutes.')
       }
 
+      if (error instanceof DeployException) {
+        this.error(error.message)
+      }
+
       this.error(`Deployment failed.
-Sorry for inconvenience. Please contact us.`)
+Sorry for inconvenience. If you think it's a bug, please contact us.`)
     }
   }
 
@@ -247,9 +253,21 @@ Sorry for inconvenience. Please contact us.`)
 
         if (!response) throw error // Retry deployment
 
+        if (response.status === 404 && response.data.message === 'project_not_found') {
+          const exception = new DeployException(`Project does not exist.
+Please open up https://console.liara.ir/projects and create the project, first.`)
+          return bail(exception)
+        }
+
         if (response.status === 400 && response.data.message === 'frozen_project') {
-          this.error(`Project is frozen (not enough balance).
-  Please open up https://console.liara.ir/projects and unfreeze the project.`)
+          const exception = new DeployException(`Project is frozen (not enough balance).
+Please open up https://console.liara.ir/projects and unfreeze the project.`)
+          return bail(exception)
+        }
+
+        if (response.status >= 400 && response.status < 500 && response.data.message) {
+          const exception = new DeployException(`CODE ${response.status}: ${response.data.message}`)
+          return bail(exception)
         }
 
         if (response.status === 400 && response.data.message === 'missing_files') {
