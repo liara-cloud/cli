@@ -1,12 +1,14 @@
 import path from 'path'
-import {readJSONSync, existsSync} from 'fs-extra'
+import {readJSONSync, existsSync, readFileSync} from 'fs-extra'
 
 export default function detectPlatform(projectPath: string) {
   const packageJsonFilePath = path.join(projectPath, 'package.json')
   const composeJsonFilePath = path.join(projectPath, 'composer.json')
+  const requirementsTxtFilePath = path.join(projectPath, 'requirements.txt')
 
   const hasPackageFile = existsSync(packageJsonFilePath)
   const hasComposerJsonFile = existsSync(composeJsonFilePath)
+  const hasRequirementsTxtFile = existsSync(requirementsTxtFilePath)
   const hasDockerFile = existsSync(path.join(projectPath, 'Dockerfile'))
   const hasWPContent = existsSync(path.join(projectPath, 'wp-content'))
 
@@ -24,6 +26,14 @@ Currently, we only support Laravel projects in the PHP ecosystem.\n`)
     }
 
     return 'laravel'
+  }
+
+  if (hasRequirementsTxtFile) {
+    const requirementsTxt = readFileSync(requirementsTxtFilePath);
+
+    if(requirementsTxt.includes('Django')) {
+      return 'django';
+    }
   }
 
   if (hasPackageFile && hasDockerFile) {
