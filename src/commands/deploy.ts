@@ -265,11 +265,6 @@ Please open up https://console.liara.ir/projects and unfreeze the project.`)
           return bail(exception)
         }
 
-        if (response.status >= 400 && response.status < 500 && response.data.message) {
-          const exception = new DeployException(`CODE ${response.status}: ${response.data.message}`)
-          return bail(exception)
-        }
-
         if (response.status === 400 && response.data.message === 'missing_files') {
           const {missingFiles} = response.data.data
 
@@ -283,6 +278,11 @@ Please open up https://console.liara.ir/projects and unfreeze the project.`)
           )
 
           throw error // Retry deployment
+        }
+
+        if (response.status >= 400 && response.status < 500 && response.data.message) {
+          const exception = new DeployException(`CODE ${response.status}: ${response.data.message}`)
+          return bail(exception)
         }
 
         return bail(error)
