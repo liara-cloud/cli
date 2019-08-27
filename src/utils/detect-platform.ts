@@ -29,10 +29,10 @@ Currently, we only support Laravel projects in the PHP ecosystem.\n`)
   }
 
   if (hasRequirementsTxtFile) {
-    const requirementsTxt = readFileSync(requirementsTxtFilePath);
+    const requirementsTxt = readFileSync(requirementsTxtFilePath)
 
-    if(requirementsTxt.includes('Django')) {
-      return 'django';
+    if (requirementsTxt.includes('Django')) {
+      return 'django'
     }
   }
 
