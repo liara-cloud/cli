@@ -91,9 +91,9 @@
   },
   "repository": "liara-ir/liara-cli",
   "scripts": {
-    "postpack": "rm -f oclif.manifest.json",
+    "postpack": "rm -f oclif.manifest.json tsconfig.tsbuildinfo",
     "posttest": "tslint -p test -t stylish",
-    "prepack": "set -ex; rm -rf lib && tsc -b && rm tsconfig.tsbuildinfo && oclif-dev manifest && oclif-dev readme",
+    "prepack": "set -ex; rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
     "version": "oclif-dev readme && git add README.md",
     "readme": "oclif-dev readme"
