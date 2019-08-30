@@ -12,6 +12,10 @@ export interface IGlobalLiaraConfig {
   'api-token'?: string,
 }
 
+export interface IConfig {
+  'api-token'?: string,
+}
+
 export default abstract class extends Command {
   static flags = {
     help: flags.help({char: 'h'}),
@@ -51,5 +55,13 @@ Please check your network connection.`)
 
     if (error.oclif && error.oclif.exit === 0) return
     this.error(error.message)
+  }
+
+  setAxiosToken(config: IConfig): void {
+    if (!config['api-token']) {
+      return
+    }
+
+    this.axiosConfig.headers.Authorization = `Bearer ${config['api-token']}`
   }
 }

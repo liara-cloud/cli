@@ -434,14 +434,6 @@ Please open up https://console.liara.ir/projects and unfreeze the project.`)
     this.log(`${chalk.gray(`${key}:`)} ${value}`)
   }
 
-  setAxiosToken(config: IDeploymentConfig): void {
-    if (!config['api-token']) {
-      return
-    }
-
-    this.axiosConfig.headers.Authorization = `Bearer ${config['api-token']}`
-  }
-
   validateDeploymentConfig(config: IDeploymentConfig) {
     if (config.volume && !path.isAbsolute(config.volume)) {
       this.error('Volume path must be absolute.')

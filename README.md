@@ -32,6 +32,9 @@ USAGE
 * [`liara help [COMMAND]`](#liara-help-command)
 * [`liara login`](#liara-login)
 * [`liara logs`](#liara-logs)
+* [`liara restart [FILE]`](#liara-restart-file)
+* [`liara start [PROJECT]`](#liara-start-project)
+* [`liara stop [FILE]`](#liara-stop-file)
 
 ## `liara deploy`
 
@@ -110,4 +113,52 @@ OPTIONS
 ```
 
 _See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v1.7.5/src/commands/logs.ts)_
+
+## `liara restart [FILE]`
+
+describe the command here
+
+```
+USAGE
+  $ liara restart [FILE]
+
+OPTIONS
+  -f, --force
+  -h, --help       show CLI help
+  -n, --name=name  name to print
+```
+
+_See code: [src/commands/restart.ts](https://github.com/liara-ir/liara-cli/blob/v1.7.5/src/commands/restart.ts)_
+
+## `liara start [PROJECT]`
+
+start a project
+
+```
+USAGE
+  $ liara start [PROJECT]
+
+OPTIONS
+  -d, --debug            show debug logs
+  -h, --help             show CLI help
+  --api-token=api-token  your api token to use for authentication
+```
+
+_See code: [src/commands/start.ts](https://github.com/liara-ir/liara-cli/blob/v1.7.5/src/commands/start.ts)_
+
+## `liara stop [FILE]`
+
+describe the command here
+
+```
+USAGE
+  $ liara stop [FILE]
+
+OPTIONS
+  -f, --force
+  -h, --help       show CLI help
+  -n, --name=name  name to print
+```
+
+_See code: [src/commands/stop.ts](https://github.com/liara-ir/liara-cli/blob/v1.7.5/src/commands/stop.ts)_
 <!-- commandsstop -->
