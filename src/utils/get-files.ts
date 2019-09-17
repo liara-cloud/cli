@@ -127,7 +127,7 @@ export default async function getFiles(projectPath: string, debug: DebugLogger =
   await new Promise(resolve => {
     let tmpFiles: IKlawItem[] = []
 
-    klaw(projectPath)
+    klaw(projectPath, { preserveSymlinks: true })
       .pipe(addIgnorePatterns(ignoreInstance, projectPath))
       .pipe(ignoreFiles(ignoreInstance, projectPath, debug))
       .on('data', (file: IKlawItem) => tmpFiles.push(file))
