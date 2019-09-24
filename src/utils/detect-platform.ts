@@ -36,8 +36,12 @@ Please specify your platform with --platform=laravel or docker.`)
   if (hasRequirementsTxtFile) {
     const requirementsTxt = readFileSync(requirementsTxtFilePath)
 
-    if (requirementsTxt.includes('Django')) {
+    if (requirementsTxt.includes('Django') || requirementsTxt.includes('django')) {
       return 'django'
+    }
+
+    if (requirementsTxt.includes('Flask') || requirementsTxt.includes('flask')) {
+      return 'flask'
     }
   }
 
