@@ -5,9 +5,11 @@ export default function detectPlatform(projectPath: string) {
   const packageJsonFilePath = path.join(projectPath, 'package.json')
   const composeJsonFilePath = path.join(projectPath, 'composer.json')
   const requirementsTxtFilePath = path.join(projectPath, 'requirements.txt')
+  const indexPHPFilePath = path.join(projectPath, 'index.php')
 
   const hasPackageFile = existsSync(packageJsonFilePath)
   const hasComposerJsonFile = existsSync(composeJsonFilePath)
+  const hasIndexPHPFile = existsSync(indexPHPFilePath)
   const hasRequirementsTxtFile = existsSync(requirementsTxtFilePath)
   const hasDockerFile = existsSync(path.join(projectPath, 'Dockerfile'))
   const hasWPContent = existsSync(path.join(projectPath, 'wp-content'))
@@ -20,12 +22,15 @@ Please specify your platform with --platform=laravel or docker.`)
   if (hasComposerJsonFile) {
     const composerJson = readJSONSync(composeJsonFilePath)
 
-    if (!composerJson.require || !composerJson.require['laravel/framework']) {
-      throw new Error(`The project contains a \`composer.json\` file but Laravel framework doesn't listed as a dependency.
-Currently, we only support Laravel projects in the PHP ecosystem.\n`)
+    if (composerJson.require && composerJson.require['laravel/framework']) {
+      return 'laravel'
     }
 
-    return 'laravel'
+    return 'php'
+  }
+
+  if(hasIndexPHPFile) {
+    return 'php'
   }
 
   if (hasRequirementsTxtFile) {
