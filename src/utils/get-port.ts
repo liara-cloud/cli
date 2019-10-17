@@ -10,7 +10,7 @@ export default function getPort(platform: string): number {
     angular: 80,
     laravel: 80,
     wordpress: 80,
-    django: 8000,
+    django: 80,
     flask: 8000,
     php: 80,
   }
