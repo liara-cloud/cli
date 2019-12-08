@@ -227,7 +227,7 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
     body.platformConfig = config[config.platform]
 
     this.spinner.start('Collecting project files...')
-    const {files, directories, mapHashesToFiles} = await getFiles(config.path, this.debug)
+    const {files, directories, mapHashesToFiles} = await getFiles(config.path, config.platform, this.debug)
     this.spinner.stop()
 
     body.files = files

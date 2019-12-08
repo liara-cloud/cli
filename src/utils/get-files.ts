@@ -21,6 +21,12 @@ const defaultIgnores: string[] = [
   'bower_components',
 ]
 
+const platformIgnores: { [platform: string]: string[] } = {
+  django: ['venv'],
+  flask: ['venv'],
+  laravel: ['vendor'],
+}
+
 interface IKlawItem {
   path: string,
   stats: fs.Stats,
@@ -117,12 +123,15 @@ async function getFileMode(path: string): Promise<number> {
   }
 }
 
-export default async function getFiles(projectPath: string, debug: DebugLogger = () => {}) {
+export default async function getFiles(projectPath: string, platform?: string, debug: DebugLogger = () => {}) {
   const mapHashesToFiles = new Map<string, IMapItem>()
   const directories: IDirectory[] = []
 
   const ignoreInstance = ignore({ignorecase: false})
   ignoreInstance.add(defaultIgnores)
+
+  // @ts-ignore
+  ignoreInstance.add(platformIgnores[platform] || [])
 
   await new Promise(resolve => {
     let tmpFiles: IKlawItem[] = []
