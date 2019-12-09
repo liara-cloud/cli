@@ -22,9 +22,9 @@ const defaultIgnores: string[] = [
 ]
 
 const platformIgnores: { [platform: string]: string[] } = {
-  django: ['venv'],
-  flask: ['venv'],
-  laravel: ['vendor'],
+  django: ['/venv'],
+  flask: ['/venv'],
+  laravel: ['/vendor'],
 }
 
 interface IKlawItem {
