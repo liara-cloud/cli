@@ -3,8 +3,17 @@ import {expect} from '@oclif/test'
 import fixture from './utils/fixture'
 import getFiles from '../src/utils/get-files'
 import validatePort from '../src/utils/validate-port'
+import detectPlatform from '../src/utils/detect-platform'
 
 describe('utils', () => {
+  it('should detect DotNetCore platform', () => {
+    expect(detectPlatform(fixture('dotnetcore-apps/app1'))).to.not.eq('core') // Too deep
+    expect(detectPlatform(fixture('dotnetcore-apps/app3'))).to.not.eq('core') // No .csproj file
+
+    expect(detectPlatform(fixture('dotnetcore-apps/app2'))).to.eq('core') // Max deep
+    expect(detectPlatform(fixture('dotnetcore-apps/app4'))).to.eq('core')
+  })
+
   it('should throw an error for invalid liara.json file', async () => {
     expect(validatePort('asdf')).to.contain('number')
     expect(validatePort('3.2')).to.contain('integer')

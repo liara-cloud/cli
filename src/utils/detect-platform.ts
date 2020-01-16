@@ -1,4 +1,5 @@
 import path from 'path'
+import globby from 'globby'
 import {readJSONSync, existsSync, readFileSync} from 'fs-extra'
 
 export default function detectPlatform(projectPath: string) {
@@ -6,6 +7,11 @@ export default function detectPlatform(projectPath: string) {
   const composeJsonFilePath = path.join(projectPath, 'composer.json')
   const requirementsTxtFilePath = path.join(projectPath, 'requirements.txt')
   const indexPHPFilePath = path.join(projectPath, 'index.php')
+  const [programCSFilePath] = globby.sync('**/{Startup.cs,Program.cs}', {
+    cwd: projectPath,
+    gitignore: true,
+    deep: 5,
+  });
 
   const hasPackageFile = existsSync(packageJsonFilePath)
   const hasComposerJsonFile = existsSync(composeJsonFilePath)
@@ -13,6 +19,19 @@ export default function detectPlatform(projectPath: string) {
   const hasRequirementsTxtFile = existsSync(requirementsTxtFilePath)
   const hasDockerFile = existsSync(path.join(projectPath, 'Dockerfile'))
   const hasWPContent = existsSync(path.join(projectPath, 'wp-content'))
+  const hasCSProjFile = programCSFilePath && globby.sync('*.csproj', {
+    gitignore: true,
+    cwd: path.join(projectPath, path.dirname(programCSFilePath)),
+  }).length;
+
+  if(hasCSProjFile && hasDockerFile) {
+    throw new Error(`The project contains both of the \`*.csproj\` and \`Dockerfile\` files.
+Please specify your platform with --platform=core or docker.`)
+  }
+
+  if(hasCSProjFile) {
+    return 'core';
+  }
 
   if (hasComposerJsonFile && hasDockerFile) {
     throw new Error(`The project contains both of the \`composer.json\` and \`Dockerfile\` files.
