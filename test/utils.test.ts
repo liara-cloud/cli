@@ -7,11 +7,11 @@ import detectPlatform from '../src/utils/detect-platform'
 
 describe('utils', () => {
   it('should detect DotNetCore platform', () => {
-    expect(detectPlatform(fixture('dotnetcore-apps/app1'))).to.not.eq('core') // Too deep
-    expect(detectPlatform(fixture('dotnetcore-apps/app3'))).to.not.eq('core') // No .csproj file
+    expect(detectPlatform(fixture('dotnetcore-apps/app1'))).to.not.eq('netcore') // Too deep
+    expect(detectPlatform(fixture('dotnetcore-apps/app3'))).to.not.eq('netcore') // No .csproj file
 
-    expect(detectPlatform(fixture('dotnetcore-apps/app2'))).to.eq('core') // Max deep
-    expect(detectPlatform(fixture('dotnetcore-apps/app4'))).to.eq('core')
+    expect(detectPlatform(fixture('dotnetcore-apps/app2'))).to.eq('netcore') // Max deep
+    expect(detectPlatform(fixture('dotnetcore-apps/app4'))).to.eq('netcore')
   })
 
   it('should throw an error for invalid liara.json file', async () => {
