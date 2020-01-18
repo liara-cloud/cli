@@ -13,6 +13,7 @@ export default function getPort(platform: string): number {
     django: 80,
     flask: 8000,
     php: 80,
+    netcore: 80,
   }
   return ports[platform]
 }

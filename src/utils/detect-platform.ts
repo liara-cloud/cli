@@ -26,11 +26,11 @@ export default function detectPlatform(projectPath: string) {
 
   if(hasCSProjFile && hasDockerFile) {
     throw new Error(`The project contains both of the \`*.csproj\` and \`Dockerfile\` files.
-Please specify your platform with --platform=core or docker.`)
+Please specify your platform with --platform=netcore or docker.`)
   }
 
   if(hasCSProjFile) {
-    return 'core';
+    return 'netcore';
   }
 
   if (hasComposerJsonFile && hasDockerFile) {
