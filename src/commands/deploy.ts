@@ -557,10 +557,10 @@ You must add a 'start' command to your package.json scripts.`)
     const bar = new ProgressBar('Uploading [:bar] :rate/bps :percent :etas', {total: archiveSize})
 
     return new Promise(resolve => {
+      // @ts-ignore
       const req = request.post({
         url: '/v1/files/archive',
         baseUrl: this.axiosConfig.baseURL,
-        // @ts-ignore
         data: tmpArchiveStream,
         headers: {
           Authorization: this.axiosConfig.headers.Authorization,
