@@ -72,7 +72,7 @@ export default class TunnelOpen extends Command {
 
     const dstHost = database.node.host;
     const dstPort = String(database.port);
-    const localPort = String(await getPort());
+    const localPort = String(await getPort({ host: '127.0.0.1', port: getPort.makeRange(30000, 31000) }));
 
     const options: SpawnOptions = flags.debug ? {} : {
       stdio: 'ignore',
