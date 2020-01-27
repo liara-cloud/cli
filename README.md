@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/1.10.1 linux-x64 node-v10.18.0
+@liara/cli/1.11.0 linux-x64 node-v10.18.1
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -35,6 +35,8 @@ USAGE
 * [`liara restart [PROJECT]`](#liara-restart-project)
 * [`liara start [PROJECT]`](#liara-start-project)
 * [`liara stop [PROJECT]`](#liara-stop-project)
+* [`liara tunnel:close`](#liara-tunnelclose)
+* [`liara tunnel:open`](#liara-tunnelopen)
 
 ## `liara deploy`
 
@@ -59,7 +61,7 @@ OPTIONS
   --port=port            the port that your app listens to
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v1.10.1/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v1.11.0/src/commands/deploy.ts)_
 
 ## `liara help [COMMAND]`
 
@@ -94,7 +96,7 @@ OPTIONS
   --api-token=api-token    your api token to use for authentication
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v1.10.1/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v1.11.0/src/commands/login.ts)_
 
 ## `liara logs`
 
@@ -112,7 +114,7 @@ OPTIONS
   --api-token=api-token  your api token to use for authentication
 ```
 
-_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v1.10.1/src/commands/logs.ts)_
+_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v1.11.0/src/commands/logs.ts)_
 
 ## `liara restart [PROJECT]`
 
@@ -128,7 +130,7 @@ OPTIONS
   --api-token=api-token  your api token to use for authentication
 ```
 
-_See code: [src/commands/restart.ts](https://github.com/liara-ir/liara-cli/blob/v1.10.1/src/commands/restart.ts)_
+_See code: [src/commands/restart.ts](https://github.com/liara-ir/liara-cli/blob/v1.11.0/src/commands/restart.ts)_
 
 ## `liara start [PROJECT]`
 
@@ -144,7 +146,7 @@ OPTIONS
   --api-token=api-token  your api token to use for authentication
 ```
 
-_See code: [src/commands/start.ts](https://github.com/liara-ir/liara-cli/blob/v1.10.1/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/liara-ir/liara-cli/blob/v1.11.0/src/commands/start.ts)_
 
 ## `liara stop [PROJECT]`
 
@@ -160,5 +162,37 @@ OPTIONS
   --api-token=api-token  your api token to use for authentication
 ```
 
-_See code: [src/commands/stop.ts](https://github.com/liara-ir/liara-cli/blob/v1.10.1/src/commands/stop.ts)_
+_See code: [src/commands/stop.ts](https://github.com/liara-ir/liara-cli/blob/v1.11.0/src/commands/stop.ts)_
+
+## `liara tunnel:close`
+
+close all open ssh tunnels
+
+```
+USAGE
+  $ liara tunnel:close
+
+OPTIONS
+  -d, --debug            show debug logs
+  -h, --help             show CLI help
+  --api-token=api-token  your api token to use for authentication
+```
+
+_See code: [src/commands/tunnel/close.ts](https://github.com/liara-ir/liara-cli/blob/v1.11.0/src/commands/tunnel/close.ts)_
+
+## `liara tunnel:open`
+
+open a ssh tunnel
+
+```
+USAGE
+  $ liara tunnel:open
+
+OPTIONS
+  -d, --debug            show debug logs
+  -h, --help             show CLI help
+  --api-token=api-token  your api token to use for authentication
+```
+
+_See code: [src/commands/tunnel/open.ts](https://github.com/liara-ir/liara-cli/blob/v1.11.0/src/commands/tunnel/open.ts)_
 <!-- commandsstop -->
