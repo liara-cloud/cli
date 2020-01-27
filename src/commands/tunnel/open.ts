@@ -79,7 +79,7 @@ export default class TunnelOpen extends Command {
       detached: true,
     };
     const subprocess = spawn(process.argv[0], [
-      __dirname + '/../../tunnel.js',
+      __dirname + '/../../../bin/tunnel.js',
       dstHost,
       dstPort,
       localPort,
