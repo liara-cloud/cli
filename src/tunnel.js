@@ -29,6 +29,7 @@ const config = {
   dstPort: dstPort,
   localHost: '127.0.0.1',
   localPort: localPort,
+  keepAlive: true,
 };
 
 tunnel(config, function (error) {
