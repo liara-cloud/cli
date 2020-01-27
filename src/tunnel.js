@@ -39,7 +39,7 @@ tunnel(config, function (error) {
   console.log('Tunnel has been established.');
 })
 .on('connection', function(info) {
-  console.log('New Connection:', info);
+  console.log('New Connection...');
 })
 .on('error', function(error) {
   console.error('FAILED:', error)
