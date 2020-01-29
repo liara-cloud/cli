@@ -35,6 +35,14 @@ interface INodePlatformConfig {
   version?: number,
 }
 
+interface IHealthConfig {
+  command?: string | string[],
+  interval?: number,
+  timeout?: number,
+  retries?: number,
+  startPeriod?: number,
+}
+
 interface ILiaraJSON {
   project?: string,
   platform?: string,
@@ -45,6 +53,7 @@ interface ILiaraJSON {
   cron?: string[],
   laravel?: ILaravelPlatformConfig,
   node?: INodePlatformConfig,
+  healthCheck?: IHealthConfig,
 }
 
 interface IFlags {
@@ -225,6 +234,14 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
 
     // @ts-ignore
     body.platformConfig = config[config.platform]
+
+    if(config.healthCheck) {
+      body.healthCheck = config.healthCheck;
+
+      if(typeof config.healthCheck.command === 'string') {
+        body.healthCheck.command = config.healthCheck.command.split(' ')
+      }
+    }
 
     this.spinner.start('Collecting project files...')
     const {files, directories, mapHashesToFiles} = await getFiles(config.path, config.platform, this.debug)
@@ -437,6 +454,17 @@ Please open up https://console.liara.ir/projects and unfreeze the project.`)
   validateDeploymentConfig(config: IDeploymentConfig) {
     if (config.volume && !path.isAbsolute(config.volume)) {
       this.error('Volume path must be absolute.')
+    }
+
+    if(config.healthCheck && ! config.healthCheck.command) {
+      this.error('`command` field in healthCheck is required.')
+    }
+
+    if(config.healthCheck &&
+        typeof config.healthCheck.command !== 'string' &&
+        ! Array.isArray(config.healthCheck.command)
+    ) {
+      this.error('`command` field in healthCheck must be either an array or a string.')
     }
   }
 
