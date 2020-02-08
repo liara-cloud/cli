@@ -15,17 +15,17 @@ interface ILog {
 }
 
 export default class Logs extends Command {
-  static description = 'see a project\'s logs'
+  static description = 'Fetch the logs of an app'
 
   static flags = {
     ...Command.flags,
-    project: flags.string({char: 'p', description: 'project id', required: true}),
+    app: flags.string({char: 'a', description: 'app id', required: true}),
     since: flags.integer({char: 's', description: 'show logs since timestamp'}),
   }
 
   async run() {
     const {flags} = this.parse(Logs)
-    const project = flags.project
+    const project = flags.app
     let since: string | number = flags.since || 1
 
     this.debug = createDebugLogger(flags.debug)
@@ -47,7 +47,7 @@ export default class Logs extends Command {
       } catch (error) {
         if (error.response && error.response.status === 400) {
           // tslint:disable-next-line: no-console
-          console.error(new CLIError('Project not found.').render())
+          console.error(new CLIError('App not found.').render())
           process.exit(2)
         }
 

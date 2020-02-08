@@ -44,7 +44,7 @@ interface IHealthConfig {
 }
 
 interface ILiaraJSON {
-  project?: string,
+  app?: string,
   platform?: string,
   port?: number,
   volume?: string,
@@ -64,7 +64,7 @@ interface IFlags {
   volume?: string,
   image?: string,
   'api-token'?: string,
-  'no-project-logs': boolean,
+  'detach': boolean,
   args?: string[],
   'build-arg'?: string[],
 }
@@ -99,17 +99,17 @@ require('follow-redirects').maxBodyLength = 200 * 1024 * 1024 // 200 MB
 class DeployException extends Error {}
 
 export default class Deploy extends Command {
-  static description = 'deploy a project'
+  static description = 'deploy an app'
 
   static flags = {
     ...Command.flags,
-    path: flags.string({description: 'project path in your computer'}),
-    platform: flags.string({description: 'the platform your project needs to run'}),
-    project: flags.string({char: 'p', description: 'project id'}),
+    path: flags.string({description: 'app path in your computer'}),
+    platform: flags.string({description: 'the platform your app needs to run'}),
+    app: flags.string({char: 'a', description: 'app id'}),
     port: flags.integer({description: 'the port that your app listens to'}),
     volume: flags.string({char: 'v', description: 'volume absolute path'}),
     image: flags.string({char: 'i', description: 'docker image to deploy'}),
-    'no-project-logs': flags.boolean({description: 'do not stream project logs after deployment', default: false}),
+    'detach': flags.boolean({description: 'do not stream app logs after deployment', default: false}),
     args: flags.string({description: 'docker image entrypoint args', multiple: true}),
     'build-arg': flags.string({description: 'docker image build args', multiple: true}),
   }
@@ -155,15 +155,15 @@ export default class Deploy extends Command {
       config.platform = 'docker'
     }
 
-    if (!config.project) {
-      config.project = await this.promptProject()
+    if (!config.app) {
+      config.app = await this.promptProject()
     }
 
     if (!config.port) {
       config.port = getPort(config.platform) || await this.promptPort()
     }
 
-    this.logKeyValue('Project', config.project)
+    this.logKeyValue('App', config.app)
     this.logKeyValue('Path', config.path)
     isPlatformDetected
       ? this.logKeyValue('Detected platform', config.platform)
@@ -186,13 +186,17 @@ export default class Deploy extends Command {
       this.log()
       DEV_MODE
         // tslint:disable-next-line: no-http-string
-        ? this.log(`    ${chalk.cyan(`http://${config.project}.liara.localhost`)}`)
-        : this.log(`    ${chalk.cyan(`https://${config.project}.liara.run`)}`)
+        ? this.log(`    ${chalk.cyan(`http://${config.app}.liara.localhost`)}`)
+        : this.log(`    ${chalk.cyan(`https://${config.app}.liara.run`)}`)
       this.log()
 
-      if (!flags['no-project-logs']) {
-        this.log('Reading project logs...')
-        await Logs.run(['--project', config.project, '--since', moment().unix().toString()])
+      if (!flags['detach']) {
+        this.log('Reading app logs...')
+        await Logs.run([
+          '--app', config.app,
+          '--since', moment().unix().toString(),
+          '--api-token', flags["api-token"] || '',
+        ])
       }
 
     } catch (error) {
@@ -225,7 +229,7 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
 
     if (config.image) {
       body.image = config.image
-      return this.createRelease(config.project as string, body)
+      return this.createRelease(config.app as string, body)
     }
 
     if (config['build-arg']) {
@@ -243,7 +247,7 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
       }
     }
 
-    this.spinner.start('Collecting project files...')
+    this.spinner.start('Collecting files...')
     const {files, directories, mapHashesToFiles} = await getFiles(config.path, config.platform, this.debug)
     this.spinner.stop()
 
@@ -263,7 +267,7 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
     return retry(async bail => {
       try {
         this.spinner.start('Preparing for release...')
-        return await this.createRelease(config.project as string, body)
+        return await this.createRelease(config.app as string, body)
 
       } catch (error) {
         const {response} = error
@@ -271,21 +275,21 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
         if (!response) throw error // Retry deployment
 
         if (response.status === 404 && response.data.message === 'project_not_found') {
-          const exception = new DeployException(`Project does not exist.
-Please open up https://console.liara.ir/projects and create the project, first.`)
+          const exception = new DeployException(`App does not exist.
+Please open up https://console.liara.ir/apps and create the app, first.`)
           return bail(exception)
         }
 
         if (response.status === 400 && response.data.message === 'frozen_project') {
-          const exception = new DeployException(`Project is frozen (not enough balance).
-Please open up https://console.liara.ir/projects and unfreeze the project.`)
+          const exception = new DeployException(`App is frozen (not enough balance).
+Please open up https://console.liara.ir/apps and unfreeze the app.`)
           return bail(exception)
         }
 
         if (response.status === 400 && response.data.message === 'missing_files') {
           const {missingFiles} = response.data.data
 
-          this.logKeyValue('Files to upload:', missingFiles.length)
+          this.logKeyValue('Files to upload', missingFiles.length)
 
           this.spinner.stop()
 
@@ -442,7 +446,7 @@ Please open up https://console.liara.ir/projects and unfreeze the project.`)
 
   dontDeployEmptyProjects(projectPath: string) {
     if (fs.readdirSync(projectPath).length === 0) {
-      this.error('Project is empty!')
+      this.error('Directory is empty!')
     }
   }
 
@@ -477,14 +481,14 @@ Please open up https://console.liara.ir/projects and unfreeze the project.`)
       this.spinner.stop()
 
       if (!projects.length) {
-        this.warn('Please go to https://console.liara.ir/projects and create a project, first.')
+        this.warn('Please go to https://console.liara.ir/apps and create an app, first.')
         this.exit(1)
       }
 
       const {project} = await inquirer.prompt({
         name: 'project',
         type: 'list',
-        message: 'Please select a project:',
+        message: 'Please select an app:',
         choices: [
           ...projects.map(project => project.project_id),
         ]
@@ -544,7 +548,7 @@ Please open up https://console.liara.ir/projects and unfreeze the project.`)
       const packageJSON = fs.readJSONSync(path.join(projectPath, 'package.json'))
 
       if (!packageJSON.scripts || !packageJSON.scripts.start) {
-        this.error(`A NodeJS project must be runnable with 'npm start'.
+        this.error(`A NodeJS app must be runnable with 'npm start'.
 You must add a 'start' command to your package.json scripts.`)
       }
     }
