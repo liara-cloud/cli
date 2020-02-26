@@ -3,9 +3,9 @@ const npid = require('npid');
 const os = require('os');
 const fs = require('fs');
 
-const [_, __, dstHost, dstPort, localPort] = process.argv;
+const [_, __, dstHost, dstPort, sshPort, localPort, username, password, pidFolder] = process.argv;
 
-const baseDir = `${os.homedir()}/.liara-tunnels`;
+const baseDir = `${os.homedir()}/${pidFolder}`;
 
 try {
   fs.mkdirSync(baseDir, { recursive: true });
@@ -21,14 +21,14 @@ try {
 }
 
 const config = {
-  username: 'liara-cli',
-  password: '41bedf70-2cb9-4642-ba75-5ee29a799d48',
+  username: username,
+  password: password,
   host: dstHost,
-  port: 2220,
+  port: Number(sshPort),
   dstHost: dstHost,
-  dstPort: dstPort,
+  dstPort: Number(dstPort),
   localHost: '127.0.0.1',
-  localPort: localPort,
+  localPort: Number(localPort),
   keepAlive: true,
 };
 

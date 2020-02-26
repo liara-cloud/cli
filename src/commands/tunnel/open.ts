@@ -73,7 +73,7 @@ export default class TunnelOpen extends Command {
     const dstHost = database.node.host;
     const dstPort = String(database.port);
     const localPort = String(await getPort({ host: '127.0.0.1', port: getPort.makeRange(30000, 31000) }));
-
+    const pidFolder = '.liara-tunnels'
     const options: SpawnOptions = flags.debug ? {} : {
       stdio: 'ignore',
       detached: true,
@@ -82,7 +82,11 @@ export default class TunnelOpen extends Command {
       __dirname + '/../../../bin/tunnel.js',
       dstHost,
       dstPort,
+      '2220',
       localPort,
+      'liara-cli',
+      '41bedf70-2cb9-4642-ba75-5ee29a799d48',
+      pidFolder
     ], options);
 
     !flags.debug && subprocess.unref();
