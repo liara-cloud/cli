@@ -46,7 +46,6 @@ export default class SftpOpen extends Command {
     }) as {volumeName: string}
     
     const { data: { token } } = await axios.post<{ token: string }>(`/v1/sftp/${volumeName}`,null , this.axiosConfig)
-    console.log(token);
     
     const dstHost = '127.0.0.1';//TODO
     const dstPort = '1234';
@@ -61,7 +60,7 @@ export default class SftpOpen extends Command {
       __dirname + '/../../../bin/tunnel.js',
       dstHost,
       dstPort,
-      '2221',//TODO
+      '2220',//TODO
       localPort,
       volumeName,
       token,
