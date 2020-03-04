@@ -45,9 +45,9 @@ export default class SftpOpen extends Command {
       })),
     }) as {volumeName: string}
     
-    const { data: { token } } = await axios.post<{ token: string }>(`/v1/sftp/${volumeName}`,null , this.axiosConfig)
+    const { data: { token, host } } = await axios.post<{ token: string, host: string }>(`/v1/sftp/${volumeName}`,null , this.axiosConfig);
     
-    const dstHost = '127.0.0.1';//TODO
+    const dstHost = host;
     const dstPort = '1234';
     const localPort = String(await getPort({ host: '127.0.0.1', port: getPort.makeRange(30000, 31000) }));
     const pidFolder = '.liara-sftp'
@@ -60,7 +60,7 @@ export default class SftpOpen extends Command {
       __dirname + '/../../../bin/tunnel.js',
       dstHost,
       dstPort,
-      '2220',//TODO
+      '2221',
       localPort,
       volumeName,
       token,
