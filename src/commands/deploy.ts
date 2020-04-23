@@ -258,6 +258,11 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
     body.files = files
     body.directories = directories
 
+    this.spinner.start('Preparing for release...')
+    return this.createRelease(config.app as string, body, mapHashesToFiles)
+  }
+
+  createRelease(project: string, body: {[k: string]: any}, mapHashesToFiles?: Map<string, IMapItem>) {
     const retryOptions = {
       onRetry: (error: any) => {
         this.debug(`Retrying due to: ${error.message}`)
@@ -268,10 +273,10 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
         }
       },
     }
+
     return retry(async bail => {
       try {
-        this.spinner.start('Preparing for release...')
-        return await this.createRelease(config.app as string, body)
+        return await axios.post<{ releaseID: string }>(`/v2/projects/${project}/releases`, body, this.axiosConfig)
 
       } catch (error) {
         const {response} = error
@@ -290,7 +295,7 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`)
           return bail(exception)
         }
 
-        if (response.status === 400 && response.data.message === 'missing_files') {
+        if (response.status === 400 && response.data.message === 'missing_files' && mapHashesToFiles) {
           const {missingFiles} = response.data.data
 
           this.logKeyValue('Files to upload', missingFiles.length)
@@ -313,10 +318,6 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`)
         return bail(error)
       }
     }, retryOptions)
-  }
-
-  createRelease(project: string, body: {[k: string]: any}) {
-    return axios.post<{ releaseID: string }>(`/v2/projects/${project}/releases`, body, this.axiosConfig)
   }
 
   async showBuildLogs(releaseID: string) {
