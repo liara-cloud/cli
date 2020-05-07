@@ -44,6 +44,11 @@ interface IHealthConfig {
   startPeriod?: number,
 }
 
+interface IDisk {
+  name: String,
+  mountTo: String,
+}
+
 interface ILiaraJSON {
   app?: string,
   platform?: string,
@@ -52,6 +57,7 @@ interface ILiaraJSON {
   args?: string[],
   'build-arg'?: string[],
   cron?: string[],
+  disks?: IDisk[],
   laravel?: ILaravelPlatformConfig,
   node?: INodePlatformConfig,
   healthCheck?: IHealthConfig,
@@ -83,8 +89,12 @@ interface IGetProjectsResponse {
   projects: IProject[]
 }
 
+interface IRelease {
+  state: string, status: string, failReason?: string
+}
+
 interface IBuildLogsResponse {
-  release: { state: string },
+  release: IRelease,
   buildOutput: IBuildOutput[],
 }
 
@@ -171,6 +181,18 @@ export default class Deploy extends Command {
       : this.logKeyValue('Platform', config.platform)
     this.logKeyValue('Port', String(config.port))
 
+    if(config.volume) {
+      this.logKeyValue('Volume', config.volume)
+      console.log(`${chalk.yellowBright('[warn]')} "volume" field is deprecated. Please use "disks" instead: https://docs.liara.ir/apps/disks`)
+    }
+
+    if(config.disks) {
+      this.logKeyValue('Disks')
+      for(const disk of config.disks) {
+        console.log(`  ${disk.name} ${chalk.blue('->')} ${disk.mountTo}`)
+      }
+    }
+
     try {
       const response = await this.deploy(config)
 
@@ -227,6 +249,7 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
       type: config.platform,
       mountPoint: config.volume,
       message: config.message,
+      disks: config.disks,
     }
 
     if (config.image) {
@@ -380,10 +403,15 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`)
             }
 
             if (release.state === 'TIMEDOUT') {
+              this.spinner.fail();
               return reject(new Error('TIMEOUT'))
             }
 
             if (release.state === 'FAILED') {
+              this.spinner.fail();
+              if(release.failReason) {
+                return reject(new DeployException(this.parseFailReason(release.failReason)))
+              }
               return reject(new Error('Release failed.'))
             }
 
@@ -424,14 +452,20 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`)
   async showReleaseLogs(releaseID: string) {
     this.spinner.start('Creating a new release...')
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       const poller = new Poller()
 
       poller.onPoll(async () => {
         try {
-          const {data: {release}} = await axios.get<{
-            release: {state: string, status: string}
-          }>(`/v1/releases/${releaseID}`, this.axiosConfig)
+          const {data: {release}} = await axios.get<{release: IRelease}>(`/v1/releases/${releaseID}`, this.axiosConfig)
+
+          if (release.state === 'FAILED') {
+            this.spinner.fail();
+            if(release.failReason) {
+              return reject(new DeployException(this.parseFailReason(release.failReason)))
+            }
+            return reject(new Error('Release failed.'))
+          }
 
           if (release.state === 'READY') {
             this.spinner.succeed('Release created.')
@@ -449,18 +483,33 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`)
     })
   }
 
+  parseFailReason(reason: string) {
+    const [errorName, ...data] = reason.split(' ');
+
+    if(errorName === 'disk_not_found') {
+      return `Could not find disk \`${data[0]}\`.`;
+    }
+
+    return reason;
+  }
+
   dontDeployEmptyProjects(projectPath: string) {
     if (fs.readdirSync(projectPath).length === 0) {
       this.error('Directory is empty!')
     }
   }
 
-  logKeyValue(key: string, value: string): void {
+  logKeyValue(key: string, value: string = ''): void {
     this.spinner.clear().frame()
-    this.log(`${chalk.gray(`${key}:`)} ${value}`)
+    this.log(`${chalk.blue(`${key}:`)} ${value}`)
   }
 
   validateDeploymentConfig(config: IDeploymentConfig) {
+    if(config.volume && config.disks) {
+      this.error("You can't use `volume` and `disks` fields at the same time.\
+ Please consider using only one of them.");
+    }
+
     if (config.volume && !path.isAbsolute(config.volume)) {
       this.error('Volume path must be absolute.')
     }
