@@ -21,9 +21,35 @@ const defaultIgnores: string[] = [
   'bower_components',
 ]
 
+const pythonPlatformsIgnores: string[] = [
+  'venv',
+  '/venv',
+  '.venv',
+  '.env',
+  'ENV',
+  '.python-version',
+  '.cache',
+  '__pycache__',
+  'lib',
+  'lib64',
+  '*.py[cod]',
+  '*$py.class',
+  'pip-log.txt',
+  'pip-delete-this-directory.txt',
+  'celerybeat-schedule',
+]
+
 const platformIgnores: { [platform: string]: string[] } = {
-  django: ['/venv'],
-  flask: ['/venv'],
+  django: [
+    ...pythonPlatformsIgnores,
+    '*.log',
+    'local_settings.py'
+  ],
+  flask: [
+    ...pythonPlatformsIgnores,
+    'instance',
+    '.webassets-cache'
+  ],
   laravel: ['/vendor'],
 }
 
