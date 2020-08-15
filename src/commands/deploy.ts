@@ -640,7 +640,13 @@ You must add a 'start' command to your package.json scripts.`)
     this.logKeyValue('Compressed size', bytes(archiveSize))
 
     const tmpArchiveStream = fs.createReadStream(tmpArchivePath)
-    const bar = new ProgressBar('Uploading [:bar] :rate/bps :percent :etas', {total: archiveSize})
+    const bar = new ProgressBar('Uploading [:bar] :percent :etas', {
+      total: archiveSize,
+      width: 20,
+      complete: '=',
+      incomplete: '',
+      clear: true,
+    })
 
     return new Promise(resolve => {
       // @ts-ignore
