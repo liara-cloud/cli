@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.4.1 linux-x64 node-v10.18.1
+@liara/cli/2.5.0 linux-x64 node-v10.18.1
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -60,9 +60,10 @@ OPTIONS
   --path=path            app path in your computer
   --platform=platform    the platform your app needs to run
   --port=port            the port that your app listens to
+  --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.4.1/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.5.0/src/commands/deploy.ts)_
 
 ## `liara help [COMMAND]`
 
@@ -95,9 +96,10 @@ OPTIONS
   -h, --help               show CLI help
   -p, --password=password  your password
   --api-token=api-token    your api token to use for authentication
+  --region=iran|germany    the region you want to deploy your app to
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.4.1/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.5.0/src/commands/login.ts)_
 
 ## `liara logs`
 
@@ -113,9 +115,10 @@ OPTIONS
   -h, --help             show CLI help
   -s, --since=since      show logs since timestamp
   --api-token=api-token  your api token to use for authentication
+  --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.4.1/src/commands/logs.ts)_
+_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.5.0/src/commands/logs.ts)_
 
 ## `liara restart [PROJECT]`
 
@@ -129,9 +132,10 @@ OPTIONS
   -d, --debug            show debug logs
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
+  --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.4.1/src/commands/restart.ts)_
+_See code: [src/commands/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.5.0/src/commands/restart.ts)_
 
 ## `liara start [PROJECT]`
 
@@ -145,9 +149,10 @@ OPTIONS
   -d, --debug            show debug logs
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
+  --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.4.1/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.5.0/src/commands/start.ts)_
 
 ## `liara stop [PROJECT]`
 
@@ -161,9 +166,10 @@ OPTIONS
   -d, --debug            show debug logs
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
+  --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.4.1/src/commands/stop.ts)_
+_See code: [src/commands/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.5.0/src/commands/stop.ts)_
 
 ## `liara tunnel:close`
 
@@ -177,9 +183,10 @@ OPTIONS
   -d, --debug            show debug logs
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
+  --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/tunnel/close.ts](https://github.com/liara-ir/liara-cli/blob/v2.4.1/src/commands/tunnel/close.ts)_
+_See code: [src/commands/tunnel/close.ts](https://github.com/liara-ir/liara-cli/blob/v2.5.0/src/commands/tunnel/close.ts)_
 
 ## `liara tunnel:open`
 
@@ -193,7 +200,8 @@ OPTIONS
   -d, --debug            show debug logs
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
+  --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/tunnel/open.ts](https://github.com/liara-ir/liara-cli/blob/v2.4.1/src/commands/tunnel/open.ts)_
+_See code: [src/commands/tunnel/open.ts](https://github.com/liara-ir/liara-cli/blob/v2.5.0/src/commands/tunnel/open.ts)_
 <!-- commandsstop -->
