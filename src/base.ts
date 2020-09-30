@@ -64,7 +64,9 @@ Please check your network connection.`)
       this.axiosConfig.headers.Authorization = `Bearer ${config['api-token']}`
     }
 
-    const actualBaseURL = REGIONS_API_URL[config['region'] || FALLBACK_REGION];
+    config['region'] = config['region'] || FALLBACK_REGION;
+
+    const actualBaseURL = REGIONS_API_URL[config['region']];
     this.axiosConfig.baseURL = DEV_MODE ? 'http://localhost:3000' : actualBaseURL;
     if(DEV_MODE) {
       this.log(`[dev] The actual base url is: ${actualBaseURL}`);
