@@ -16,7 +16,7 @@ import {flags} from '@oclif/command'
 import Logs from './logs'
 import Command from '../base'
 import Poller from '../utils/poller'
-import {DEV_MODE} from '../constants'
+import {DEV_MODE, REGIONS_API_URL} from '../constants'
 import getPort from '../utils/get-port'
 import checkPath from '../utils/check-path'
 import onInterupt from '../utils/on-intrupt'
@@ -71,6 +71,7 @@ interface IFlags {
   volume?: string,
   image?: string,
   'api-token'?: string,
+  'region'?: string,
   'detach': boolean,
   args?: string[],
   'build-arg'?: string[],
@@ -146,7 +147,7 @@ export default class Deploy extends Command {
       this.dontDeployEmptyProjects(config.path)
     }
 
-    this.setAxiosToken(config)
+    this.setAxiosConfig(config)
 
     this.validateDeploymentConfig(config)
 
@@ -207,10 +208,14 @@ export default class Deploy extends Command {
       this.log(chalk.green('Deployment finished successfully.'))
       this.log(chalk.white('Open up the url below in your browser:'))
       this.log()
-      DEV_MODE
+
+      const defaultSubdomain: string = config.region === 'iran' ? ".iran.liara.run" : ".liara.run"
+      const urlLogMessage = DEV_MODE
         // tslint:disable-next-line: no-http-string
-        ? this.log(`    ${chalk.cyan(`http://${config.app}.liara.localhost`)}`)
-        : this.log(`    ${chalk.cyan(`https://${config.app}.liara.run`)}`)
+        ? `    ${chalk.cyan(`http://${config.app}.liara.localhost`)}`
+        : `    ${chalk.cyan(`https://${config.app}${defaultSubdomain}`)}`
+      this.log(urlLogMessage)
+
       this.log()
 
       if (!flags['detach']) {
@@ -219,6 +224,7 @@ export default class Deploy extends Command {
           '--app', config.app,
           '--since', moment().unix().toString(),
           '--api-token', flags["api-token"] || '',
+          '--region', config.region || '',
         ])
       }
 

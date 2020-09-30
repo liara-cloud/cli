@@ -45,10 +45,17 @@ export default class TunnelOpen extends Command {
     const {flags} = this.parse(TunnelOpen)
     this.spinner = ora()
 
-    this.setAxiosToken({
+    const config = {
       ...this.readGlobalConfig(),
       ...flags,
-    })
+    }
+
+    this.setAxiosConfig(config)
+
+    if(config.region === 'iran') {
+      this.error(`We don't support tunneling in "iran" region.
+More info: https://docs.liara.ir/databases/tunnel`)
+    }
 
     this.spinner.start('Loading...');
 

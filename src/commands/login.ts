@@ -10,7 +10,7 @@ import {validate as validateEmail} from 'email-validator'
 import Command from '../base'
 import eraseLines from '../utils/erase-lines'
 import {createDebugLogger} from '../utils/output'
-import {GLOBAL_CONF_PATH} from '../constants'
+import {GLOBAL_CONF_PATH, REGIONS_API_URL} from '../constants'
 
 export default class Login extends Command {
   static description = 'login to your account'
@@ -24,8 +24,27 @@ export default class Login extends Command {
   async run() {
     const {flags} = this.parse(Login)
     const debug = createDebugLogger(flags.debug)
+    let region = flags.region;
 
     const body = {email: flags.email, password: flags.password}
+
+    if (!region) {
+      const {selectedRegion} = await prompt({
+        name: 'selectedRegion',
+        type: 'list',
+        message: 'Please select a region:',
+        choices: [
+          "iran",
+          "germany",
+        ]
+      }) as {selectedRegion: string}
+
+      region = selectedRegion
+    } else {
+      this.log(`You're logging into "${region}" region:`);
+    }
+
+    this.axiosConfig.baseURL = REGIONS_API_URL[region]
 
     if (!flags.email) {
       let emailIsValid = false
@@ -62,6 +81,7 @@ export default class Login extends Command {
 
     fs.writeFileSync(GLOBAL_CONF_PATH, JSON.stringify({
       api_token,
+      region,
     }))
 
     this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`)

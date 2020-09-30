@@ -15,7 +15,7 @@ export default class Stop extends Command {
 
     const debug = createDebugLogger(flags.debug)
 
-    this.setAxiosToken({
+    this.setAxiosConfig({
       ...this.readGlobalConfig(),
       ...flags,
     })

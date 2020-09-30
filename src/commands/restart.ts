@@ -15,7 +15,7 @@ export default class Restart extends Command {
 
     const debug = createDebugLogger(flags.debug)
 
-    this.setAxiosToken({
+    this.setAxiosConfig({
       ...this.readGlobalConfig(),
       ...flags,
     })

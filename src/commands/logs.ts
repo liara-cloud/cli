@@ -30,6 +30,11 @@ export default class Logs extends Command {
 
     this.debug = createDebugLogger(flags.debug)
 
+    this.setAxiosConfig({
+      ...this.readGlobalConfig(),
+      ...flags,
+    })
+
     setInterval(async () => {
       this.debug('Polling...')
 
@@ -38,14 +43,11 @@ export default class Logs extends Command {
       try {
         const {data} = await axios.get<ILog[]>(`/v1/projects/${project}/logs?since=${since}`, {
           ...this.axiosConfig,
-          headers: {
-            Authorization: `Bearer ${flags['api-token'] || this.readGlobalConfig()['api-token']}`
-          }
         })
 
         logs = data
       } catch (error) {
-        if (error.response && error.response.status === 400) {
+        if (error.response && error.response.status === 404) {
           // tslint:disable-next-line: no-console
           console.error(new CLIError('App not found.').render())
           process.exit(2)

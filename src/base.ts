@@ -4,16 +4,18 @@ import Command, {flags} from '@oclif/command'
 import updateNotifier from 'update-notifier'
 
 import './interceptors'
-import {API_BASE_URL, GLOBAL_CONF_PATH} from './constants'
+import {DEV_MODE, FALLBACK_REGION, GLOBAL_CONF_PATH, REGIONS_API_URL} from './constants'
 
 updateNotifier({pkg: require('../package.json')}).notify()
 
 export interface IGlobalLiaraConfig {
   'api-token'?: string,
+  'region'?: string,
 }
 
 export interface IConfig {
   'api-token'?: string,
+  'region'?: string,
 }
 
 export default abstract class extends Command {
@@ -22,13 +24,13 @@ export default abstract class extends Command {
     dev: flags.boolean({description: 'run in dev mode', hidden: true}),
     debug: flags.boolean({char: 'd', description: 'show debug logs'}),
     'api-token': flags.string({description: 'your api token to use for authentication'}),
+    region: flags.string({description: 'the region you want to deploy your app to', options:['iran', 'germany']}),
   }
 
   axiosConfig: AxiosRequestConfig = {
     ...axios.defaults,
-    baseURL: API_BASE_URL,
   }
-
+  
   readGlobalConfig(): IGlobalLiaraConfig {
     let content
 
@@ -57,11 +59,16 @@ Please check your network connection.`)
     this.error(error.message)
   }
 
-  setAxiosToken(config: IConfig): void {
-    if (!config['api-token']) {
-      return
+  setAxiosConfig(config: IConfig): void {
+    if (config['api-token']) {
+      this.axiosConfig.headers.Authorization = `Bearer ${config['api-token']}`
     }
 
-    this.axiosConfig.headers.Authorization = `Bearer ${config['api-token']}`
+    const actualBaseURL = REGIONS_API_URL[config['region'] || FALLBACK_REGION];
+    this.axiosConfig.baseURL = DEV_MODE ? 'http://localhost:3000' : actualBaseURL;
+    if(DEV_MODE) {
+      this.log(`[dev] The actual base url is: ${actualBaseURL}`);
+      this.log(`[dev] but in dev mode we use http://localhost:3000`)
+    }
   }
 }
