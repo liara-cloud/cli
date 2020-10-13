@@ -654,7 +654,9 @@ You must add a 'start' command to your package.json scripts.`)
       clear: true,
     })
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
+      let failed = false;
+
       // @ts-ignore
       const req = request.post({
         url: '/v1/files/archive',
@@ -665,7 +667,11 @@ You must add a 'start' command to your package.json scripts.`)
         },
       }) as any
 
-      const interval = setInterval(() => {
+      const interval: any = setInterval(() => {
+        if(failed) {
+          return clearInterval(interval)
+        }
+
         bar.tick(req.req.connection._bytesDispatched - bar.curr)
 
         if (bar.complete) {
@@ -675,12 +681,23 @@ You must add a 'start' command to your package.json scripts.`)
         }
       }, 250)
 
-      tmpArchiveStream.pipe(req)
-        .on('response', async () => {
-          this.spinner.succeed('Extract finished.')
-          fs.unlink(tmpArchivePath)
+      const cleanup = () => {
+        fs.unlink(tmpArchivePath)
             .then(() => {})
             .catch(() => {})
+      }
+
+      tmpArchiveStream.pipe(req)
+        .on('error', (error: Error) => {
+          failed = true;
+          this.spinner.fail('Upload failed.')
+          this.spinner.start('Trying again...')
+          cleanup()
+          reject(error)
+        })
+        .on('response', async () => {
+          this.spinner.succeed('Extract finished.')
+          cleanup()
           resolve()
         })
     })
