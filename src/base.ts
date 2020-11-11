@@ -1,4 +1,5 @@
 import fs from 'fs-extra'
+import got, {Options} from 'got'
 import axios, {AxiosRequestConfig} from 'axios'
 import Command, {flags} from '@oclif/command'
 import updateNotifier from 'update-notifier'
@@ -31,7 +32,9 @@ export default abstract class extends Command {
   axiosConfig: AxiosRequestConfig = {
     ...axios.defaults,
   }
-  
+
+  got = got.extend()
+
   readGlobalConfig(): IGlobalLiaraConfig {
     let content
 
@@ -61,25 +64,36 @@ Please check your network connection.`)
   }
 
   setAxiosConfig(config: IConfig): void {
-    const proxy = process.env.http_proxy || process.env.https_proxy;
+    const gotConfig: Options = {};
+
+    const proxy = process.env.http_proxy || process.env.https_proxy
     if(proxy) {
-      this.log(`Using proxy server ${proxy}`);
-      this.axiosConfig.proxy = false;
+      this.log(`Using proxy server ${proxy}`)
+
       // @ts-ignore
-      this.axiosConfig.httpsAgent = new HttpsProxyAgent(proxy);
+      const agent = new HttpsProxyAgent(proxy)
+
+      this.axiosConfig.httpsAgent = agent
+      this.axiosConfig.proxy = false // Prevents Axios to use proxy envs by itself
+
+      gotConfig.agent = { https: agent }
     }
 
     if (config['api-token']) {
       this.axiosConfig.headers.Authorization = `Bearer ${config['api-token']}`
+      gotConfig.headers = { Authorization: `Bearer ${config['api-token']}` }
     }
 
     config['region'] = config['region'] || FALLBACK_REGION;
 
     const actualBaseURL = REGIONS_API_URL[config['region']];
     this.axiosConfig.baseURL = DEV_MODE ? 'http://localhost:3000' : actualBaseURL;
+    gotConfig.prefixUrl = this.axiosConfig.baseURL
     if(DEV_MODE) {
       this.log(`[dev] The actual base url is: ${actualBaseURL}`);
       this.log(`[dev] but in dev mode we use http://localhost:3000`)
     }
+
+    this.got = got.extend(gotConfig)
   }
 }

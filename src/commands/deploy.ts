@@ -1,12 +1,13 @@
 import os from 'os'
 import ora from 'ora'
+import util from 'util'
 import path from 'path'
 import chalk from 'chalk'
 import bytes from 'bytes'
 import fs from 'fs-extra'
 import axios from 'axios'
+import stream from 'stream'
 import moment from 'moment'
-import request from 'request'
 import inquirer from 'inquirer'
 import retry from 'async-retry'
 import archiver from 'archiver'
@@ -108,6 +109,8 @@ interface IBuildOutput {
 }
 
 require('follow-redirects').maxBodyLength = 200 * 1024 * 1024 // 200 MB
+
+const pipeline = util.promisify(stream.pipeline);
 
 class DeployException extends Error {}
 
@@ -654,52 +657,34 @@ You must add a 'start' command to your package.json scripts.`)
       clear: true,
     })
 
+    const cleanup = () => {
+      fs.unlink(tmpArchivePath).then(() => {}).catch(() => {})
+    }
+
     return new Promise((resolve, reject) => {
-      let failed = false;
+      pipeline(
+        tmpArchiveStream,
+        this.got.stream.post('v1/files/archive')
+          .on('uploadProgress', progress => {
+            bar.tick(progress.transferred - bar.curr)
 
-      // @ts-ignore
-      const req = request.post({
-        url: '/v1/files/archive',
-        baseUrl: this.axiosConfig.baseURL,
-        data: tmpArchiveStream,
-        headers: {
-          Authorization: this.axiosConfig.headers.Authorization,
-        },
-      }) as any
-
-      const interval: any = setInterval(() => {
-        if(failed) {
-          return clearInterval(interval)
-        }
-
-        bar.tick(req.req.connection._bytesDispatched - bar.curr)
-
-        if (bar.complete) {
-          this.spinner.succeed('Upload finished.')
-          this.spinner.start('Extracting...')
-          clearInterval(interval)
-        }
-      }, 250)
-
-      const cleanup = () => {
-        fs.unlink(tmpArchivePath)
-            .then(() => {})
-            .catch(() => {})
-      }
-
-      tmpArchiveStream.pipe(req)
-        .on('error', (error: Error) => {
-          failed = true;
-          this.spinner.fail('Upload failed.')
-          this.spinner.start('Trying again...')
-          cleanup()
-          reject(error)
-        })
-        .on('response', async () => {
-          this.spinner.succeed('Extract finished.')
-          cleanup()
-          resolve()
-        })
+            if(progress.transferred === progress.total) {
+              this.spinner.succeed('Upload finished.')
+              this.spinner.start('Extracting...')
+            }
+          })
+          .on('error', (error: Error) => {
+            this.spinner.fail('Upload failed.')
+            this.spinner.start('Trying again...')
+            cleanup()
+            reject(error)
+          })
+          .on('response', async () => {
+            this.spinner.succeed('Extract finished.')
+            cleanup()
+            resolve()
+          })
+      );
     })
   }
 }
