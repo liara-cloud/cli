@@ -52,7 +52,7 @@
     "@types/inquirer": "^6.0.0",
     "@types/klaw": "^3.0.0",
     "@types/mocha": "^5.2.6",
-    "@types/node": "^10.14.4",
+    "@types/node": "^12.12.6",
     "@types/progress": "^2.0.3",
     "@types/request": "^2.48.1",
     "@types/through2": "^2.0.34",

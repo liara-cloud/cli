@@ -95,11 +95,12 @@ More info: https://docs.liara.ir/databases/tunnel`)
     !flags.debug && subprocess.unref();
 
     if(flags.debug) {
-      subprocess.stdout.on('data', (data) => {
+      // Ref: https://stackoverflow.com/a/29024376/6390238
+      subprocess.stdout && subprocess.stdout.on('data', (data) => {
         console.log(`stdout: ${data}`);
       });
   
-      subprocess.stderr.on('data', (data) => {
+      subprocess.stderr && subprocess.stderr.on('data', (data) => {
         console.log(`stderr: ${data}`);
       });
   
