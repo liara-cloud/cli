@@ -2,6 +2,7 @@ import fs from 'fs-extra'
 import axios, {AxiosRequestConfig} from 'axios'
 import Command, {flags} from '@oclif/command'
 import updateNotifier from 'update-notifier'
+import HttpsProxyAgent from 'https-proxy-agent'
 
 import './interceptors'
 import {DEV_MODE, FALLBACK_REGION, GLOBAL_CONF_PATH, REGIONS_API_URL} from './constants'
@@ -60,6 +61,14 @@ Please check your network connection.`)
   }
 
   setAxiosConfig(config: IConfig): void {
+    const proxy = process.env.http_proxy || process.env.https_proxy;
+    if(proxy) {
+      this.log(`Using proxy server ${proxy}`);
+      this.axiosConfig.proxy = false;
+      // @ts-ignore
+      this.axiosConfig.httpsAgent = new HttpsProxyAgent(proxy);
+    }
+
     if (config['api-token']) {
       this.axiosConfig.headers.Authorization = `Bearer ${config['api-token']}`
     }
