@@ -20,6 +20,8 @@ export interface IConfig {
   'region'?: string,
 }
 
+axios.defaults.timeout = 5000;
+
 export default abstract class extends Command {
   static flags = {
     help: flags.help({char: 'h'}),
