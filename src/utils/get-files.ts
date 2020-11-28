@@ -43,7 +43,8 @@ const platformIgnores: { [platform: string]: string[] } = {
   django: [
     ...pythonPlatformsIgnores,
     '*.log',
-    'local_settings.py'
+    'local_settings.py',
+    'staticfiles',
   ],
   flask: [
     ...pythonPlatformsIgnores,
@@ -51,6 +52,23 @@ const platformIgnores: { [platform: string]: string[] } = {
     '.webassets-cache'
   ],
   laravel: ['/vendor'],
+  netcore: [
+    // Source: https://gist.github.com/vmandic/ac2ecc9c24f6899ee0ec46e4ce444a0e
+    'Debug',
+    'debug',
+    'Release',
+    'release',
+    'Releases',
+    'releases',
+    'x64',
+    'x86',
+    'build',
+    'bld',
+    'Bin',
+    'bin',
+    'Obj',
+    'obj',
+  ],
 }
 
 interface IKlawItem {
