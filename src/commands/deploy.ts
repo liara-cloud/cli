@@ -309,8 +309,8 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
     return retry(async bail => {
       try {
         return await axios.post<{ releaseID: string }>(`/v2/projects/${project}/releases`, body, {
-          timeout: 60 * 1000,
           ...this.axiosConfig,
+          timeout: 120 * 1000,
         })
 
       } catch (error) {
