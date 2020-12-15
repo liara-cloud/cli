@@ -25,7 +25,8 @@ import getFiles, {IMapItem} from '../utils/get-files'
 import validatePort from '../utils/validate-port'
 import {createDebugLogger} from '../utils/output'
 import detectPlatform from '../utils/detect-platform'
-import collectGitInfo from '../utils/collect-git-info';
+import collectGitInfo from '../utils/collect-git-info'
+import listHugeDirs from '../utils/list-huge-dirs'
 
 interface ILaravelPlatformConfig {
   routeCache?: boolean,
@@ -286,6 +287,22 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
     this.spinner.start('Collecting files...')
     const {files, directories, mapHashesToFiles} = await getFiles(config.path, config.platform, this.debug)
     this.spinner.stop()
+
+    console.log(`${chalk.cyanBright('[info]')} Liara CLI uses .gitignore files to prevent uploading ignored files. Read more: https://docs.liara.ir/app-features/ignore`)
+
+    try {
+      const hugeDirs = listHugeDirs(files)
+      if(hugeDirs.length) {
+        console.log(`${chalk.yellowBright('[warn]')} The following directories contain too many files that will slow down your deployments. You should use disks and FTP to upload these files. Read more: https://docs.liara.ir/storage/disks/about`)
+  
+        for(const item of hugeDirs) {
+          console.log(`- ${item[0]}/  ${item[1]}`)
+        }
+      }
+
+    } catch (error) {
+      this.debug(`Listing huge directories failed: ${error.message}`)
+    }
 
     body.files = files
     body.directories = directories
