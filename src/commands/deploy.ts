@@ -293,7 +293,7 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
     try {
       const hugeDirs = listHugeDirs(files)
       if(hugeDirs.length) {
-        console.log(`${chalk.yellowBright('[warn]')} The following directories contain too many files that will slow down your deployments. You should use disks and FTP to upload these files. Read more: https://docs.liara.ir/storage/disks/about`)
+        console.log(`${chalk.yellowBright('[warn]')} The following directories contain too many files that will slow down your deployments. You should list them in the .gitignore file, then use disks and FTP to upload them. Read more: https://docs.liara.ir/storage/disks/about`)
   
         for(const item of hugeDirs) {
           console.log(`- ${item[0]}/  ${item[1]}`)
