@@ -1,16 +1,14 @@
 import os from 'os'
 import ora from 'ora'
-import util from 'util'
 import path from 'path'
 import chalk from 'chalk'
 import bytes from 'bytes'
 import fs from 'fs-extra'
 import axios from 'axios'
-import stream from 'stream'
 import moment from 'moment'
 import inquirer from 'inquirer'
 import retry from 'async-retry'
-import archiver from 'archiver'
+import FormData from 'form-data'
 import ProgressBar from 'progress'
 import {flags} from '@oclif/command'
 
@@ -21,12 +19,11 @@ import {DEV_MODE} from '../constants'
 import getPort from '../utils/get-port'
 import checkPath from '../utils/check-path'
 import onInterupt from '../utils/on-intrupt'
-import getFiles, {IMapItem} from '../utils/get-files'
 import validatePort from '../utils/validate-port'
 import {createDebugLogger} from '../utils/output'
+import createArchive from '../utils/create-archive'
 import detectPlatform from '../utils/detect-platform'
 import collectGitInfo from '../utils/collect-git-info'
-import listHugeDirs from '../utils/list-huge-dirs'
 
 interface ILaravelPlatformConfig {
   routeCache?: boolean,
@@ -109,9 +106,11 @@ interface IBuildOutput {
   createdAt: string,
 }
 
-require('follow-redirects').maxBodyLength = 200 * 1024 * 1024 // 200 MB
+interface ICreatedRelease {
+  releaseID: string,
+}
 
-const pipeline = util.promisify(stream.pipeline);
+const MAX_SOURCE_SIZE = 500 * 1024 * 1024 // 500 MB
 
 class DeployException extends Error {}
 
@@ -201,12 +200,8 @@ export default class Deploy extends Command {
     try {
       const response = await this.deploy(config)
 
-      if (!response || !response.data) {
-        return this.error(`deploy: ${JSON.stringify(response)}`)
-      }
-
-      !config.image && await this.showBuildLogs(response.data.releaseID)
-      config.image && await this.showReleaseLogs(response.data.releaseID)
+      !config.image && await this.showBuildLogs(response.releaseID)
+      config.image && await this.showReleaseLogs(response.releaseID)
 
       this.log()
       this.log(chalk.green('Deployment finished successfully.'))
@@ -235,14 +230,32 @@ export default class Deploy extends Command {
     } catch (error) {
       this.log()
       this.spinner.stop()
-      error.response && debug(JSON.stringify(error.response.data))
+      error.response && debug(error.response.body)
+      !error.response && debug(error)
+
+      const responseBody = error.response && error.response.statusCode >= 400 && error.response.statusCode < 500
+        ? JSON.parse(error.response.body)
+        : {};
 
       if (error.message === 'TIMEOUT') {
         this.error('Build timed out. It took about 10 minutes.')
       }
 
-      if (error instanceof DeployException) {
-        this.error(error.message)
+      if (error.response && error.response.statusCode === 404 && responseBody.message === 'project_not_found') {
+        const message = `App does not exist.
+Please open up https://console.liara.ir/apps and create the app, first.`
+        return this.error(message)
+      }
+
+      if (error.response && error.response.statusCode === 400 && responseBody.message === 'frozen_project') {
+        const message = `App is frozen (not enough balance).
+Please open up https://console.liara.ir/apps and unfreeze the app.`
+        return this.error(message)
+      }
+
+      if (error.response && error.response.statusCode >= 400 && error.response.statusCode < 500 && responseBody.message) {
+        const message = `CODE ${error.response.statusCode}: ${responseBody.message}`
+        return this.error(message)
       }
 
       this.error(`Deployment failed.
@@ -284,92 +297,34 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
       }
     }
 
-    this.spinner.start('Collecting files...')
-    const {files, directories, mapHashesToFiles} = await getFiles(config.path, config.platform, this.debug)
+    this.log(`${chalk.cyanBright('[info]')} Finding the .gitignore files...`)
+
+    this.spinner.start('Creating an archive...')
+
+    const tmpDir = path.join(os.tmpdir(), '/liara-cli')
+    const sourcePath = path.join(tmpDir, `${Date.now()}.tar.gz`)
+    fs.ensureDirSync(tmpDir)
+
+    await createArchive(sourcePath, config.path, config.platform, this.debug)
+
     this.spinner.stop()
 
-    console.log(`${chalk.cyanBright('[info]')} Liara CLI uses .gitignore files to prevent uploading ignored files. Read more: https://docs.liara.ir/app-features/ignore`)
+    const {size: sourceSize} = fs.statSync(sourcePath)
 
-    try {
-      const hugeDirs = listHugeDirs(files)
-      if(hugeDirs.length) {
-        console.log(`${chalk.yellowBright('[warn]')} The following directories contain too many files that will slow down your deployments. You should list them in the .gitignore file, then use disks and FTP to upload them. Read more: https://docs.liara.ir/storage/disks/about`)
-  
-        for(const item of hugeDirs) {
-          console.log(`- ${item[0]}/  ${item[1]}`)
-        }
-      }
+    this.logKeyValue('Compressed size', bytes(sourceSize))
 
-    } catch (error) {
-      this.debug(`Listing huge directories failed: ${error.message}`)
+    if(sourceSize > MAX_SOURCE_SIZE) {
+      this.error('Source is too large. (max: 500MB)')
     }
 
-    body.files = files
-    body.directories = directories
+    const sourceID = await this.upload(config.app as string, sourcePath, sourceSize)
 
-    this.spinner.start('Preparing for release...')
-    return this.createRelease(config.app as string, body, mapHashesToFiles)
+    body.sourceID = sourceID
+    return this.createRelease(config.app as string, body)
   }
 
-  createRelease(project: string, body: {[k: string]: any}, mapHashesToFiles?: Map<string, IMapItem>) {
-    const retryOptions = {
-      onRetry: (error: any) => {
-        this.debug(`Retrying due to: ${error.message}`)
-        if (error.response) {
-          this.debug(JSON.stringify(error.response.data))
-        } else {
-          this.debug(error.stack)
-        }
-      },
-    }
-
-    return retry(async bail => {
-      try {
-        return await axios.post<{ releaseID: string }>(`/v2/projects/${project}/releases`, body, {
-          ...this.axiosConfig,
-          timeout: 120 * 1000,
-        })
-
-      } catch (error) {
-        const {response} = error
-
-        if (!response) throw error // Retry deployment
-
-        if (response.status === 404 && response.data.message === 'project_not_found') {
-          const exception = new DeployException(`App does not exist.
-Please open up https://console.liara.ir/apps and create the app, first.`)
-          return bail(exception)
-        }
-
-        if (response.status === 400 && response.data.message === 'frozen_project') {
-          const exception = new DeployException(`App is frozen (not enough balance).
-Please open up https://console.liara.ir/apps and unfreeze the app.`)
-          return bail(exception)
-        }
-
-        if (response.status === 400 && response.data.message === 'missing_files' && mapHashesToFiles) {
-          const {missingFiles} = response.data.data
-
-          this.logKeyValue('Files to upload', missingFiles.length)
-
-          this.spinner.stop()
-
-          await this.uploadMissingFiles(
-            mapHashesToFiles,
-            missingFiles,
-          )
-
-          throw error // Retry deployment
-        }
-
-        if (response.status >= 400 && response.status < 500 && response.data.message) {
-          const exception = new DeployException(`CODE ${response.status}: ${response.data.message}`)
-          return bail(exception)
-        }
-
-        return bail(error)
-      }
-    }, retryOptions)
+  createRelease(project: string, body: {[k: string]: any}) {
+    return this.got.post(`v2/projects/${project}/releases`, { json: body }).json<ICreatedRelease>()
   }
 
   async showBuildLogs(releaseID: string) {
@@ -637,74 +592,38 @@ You must add a 'start' command to your package.json scripts.`)
     }
   }
 
-  async uploadMissingFiles(mapHashesToFiles: Map<string, IMapItem>, missingFiles: string[]) {
-    const archive = archiver('tar', {
-      gzip: true,
-      gzipOptions: {level: 9},
-    })
+  async upload(project: string, sourcePath: string, sourceSize: number): Promise<string> {
+    this.spinner.start('Uploading...')
 
-    archive.on('error', (error: Error) => {
-      this.debug(error)
-      throw error
-    })
+    const body = new FormData();
+    body.append('file', fs.createReadStream(sourcePath))
 
-    for (const hash of missingFiles) {
-      const mapItem = mapHashesToFiles.get(hash)
-      mapItem && archive.append(mapItem.data, {name: hash})
-    }
-
-    archive.finalize()
-
-    const tmpArchivePath = path.join(os.tmpdir(), `${Date.now()}.tar.gz`)
-
-    const archiveSize: number = await new Promise((resolve, reject) => {
-      archive.pipe(fs.createWriteStream(tmpArchivePath))
-        .on('error', reject)
-        .on('close', function () {
-          const {size} = fs.statSync(tmpArchivePath)
-          resolve(size)
-        })
-    }) as number
-
-    this.logKeyValue('Compressed size', bytes(archiveSize))
-
-    const tmpArchiveStream = fs.createReadStream(tmpArchivePath)
     const bar = new ProgressBar('Uploading [:bar] :percent :etas', {
-      total: archiveSize,
+      total: sourceSize,
       width: 20,
       complete: '=',
       incomplete: '',
       clear: true,
     })
 
-    const cleanup = () => {
-      fs.unlink(tmpArchivePath).then(() => {}).catch(() => {})
+    try {
+      const response = await this.got.post(`v2/projects/${project}/sources`, { body })
+        .on('uploadProgress', progress => {
+          bar.tick(progress.transferred - bar.curr)
+        })
+        .json<{ sourceID: string }>()
+
+      this.spinner.succeed('Upload finished.')
+
+      return response.sourceID
+
+    } catch (error) {
+      this.spinner.fail('Upload failed.')
+      throw error
+
+    } finally {
+      // cleanup
+      fs.unlink(sourcePath).catch(() => {})
     }
-
-    return new Promise((resolve, reject) => {
-      pipeline(
-        tmpArchiveStream,
-        this.got.stream.post('v1/files/archive')
-          .on('uploadProgress', progress => {
-            bar.tick(progress.transferred - bar.curr)
-
-            if(progress.transferred === progress.total) {
-              this.spinner.succeed('Upload finished.')
-              this.spinner.start('Extracting...')
-            }
-          })
-          .on('error', (error: Error) => {
-            this.spinner.fail('Upload failed.')
-            this.spinner.start('Trying again...')
-            cleanup()
-            reject(error)
-          })
-          .on('response', async () => {
-            this.spinner.succeed('Extract finished.')
-            cleanup()
-            resolve()
-          })
-      );
-    })
   }
 }
