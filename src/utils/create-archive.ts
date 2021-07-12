@@ -90,7 +90,9 @@ const loadIgnoreFile = (ignoreInstance: Ignore, ignoreFilePath: string, projectP
     return absolutePrefix + relative(projectPath, join(dir, pattern))
   })
 
-  ignoreInstance.add(relativeToProjectPath)
+  const linuxify = relativeToProjectPath.map(p => p.replace(/\\/g, '/'))
+
+  ignoreInstance.add(linuxify)
 }
 
 function addIgnorePatterns(ignoreInstance: Ignore, projectPath: string, dir: string) {
