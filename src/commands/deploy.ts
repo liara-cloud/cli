@@ -110,7 +110,7 @@ interface ICreatedRelease {
   releaseID: string,
 }
 
-const MAX_SOURCE_SIZE = 500 * 1024 * 1024 // 500 MB
+const MAX_SOURCE_SIZE = 200 * 1024 * 1024 // 200 MB
 
 class DeployException extends Error {}
 
@@ -314,7 +314,7 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
     this.logKeyValue('Compressed size', bytes(sourceSize))
 
     if(sourceSize > MAX_SOURCE_SIZE) {
-      this.error('Source is too large. (max: 500MB)')
+      this.error('Source is too large. (max: 200MB)')
     }
 
     const sourceID = await this.upload(config.app as string, sourcePath, sourceSize)
