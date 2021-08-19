@@ -319,6 +319,8 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
 
     const sourceID = await this.upload(config.app as string, sourcePath, sourceSize)
 
+    this.debug(`sourceID: ${sourceID}`)
+
     body.sourceID = sourceID
     return this.createRelease(config.app as string, body)
   }
