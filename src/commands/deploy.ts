@@ -593,8 +593,6 @@ You must add a 'start' command to your package.json scripts.`)
   }
 
   async upload(project: string, sourcePath: string, sourceSize: number): Promise<string> {
-    this.spinner.start('Uploading...')
-
     const body = new FormData();
     body.append('file', fs.createReadStream(sourcePath))
 
