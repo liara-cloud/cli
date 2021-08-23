@@ -11,6 +11,7 @@ import retry from 'async-retry'
 import FormData from 'form-data'
 import ProgressBar from 'progress'
 import {flags} from '@oclif/command'
+import {CLIError} from '@oclif/errors'
 
 import Logs from './logs'
 import Command from '../base'
@@ -258,6 +259,14 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`
         return this.error(message)
       }
 
+      if(error.response && error.response.statusCode === 401) {
+        // tslint:disable-next-line: no-console
+        console.error(new CLIError(`Authentication failed.
+Please login via 'liara login' command.
+If you are using API token for authentication, please consider updating your API token.`).render())
+        process.exit(2)
+      }
+
       this.error(`Deployment failed.
 Sorry for inconvenience. If you think it's a bug, please contact us.`)
     }
@@ -297,8 +306,6 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
       }
     }
 
-    this.log(`${chalk.cyanBright('[info]')} Finding the .gitignore files...`)
-
     this.spinner.start('Creating an archive...')
 
     const tmpDir = path.join(os.tmpdir(), '/liara-cli')
@@ -311,7 +318,7 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
 
     const {size: sourceSize} = fs.statSync(sourcePath)
 
-    this.logKeyValue('Compressed size', bytes(sourceSize))
+    this.logKeyValue('Compressed size', `${bytes(sourceSize)} ${chalk.cyanBright('(use .gitignore to reduce the size)')}`)
 
     if(sourceSize > MAX_SOURCE_SIZE) {
       this.error('Source is too large. (max: 200MB)')
