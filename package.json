@@ -27,7 +27,7 @@
     "got": "^11.8.2",
     "https-proxy-agent": "^5.0.0",
     "ignore": "^5.1.0",
-    "inquirer": "^8.1.2",
+    "inquirer": "8.1.2",
     "moment": "^2.24.0",
     "npid": "^0.4.0",
     "ora": "^5.4.1",
