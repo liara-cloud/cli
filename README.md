@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.9.0 darwin-x64 node-v14.17.3
+@liara/cli/2.8.6 linux-x64 node-v14.18.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -28,13 +28,16 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`liara deploy`](#liara-deploy)
-* [`liara help [COMMAND]`](#liara-help-command)
-* [`liara login`](#liara-login)
-* [`liara logs`](#liara-logs)
-* [`liara restart [PROJECT]`](#liara-restart-project)
-* [`liara start [PROJECT]`](#liara-start-project)
-* [`liara stop [PROJECT]`](#liara-stop-project)
+- [@liara/cli](#liaracli)
+- [Usage](#usage)
+- [Commands](#commands)
+  - [`liara deploy`](#liara-deploy)
+  - [`liara help [COMMAND]`](#liara-help-command)
+  - [`liara login`](#liara-login)
+  - [`liara logs`](#liara-logs)
+  - [`liara restart [APP]`](#liara-restart-app)
+  - [`liara start [APP]`](#liara-start-app)
+  - [`liara stop [APP]`](#liara-stop-app)
 
 ## `liara deploy`
 
@@ -118,13 +121,13 @@ OPTIONS
 
 _See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.9.0/src/commands/logs.ts)_
 
-## `liara restart [PROJECT]`
+## `liara restart [APP]`
 
-restart a project
+restart an app
 
 ```
 USAGE
-  $ liara restart [PROJECT]
+  $ liara restart [APP]
 
 OPTIONS
   -d, --debug            show debug logs
@@ -135,13 +138,13 @@ OPTIONS
 
 _See code: [src/commands/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.9.0/src/commands/restart.ts)_
 
-## `liara start [PROJECT]`
+## `liara start [APP]`
 
-start a project
+start an app
 
 ```
 USAGE
-  $ liara start [PROJECT]
+  $ liara start [APP]
 
 OPTIONS
   -d, --debug            show debug logs
@@ -152,13 +155,13 @@ OPTIONS
 
 _See code: [src/commands/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.9.0/src/commands/start.ts)_
 
-## `liara stop [PROJECT]`
+## `liara stop [APP]`
 
-stop a project
+stop an app
 
 ```
 USAGE
-  $ liara stop [PROJECT]
+  $ liara stop [APP]
 
 OPTIONS
   -d, --debug            show debug logs
