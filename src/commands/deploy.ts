@@ -622,6 +622,8 @@ You must add a 'start' command to your package.json scripts.`)
 
       this.spinner.succeed('Upload finished.')
 
+      this.debug(`source upload response: ${JSON.stringify(response)}`)
+
       return response.sourceID
 
     } catch (error) {
