@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.8.6 linux-x64 node-v14.18.0
+@liara/cli/2.9.0 linux-x64 node-v14.18.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -28,16 +28,13 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-- [@liara/cli](#liaracli)
-- [Usage](#usage)
-- [Commands](#commands)
-  - [`liara deploy`](#liara-deploy)
-  - [`liara help [COMMAND]`](#liara-help-command)
-  - [`liara login`](#liara-login)
-  - [`liara logs`](#liara-logs)
-  - [`liara restart [APP]`](#liara-restart-app)
-  - [`liara start [APP]`](#liara-start-app)
-  - [`liara stop [APP]`](#liara-stop-app)
+* [`liara deploy`](#liara-deploy)
+* [`liara help [COMMAND]`](#liara-help-command)
+* [`liara login`](#liara-login)
+* [`liara logs`](#liara-logs)
+* [`liara restart [APP]`](#liara-restart-app)
+* [`liara start [APP]`](#liara-start-app)
+* [`liara stop [APP]`](#liara-stop-app)
 
 ## `liara deploy`
 
