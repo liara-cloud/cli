@@ -4,11 +4,11 @@ import Command from '../base'
 import {createDebugLogger} from '../utils/output'
 
 export default class Restart extends Command {
-  static description = 'restart a project'
+  static description = 'restart an app'
 
   static flags = Command.flags
 
-  static args = [{ name: 'project' }]
+  static args = [{ name: 'app' }]
 
   async run() {
     const {args, flags} = this.parse(Restart)
@@ -21,9 +21,9 @@ export default class Restart extends Command {
     })
 
     try {
-      await axios.post(`/v1/projects/${args.project}/actions/restart`, null, this.axiosConfig);
+      await axios.post(`/v1/projects/${args.app}/actions/restart`, null, this.axiosConfig);
 
-      this.log(`Project ${args.project} restarted.`);
+      this.log(`App ${args.app} restarted.`);
 
     } catch (error) {
       debug(error.message);
@@ -33,14 +33,14 @@ export default class Restart extends Command {
       }
 
       if(error.response && error.response.status === 404) {
-        this.error(`Could not find the project.`);
+        this.error(`Could not find the app.`);
       }
 
       if(error.response && error.response.status === 409) {
         this.error(`Another operation is already running. Please wait.`);
       }
 
-      this.error(`Could not restart the project. Please try again.`);
+      this.error(`Could not restart the app. Please try again.`);
     }
   }
 }

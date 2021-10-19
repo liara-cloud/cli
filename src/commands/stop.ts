@@ -4,11 +4,11 @@ import Command from '../base'
 import {createDebugLogger} from '../utils/output'
 
 export default class Stop extends Command {
-  static description = 'stop a project'
+  static description = 'stop an app'
 
   static flags = Command.flags
 
-  static args = [{ name: 'project' }]
+  static args = [{ name: 'app' }]
 
   async run() {
     const {args, flags} = this.parse(Stop)
@@ -21,9 +21,9 @@ export default class Stop extends Command {
     })
 
     try {
-      await axios.post(`/v1/projects/${args.project}/actions/scale`, { scale: 0 }, this.axiosConfig);
+      await axios.post(`/v1/projects/${args.app}/actions/scale`, { scale: 0 }, this.axiosConfig);
 
-      this.log(`Project ${args.project} stopped.`);
+      this.log(`App ${args.app} stopped.`);
 
     } catch (error) {
       debug(error.message);
@@ -33,14 +33,14 @@ export default class Stop extends Command {
       }
 
       if(error.response && error.response.status === 404) {
-        this.error(`Could not find the project.`);
+        this.error(`Could not find the app.`);
       }
 
       if(error.response && error.response.status === 409) {
         this.error(`Another operation is already running. Please wait.`);
       }
 
-      this.error(`Could not stop the project. Please try again.`);
+      this.error(`Could not stop the app. Please try again.`);
     }
   }
 }
