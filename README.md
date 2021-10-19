@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.8.7 darwin-x64 node-v14.17.3
+@liara/cli/2.9.0 darwin-x64 node-v14.17.3
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -35,8 +35,6 @@ USAGE
 * [`liara restart [PROJECT]`](#liara-restart-project)
 * [`liara start [PROJECT]`](#liara-start-project)
 * [`liara stop [PROJECT]`](#liara-stop-project)
-* [`liara tunnel:close`](#liara-tunnelclose)
-* [`liara tunnel:open`](#liara-tunnelopen)
 
 ## `liara deploy`
 
@@ -63,7 +61,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.8.7/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.9.0/src/commands/deploy.ts)_
 
 ## `liara help [COMMAND]`
 
@@ -99,7 +97,7 @@ OPTIONS
   --region=iran|germany    the region you want to deploy your app to
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.8.7/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.9.0/src/commands/login.ts)_
 
 ## `liara logs`
 
@@ -118,7 +116,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.8.7/src/commands/logs.ts)_
+_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.9.0/src/commands/logs.ts)_
 
 ## `liara restart [PROJECT]`
 
@@ -135,7 +133,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.8.7/src/commands/restart.ts)_
+_See code: [src/commands/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.9.0/src/commands/restart.ts)_
 
 ## `liara start [PROJECT]`
 
@@ -152,7 +150,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.8.7/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.9.0/src/commands/start.ts)_
 
 ## `liara stop [PROJECT]`
 
@@ -169,39 +167,5 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.8.7/src/commands/stop.ts)_
-
-## `liara tunnel:close`
-
-close all open ssh tunnels
-
-```
-USAGE
-  $ liara tunnel:close
-
-OPTIONS
-  -d, --debug            show debug logs
-  -h, --help             show CLI help
-  --api-token=api-token  your api token to use for authentication
-  --region=iran|germany  the region you want to deploy your app to
-```
-
-_See code: [src/commands/tunnel/close.ts](https://github.com/liara-ir/liara-cli/blob/v2.8.7/src/commands/tunnel/close.ts)_
-
-## `liara tunnel:open`
-
-open a ssh tunnel
-
-```
-USAGE
-  $ liara tunnel:open
-
-OPTIONS
-  -d, --debug            show debug logs
-  -h, --help             show CLI help
-  --api-token=api-token  your api token to use for authentication
-  --region=iran|germany  the region you want to deploy your app to
-```
-
-_See code: [src/commands/tunnel/open.ts](https://github.com/liara-ir/liara-cli/blob/v2.8.7/src/commands/tunnel/open.ts)_
+_See code: [src/commands/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.9.0/src/commands/stop.ts)_
 <!-- commandsstop -->
