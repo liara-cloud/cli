@@ -15,7 +15,7 @@ interface ILog {
 }
 
 export default class Logs extends Command {
-  static description = 'Fetch the logs of an app'
+  static description = 'fetch the logs of an app'
 
   static flags = {
     ...Command.flags,

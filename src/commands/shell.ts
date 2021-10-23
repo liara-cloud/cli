@@ -29,7 +29,7 @@ interface IFlags {
 // https://www.npmjs.com/package/ws#how-to-detect-and-close-broken-connections
 
 export default class Shell extends Command {
-  static description = "Run a command in a running applet";
+  static description = "run a command in a running applet";
 
   static flags = {
     ...Command.flags,
