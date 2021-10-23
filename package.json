@@ -32,7 +32,8 @@
     "progress": "^2.0.3",
     "tar": "^6.1.10",
     "tslib": "^1.9.3",
-    "update-notifier": "^5.1.0"
+    "update-notifier": "^5.1.0",
+    "ws": "^8.2.3"
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1.22.0",
@@ -50,6 +51,7 @@
     "@types/request": "^2.48.1",
     "@types/tar": "^4.0.5",
     "@types/update-notifier": "^5.1.0",
+    "@types/ws": "^8.2.0",
     "chai": "^4.2.0",
     "concat-stream": "^2.0.0",
     "mocha": "^5.2.0",
