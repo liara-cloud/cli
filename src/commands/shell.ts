@@ -96,6 +96,7 @@ export default class Shell extends Command {
     });
 
     ws.on("unexpected-response", (response) => {
+      // @ts-ignore
       const statusCode = response.socket?._httpMessage.res.statusCode;
       statusCode === 404 &&
         console.error(new CLIError(`app '${config.app}' not found.`).render());
