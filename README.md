@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.11.1 darwin-x64 node-v14.17.3
+@liara/cli/2.11.2 darwin-x64 node-v14.17.3
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -47,7 +47,6 @@ USAGE
 
 OPTIONS
   -a, --app=app          app id
-  -d, --debug            show debug logs
   -d, --disks=disks      mount a disk
   -h, --help             show CLI help
   -i, --image=image      docker image to deploy
@@ -56,6 +55,7 @@ OPTIONS
   --api-token=api-token  your api token to use for authentication
   --args=args            docker image entrypoint args
   --build-arg=build-arg  docker image build args
+  --debug                show debug logs
   --detach               do not stream app logs after deployment
   --path=path            app path in your computer
   --platform=platform    the platform your app needs to run
@@ -63,7 +63,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.2/src/commands/deploy.ts)_
 
 ## `liara help [COMMAND]`
 
@@ -91,15 +91,15 @@ USAGE
   $ liara login
 
 OPTIONS
-  -d, --debug              show debug logs
   -e, --email=email        your email
   -h, --help               show CLI help
   -p, --password=password  your password
   --api-token=api-token    your api token to use for authentication
+  --debug                  show debug logs
   --region=iran|germany    the region you want to deploy your app to
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.2/src/commands/login.ts)_
 
 ## `liara logs`
 
@@ -111,14 +111,14 @@ USAGE
 
 OPTIONS
   -a, --app=app          (required) app id
-  -d, --debug            show debug logs
   -h, --help             show CLI help
   -s, --since=since      show logs since timestamp
   --api-token=api-token  your api token to use for authentication
+  --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/logs.ts)_
+_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.2/src/commands/logs.ts)_
 
 ## `liara restart [APP]`
 
@@ -129,13 +129,13 @@ USAGE
   $ liara restart [APP]
 
 OPTIONS
-  -d, --debug            show debug logs
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
+  --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/restart.ts)_
+_See code: [src/commands/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.2/src/commands/restart.ts)_
 
 ## `liara shell`
 
@@ -148,13 +148,13 @@ USAGE
 OPTIONS
   -a, --app=app          app id
   -c, --command=command  [default: /bin/bash] the command to execute
-  -d, --debug            show debug logs
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
+  --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/shell.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/shell.ts)_
+_See code: [src/commands/shell.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.2/src/commands/shell.ts)_
 
 ## `liara start [APP]`
 
@@ -165,13 +165,13 @@ USAGE
   $ liara start [APP]
 
 OPTIONS
-  -d, --debug            show debug logs
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
+  --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.2/src/commands/start.ts)_
 
 ## `liara stop [APP]`
 
@@ -182,11 +182,11 @@ USAGE
   $ liara stop [APP]
 
 OPTIONS
-  -d, --debug            show debug logs
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
+  --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/stop.ts)_
+_See code: [src/commands/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.2/src/commands/stop.ts)_
 <!-- commandsstop -->
