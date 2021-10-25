@@ -26,7 +26,7 @@ export default abstract class extends Command {
   static flags = {
     help: flags.help({char: 'h'}),
     dev: flags.boolean({description: 'run in dev mode', hidden: true}),
-    debug: flags.boolean({char: 'd', description: 'show debug logs'}),
+    debug: flags.boolean({description: 'show debug logs'}),
     'api-token': flags.string({description: 'your api token to use for authentication'}),
     region: flags.string({description: 'the region you want to deploy your app to', options:['iran', 'germany']}),
   }
