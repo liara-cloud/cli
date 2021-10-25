@@ -66,7 +66,6 @@ interface ILiaraJSON {
 interface IFlags {
   path?: string,
   platform?: string,
-  project?: string,
   port?: number,
   volume?: string,
   image?: string,
@@ -76,11 +75,16 @@ interface IFlags {
   args?: string[],
   'build-arg'?: string[],
   message?: string,
-  disks?: IDisk[],
+  disks?: string[],
 }
 
-interface IDeploymentConfig extends IFlags, ILiaraJSON {
+interface IDeploymentConfig extends ILiaraJSON {
   path: string,
+  image?: string,
+  'api-token'?: string,
+  region?: string,
+  detach: boolean,
+  message?: string,
 }
 
 interface IProject {
