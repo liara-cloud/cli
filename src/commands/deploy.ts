@@ -71,11 +71,12 @@ interface IFlags {
   volume?: string,
   image?: string,
   'api-token'?: string,
-  'region'?: string,
-  'detach': boolean,
+  region?: string,
+  detach: boolean,
   args?: string[],
   'build-arg'?: string[],
   message?: string,
+  disks?: IDisk[],
 }
 
 interface IDeploymentConfig extends IFlags, ILiaraJSON {
@@ -130,6 +131,11 @@ export default class Deploy extends Command {
     args: flags.string({description: 'docker image entrypoint args', multiple: true}),
     'build-arg': flags.string({description: 'docker image build args', multiple: true}),
     message: flags.string({char: 'm', description: 'the release message'}),
+    disks: flags.string({
+      char: "d",
+      description: "mount a disk",
+      multiple: true
+    }),
   }
 
   spinner!: ora.Ora
@@ -564,14 +570,23 @@ Sorry for inconvenience. If you think it's a bug, please contact us.`)
   getMergedConfig(flags: IFlags): IDeploymentConfig {
     const defaults = {
       path: flags.path ? flags.path : process.cwd(),
-      ...this.readGlobalConfig()
-    }
-    const projectConfig = this.readProjectConfig(defaults.path)
+      ...this.readGlobalConfig(),
+    };
+    const projectConfig = this.readProjectConfig(defaults.path);
+
+    const disks = flags.disks
+      ? flags.disks.map((el) => {
+          const [name, mountTo] = el.toString().split(":");
+          return { name, mountTo };
+        })
+      : projectConfig.disks;
+
     return {
       ...defaults,
       ...projectConfig,
       ...flags,
-    }
+      disks,
+    };
   }
 
   readProjectConfig(projectPath: string): ILiaraJSON {
