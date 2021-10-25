@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.11.0 darwin-x64 node-v14.17.3
+@liara/cli/2.11.1 darwin-x64 node-v14.17.3
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -63,7 +63,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.0/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/deploy.ts)_
 
 ## `liara help [COMMAND]`
 
@@ -99,7 +99,7 @@ OPTIONS
   --region=iran|germany    the region you want to deploy your app to
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.0/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/login.ts)_
 
 ## `liara logs`
 
@@ -118,7 +118,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.0/src/commands/logs.ts)_
+_See code: [src/commands/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/logs.ts)_
 
 ## `liara restart [APP]`
 
@@ -135,7 +135,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.0/src/commands/restart.ts)_
+_See code: [src/commands/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/restart.ts)_
 
 ## `liara shell`
 
@@ -154,7 +154,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/shell.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.0/src/commands/shell.ts)_
+_See code: [src/commands/shell.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/shell.ts)_
 
 ## `liara start [APP]`
 
@@ -171,7 +171,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.0/src/commands/start.ts)_
+_See code: [src/commands/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/start.ts)_
 
 ## `liara stop [APP]`
 
@@ -188,5 +188,5 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.0/src/commands/stop.ts)_
+_See code: [src/commands/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.1/src/commands/stop.ts)_
 <!-- commandsstop -->
