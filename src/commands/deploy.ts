@@ -13,7 +13,7 @@ import ProgressBar from 'progress'
 import {flags} from '@oclif/command'
 import {CLIError} from '@oclif/errors'
 
-import Logs from './logs'
+import Logs from './app/logs'
 import Command from '../base'
 import Poller from '../utils/poller'
 import {DEV_MODE} from '../constants'

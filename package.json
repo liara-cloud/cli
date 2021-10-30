@@ -85,7 +85,12 @@
     "bin": "liara",
     "plugins": [
       "@oclif/plugin-help"
-    ]
+    ],
+    "topics": {
+      "app": {
+        "description": "create, start, restart, stop & delete an app"
+      }
+    }
   },
   "repository": "liara-ir/liara-cli",
   "scripts": {
