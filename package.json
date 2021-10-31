@@ -85,7 +85,12 @@
     "bin": "liara",
     "plugins": [
       "@oclif/plugin-help"
-    ]
+    ],
+    "topics": {
+      "app": {
+        "description": "display commands for working with apps"
+      }
+    }
   },
   "repository": "liara-ir/liara-cli",
   "scripts": {

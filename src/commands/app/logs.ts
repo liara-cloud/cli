@@ -5,8 +5,8 @@ import {flags} from '@oclif/command'
 // tslint:disable-next-line: no-implicit-dependencies
 import {CLIError} from '@oclif/errors'
 
-import Command from '../base'
-import {createDebugLogger} from '../utils/output'
+import Command from '../../base'
+import {createDebugLogger} from '../../utils/output'
 
 interface ILog {
   type: string,
@@ -14,7 +14,7 @@ interface ILog {
   message: string,
 }
 
-export default class Logs extends Command {
+export default class AppLogs extends Command {
   static description = 'fetch the logs of an app'
 
   static flags = {
@@ -23,8 +23,10 @@ export default class Logs extends Command {
     since: flags.integer({char: 's', description: 'show logs since timestamp'}),
   }
 
+  static aliases = ["logs"];
+
   async run() {
-    const {flags} = this.parse(Logs)
+    const {flags} = this.parse(AppLogs)
     const project = flags.app
     let since: string | number = flags.since || 1
 
