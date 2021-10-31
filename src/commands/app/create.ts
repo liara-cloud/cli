@@ -92,7 +92,7 @@ export default class AppCreate extends Command {
         message: "Please select a plan:",
         choices: [
           ...Object.keys(plans.projects)
-            .filter((plan) => plan.includes("ir-"))
+            .filter((plan) => plan.includes("ir-") && plans.projects[plan].available)
             .map((plan) => {
               const availablePlan = plans.projects[plan];
               const ram = availablePlan.RAM.amount;
