@@ -2,11 +2,11 @@ import ora from "ora";
 import path from "path";
 import fs from "fs-extra";
 import axios from "axios";
-import Command from "../base";
+import Command from "../../base";
 import inquirer from "inquirer";
 import { flags } from "@oclif/command";
 import { CLIError } from "@oclif/errors";
-import { REGIONS_API_URL, FALLBACK_REGION } from "../constants";
+import { REGIONS_API_URL, FALLBACK_REGION } from "../../constants";
 import WebSocket, { createWebSocketStream } from "ws";
 
 interface IProject {
@@ -28,7 +28,7 @@ interface IFlags {
 // TODO: detect and close broken connection with ping and pong
 // https://www.npmjs.com/package/ws#how-to-detect-and-close-broken-connections
 
-export default class Shell extends Command {
+export default class AppShell extends Command {
   static description = "run a command in a running applet";
 
   static flags = {
@@ -44,10 +44,12 @@ export default class Shell extends Command {
     }),
   };
 
+  static aliases = ["shell"];
+
   spinner!: ora.Ora;
 
   async run() {
-    const { flags } = this.parse(Shell);
+    const { flags } = this.parse(AppShell);
     const config: IFlags = this.getMergedConfig(flags);
     const CTRL_Q = "\u0011";
     this.setAxiosConfig(config);
