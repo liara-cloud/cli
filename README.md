@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.12.0 darwin-x64 node-v14.17.3
+@liara/cli/2.12.1 darwin-x64 node-v14.17.3
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -60,7 +60,7 @@ ALIASES
   $ liara create
 ```
 
-_See code: [src/commands/app/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.0/src/commands/app/create.ts)_
+_See code: [src/commands/app/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.1/src/commands/app/create.ts)_
 
 ## `liara app:delete`
 
@@ -81,7 +81,7 @@ ALIASES
   $ liara delete
 ```
 
-_See code: [src/commands/app/delete.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.0/src/commands/app/delete.ts)_
+_See code: [src/commands/app/delete.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.1/src/commands/app/delete.ts)_
 
 ## `liara app:logs`
 
@@ -103,7 +103,7 @@ ALIASES
   $ liara logs
 ```
 
-_See code: [src/commands/app/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.0/src/commands/app/logs.ts)_
+_See code: [src/commands/app/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.1/src/commands/app/logs.ts)_
 
 ## `liara app:restart`
 
@@ -124,7 +124,7 @@ ALIASES
   $ liara restart
 ```
 
-_See code: [src/commands/app/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.0/src/commands/app/restart.ts)_
+_See code: [src/commands/app/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.1/src/commands/app/restart.ts)_
 
 ## `liara app:shell`
 
@@ -146,7 +146,7 @@ ALIASES
   $ liara shell
 ```
 
-_See code: [src/commands/app/shell.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.0/src/commands/app/shell.ts)_
+_See code: [src/commands/app/shell.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.1/src/commands/app/shell.ts)_
 
 ## `liara app:start`
 
@@ -167,7 +167,7 @@ ALIASES
   $ liara start
 ```
 
-_See code: [src/commands/app/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.0/src/commands/app/start.ts)_
+_See code: [src/commands/app/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.1/src/commands/app/start.ts)_
 
 ## `liara app:stop`
 
@@ -188,7 +188,7 @@ ALIASES
   $ liara stop
 ```
 
-_See code: [src/commands/app/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.0/src/commands/app/stop.ts)_
+_See code: [src/commands/app/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.1/src/commands/app/stop.ts)_
 
 ## `liara deploy`
 
@@ -216,7 +216,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.0/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.1/src/commands/deploy.ts)_
 
 ## `liara help [COMMAND]`
 
@@ -252,5 +252,5 @@ OPTIONS
   --region=iran|germany    the region you want to deploy your app to
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.0/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.1/src/commands/login.ts)_
 <!-- commandsstop -->
