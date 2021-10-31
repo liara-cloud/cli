@@ -28,6 +28,7 @@ export default class AppDelete extends Command {
     const app = flags.app;
 
     try {
+      // TODO: Add --force or -f flag to force the deletion
       if (await this.confirm(app)) {
         await axios.delete(`/v1/projects/${app}`, this.axiosConfig);
         this.log(`App ${app} deleted.`);
@@ -55,7 +56,7 @@ export default class AppDelete extends Command {
     const { confirmation } = (await inquirer.prompt({
       name: "confirmation",
       type: "confirm",
-      message: `${app.toUpperCase()} : Do you want to delete this app`,
+      message: `Are you sure you want to delete "${app}"?`,
       default: false,
     })) as { confirmation: boolean };
 

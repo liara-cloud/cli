@@ -88,7 +88,7 @@
     ],
     "topics": {
       "app": {
-        "description": "create, start, restart, stop & delete an app"
+        "description": "display commands for working with apps"
       }
     }
   },
