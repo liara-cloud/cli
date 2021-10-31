@@ -32,12 +32,12 @@ USAGE
 * [`liara app:delete`](#liara-appdelete)
 * [`liara app:logs`](#liara-applogs)
 * [`liara app:restart`](#liara-apprestart)
+* [`liara app:shell`](#liara-appshell)
 * [`liara app:start`](#liara-appstart)
 * [`liara app:stop`](#liara-appstop)
 * [`liara deploy`](#liara-deploy)
 * [`liara help [COMMAND]`](#liara-help-command)
 * [`liara login`](#liara-login)
-* [`liara shell`](#liara-shell)
 
 ## `liara app:create`
 
@@ -133,6 +133,30 @@ ALIASES
 ```
 
 _See code: [src/commands/app/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.2/src/commands/app/restart.ts)_
+
+## `liara app:shell`
+
+run a command in a running applet
+
+```
+run a command in a running applet
+
+USAGE
+  $ liara app:shell
+
+OPTIONS
+  -a, --app=app          app id
+  -c, --command=command  [default: /bin/bash] the command to execute
+  -h, --help             show CLI help
+  --api-token=api-token  your api token to use for authentication
+  --debug                show debug logs
+  --region=iran|germany  the region you want to deploy your app to
+
+ALIASES
+  $ liara shell
+```
+
+_See code: [src/commands/app/shell.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.2/src/commands/app/shell.ts)_
 
 ## `liara app:start`
 
@@ -249,25 +273,4 @@ OPTIONS
 ```
 
 _See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.2/src/commands/login.ts)_
-
-## `liara shell`
-
-run a command in a running applet
-
-```
-run a command in a running applet
-
-USAGE
-  $ liara shell
-
-OPTIONS
-  -a, --app=app          app id
-  -c, --command=command  [default: /bin/bash] the command to execute
-  -h, --help             show CLI help
-  --api-token=api-token  your api token to use for authentication
-  --debug                show debug logs
-  --region=iran|germany  the region you want to deploy your app to
-```
-
-_See code: [src/commands/shell.ts](https://github.com/liara-ir/liara-cli/blob/v2.11.2/src/commands/shell.ts)_
 <!-- commandsstop -->
