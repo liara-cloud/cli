@@ -12,6 +12,23 @@ import eraseLines from '../utils/erase-lines'
 import {createDebugLogger} from '../utils/output'
 import {GLOBAL_CONF_PATH, REGIONS_API_URL} from '../constants'
 
+interface IAccount {
+  email: string;
+  api_token: string;
+  region: string;
+}
+
+interface IAccounts {
+  [key: string]: IAccount;
+}
+
+interface ILiaraJson {
+  api_token?: string;
+  region?: string;
+  current?: string;
+  accounts?: IAccounts;
+}
+
 export default class Login extends Command {
   static description = 'login to your account'
 
@@ -79,9 +96,13 @@ export default class Login extends Command {
       }
     }, {retries: 3})
 
+    const liara_json: ILiaraJson = this.gatherLiaraJson();
+
     fs.writeFileSync(GLOBAL_CONF_PATH, JSON.stringify({
       api_token,
       region,
+      current: liara_json.current,
+      accounts: liara_json.accounts,
     }))
 
     this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`)
@@ -127,5 +148,12 @@ export default class Login extends Command {
     }) as {password: string}
 
     return password
+  }
+
+  gatherLiaraJson() {
+    const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
+      ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
+      : undefined;
+    return liara_json;
   }
 }

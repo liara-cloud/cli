@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.12.1 darwin-x64 node-v14.17.3
+@liara/cli/2.12.1 linux-x64 node-v14.18.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -28,6 +28,10 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
+* [`liara account:add`](#liara-accountadd)
+* [`liara account:list`](#liara-accountlist)
+* [`liara account:remove`](#liara-accountremove)
+* [`liara account:use`](#liara-accountuse)
 * [`liara app:create`](#liara-appcreate)
 * [`liara app:delete`](#liara-appdelete)
 * [`liara app:logs`](#liara-applogs)
@@ -38,6 +42,85 @@ USAGE
 * [`liara deploy`](#liara-deploy)
 * [`liara help [COMMAND]`](#liara-help-command)
 * [`liara login`](#liara-login)
+
+## `liara account:add`
+
+add an account
+
+```
+USAGE
+  $ liara account:add
+
+OPTIONS
+  -e, --email=email        your email
+  -h, --help               show CLI help
+  -n, --name=name          account name
+  -p, --password=password  your password
+  --api-token=api-token    your api token to use for authentication
+  --debug                  show debug logs
+  --region=iran|germany    the region you want to deploy your app to
+```
+
+_See code: [src/commands/account/add.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.1/src/commands/account/add.ts)_
+
+## `liara account:list`
+
+list available accounts
+
+```
+USAGE
+  $ liara account:list
+
+OPTIONS
+  -h, --help             show CLI help
+  --api-token=api-token  your api token to use for authentication
+  --debug                show debug logs
+  --region=iran|germany  the region you want to deploy your app to
+
+ALIASES
+  $ liara account:ls
+```
+
+_See code: [src/commands/account/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.1/src/commands/account/list.ts)_
+
+## `liara account:remove`
+
+delete an account
+
+```
+USAGE
+  $ liara account:remove
+
+OPTIONS
+  -h, --help             show CLI help
+  -n, --name=name        account name
+  --api-token=api-token  your api token to use for authentication
+  --debug                show debug logs
+  --region=iran|germany  the region you want to deploy your app to
+
+ALIASES
+  $ liara account:rm
+```
+
+_See code: [src/commands/account/remove.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.1/src/commands/account/remove.ts)_
+
+## `liara account:use`
+
+select an account
+
+```
+USAGE
+  $ liara account:use
+
+OPTIONS
+  -h, --help             show CLI help
+  -n, --name=name        account name
+  --api-token=api-token  your api token to use for authentication
+  --debug                show debug logs
+  --region=iran|germany  the region you want to deploy your app to
+```
+
+_See code: [src/commands/account/use.ts](https://github.com/liara-ir/liara-cli/blob/v2.12.1/src/commands/account/use.ts)_
 
 ## `liara app:create`
 
