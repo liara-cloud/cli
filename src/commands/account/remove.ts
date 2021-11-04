@@ -45,7 +45,7 @@ export default class AccountRemove extends Command {
     const name = flags.name ? flags.name : await this.promptName();
     const selectedAccount = liara_json.accounts[name];
     !Boolean(selectedAccount) &&
-      this.error(`account-name ${name} is not exist!`);
+      this.error(`Could not find any account associated with this name ${name}.`);
 
     const accounts = liara_json.accounts;
     delete accounts[name];
