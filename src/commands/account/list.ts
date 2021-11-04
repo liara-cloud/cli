@@ -36,7 +36,7 @@ export default class AccountList extends Command {
       !liara_json.accounts ||
       Object.keys(liara_json.accounts).length === 0
     ) {
-      this.error("Please add acount via 'liara account:add' command.");
+      this.error("Please add your accounts via 'liara account:add' command, first.");
     }
 
     const accountsData = Object.entries(liara_json.accounts).map((acc) => {

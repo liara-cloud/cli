@@ -40,7 +40,7 @@ export default class AccountRemove extends Command {
       !liara_json.accounts ||
       Object.keys(liara_json.accounts).length === 0
     ) {
-      this.error("Please add acount via 'liara account:add' command.");
+      this.error("Please add your accounts via 'liara account:add' command, first.");
     }
     const name = flags.name ? flags.name : await this.promptName();
     const selectedAccount = liara_json.accounts[name];
