@@ -38,17 +38,24 @@ export default class AccountList extends Command {
       !liara_json.accounts ||
       Object.keys(liara_json.accounts).length === 0
     ) {
-      this.error("Please add your accounts via 'liara account:add' command, first.");
+      this.error(
+        "Please add your accounts via 'liara account:add' command, first."
+      );
     }
 
     const accountsData = Object.entries(liara_json.accounts).map((acc) => {
       const Name = acc[0];
       const Email = acc[1].email;
       const Region = acc[1].region;
-      return { Name, Email, Region };
+      const Current = Name === liara_json.current ? "👍" : "";
+      return { Name, Email, Region, Current };
     });
 
-    cli.table(accountsData, { Name: {}, Email: {}, Region: {} }, flags);
+    cli.table(
+      accountsData,
+      { Name: {}, Email: {}, Region: {}, Current: {} },
+      flags
+    );
   }
 
   readGlobalLiaraJson() {
