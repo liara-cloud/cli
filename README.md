@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.12.1 linux-x64 node-v14.18.0
+@liara/cli/2.12.1 linux-x64 node-v16.13.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -52,9 +52,9 @@ USAGE
   $ liara account:add
 
 OPTIONS
+  -a, --account=account    account name
   -e, --email=email        your email
   -h, --help               show CLI help
-  -n, --name=name          account name
   -p, --password=password  your password
   --api-token=api-token    your api token to use for authentication
   --debug                  show debug logs
@@ -73,9 +73,16 @@ USAGE
 
 OPTIONS
   -h, --help             show CLI help
+  -x, --extended         show extra columns
   --api-token=api-token  your api token to use for authentication
+  --columns=columns      only show provided columns (comma-separated)
+  --csv                  output is csv format
   --debug                show debug logs
+  --filter=filter        filter property by partial string matching, ex: name=foo
+  --no-header            hide table header from output
+  --no-truncate          do not truncate output to fit screen
   --region=iran|germany  the region you want to deploy your app to
+  --sort=sort            property to sort by (prepend '-' for descending)
 
 ALIASES
   $ liara account:ls
@@ -85,15 +92,15 @@ _See code: [src/commands/account/list.ts](https://github.com/liara-ir/liara-cli/
 
 ## `liara account:remove`
 
-delete an account
+remove an account
 
 ```
 USAGE
   $ liara account:remove
 
 OPTIONS
+  -a, --account=account  account name
   -h, --help             show CLI help
-  -n, --name=name        account name
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
@@ -113,8 +120,8 @@ USAGE
   $ liara account:use
 
 OPTIONS
+  -a, --account=account  account name
   -h, --help             show CLI help
-  -n, --name=name        account name
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
