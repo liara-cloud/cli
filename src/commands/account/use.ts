@@ -36,7 +36,7 @@ export default class AccountUse extends Command {
     if (!liara_json || !liara_json.accounts || Object.keys(liara_json.accounts).length === 0) {
       this.error("Please add your accounts via 'liara account:add' command, first.");
     }
-    const name = flags.account || await this.promptName();
+    const name = flags.account || await this.promptName(liara_json.accounts);
     const selectedAccount = liara_json.accounts[name];
     !Boolean(selectedAccount) &&
       this.error(`Could not find any account associated with this name ${name}.`);
@@ -56,8 +56,7 @@ export default class AccountUse extends Command {
     this.log(chalk.green("> Auth credentials changed."));
   }
 
-  async promptName(): Promise<string> {
-    const { accounts }: IAccounts = this.readGlobalLiaraJson();
+  async promptName(accounts: IAccounts): Promise<string> {
     const { name } = (await prompt({
       name: "name",
       type: "list",
@@ -67,10 +66,10 @@ export default class AccountUse extends Command {
     return name;
   }
 
-  readGlobalLiaraJson() {
+  readGlobalLiaraJson(): ILiaraJson {
     const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
       ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
-      : undefined;
+      : {};
     return liara_json;
   }
 }

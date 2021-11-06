@@ -58,10 +58,10 @@ export default class AccountList extends Command {
     );
   }
 
-  readGlobalLiaraJson() {
+  readGlobalLiaraJson(): ILiaraJson {
     const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
       ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
-      : undefined;
+      : {};
     return liara_json;
   }
 }

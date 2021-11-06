@@ -96,13 +96,13 @@ export default class Login extends Command {
       }
     }, {retries: 3})
 
-    const liara_json: ILiaraJson = this.readGlobalLiaraJson();
+    const liara_json = this.readGlobalLiaraJson();
 
     fs.writeFileSync(GLOBAL_CONF_PATH, JSON.stringify({
       api_token,
       region,
-      current: liara_json?.current,
-      accounts: liara_json?.accounts,
+      current: liara_json.current ? "" : liara_json.current,
+      accounts: liara_json.accounts,
     }))
 
     this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`)
@@ -150,10 +150,10 @@ export default class Login extends Command {
     return password
   }
 
-  readGlobalLiaraJson() {
+  readGlobalLiaraJson(): ILiaraJson {
     const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
       ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
-      : undefined;
+      : {};
     return liara_json;
   }
 }

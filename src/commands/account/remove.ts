@@ -44,7 +44,7 @@ export default class AccountRemove extends Command {
         "Please add your accounts via 'liara account:add' command, first."
       );
     }
-    const name = flags.account || (await this.promptName());
+    const name = flags.account || (await this.promptName(liara_json.accounts));
     const selectedAccount = liara_json.accounts[name];
     !Boolean(selectedAccount) &&
       this.error(
@@ -77,8 +77,7 @@ export default class AccountRemove extends Command {
       this.log(chalk.cyan(`Current account is: ${liara_json.current}`));
   }
 
-  async promptName(): Promise<string> {
-    const { accounts }: IAccounts = this.readGlobalLiaraJson();
+  async promptName(accounts: IAccounts): Promise<string> {
     const { name } = (await prompt({
       name: "name",
       type: "list",
@@ -88,10 +87,10 @@ export default class AccountRemove extends Command {
     return name;
   }
 
-  readGlobalLiaraJson() {
+  readGlobalLiaraJson(): ILiaraJson {
     const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
       ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
-      : undefined;
+      : {};
     return liara_json;
   }
 }

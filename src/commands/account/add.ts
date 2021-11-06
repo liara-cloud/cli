@@ -41,8 +41,8 @@ export default class AccountAdd extends Command {
   async run() {
     const { flags } = this.parse(AccountAdd);
     const debug = createDebugLogger(flags.debug);
-    const liara_json: ILiaraJson = this.readGlobalLiaraJson();
-    const currentAccounts = liara_json?.accounts;
+    const liara_json = this.readGlobalLiaraJson();
+    const currentAccounts = liara_json.accounts;
     const name = flags.account || await this.promptName();
     const region = flags.region || await this.promptRegion();
     if (!flags.email) {
@@ -90,19 +90,20 @@ export default class AccountAdd extends Command {
       },
     };
 
+    const current = liara_json.api_token ? liara_json.current : name;
+
     fs.writeFileSync(
       GLOBAL_CONF_PATH,
       JSON.stringify({
-        api_token: liara_json?.api_token || api_token,
-        region: liara_json?.region || region,
-        current: liara_json?.current || name,
+        api_token: liara_json.api_token || api_token,
+        region: liara_json.region || region,
+        current,
         accounts,
       })
     );
 
     this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`);
-    !liara_json?.current && this.log(`> Current account is: ${name}`);
-    liara_json?.current && this.log(`> Current account is: ${liara_json.current}`);
+    current && this.log(`> Current account is: ${current}`);
   }
 
   async promptRegion(): Promise<string> {
@@ -130,7 +131,7 @@ export default class AccountAdd extends Command {
       },
     })) as { name: string };
     const liara_json: ILiaraJson = this.readGlobalLiaraJson();
-    const currentAccounts = liara_json?.accounts;
+    const currentAccounts = liara_json.accounts;
     const currentAccountsName = currentAccounts && Object.keys(currentAccounts);
     return currentAccountsName?.includes(name)
       ? this.error("This name has already been used for another account. Please use a different name.")
@@ -180,10 +181,10 @@ export default class AccountAdd extends Command {
     return password;
   }
 
-  readGlobalLiaraJson() {
+  readGlobalLiaraJson(): ILiaraJson {
     const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
       ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
-      : undefined;
+      : {};
     return liara_json;
   }
 }
