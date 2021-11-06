@@ -96,7 +96,7 @@ export default class Login extends Command {
       }
     }, {retries: 3})
 
-    const liara_json: ILiaraJson = this.gatherLiaraJson();
+    const liara_json: ILiaraJson = this.readGlobalLiaraJson();
 
     fs.writeFileSync(GLOBAL_CONF_PATH, JSON.stringify({
       api_token,
@@ -150,7 +150,7 @@ export default class Login extends Command {
     return password
   }
 
-  gatherLiaraJson() {
+  readGlobalLiaraJson() {
     const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
       ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
       : undefined;

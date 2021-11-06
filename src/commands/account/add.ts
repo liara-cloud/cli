@@ -33,7 +33,7 @@ export default class AccountAdd extends Command {
 
   static flags = {
     ...Command.flags,
-    name: flags.string({ char: "n", description: "account name" }),
+    account: flags.string({ char: "a", description: "account name" }),
     email: flags.string({ char: "e", description: "your email" }),
     password: flags.string({ char: "p", description: "your password" }),
   };
@@ -41,10 +41,10 @@ export default class AccountAdd extends Command {
   async run() {
     const { flags } = this.parse(AccountAdd);
     const debug = createDebugLogger(flags.debug);
-    const liara_json: ILiaraJson = this.gatherLiaraJson();
-    const pervAccounts = this.gatherOtherAccounts();
-    const name = flags.name ? flags.name : await this.promptName();
-    const region = flags.region ? flags.region : await this.promptRegion();
+    const liara_json: ILiaraJson = this.readGlobalLiaraJson();
+    const currentAccounts = liara_json?.accounts;
+    const name = flags.account || await this.promptName();
+    const region = flags.region || await this.promptRegion();
     if (!flags.email) {
       let emailIsValid = false;
       do {
@@ -59,7 +59,7 @@ export default class AccountAdd extends Command {
     }
     const body = {
       email: flags.email,
-      password: flags.password ? flags.password : await this.promptPassword(),
+      password: flags.password || await this.promptPassword(),
     };
 
     this.axiosConfig.baseURL = REGIONS_API_URL[region];
@@ -82,7 +82,7 @@ export default class AccountAdd extends Command {
     )) as { api_token: string };
 
     const accounts = {
-      ...pervAccounts,
+      ...currentAccounts,
       [name]: {
         email: body.email,
         api_token,
@@ -93,15 +93,16 @@ export default class AccountAdd extends Command {
     fs.writeFileSync(
       GLOBAL_CONF_PATH,
       JSON.stringify({
-        api_token: liara_json.api_token,
-        region: liara_json.region,
-        current: liara_json.current,
+        api_token: liara_json?.api_token || api_token,
+        region: liara_json?.region || region,
+        current: liara_json?.current || name,
         accounts,
       })
     );
 
     this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`);
-    this.log(`> Current account is: ${liara_json.current}`);
+    !liara_json?.current && this.log(`> Current account is: ${name}`);
+    liara_json?.current && this.log(`> Current account is: ${liara_json.current}`);
   }
 
   async promptRegion(): Promise<string> {
@@ -119,7 +120,7 @@ export default class AccountAdd extends Command {
     const { name } = (await prompt({
       name: "name",
       type: "input",
-      message: "enter your prefered name:",
+      message: "Enter your prefered name:",
       validate(input) {
         if (input.length === 0) {
           return false;
@@ -128,10 +129,11 @@ export default class AccountAdd extends Command {
         }
       },
     })) as { name: string };
-    const pervAccounts = await this.gatherOtherAccounts();
-    const pervAccountsName = pervAccounts && Object.keys(pervAccounts);
-    return pervAccountsName?.includes(name)
-      ? this.error("this name in used for another account")
+    const liara_json: ILiaraJson = this.readGlobalLiaraJson();
+    const currentAccounts = liara_json?.accounts;
+    const currentAccountsName = currentAccounts && Object.keys(currentAccounts);
+    return currentAccountsName?.includes(name)
+      ? this.error("This name has already been used for another account. Please use a different name.")
       : name;
   }
 
@@ -178,14 +180,7 @@ export default class AccountAdd extends Command {
     return password;
   }
 
-  gatherOtherAccounts(): Promise<object | undefined> {
-    const accounts = fs.existsSync(GLOBAL_CONF_PATH)
-      ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8")).accounts
-      : undefined;
-    return accounts;
-  }
-
-  gatherLiaraJson() {
+  readGlobalLiaraJson() {
     const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
       ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
       : undefined;

@@ -2,7 +2,6 @@ import fs from "fs-extra";
 import chalk from "chalk";
 import Command from "../../base";
 import { prompt } from "inquirer";
-import { CLIError } from "@oclif/errors";
 import { flags } from "@oclif/command";
 import { GLOBAL_CONF_PATH } from "../../constants";
 
@@ -28,16 +27,16 @@ export default class AccountUse extends Command {
 
   static flags = {
     ...Command.flags,
-    name: flags.string({ char: "n", description: "account name" }),
+    account: flags.string({ char: "a", description: "account name" }),
   };
 
   async run() {
     const { flags } = this.parse(AccountUse);
-    const liara_json: ILiaraJson = this.gatherLiaraJson();
+    const liara_json: ILiaraJson = this.readGlobalLiaraJson();
     if (!liara_json || !liara_json.accounts || Object.keys(liara_json.accounts).length === 0) {
       this.error("Please add your accounts via 'liara account:add' command, first.");
     }
-    const name = flags.name ? flags.name : await this.promptName();
+    const name = flags.account || await this.promptName();
     const selectedAccount = liara_json.accounts[name];
     !Boolean(selectedAccount) &&
       this.error(`Could not find any account associated with this name ${name}.`);
@@ -58,7 +57,7 @@ export default class AccountUse extends Command {
   }
 
   async promptName(): Promise<string> {
-    const { accounts }: IAccounts = this.gatherLiaraJson();
+    const { accounts }: IAccounts = this.readGlobalLiaraJson();
     const { name } = (await prompt({
       name: "name",
       type: "list",
@@ -68,7 +67,7 @@ export default class AccountUse extends Command {
     return name;
   }
 
-  gatherLiaraJson() {
+  readGlobalLiaraJson() {
     const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
       ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
       : undefined;

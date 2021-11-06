@@ -23,29 +23,33 @@ interface ILiaraJson {
 }
 
 export default class AccountRemove extends Command {
-  static description = "delete an account";
+  static description = "remove an account";
 
   static flags = {
     ...Command.flags,
-    name: flags.string({ char: "n", description: "account name" }),
+    account: flags.string({ char: "a", description: "account name" }),
   };
 
   static aliases = ["account:rm"];
 
   async run() {
     const { flags } = this.parse(AccountRemove);
-    const liara_json: ILiaraJson = this.gatherLiaraJson();
+    const liara_json: ILiaraJson = this.readGlobalLiaraJson();
     if (
       !liara_json ||
       !liara_json.accounts ||
       Object.keys(liara_json.accounts).length === 0
     ) {
-      this.error("Please add your accounts via 'liara account:add' command, first.");
+      this.error(
+        "Please add your accounts via 'liara account:add' command, first."
+      );
     }
-    const name = flags.name ? flags.name : await this.promptName();
+    const name = flags.account || (await this.promptName());
     const selectedAccount = liara_json.accounts[name];
     !Boolean(selectedAccount) &&
-      this.error(`Could not find any account associated with this name ${name}.`);
+      this.error(
+        `Could not find any account associated with this name ${name}.`
+      );
 
     const accounts = liara_json.accounts;
     delete accounts[name];
@@ -53,7 +57,7 @@ export default class AccountRemove extends Command {
     const api_token = liara_json.current === name ? "" : liara_json.api_token;
     const region = liara_json.current === name ? "" : liara_json.region;
     const current = liara_json.current === name ? "" : liara_json.current;
-    
+
     const usedLiaraJson = {
       api_token,
       region,
@@ -63,13 +67,18 @@ export default class AccountRemove extends Command {
 
     fs.writeFileSync(GLOBAL_CONF_PATH, JSON.stringify(usedLiaraJson));
     this.log(chalk.red("Auth credentials removed."));
-    this.log(
-      chalk.cyan("Please select an acount via 'liara account:use' command.")
-    );
+    liara_json.current === name &&
+      this.log(
+        chalk.cyan("Please select an acount via 'liara account:use' command.")
+      );
+
+    liara_json.current !== name &&
+      liara_json.current !== "" &&
+      this.log(chalk.cyan(`Current account is: ${liara_json.current}`));
   }
 
   async promptName(): Promise<string> {
-    const { accounts }: IAccounts = this.gatherLiaraJson();
+    const { accounts }: IAccounts = this.readGlobalLiaraJson();
     const { name } = (await prompt({
       name: "name",
       type: "list",
@@ -79,7 +88,7 @@ export default class AccountRemove extends Command {
     return name;
   }
 
-  gatherLiaraJson() {
+  readGlobalLiaraJson() {
     const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
       ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
       : undefined;

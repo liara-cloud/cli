@@ -25,12 +25,14 @@ export default class AccountList extends Command {
 
   static flags = {
     ...Command.flags,
+    ...cli.table.flags(),
   };
 
   static aliases = ["account:ls"];
 
   async run() {
-    const liara_json: ILiaraJson = this.gatherLiaraJson();
+    const { flags } = this.parse(AccountList);
+    const liara_json: ILiaraJson = this.readGlobalLiaraJson();
     if (
       !liara_json ||
       !liara_json.accounts ||
@@ -46,10 +48,10 @@ export default class AccountList extends Command {
       return { Name, Email, Region };
     });
 
-    cli.table(accountsData, { Name: {}, Email: {}, Region: {} });
+    cli.table(accountsData, { Name: {}, Email: {}, Region: {} }, flags);
   }
 
-  gatherLiaraJson() {
+  readGlobalLiaraJson() {
     const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
       ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
       : undefined;
