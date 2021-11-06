@@ -101,8 +101,8 @@ export default class Login extends Command {
     fs.writeFileSync(GLOBAL_CONF_PATH, JSON.stringify({
       api_token,
       region,
-      current: liara_json.current,
-      accounts: liara_json.accounts,
+      current: liara_json?.current,
+      accounts: liara_json?.accounts,
     }))
 
     this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`)
