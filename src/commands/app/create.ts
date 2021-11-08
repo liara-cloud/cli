@@ -5,7 +5,7 @@ import inquirer from "inquirer";
 import Command from "../../base";
 import { flags } from "@oclif/command";
 import { createDebugLogger } from "../../utils/output";
-import { GLOBAL_CONF_PATH, REGIONS_API_URL } from "../../constants";
+import { GLOBAL_CONF_PATH } from "../../constants";
 
 interface IAccount {
   email: string;
