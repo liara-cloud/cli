@@ -55,12 +55,13 @@ export default class AppCreate extends Command {
       ...flags,
     });
     const app = flags.app;
+    const { region } = this.readGlobalLiaraJson();
+    (region === "germany" || flags.region === "germany") &&
+      this.error("We do not support germany any more.");
     if (!flags.platform) {
       flags.platform = await this.promptPlatform();
     }
     if (!flags.plan) {
-      const { region } = this.readGlobalLiaraJson();
-      (region === "germany" || flags.region === "germany") && this.error("We do not support germany any more.");
       flags.plan = await this.promptPlan();
     }
     const platform = flags.platform;
