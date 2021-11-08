@@ -101,7 +101,7 @@ export default class Login extends Command {
     fs.writeFileSync(GLOBAL_CONF_PATH, JSON.stringify({
       api_token,
       region,
-      current: liara_json.current ? "" : liara_json.current,
+      current: null,
       accounts: liara_json.accounts,
     }))
 
@@ -151,9 +151,13 @@ export default class Login extends Command {
   }
 
   readGlobalLiaraJson(): ILiaraJson {
-    const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
-      ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
-      : {};
-    return liara_json;
+    try {
+      const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
+        ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
+        : {};
+      return liara_json;
+    } catch {
+      return {};
+    }
   }
 }

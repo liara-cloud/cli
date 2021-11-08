@@ -60,7 +60,7 @@ export default class AccountUse extends Command {
     const { name } = (await prompt({
       name: "name",
       type: "list",
-      message: "enter your account name:",
+      message: "Enter your account name:",
       choices: [...Object.keys(accounts)],
     })) as { name: string };
     return name;
