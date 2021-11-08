@@ -6,6 +6,7 @@ import Command from "../../base";
 import { flags } from "@oclif/command";
 import { createDebugLogger } from "../../utils/output";
 import { GLOBAL_CONF_PATH, REGIONS_API_URL } from "../../constants";
+
 interface IAccount {
   email: string;
   api_token: string;
@@ -22,6 +23,7 @@ interface ILiaraJson {
   current?: string;
   accounts?: IAccounts;
 }
+
 export default class AppCreate extends Command {
   static description = "create an app";
 
@@ -58,9 +60,7 @@ export default class AppCreate extends Command {
     }
     if (!flags.plan) {
       const { region } = this.readGlobalLiaraJson();
-      region === "germany" ||
-        (flags.region === "germany" &&
-          this.error("We do not support germany any more."));
+      (region === "germany" || flags.region === "germany") && this.error("We do not support germany any more.");
       flags.plan = await this.promptPlan();
     }
     const platform = flags.platform;
