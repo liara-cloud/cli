@@ -1,9 +1,28 @@
 import ora from "ora";
+import fs from "fs-extra";
 import axios from "axios";
 import inquirer from "inquirer";
 import Command from "../../base";
 import { flags } from "@oclif/command";
 import { createDebugLogger } from "../../utils/output";
+import { GLOBAL_CONF_PATH } from "../../constants";
+
+interface IAccount {
+  email: string;
+  api_token: string;
+  region: string;
+}
+
+interface IAccounts {
+  [key: string]: IAccount;
+}
+
+interface ILiaraJson {
+  api_token?: string;
+  region?: string;
+  current?: string;
+  accounts?: IAccounts;
+}
 
 export default class AppCreate extends Command {
   static description = "create an app";
@@ -36,6 +55,9 @@ export default class AppCreate extends Command {
       ...flags,
     });
     const app = flags.app;
+    const { region } = this.readGlobalLiaraJson();
+    (region === "germany" || flags.region === "germany") &&
+      this.error("We do not support germany any more.");
     if (!flags.platform) {
       flags.platform = await this.promptPlatform();
     }
@@ -92,7 +114,9 @@ export default class AppCreate extends Command {
         message: "Please select a plan:",
         choices: [
           ...Object.keys(plans.projects)
-            .filter((plan) => plan.includes("ir-") && plans.projects[plan].available)
+            .filter(
+              (plan) => plan.includes("ir-") && plans.projects[plan].available
+            )
             .map((plan) => {
               const availablePlan = plans.projects[plan];
               const ram = availablePlan.RAM.amount;
@@ -110,7 +134,7 @@ export default class AppCreate extends Command {
                   disk
                 )}GB ${storageClass},  Price: ${price.toLocaleString()}${this.priceSpacing(
                   price
-                )}Tomans`,
+                )}Tomans/Month`,
               };
             }),
         ],
@@ -197,5 +221,12 @@ export default class AppCreate extends Command {
       : inputLength === 6
       ? " ".repeat(3)
       : " ";
+  }
+
+  readGlobalLiaraJson(): ILiaraJson {
+    const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
+      ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
+      : {};
+    return liara_json;
   }
 }
