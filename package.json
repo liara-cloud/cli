@@ -89,6 +89,9 @@
     "topics": {
       "app": {
         "description": "display commands for working with apps"
+      },
+      "account": {
+        "description": "display commands for working with accounts"
       }
     }
   },
