@@ -57,7 +57,7 @@ export default class AccountRemove extends Command {
         this.log(chalk.cyan("Please select an acount via 'liara account:use' command."));
 
     accountsLength < 1 &&
-      this.log(chalk.cyan("There is no more acount to use, Please add an account via 'liara account:add' command."));
+      this.log(chalk.cyan("There are no more accounts to use. Please add an account via 'liara account:add' command."));
 
     liara_json.current !== name &&
       liara_json.current !== null &&
