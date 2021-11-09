@@ -10,14 +10,26 @@ import {DEV_MODE, FALLBACK_REGION, GLOBAL_CONF_PATH, REGIONS_API_URL} from './co
 
 updateNotifier({pkg: require('../package.json')}).notify()
 
+interface IAccount {
+  email: string;
+  api_token: string;
+  region: string;
+}
+
+export interface IAccounts {
+  [key: string]: IAccount;
+}
+
 export interface IGlobalLiaraConfig {
   'api-token'?: string,
-  'region'?: string,
+  region?: string,
+  current?: string;
+  accounts?: IAccounts;
 }
 
 export interface IConfig {
   'api-token'?: string,
-  'region'?: string,
+  region?: string,
 }
 
 axios.defaults.timeout = 10 * 1000;

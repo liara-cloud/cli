@@ -11,23 +11,6 @@ import { createDebugLogger } from "../../utils/output";
 import { validate as validateEmail } from "email-validator";
 import { GLOBAL_CONF_PATH, REGIONS_API_URL } from "../../constants";
 
-interface IAccount {
-  email: string;
-  api_token: string;
-  region: string;
-}
-
-interface IAccounts {
-  [key: string]: IAccount;
-}
-
-interface ILiaraJson {
-  api_token?: string;
-  region?: string;
-  current?: string;
-  accounts?: IAccounts;
-}
-
 export default class AccountAdd extends Command {
   static description = "add an account";
 
@@ -41,7 +24,7 @@ export default class AccountAdd extends Command {
   async run() {
     const { flags } = this.parse(AccountAdd);
     const debug = createDebugLogger(flags.debug);
-    const liara_json = this.readGlobalLiaraJson();
+    const liara_json = this.readGlobalConfig();
     const currentAccounts = liara_json.accounts;
     const name = flags.account || await this.promptName();
     const region = flags.region || await this.promptRegion();
@@ -90,12 +73,12 @@ export default class AccountAdd extends Command {
       },
     };
 
-    const current = liara_json.api_token ? liara_json.current : name;
+    const current = liara_json["api-token"] ? liara_json.current : name;
 
     fs.writeFileSync(
       GLOBAL_CONF_PATH,
       JSON.stringify({
-        api_token: liara_json.api_token || api_token,
+        api_token: liara_json["api-token"] || api_token,
         region: liara_json.region || region,
         current,
         accounts,
@@ -130,7 +113,7 @@ export default class AccountAdd extends Command {
         }
       },
     })) as { name: string };
-    const liara_json: ILiaraJson = this.readGlobalLiaraJson();
+    const liara_json = this.readGlobalConfig();
     const currentAccounts = liara_json.accounts;
     const currentAccountsName = currentAccounts && Object.keys(currentAccounts);
     return currentAccountsName?.includes(name)
@@ -179,12 +162,5 @@ export default class AccountAdd extends Command {
     })) as { password: string };
 
     return password;
-  }
-
-  readGlobalLiaraJson(): ILiaraJson {
-    const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
-      ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
-      : {};
-    return liara_json;
   }
 }

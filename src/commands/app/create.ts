@@ -5,24 +5,6 @@ import inquirer from "inquirer";
 import Command from "../../base";
 import { flags } from "@oclif/command";
 import { createDebugLogger } from "../../utils/output";
-import { GLOBAL_CONF_PATH } from "../../constants";
-
-interface IAccount {
-  email: string;
-  api_token: string;
-  region: string;
-}
-
-interface IAccounts {
-  [key: string]: IAccount;
-}
-
-interface ILiaraJson {
-  api_token?: string;
-  region?: string;
-  current?: string;
-  accounts?: IAccounts;
-}
 
 export default class AppCreate extends Command {
   static description = "create an app";
@@ -55,7 +37,7 @@ export default class AppCreate extends Command {
       ...flags,
     });
     const app = flags.app;
-    const { region } = this.readGlobalLiaraJson();
+    const { region } = this.readGlobalConfig();
     (region === "germany" || flags.region === "germany") &&
       this.error("We do not support germany any more.");
     if (!flags.platform) {
@@ -221,12 +203,5 @@ export default class AppCreate extends Command {
       : inputLength === 6
       ? " ".repeat(3)
       : " ";
-  }
-
-  readGlobalLiaraJson(): ILiaraJson {
-    const liara_json = fs.existsSync(GLOBAL_CONF_PATH)
-      ? JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH, "utf-8"))
-      : {};
-    return liara_json;
   }
 }
