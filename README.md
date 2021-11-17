@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.13.2 darwin-x64 node-v14.17.3
+@liara/cli/2.13.2 linux-x64 node-v16.13.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -42,12 +42,15 @@ USAGE
 * [`liara deploy`](#liara-deploy)
 * [`liara help [COMMAND]`](#liara-help-command)
 * [`liara login`](#liara-login)
+* [`liara plan:list`](#liara-planlist)
 
 ## `liara account:add`
 
 add an account
 
 ```
+add an account
+
 USAGE
   $ liara account:add
 
@@ -68,21 +71,24 @@ _See code: [src/commands/account/add.ts](https://github.com/liara-ir/liara-cli/b
 list available accounts
 
 ```
+list available accounts
+
 USAGE
   $ liara account:list
 
 OPTIONS
-  -h, --help             show CLI help
-  -x, --extended         show extra columns
-  --api-token=api-token  your api token to use for authentication
-  --columns=columns      only show provided columns (comma-separated)
-  --csv                  output is csv format
-  --debug                show debug logs
-  --filter=filter        filter property by partial string matching, ex: name=foo
-  --no-header            hide table header from output
-  --no-truncate          do not truncate output to fit screen
-  --region=iran|germany  the region you want to deploy your app to
-  --sort=sort            property to sort by (prepend '-' for descending)
+  -h, --help              show CLI help
+  -x, --extended          show extra columns
+  --api-token=api-token   your api token to use for authentication
+  --columns=columns       only show provided columns (comma-separated)
+  --csv                   output is csv format [alias: --output=csv]
+  --debug                 show debug logs
+  --filter=filter         filter property by partial string matching, ex: name=foo
+  --no-header             hide table header from output
+  --no-truncate           do not truncate output to fit screen
+  --output=csv|json|yaml  output in a more machine friendly format
+  --region=iran|germany   the region you want to deploy your app to
+  --sort=sort             property to sort by (prepend '-' for descending)
 
 ALIASES
   $ liara account:ls
@@ -95,6 +101,8 @@ _See code: [src/commands/account/list.ts](https://github.com/liara-ir/liara-cli/
 remove an account
 
 ```
+remove an account
+
 USAGE
   $ liara account:remove
 
@@ -116,6 +124,8 @@ _See code: [src/commands/account/remove.ts](https://github.com/liara-ir/liara-cl
 select an account
 
 ```
+select an account
+
 USAGE
   $ liara account:use
 
@@ -134,6 +144,8 @@ _See code: [src/commands/account/use.ts](https://github.com/liara-ir/liara-cli/b
 create an app
 
 ```
+create an app
+
 USAGE
   $ liara app:create
 
@@ -157,6 +169,8 @@ _See code: [src/commands/app/create.ts](https://github.com/liara-ir/liara-cli/bl
 delete an app
 
 ```
+delete an app
+
 USAGE
   $ liara app:delete
 
@@ -178,6 +192,8 @@ _See code: [src/commands/app/delete.ts](https://github.com/liara-ir/liara-cli/bl
 fetch the logs of an app
 
 ```
+fetch the logs of an app
+
 USAGE
   $ liara app:logs
 
@@ -200,6 +216,8 @@ _See code: [src/commands/app/logs.ts](https://github.com/liara-ir/liara-cli/blob
 restart an app
 
 ```
+restart an app
+
 USAGE
   $ liara app:restart
 
@@ -221,6 +239,8 @@ _See code: [src/commands/app/restart.ts](https://github.com/liara-ir/liara-cli/b
 run a command in a running applet
 
 ```
+run a command in a running applet
+
 USAGE
   $ liara app:shell
 
@@ -243,6 +263,8 @@ _See code: [src/commands/app/shell.ts](https://github.com/liara-ir/liara-cli/blo
 start an app
 
 ```
+start an app
+
 USAGE
   $ liara app:start
 
@@ -264,6 +286,8 @@ _See code: [src/commands/app/start.ts](https://github.com/liara-ir/liara-cli/blo
 stop an app
 
 ```
+stop an app
+
 USAGE
   $ liara app:stop
 
@@ -285,6 +309,8 @@ _See code: [src/commands/app/stop.ts](https://github.com/liara-ir/liara-cli/blob
 deploy an app
 
 ```
+deploy an app
+
 USAGE
   $ liara deploy
 
@@ -313,6 +339,8 @@ _See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v
 display help for liara
 
 ```
+display help for <%= config.bin %>
+
 USAGE
   $ liara help [COMMAND]
 
@@ -323,13 +351,15 @@ OPTIONS
   --all  see all commands in CLI
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.1.6/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.3/src/commands/help.ts)_
 
 ## `liara login`
 
 login to your account
 
 ```
+login to your account
+
 USAGE
   $ liara login
 
@@ -343,4 +373,34 @@ OPTIONS
 ```
 
 _See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.13.2/src/commands/login.ts)_
+
+## `liara plan:list`
+
+list available plans
+
+```
+list available plans
+
+USAGE
+  $ liara plan:list
+
+OPTIONS
+  -h, --help              show CLI help
+  -x, --extended          show extra columns
+  --api-token=api-token   your api token to use for authentication
+  --columns=columns       only show provided columns (comma-separated)
+  --csv                   output is csv format [alias: --output=csv]
+  --debug                 show debug logs
+  --filter=filter         filter property by partial string matching, ex: name=foo
+  --no-header             hide table header from output
+  --no-truncate           do not truncate output to fit screen
+  --output=csv|json|yaml  output in a more machine friendly format
+  --region=iran|germany   the region you want to deploy your app to
+  --sort=sort             property to sort by (prepend '-' for descending)
+
+ALIASES
+  $ liara plan:ls
+```
+
+_See code: [src/commands/plan/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.13.2/src/commands/plan/list.ts)_
 <!-- commandsstop -->
