@@ -1,10 +1,15 @@
 import ora from "ora";
-import fs from "fs-extra";
 import axios from "axios";
 import inquirer from "inquirer";
 import Command from "../../base";
 import { flags } from "@oclif/command";
 import { createDebugLogger } from "../../utils/output";
+import {
+  ramSpacing,
+  cpuSpacing,
+  diskSpacing,
+  priceSpacing,
+} from "../../utils/spacing";
 
 export default class AppCreate extends Command {
   static description = "create an app";
@@ -108,13 +113,13 @@ export default class AppCreate extends Command {
               const storageClass = availablePlan.storageClass;
               return {
                 value: plan,
-                name: `RAM: ${ram}${this.ramSpacing(
+                name: `RAM: ${ram}${ramSpacing(
                   ram
-                )}GB,  CPU: ${cpu}${this.cpuSpacing(
+                )}GB,  CPU: ${cpu}${cpuSpacing(
                   cpu
-                )}Core,  Disk: ${disk}${this.diskSpacing(
+                )}Core,  Disk: ${disk}${diskSpacing(
                   disk
-                )}GB ${storageClass},  Price: ${price.toLocaleString()}${this.priceSpacing(
+                )}GB ${storageClass},  Price: ${price.toLocaleString()}${priceSpacing(
                   price
                 )}Tomans/Month`,
               };
@@ -161,47 +166,5 @@ export default class AppCreate extends Command {
       this.spinner.stop();
       throw error;
     }
-  }
-
-  ramSpacing(value: number) {
-    const inputLength = value.toString().length;
-    return inputLength === 1
-      ? " ".repeat(3)
-      : inputLength === 2
-      ? " ".repeat(2)
-      : inputLength === 3
-      ? " "
-      : "";
-  }
-
-  cpuSpacing(value: number) {
-    const inputLength = value.toString().length;
-    return inputLength === 1
-      ? " ".repeat(4)
-      : inputLength === 2
-      ? " ".repeat(3)
-      : inputLength === 3
-      ? " ".repeat(2)
-      : " ";
-  }
-
-  diskSpacing(value: number) {
-    const inputLength = value.toString().length;
-    return inputLength === 1
-      ? " ".repeat(3)
-      : inputLength === 2
-      ? " ".repeat(2)
-      : inputLength === 3
-      ? " "
-      : "";
-  }
-
-  priceSpacing(value: number) {
-    const inputLength = value.toString().length;
-    return inputLength === 5
-      ? " ".repeat(4)
-      : inputLength === 6
-      ? " ".repeat(3)
-      : " ";
   }
 }
