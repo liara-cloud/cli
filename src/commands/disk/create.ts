@@ -85,10 +85,8 @@ export default class DiskCreate extends Command {
 
       this.spinner.stop();
 
-      if (!projects.length) {
-        this.warn(
-          "Please go to https://console.liara.ir/apps and create an app, first."
-        );
+      if (projects.length === 0) {
+        this.warn("Please create an app via 'liara app:create' command, first.");
         this.exit(1);
       }
 
