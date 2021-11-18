@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.14.0 darwin-x64 node-v14.17.3
+@liara/cli/2.14.0 linux-x64 node-v16.13.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -34,12 +34,14 @@ USAGE
 * [`liara account:use`](#liara-accountuse)
 * [`liara app:create`](#liara-appcreate)
 * [`liara app:delete`](#liara-appdelete)
+* [`liara app:list`](#liara-applist)
 * [`liara app:logs`](#liara-applogs)
 * [`liara app:restart`](#liara-apprestart)
 * [`liara app:shell`](#liara-appshell)
 * [`liara app:start`](#liara-appstart)
 * [`liara app:stop`](#liara-appstop)
 * [`liara deploy`](#liara-deploy)
+* [`liara disk:create`](#liara-diskcreate)
 * [`liara help [COMMAND]`](#liara-help-command)
 * [`liara login`](#liara-login)
 * [`liara plan:list`](#liara-planlist)
@@ -187,6 +189,36 @@ ALIASES
 
 _See code: [src/commands/app/delete.ts](https://github.com/liara-ir/liara-cli/blob/v2.14.0/src/commands/app/delete.ts)_
 
+## `liara app:list`
+
+list available apps
+
+```
+list available apps
+
+USAGE
+  $ liara app:list
+
+OPTIONS
+  -h, --help              show CLI help
+  -x, --extended          show extra columns
+  --api-token=api-token   your api token to use for authentication
+  --columns=columns       only show provided columns (comma-separated)
+  --csv                   output is csv format [alias: --output=csv]
+  --debug                 show debug logs
+  --filter=filter         filter property by partial string matching, ex: name=foo
+  --no-header             hide table header from output
+  --no-truncate           do not truncate output to fit screen
+  --output=csv|json|yaml  output in a more machine friendly format
+  --region=iran|germany   the region you want to deploy your app to
+  --sort=sort             property to sort by (prepend '-' for descending)
+
+ALIASES
+  $ liara app:ls
+```
+
+_See code: [src/commands/app/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.14.0/src/commands/app/list.ts)_
+
 ## `liara app:logs`
 
 fetch the logs of an app
@@ -333,6 +365,28 @@ OPTIONS
 ```
 
 _See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.14.0/src/commands/deploy.ts)_
+
+## `liara disk:create`
+
+create a disk
+
+```
+create a disk
+
+USAGE
+  $ liara disk:create
+
+OPTIONS
+  -a, --app=app          app id
+  -d, --disk=disk        disk id
+  -h, --help             show CLI help
+  -s, --size=size        disk size
+  --api-token=api-token  your api token to use for authentication
+  --debug                show debug logs
+  --region=iran|germany  the region you want to deploy your app to
+```
+
+_See code: [src/commands/disk/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.14.0/src/commands/disk/create.ts)_
 
 ## `liara help [COMMAND]`
 

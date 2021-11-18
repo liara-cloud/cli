@@ -1,0 +1,72 @@
+import { cli } from "cli-ux";
+import Command from "../../base";
+import axios from "axios";
+import * as shamsi from "shamsi-date-converter";
+
+interface IProject {
+  _id: string;
+  planID: string;
+  scale: number;
+  type: string;
+  status: string;
+  project_id: string;
+  created_at: string;
+  isDeployed: Boolean;
+}
+
+interface IGetProjectsResponse {
+  projects: IProject[];
+}
+
+export default class AppList extends Command {
+  static description = "list available apps";
+
+  static flags = {
+    ...Command.flags,
+    ...cli.table.flags(),
+  };
+
+  static aliases = ["app:ls"];
+
+  async run() {
+    const { flags } = this.parse(AppList);
+    this.setAxiosConfig({
+      ...this.readGlobalConfig(),
+      ...flags,
+    });
+
+    const {
+      data: { projects },
+    } = await axios.get<IGetProjectsResponse>("/v1/projects", this.axiosConfig);
+
+    if (!projects) {
+      this.error("Please create an app via 'liara app:create' command, first.");
+    }
+
+    const appsData = Object.entries(projects).map((project) => {
+      const tProject = project[1];
+      const shamshiDate = shamsi.gregorianToJalali(new Date(tProject.created_at))
+      return {
+        Name: tProject.project_id,
+        Platform: tProject.type,
+        Plan: tProject.planID,
+        Status: tProject.status,
+        Scale: tProject.scale,
+        "Created At": `${shamshiDate[0]}-${shamshiDate[1]}-${shamshiDate[2]}`,
+      };
+    });
+
+    cli.table(
+      appsData,
+      {
+        Name: {},
+        Platform: {},
+        Plan: {},
+        Scale: {},
+        Status: {},
+        "Created At": {},
+      },
+      flags
+    );
+  }
+}
