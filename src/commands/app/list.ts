@@ -39,19 +39,18 @@ export default class AppList extends Command {
       data: { projects },
     } = await axios.get<IGetProjectsResponse>("/v1/projects", this.axiosConfig);
 
-    if (!projects) {
+    if (projects.length === 0) {
       this.error("Please create an app via 'liara app:create' command, first.");
     }
 
-    const appsData = Object.entries(projects).map((project) => {
-      const tProject = project[1];
-      const shamshiDate = shamsi.gregorianToJalali(new Date(tProject.created_at))
+    const appsData = projects.map((project) => {
+      const shamshiDate = shamsi.gregorianToJalali(new Date(project.created_at))
       return {
-        Name: tProject.project_id,
-        Platform: tProject.type,
-        Plan: tProject.planID,
-        Status: tProject.status,
-        Scale: tProject.scale,
+        Name: project.project_id,
+        Platform: project.type,
+        Plan: project.planID,
+        Status: project.status,
+        Scale: project.scale,
         "Created At": `${shamshiDate[0]}-${shamshiDate[1]}-${shamshiDate[2]}`,
       };
     });

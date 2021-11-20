@@ -64,8 +64,12 @@ export default class DiskCreate extends Command {
         debug(JSON.stringify(error.response.data));
       }
 
+      if (error.response && error.response.status === 400 && error.response.data.message === "not_enough_storage_space") {
+        this.error(`Not enough storage space.`);
+      }
+
       if (error.response && error.response.status === 400) {
-        this.error(`Could not create the disk, Double-check the disk-id and disk-size.`);
+        this.error(`Invalid disk name.`);
       }
 
       this.error(`Could not create the disk. Please try again.`);
@@ -108,7 +112,7 @@ export default class DiskCreate extends Command {
     const { name } = (await inquirer.prompt({
       name: "name",
       type: "input",
-      message: "Enter a preferred disk name:",
+      message: "Enter a disk name:",
       validate: (input) => input.length > 2,
     })) as { name: string };
 
