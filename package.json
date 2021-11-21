@@ -30,6 +30,7 @@
     "moment": "^2.24.0",
     "ora": "^5.4.1",
     "progress": "^2.0.3",
+    "shamsi-date-converter": "^1.0.5",
     "tar": "^6.1.10",
     "tslib": "^1.9.3",
     "update-notifier": "^5.1.0",
