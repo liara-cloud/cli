@@ -49,8 +49,6 @@ interface IGetProjectsResponse {
   projects: IProject[];
 }
 
-axios.defaults.timeout = 10 * 1000;
-
 export default abstract class extends Command {
   static flags = {
     help: flags.help({char: 'h'}),
@@ -62,6 +60,10 @@ export default abstract class extends Command {
 
   axiosConfig: AxiosRequestConfig = {
     ...axios.defaults,
+    timeout: 10 * 1000,
+    headers: {
+      'User-Agent': this.config.userAgent
+    }
   }
 
   got = got.extend()

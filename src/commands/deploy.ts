@@ -277,8 +277,11 @@ If you are using API token for authentication, please consider updating your API
         process.exit(2)
       }
 
+      this.log(chalk.gray(this.config.userAgent))
+      this.log()
       this.error(`Deployment failed.
-Sorry for inconvenience. If you think it's a bug, please contact us.`)
+Sorry for inconvenience. If you think it's a bug, please contact us.
+You can file a ticket: https://console.liara.ir/tickets`)
     }
   }
 
