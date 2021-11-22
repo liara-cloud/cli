@@ -40,7 +40,7 @@ export default class AppShell extends Command {
     const config: IFlags = this.getMergedConfig(flags);
     const CTRL_Q = "\u0011";
     this.setAxiosConfig(config);
-    const app = config.app || await this.promptProject();
+    const app = config.app || (await this.promptProject());
     const wsURL = REGIONS_API_URL[config["region"] || FALLBACK_REGION].replace(
       "https://",
       "wss://"
