@@ -11,7 +11,6 @@ export default class AppStop extends Command {
     app: flags.string({
       char: "a",
       description: "app id",
-      required: true,
     }),
   };
 
@@ -20,11 +19,11 @@ export default class AppStop extends Command {
   async run() {
     const { flags } = this.parse(AppStop);
     const debug = createDebugLogger(flags.debug);
-    const app = flags.app;
     this.setAxiosConfig({
       ...this.readGlobalConfig(),
       ...flags,
     });
+    const app = flags.app || (await this.promptProject());
 
     try {
       await axios.post(

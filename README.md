@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.15.0 darwin-x64 node-v14.17.3
+@liara/cli/2.15.0 linux-x64 node-v16.13.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -152,7 +152,7 @@ USAGE
   $ liara app:create
 
 OPTIONS
-  -a, --app=app          (required) app id
+  -a, --app=app          app id
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
@@ -177,7 +177,7 @@ USAGE
   $ liara app:delete
 
 OPTIONS
-  -a, --app=app          (required) app id
+  -a, --app=app          app id
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
@@ -230,7 +230,7 @@ USAGE
   $ liara app:logs
 
 OPTIONS
-  -a, --app=app          (required) app id
+  -a, --app=app          app id
   -h, --help             show CLI help
   -s, --since=since      show logs since timestamp
   --api-token=api-token  your api token to use for authentication
@@ -254,7 +254,7 @@ USAGE
   $ liara app:restart
 
 OPTIONS
-  -a, --app=app          (required) app id
+  -a, --app=app          app id
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
@@ -301,7 +301,7 @@ USAGE
   $ liara app:start
 
 OPTIONS
-  -a, --app=app          (required) app id
+  -a, --app=app          app id
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
@@ -324,7 +324,7 @@ USAGE
   $ liara app:stop
 
 OPTIONS
-  -a, --app=app          (required) app id
+  -a, --app=app          app id
   -h, --help             show CLI help
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs

@@ -1,21 +1,10 @@
-import ora from "ora";
 import path from "path";
 import fs from "fs-extra";
-import axios from "axios";
 import Command from "../../base";
-import inquirer from "inquirer";
 import { flags } from "@oclif/command";
 import { CLIError } from "@oclif/errors";
 import { REGIONS_API_URL, FALLBACK_REGION } from "../../constants";
 import WebSocket, { createWebSocketStream } from "ws";
-
-interface IProject {
-  project_id: string;
-}
-
-interface IGetProjectsResponse {
-  projects: IProject[];
-}
 
 interface IFlags {
   path?: string;
@@ -46,24 +35,19 @@ export default class AppShell extends Command {
 
   static aliases = ["shell"];
 
-  spinner!: ora.Ora;
-
   async run() {
     const { flags } = this.parse(AppShell);
     const config: IFlags = this.getMergedConfig(flags);
     const CTRL_Q = "\u0011";
     this.setAxiosConfig(config);
-    this.spinner = ora();
-    if (!config.app) {
-      config.app = await this.promptProject();
-    }
+    const app = config.app || (await this.promptProject());
     const wsURL = REGIONS_API_URL[config["region"] || FALLBACK_REGION].replace(
       "https://",
       "wss://"
     );
 
     const ws = new WebSocket(
-      `${wsURL}/v1/exec?token=${config["api-token"]}&cmd=${flags.command}&project_id=${config.app}`
+      `${wsURL}/v1/exec?token=${config["api-token"]}&cmd=${flags.command}&project_id=${app}`
     );
 
     const duplex = createWebSocketStream(ws, { encoding: "utf8" });
@@ -101,7 +85,7 @@ export default class AppShell extends Command {
       // @ts-ignore
       const statusCode = response.socket?._httpMessage.res.statusCode;
       statusCode === 404 &&
-        console.error(new CLIError(`app '${config.app}' not found.`).render());
+        console.error(new CLIError(`app '${app}' not found.`).render());
       clearStdinEffects();
       process.exit(2);
     });
@@ -139,39 +123,5 @@ export default class AppShell extends Command {
     }
 
     return content || {};
-  }
-
-  async promptProject() {
-    this.spinner.start("Loading...");
-
-    try {
-      const {
-        data: { projects },
-      } = await axios.get<IGetProjectsResponse>(
-        "/v1/projects",
-        this.axiosConfig
-      );
-
-      this.spinner.stop();
-
-      if (!projects.length) {
-        this.warn(
-          "Please go to https://console.liara.ir/apps and create an app, first."
-        );
-        this.exit(1);
-      }
-
-      const { project } = (await inquirer.prompt({
-        name: "project",
-        type: "list",
-        message: "Please select an app:",
-        choices: [...projects.map((project) => project.project_id)],
-      })) as { project: string };
-
-      return project;
-    } catch (error) {
-      this.spinner.stop();
-      throw error;
-    }
   }
 }

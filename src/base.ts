@@ -1,5 +1,7 @@
+import ora from "ora";
 import fs from 'fs-extra'
 import got, {Options} from 'got'
+import inquirer from "inquirer";
 import axios, {AxiosRequestConfig} from 'axios'
 import Command, {flags} from '@oclif/command'
 import updateNotifier from 'update-notifier'
@@ -32,6 +34,21 @@ export interface IConfig {
   region?: string,
 }
 
+interface IProject {
+  _id: string;
+  planID: string;
+  scale: number;
+  type: string;
+  status: string;
+  project_id: string;
+  created_at: string;
+  isDeployed: Boolean;
+}
+
+interface IGetProjectsResponse {
+  projects: IProject[];
+}
+
 axios.defaults.timeout = 10 * 1000;
 
 export default abstract class extends Command {
@@ -48,7 +65,7 @@ export default abstract class extends Command {
   }
 
   got = got.extend()
-
+  spinner!: ora.Ora;
   readGlobalConfig(): IGlobalLiaraConfig {
     let content
 
@@ -109,5 +126,38 @@ Please check your network connection.`)
     }
 
     this.got = got.extend(gotConfig)
+  }
+  async promptProject() {
+    this.spinner = ora();
+    this.spinner.start("Loading...");
+    try {
+      const {
+        data: { projects },
+      } = await axios.get<IGetProjectsResponse>(
+        "/v1/projects",
+        this.axiosConfig
+      );
+
+      this.spinner.stop();
+
+      if (!projects.length) {
+        this.warn(
+          "Please go to https://console.liara.ir/apps and create an app, first."
+        );
+        this.exit(1);
+      }
+
+      const { project } = (await inquirer.prompt({
+        name: "project",
+        type: "list",
+        message: "Please select an app:",
+        choices: [...projects.map((project) => project.project_id)],
+      })) as { project: string };
+
+      return project;
+    } catch (error) {
+      this.spinner.stop();
+      throw error;
+    }
   }
 }

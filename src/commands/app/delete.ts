@@ -12,7 +12,6 @@ export default class AppDelete extends Command {
     app: flags.string({
       char: "a",
       description: "app id",
-      required: true,
     }),
   };
 
@@ -25,7 +24,7 @@ export default class AppDelete extends Command {
       ...this.readGlobalConfig(),
       ...flags,
     });
-    const app = flags.app;
+    const app = flags.app || (await this.promptProject());
 
     try {
       // TODO: Add --force or -f flag to force the deletion
