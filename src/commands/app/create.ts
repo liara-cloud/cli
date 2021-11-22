@@ -19,7 +19,6 @@ export default class AppCreate extends Command {
     app: flags.string({
       char: "a",
       description: "app id",
-      required: true,
     }),
     platform: flags.string({
       description: "platform",
@@ -41,31 +40,25 @@ export default class AppCreate extends Command {
       ...this.readGlobalConfig(),
       ...flags,
     });
-    const app = flags.app;
+    const name = flags.app || (await this.promptAppName());
     const { region } = this.readGlobalConfig();
     (region === "germany" || flags.region === "germany") &&
       this.error("We do not support germany any more.");
-    if (!flags.platform) {
-      flags.platform = await this.promptPlatform();
-    }
-    if (!flags.plan) {
-      flags.plan = await this.promptPlan();
-    }
-    const platform = flags.platform;
-    const planID = flags.plan;
+    const platform = flags.platform || (await this.promptPlatform());
+    const planID = flags.plan || (await this.promptPlan());
 
     try {
       await axios.post(
         `/v1/projects/`,
         {
-          name: app,
+          name,
           planID,
           platform,
         },
         this.axiosConfig
       );
 
-      this.log(`App ${app} created.`);
+      this.log(`App ${name} created.`);
     } catch (error) {
       debug(error.message);
 
@@ -166,5 +159,15 @@ export default class AppCreate extends Command {
       this.spinner.stop();
       throw error;
     }
+  }
+  async promptAppName(): Promise<string> {
+    const { name } = (await inquirer.prompt({
+      name: "name",
+      type: "input",
+      message: "Enter app name:",
+      validate: (input) => input.length > 2,
+    })) as { name: string };
+
+    return name;
   }
 }
