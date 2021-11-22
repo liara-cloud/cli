@@ -65,7 +65,7 @@ export default abstract class extends Command {
   }
 
   got = got.extend()
-  spinner: ora.Ora = ora();
+  spinner!: ora.Ora;
   readGlobalConfig(): IGlobalLiaraConfig {
     let content
 
@@ -128,6 +128,7 @@ Please check your network connection.`)
     this.got = got.extend(gotConfig)
   }
   async promptProject() {
+    this.spinner = ora();
     this.spinner.start("Loading...");
     try {
       const {
