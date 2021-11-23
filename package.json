@@ -11,6 +11,7 @@
     "@oclif/command": "^1.5.12",
     "@oclif/config": "^1.12.12",
     "@oclif/errors": "^1.2.2",
+    "@oclif/plugin-autocomplete": "^0.3.0",
     "@oclif/plugin-help": "^2.1.6",
     "ansi-escapes": "^4.1.0",
     "async-retry": "^1.2.3",
@@ -85,7 +86,8 @@
     "commands": "./lib/commands",
     "bin": "liara",
     "plugins": [
-      "@oclif/plugin-help"
+      "@oclif/plugin-help",
+      "@oclif/plugin-autocomplete"
     ],
     "topics": {
       "app": {
