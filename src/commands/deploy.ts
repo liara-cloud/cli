@@ -233,7 +233,7 @@ export default class Deploy extends Command {
         await Logs.run([
           '--app', config.app,
           '--since', moment().unix().toString(),
-          '--api-token', flags["api-token"] || '',
+          '--api-token', config["api-token"] || '',
           '--region', config.region || '',
         ])
       }
