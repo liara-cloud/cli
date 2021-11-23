@@ -281,7 +281,7 @@ If you are using API token for authentication, please consider updating your API
       this.log()
       this.error(`Deployment failed.
 Sorry for inconvenience. If you think it's a bug, please contact us.
-You can file a ticket: https://console.liara.ir/tickets`)
+To file a ticket, please head to: https://console.liara.ir/tickets`)
     }
   }
 
