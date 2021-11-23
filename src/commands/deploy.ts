@@ -233,7 +233,7 @@ export default class Deploy extends Command {
         await Logs.run([
           '--app', config.app,
           '--since', moment().unix().toString(),
-          '--api-token', flags["api-token"] || '',
+          '--api-token', config["api-token"] || '',
           '--region', config.region || '',
         ])
       }
@@ -277,8 +277,11 @@ If you are using API token for authentication, please consider updating your API
         process.exit(2)
       }
 
+      this.log(chalk.gray(this.config.userAgent))
+      this.log()
       this.error(`Deployment failed.
-Sorry for inconvenience. If you think it's a bug, please contact us.`)
+Sorry for inconvenience. If you think it's a bug, please contact us.
+To file a ticket, please head to: https://console.liara.ir/tickets`)
     }
   }
 
