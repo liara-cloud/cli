@@ -3,27 +3,15 @@ import inquirer from "inquirer";
 import Command from "../../base";
 import { flags } from "@oclif/command";
 import { createDebugLogger } from "../../utils/output";
+import { IEnv, IGetProjectResponse } from "./set";
 
-export interface IEnv {
-  key: string;
-  value: string;
-}
-
-export interface IProject {
-  envs: Array<IEnv>;
-}
-
-export interface IGetProjectResponse {
-  project: IProject;
-}
-
-export default class EnvSet extends Command {
-  static description = "specifying environment variable to an app";
+export default class EnvUnset extends Command {
+  static description = "remove environment variable from an app";
 
   static args = [
     {
       name: "env",
-      description: "key=value pair",
+      description: "key",
     },
   ];
 
@@ -34,7 +22,7 @@ export default class EnvSet extends Command {
   };
 
   async run() {
-    const { flags, args } = this.parse(EnvSet);
+    const { flags, args } = this.parse(EnvUnset);
 
     this.setAxiosConfig({
       ...this.readGlobalConfig(),
@@ -42,18 +30,22 @@ export default class EnvSet extends Command {
     });
     const debug = createDebugLogger(flags.debug);
 
-    if (args.env === undefined) {
-      EnvSet.run(["-h"]);
+    if (
+      args.env === undefined ||
+      this.splitWithDelimiter("=", args.env).includes("=")
+    ) {
+      EnvUnset.run(["-h"]);
       this.exit(0);
     }
 
-    const env = this.readKeyValue([args.env]);
     const app = flags.app || (await this.promptProject());
     const appliedEnvs = await this.fetchEnvs(app);
 
     const variables = [
       ...new Map(
-        [...appliedEnvs, ...new Set(env)].map((item) => [item["key"], item])
+        [...appliedEnvs]
+          .filter((item) => item["key"] !== args.env)
+          .map((item) => [item["key"], item])
       ).values(),
     ];
 
@@ -68,7 +60,7 @@ export default class EnvSet extends Command {
           this.axiosConfig
         );
 
-        this.log(`Configuration variable applied and restarting ${app}`);
+        this.log(`Configuration variable removed and restarting ${app}`);
       }
     } catch (error) {
       debug(error.message);
@@ -91,36 +83,11 @@ export default class EnvSet extends Command {
 
     return envs;
   }
-  
+
   splitWithDelimiter(delimiter: string, string: string): Array<string> {
     return (
       string.match(new RegExp(`(${delimiter}|[^${delimiter}]+)`, "g")) || []
     );
-  }
-
-  removeFirstSyombol(splitedGroup: Array<string>): Array<string> {
-    let counter = 0;
-    const removedOne = splitedGroup.map((item: any) => {
-      let content = "";
-      if (item === "=") counter++;
-      counter === 1 && item === "=" ? false : (content += item);
-      return content;
-    });
-    return removedOne;
-  }
-
-  readKeyValue(env: Array<string>): IEnv[] {
-    const variable = env.map((env: any) => {
-      const splitWithDelimiter = this.splitWithDelimiter("=", env);
-      const removedOne = [
-        ...new Set(this.removeFirstSyombol(splitWithDelimiter).filter(Boolean)),
-      ];
-      const [tKey, ...tValue] = removedOne;
-      const [key, value] = [tKey, tValue.join("")];
-      return { key, value };
-    });
-
-    return variable;
   }
 
   async confirm() {

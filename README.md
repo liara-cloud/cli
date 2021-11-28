@@ -45,6 +45,7 @@ USAGE
 * [`liara disk:create`](#liara-diskcreate)
 * [`liara env:list`](#liara-envlist)
 * [`liara env:set [ENV]`](#liara-envset-env)
+* [`liara env:unset [ENV]`](#liara-envunset-env)
 * [`liara help [COMMAND]`](#liara-help-command)
 * [`liara login`](#liara-login)
 * [`liara plan:list`](#liara-planlist)
@@ -470,6 +471,30 @@ OPTIONS
 ```
 
 _See code: [src/commands/env/set.ts](https://github.com/liara-ir/liara-cli/blob/v2.17.0/src/commands/env/set.ts)_
+
+## `liara env:unset [ENV]`
+
+remove environment variable from an app
+
+```
+remove environment variable from an app
+
+USAGE
+  $ liara env:unset [ENV]
+
+ARGUMENTS
+  ENV  key
+
+OPTIONS
+  -a, --app=app          app id
+  -f, --force            force update
+  -h, --help             show CLI help
+  --api-token=api-token  your api token to use for authentication
+  --debug                show debug logs
+  --region=iran|germany  the region you want to deploy your app to
+```
+
+_See code: [src/commands/env/unset.ts](https://github.com/liara-ir/liara-cli/blob/v2.17.0/src/commands/env/unset.ts)_
 
 ## `liara help [COMMAND]`
 
