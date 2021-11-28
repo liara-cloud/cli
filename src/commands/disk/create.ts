@@ -1,17 +1,9 @@
 import ora from "ora";
 import axios from "axios";
 import inquirer from "inquirer";
-import Command from "../../base";
+import Command, { IGetProjectsResponse } from "../../base";
 import { flags } from "@oclif/command";
 import { createDebugLogger } from "../../utils/output";
-
-interface IProject {
-  project_id: string;
-}
-
-interface IGetProjectsResponse {
-  projects: IProject[];
-}
 
 export default class DiskCreate extends Command {
   static description = "create a disk";

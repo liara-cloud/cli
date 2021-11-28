@@ -34,7 +34,7 @@ export interface IConfig {
   region?: string,
 }
 
-interface IProject {
+export interface IProject {
   _id: string;
   planID: string;
   scale: number;
@@ -45,7 +45,7 @@ interface IProject {
   isDeployed: Boolean;
 }
 
-interface IGetProjectsResponse {
+export interface IGetProjectsResponse {
   projects: IProject[];
 }
 
