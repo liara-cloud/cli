@@ -51,11 +51,7 @@ export default class EnvSet extends Command {
     const app = flags.app || (await this.promptProject());
     const appliedEnvs = await this.fetchEnvs(app);
 
-    const variables = [
-      ...new Map(
-        [...appliedEnvs, ...new Set(env)].map((item) => [item["key"], item])
-      ).values(),
-    ];
+    const variables = [...appliedEnvs, ...env];
 
     try {
       if (flags.force || (await this.confirm())) {
