@@ -100,7 +100,7 @@
         "description": "display commands for working with disks"
       },
       "env": {
-        "description": "display commands for configuring app environment variable"
+        "description": "display commands for configuring app environment variables"
       },
       "plan": {
         "description": "list available plans"
