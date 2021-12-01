@@ -41,13 +41,7 @@ export default class EnvUnset extends Command {
     const app = flags.app || (await this.promptProject());
     const appliedEnvs = await this.fetchEnvs(app);
 
-    const variables = [
-      ...new Map(
-        [...appliedEnvs]
-          .filter((item) => item["key"] !== args.env)
-          .map((item) => [item["key"], item])
-      ).values(),
-    ];
+    const variables = appliedEnvs.filter(v => v.key !== args.env);
 
     try {
       if (flags.force || (await this.confirm())) {
