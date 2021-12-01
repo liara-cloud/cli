@@ -1,22 +1,7 @@
 import { cli } from "cli-ux";
-import Command from "../../base";
+import Command, { IGetProjectsResponse } from "../../base";
 import axios from "axios";
 import * as shamsi from "shamsi-date-converter";
-
-interface IProject {
-  _id: string;
-  planID: string;
-  scale: number;
-  type: string;
-  status: string;
-  project_id: string;
-  created_at: string;
-  isDeployed: Boolean;
-}
-
-interface IGetProjectsResponse {
-  projects: IProject[];
-}
 
 export default class AppList extends Command {
   static description = "list available apps";

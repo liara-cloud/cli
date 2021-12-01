@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.17.0 linux-x64 node-v12.22.7
+@liara/cli/2.17.0 linux-x64 node-v16.13.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -43,6 +43,9 @@ USAGE
 * [`liara autocomplete [SHELL]`](#liara-autocomplete-shell)
 * [`liara deploy`](#liara-deploy)
 * [`liara disk:create`](#liara-diskcreate)
+* [`liara env:list`](#liara-envlist)
+* [`liara env:set [ENV]`](#liara-envset-env)
+* [`liara env:unset [ENV]`](#liara-envunset-env)
 * [`liara help [COMMAND]`](#liara-help-command)
 * [`liara login`](#liara-login)
 * [`liara plan:list`](#liara-planlist)
@@ -413,6 +416,85 @@ OPTIONS
 ```
 
 _See code: [src/commands/disk/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.17.0/src/commands/disk/create.ts)_
+
+## `liara env:list`
+
+list environment variables of an app
+
+```
+list environment variables of an app
+
+USAGE
+  $ liara env:list
+
+OPTIONS
+  -a, --app=app           app id
+  -h, --help              show CLI help
+  -x, --extended          show extra columns
+  --api-token=api-token   your api token to use for authentication
+  --columns=columns       only show provided columns (comma-separated)
+  --csv                   output is csv format [alias: --output=csv]
+  --debug                 show debug logs
+  --filter=filter         filter property by partial string matching, ex: name=foo
+  --no-header             hide table header from output
+  --no-truncate           do not truncate output to fit screen
+  --output=csv|json|yaml  output in a more machine friendly format
+  --region=iran|germany   the region you want to deploy your app to
+  --sort=sort             property to sort by (prepend '-' for descending)
+
+ALIASES
+  $ liara env:ls
+```
+
+_See code: [src/commands/env/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.17.0/src/commands/env/list.ts)_
+
+## `liara env:set [ENV]`
+
+specifying environment variable to an app
+
+```
+specifying environment variable to an app
+
+USAGE
+  $ liara env:set [ENV]
+
+ARGUMENTS
+  ENV  key=value pair
+
+OPTIONS
+  -a, --app=app          app id
+  -f, --force            force update
+  -h, --help             show CLI help
+  --api-token=api-token  your api token to use for authentication
+  --debug                show debug logs
+  --region=iran|germany  the region you want to deploy your app to
+```
+
+_See code: [src/commands/env/set.ts](https://github.com/liara-ir/liara-cli/blob/v2.17.0/src/commands/env/set.ts)_
+
+## `liara env:unset [ENV]`
+
+remove environment variable from an app
+
+```
+remove environment variable from an app
+
+USAGE
+  $ liara env:unset [ENV]
+
+ARGUMENTS
+  ENV  key
+
+OPTIONS
+  -a, --app=app          app id
+  -f, --force            force update
+  -h, --help             show CLI help
+  --api-token=api-token  your api token to use for authentication
+  --debug                show debug logs
+  --region=iran|germany  the region you want to deploy your app to
+```
+
+_See code: [src/commands/env/unset.ts](https://github.com/liara-ir/liara-cli/blob/v2.17.0/src/commands/env/unset.ts)_
 
 ## `liara help [COMMAND]`
 
