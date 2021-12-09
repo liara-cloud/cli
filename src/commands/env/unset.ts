@@ -6,8 +6,8 @@ import { createDebugLogger } from "../../utils/output";
 import { IEnv, IGetProjectResponse } from "./set";
 
 export default class EnvUnset extends Command {
-  static description = "remove environment variable from an app";
-
+  static description = "remove environment variables from an app";
+  static strict = false;
   static args = [
     {
       name: "env",
@@ -22,7 +22,7 @@ export default class EnvUnset extends Command {
   };
 
   async run() {
-    const { flags, args } = this.parse(EnvUnset);
+    const { flags, argv } = this.parse(EnvUnset);
 
     this.setAxiosConfig({
       ...this.readGlobalConfig(),
@@ -31,8 +31,10 @@ export default class EnvUnset extends Command {
     const debug = createDebugLogger(flags.debug);
 
     if (
-      args.env === undefined ||
-      this.splitWithDelimiter("=", args.env).includes("=")
+      argv.length === 0 ||
+      argv
+        .map((arg) => this.splitWithDelimiter("=", arg).includes("="))
+        .includes(true)
     ) {
       EnvUnset.run(["-h"]);
       this.exit(0);
@@ -40,8 +42,7 @@ export default class EnvUnset extends Command {
 
     const app = flags.app || (await this.promptProject());
     const appliedEnvs = await this.fetchEnvs(app);
-
-    const variables = appliedEnvs.filter(v => v.key !== args.env);
+    const variables = appliedEnvs.filter((v) => !argv.includes(v.key));
 
     try {
       if (flags.force || (await this.confirm())) {
