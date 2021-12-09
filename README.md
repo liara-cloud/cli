@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.18.0 linux-x64 node-v12.22.7
+@liara/cli/2.18.0 linux-x64 node-v16.13.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -450,10 +450,10 @@ _See code: [src/commands/env/list.ts](https://github.com/liara-ir/liara-cli/blob
 
 ## `liara env:set [ENV]`
 
-specifying environment variable to an app
+specifying environment variables to an app
 
 ```
-specifying environment variable to an app
+specifying environment variables to an app
 
 USAGE
   $ liara env:set [ENV]
@@ -474,10 +474,10 @@ _See code: [src/commands/env/set.ts](https://github.com/liara-ir/liara-cli/blob/
 
 ## `liara env:unset [ENV]`
 
-remove environment variable from an app
+remove environment variables from an app
 
 ```
-remove environment variable from an app
+remove environment variables from an app
 
 USAGE
   $ liara env:unset [ENV]
