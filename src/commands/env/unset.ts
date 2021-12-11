@@ -30,14 +30,13 @@ export default class EnvUnset extends Command {
     });
     const debug = createDebugLogger(flags.debug);
 
-    if (
-      argv.length === 0 ||
-      argv
-        .map((arg) => this.splitWithDelimiter("=", arg).includes("="))
-        .includes(true)
-    ) {
+    if (!argv.length) {
       EnvUnset.run(["-h"]);
       this.exit(0);
+    }
+
+    if(argv.join(' ').includes('=')) {
+      return this.error(`You can't use '=' in the key. Please check your input.`);  
     }
 
     const app = flags.app || (await this.promptProject());
@@ -77,12 +76,6 @@ export default class EnvUnset extends Command {
     });
 
     return envs;
-  }
-
-  splitWithDelimiter(delimiter: string, string: string): Array<string> {
-    return (
-      string.match(new RegExp(`(${delimiter}|[^${delimiter}]+)`, "g")) || []
-    );
   }
 
   async confirm() {
