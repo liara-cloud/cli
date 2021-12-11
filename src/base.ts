@@ -1,4 +1,5 @@
-import ora from "ora";
+import os from 'os'
+import ora from "ora"
 import fs from 'fs-extra'
 import got, {Options} from 'got'
 import inquirer from "inquirer";
@@ -11,6 +12,8 @@ import './interceptors'
 import {DEV_MODE, FALLBACK_REGION, GLOBAL_CONF_PATH, REGIONS_API_URL} from './constants'
 
 updateNotifier({pkg: require('../package.json')}).notify()
+
+const isWin = os.platform() === 'win32';
 
 interface IAccount {
   email: string;
@@ -100,7 +103,7 @@ Please check your network connection.`)
     const gotConfig: Options = {};
 
     const proxy = process.env.http_proxy || process.env.https_proxy
-    if(proxy) {
+    if(proxy && !isWin) {
       this.log(`Using proxy server ${proxy}`)
 
       // @ts-ignore
