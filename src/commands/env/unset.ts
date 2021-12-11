@@ -6,8 +6,8 @@ import { createDebugLogger } from "../../utils/output";
 import { IEnv, IGetProjectResponse } from "./set";
 
 export default class EnvUnset extends Command {
-  static description = "remove environment variable from an app";
-
+  static description = "remove environment variables from an app";
+  static strict = false;
   static args = [
     {
       name: "env",
@@ -22,7 +22,7 @@ export default class EnvUnset extends Command {
   };
 
   async run() {
-    const { flags, args } = this.parse(EnvUnset);
+    const { flags, argv } = this.parse(EnvUnset);
 
     this.setAxiosConfig({
       ...this.readGlobalConfig(),
@@ -30,18 +30,18 @@ export default class EnvUnset extends Command {
     });
     const debug = createDebugLogger(flags.debug);
 
-    if (
-      args.env === undefined ||
-      this.splitWithDelimiter("=", args.env).includes("=")
-    ) {
+    if (!argv.length) {
       EnvUnset.run(["-h"]);
       this.exit(0);
     }
 
+    if(argv.join(' ').includes('=')) {
+      return this.error(`You can't use '=' in the key. Please check your input.`);  
+    }
+
     const app = flags.app || (await this.promptProject());
     const appliedEnvs = await this.fetchEnvs(app);
-
-    const variables = appliedEnvs.filter(v => v.key !== args.env);
+    const variables = appliedEnvs.filter((v) => !argv.includes(v.key));
 
     try {
       if (flags.force || (await this.confirm())) {
@@ -76,12 +76,6 @@ export default class EnvUnset extends Command {
     });
 
     return envs;
-  }
-
-  splitWithDelimiter(delimiter: string, string: string): Array<string> {
-    return (
-      string.match(new RegExp(`(${delimiter}|[^${delimiter}]+)`, "g")) || []
-    );
   }
 
   async confirm() {

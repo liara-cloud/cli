@@ -18,8 +18,8 @@ export interface IGetProjectResponse {
 }
 
 export default class EnvSet extends Command {
-  static description = "specifying environment variable to an app";
-
+  static description = "specifying environment variables to an app";
+  static strict = false;
   static args = [
     {
       name: "env",
@@ -34,20 +34,19 @@ export default class EnvSet extends Command {
   };
 
   async run() {
-    const { flags, args } = this.parse(EnvSet);
-
+    const { flags, argv } = this.parse(EnvSet);
     this.setAxiosConfig({
       ...this.readGlobalConfig(),
       ...flags,
     });
     const debug = createDebugLogger(flags.debug);
 
-    if (args.env === undefined) {
+    if (argv.length === 0) {
       EnvSet.run(["-h"]);
       this.exit(0);
     }
 
-    const env = this.readKeyValue([args.env]);
+    const env = this.readKeyValue(argv);
     const app = flags.app || (await this.promptProject());
     const appliedEnvs = await this.fetchEnvs(app);
 
@@ -108,9 +107,8 @@ export default class EnvSet extends Command {
   readKeyValue(env: Array<string>): IEnv[] {
     const variable = env.map((env: any) => {
       const splitWithDelimiter = this.splitWithDelimiter("=", env);
-      const removedOne = [
-        ...new Set(this.removeFirstSyombol(splitWithDelimiter).filter(Boolean)),
-      ];
+      const removedOne =
+        this.removeFirstSyombol(splitWithDelimiter).filter(Boolean);
       const [tKey, ...tValue] = removedOne;
       const [key, value] = [tKey, tValue.join("")];
       return { key, value };
