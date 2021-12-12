@@ -16,7 +16,7 @@ export default function mergePlatformConfigWithDefaults(parojectPath: string, pl
   return userProvidedConfig
 }
 
-function getDefaultLaravelPlatformConfig(parojectPath: string, userProvidedConfig: IPlatformConfig, debug): IPlatformConfig {
+function getDefaultLaravelPlatformConfig(parojectPath: string, userProvidedConfig: IPlatformConfig, debug: DebugLogger): IPlatformConfig {
   const newConfig = {...userProvidedConfig}
 
   if(!userProvidedConfig.phpVersion) {

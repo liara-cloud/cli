@@ -309,6 +309,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
 
     body.gitInfo = collectGitInfo(config.path, this.debug)
 
+    // @ts-ignore
     body.platformConfig = mergePlatformConfigWithDefaults(config.path, config.platform, config[config.platform] || {}, this.debug)
 
     if(config.healthCheck) {
