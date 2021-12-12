@@ -25,6 +25,7 @@ import {createDebugLogger} from '../utils/output'
 import createArchive from '../utils/create-archive'
 import detectPlatform from '../utils/detect-platform'
 import collectGitInfo from '../utils/collect-git-info'
+import mergePlatformConfigWithDefaults from '../utils/merge-platform-config'
 
 interface ILaravelPlatformConfig {
   routeCache?: boolean,
@@ -308,8 +309,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
 
     body.gitInfo = collectGitInfo(config.path, this.debug)
 
-    // @ts-ignore
-    body.platformConfig = config[config.platform]
+    body.platformConfig = mergePlatformConfigWithDefaults(config.path, config.platform, config[config.platform] || {}, this.debug)
 
     if(config.healthCheck) {
       body.healthCheck = config.healthCheck;
