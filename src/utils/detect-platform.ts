@@ -45,6 +45,10 @@ Please specify your platform with --platform=laravel or docker.`)
       return 'laravel'
     }
 
+    if (composerJson.require && composerJson.require['laravel/lumen-framework']) {
+      return 'laravel'
+    }
+
     return 'php'
   }
 
