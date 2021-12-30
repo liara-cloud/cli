@@ -382,6 +382,7 @@ OPTIONS
   -i, --image=image      docker image to deploy
   -m, --message=message  the release message
   -v, --volume=volume    volume absolute path
+  -p, --port=port        the port that your app needs to run
   --api-token=api-token  your api token to use for authentication
   --args=args            docker image entrypoint args
   --build-arg=build-arg  docker image build args
@@ -389,7 +390,6 @@ OPTIONS
   --detach               do not stream app logs after deployment
   --path=path            app path in your computer
   --platform=platform    the platform your app needs to run
-  --port=port            the port that your app listens to
   --region=iran|germany  the region you want to deploy your app to
 ```
 

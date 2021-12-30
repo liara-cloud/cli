@@ -129,7 +129,7 @@ export default class Deploy extends Command {
     path: flags.string({description: 'app path in your computer'}),
     platform: flags.string({description: 'the platform your app needs to run'}),
     app: flags.string({char: 'a', description: 'app id'}),
-    port: flags.integer({description: 'the port that your app listens to'}),
+    port: flags.integer({char: 'p', description: 'the port that your app listens to'}),
     volume: flags.string({char: 'v', description: 'volume absolute path'}),
     image: flags.string({char: 'i', description: 'docker image to deploy'}),
     'detach': flags.boolean({description: 'do not stream app logs after deployment', default: false}),
