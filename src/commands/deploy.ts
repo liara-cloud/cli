@@ -229,15 +229,17 @@ export default class Deploy extends Command {
 
       this.log()
 
-      if (!flags['detach']) {
-        this.log('Reading app logs...')
+      if (flags['detach']) {
+        process.exit(0)
+      } 
+
+      this.log('Reading app logs...')
         await Logs.run([
           '--app', config.app,
           '--since', moment().unix().toString(),
           '--api-token', config["api-token"] || '',
           '--region', config.region || '',
         ])
-      }
 
     } catch (error) {
       this.log()
