@@ -354,8 +354,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
     this.spinner.start('Building...')
 
     let isCanceled = false
-
-    const removeInterupListener = onInterupt(async () => {
+    const cancelDeployment = async () => {
       // Force close
       if (isCanceled) process.exit(3)
 
@@ -375,7 +374,11 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
 
       this.spinner.warn('Build canceled.')
       process.exit(3)
+    }
+    process.on("message",async () => {
+      await cancelDeployment()
     })
+    const removeInterupListener = onInterupt(cancelDeployment)
 
     return new Promise((resolve, reject) => {
       const poller = new Poller()
