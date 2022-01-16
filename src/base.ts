@@ -7,6 +7,7 @@ import axios, {AxiosRequestConfig} from 'axios'
 import Command, {flags} from '@oclif/command'
 import updateNotifier from 'update-notifier'
 import HttpsProxyAgent from 'https-proxy-agent'
+import { ipcSendLog } from './utils/ipc-send-log';
 
 import './interceptors'
 import {DEV_MODE, FALLBACK_REGION, GLOBAL_CONF_PATH, REGIONS_API_URL} from './constants'
@@ -104,6 +105,7 @@ Please check your network connection.`)
 
     const proxy = process.env.http_proxy || process.env.https_proxy
     if(proxy && !isWin) {
+      ipcSendLog({log: 'Using proxy server', state: 'pre-build', status: 'pending'})
       this.log(`Using proxy server ${proxy}`)
 
       // @ts-ignore

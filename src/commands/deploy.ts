@@ -20,8 +20,9 @@ import {DEV_MODE} from '../constants'
 import getPort from '../utils/get-port'
 import checkPath from '../utils/check-path'
 import onInterupt from '../utils/on-intrupt'
-import validatePort from '../utils/validate-port'
 import {createDebugLogger} from '../utils/output'
+import validatePort from '../utils/validate-port'
+import { ipcSendLog } from '../utils/ipc-send-log'
 import createArchive from '../utils/create-archive'
 import detectPlatform from '../utils/detect-platform'
 import collectGitInfo from '../utils/collect-git-info'
@@ -156,6 +157,7 @@ export default class Deploy extends Command {
       try {
         checkPath(config.path)
       } catch (error) {
+        ipcSendLog({log: error.message, status: 'error', state: 'pre-build'})
         this.error(error.message)
       }
 
@@ -173,6 +175,7 @@ export default class Deploy extends Command {
           config.platform = detectPlatform(config.path)
           isPlatformDetected = true
         } catch (error) {
+          ipcSendLog({log: error.message, state: 'pre-build', status: 'error'})
           return this.error(error.message)
         }
       }
@@ -215,9 +218,13 @@ export default class Deploy extends Command {
       !config.image && await this.showBuildLogs(response.releaseID)
       config.image && await this.showReleaseLogs(response.releaseID)
 
+      ipcSendLog({log: '\n', state: 'release', status: 'pending'})
       this.log()
+      ipcSendLog({log: 'Deployment finished successfully.', state: 'release', status: 'pending'})
       this.log(chalk.green('Deployment finished successfully.'))
+      ipcSendLog({log: 'Open up the url below in your browser:', state: 'release', status: 'pending'})
       this.log(chalk.white('Open up the url below in your browser:'))
+      ipcSendLog({log: '\n', state: 'release', status: 'pending'})
       this.log()
 
       const defaultSubdomain: string = config.region === 'iran' ? ".iran.liara.run" : ".liara.run"
@@ -225,8 +232,11 @@ export default class Deploy extends Command {
         // tslint:disable-next-line: no-http-string
         ? `    ${chalk.cyan(`http://${config.app}.liara.localhost`)}`
         : `    ${chalk.cyan(`https://${config.app}${defaultSubdomain}`)}`
+      
+      ipcSendLog({log: urlLogMessage, state:'release', status: 'pending'})
       this.log(urlLogMessage)
 
+      ipcSendLog({log: '\n', state: 'release', status: 'finish'})
       this.log()
 
       if (flags['detach']) {
@@ -252,6 +262,7 @@ export default class Deploy extends Command {
         : {};
 
       if (error.message === 'TIMEOUT') {
+        ipcSendLog({log: 'Build timed out. It took about 10 minutes.', state: 'build', status:'error'})
         this.error('Build timed out. It took about 10 minutes.')
       }
 
@@ -269,6 +280,7 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`
 
       if (error.response && error.response.statusCode >= 400 && error.response.statusCode < 500 && responseBody.message) {
         const message = `CODE ${error.response.statusCode}: ${responseBody.message}`
+        ipcSendLog({log: message, state: 'build', status: 'error'})
         return this.error(message)
       }
 
@@ -280,8 +292,13 @@ If you are using API token for authentication, please consider updating your API
         process.exit(2)
       }
 
+      ipcSendLog({log: this.config.userAgent, state: '*', status: 'error'})
       this.log(chalk.gray(this.config.userAgent))
+      ipcSendLog({log: '\n', state: '*', status: 'pending'})
       this.log()
+      ipcSendLog({log: `Deployment failed.
+      Sorry for inconvenience. If you think it's a bug, please contact us.
+      To file a ticket, please head to: https://console.liara.ir/tickets`, state: '*', status: 'error'})
       this.error(`Deployment failed.
 Sorry for inconvenience. If you think it's a bug, please contact us.
 To file a ticket, please head to: https://console.liara.ir/tickets`)
@@ -322,8 +339,9 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
       }
     }
 
+    ipcSendLog({log: 'Creating an archive...', state: 'pre-build', status: 'pending'})
     this.spinner.start('Creating an archive...')
-
+    
     const tmpDir = path.join(os.tmpdir(), '/liara-cli')
     const sourcePath = path.join(tmpDir, `${Date.now()}.tar.gz`)
     fs.ensureDirSync(tmpDir)
@@ -335,8 +353,9 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
     const {size: sourceSize} = fs.statSync(sourcePath)
 
     this.logKeyValue('Compressed size', `${bytes(sourceSize)} ${chalk.cyanBright('(use .gitignore to reduce the size)')}`)
-
+    ipcSendLog({log: '\n', state: 'pre-build', status: 'finish'})
     if(sourceSize > MAX_SOURCE_SIZE) {
+      ipcSendLog({log: 'Source is too large. (max: 200MB)', state: 'pre-build', status: 'error'})
       this.error('Source is too large. (max: 200MB)')
     }
 
@@ -353,14 +372,15 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
   }
 
   async showBuildLogs(releaseID: string) {
+    ipcSendLog({log: 'Building...', state: 'build', status: 'start'})
     this.spinner.start('Building...')
 
     let isCanceled = false
-
-    const removeInterupListener = onInterupt(async () => {
+    const cancelDeployment = async () => {
       // Force close
       if (isCanceled) process.exit(3)
 
+      ipcSendLog({log: '\nCanceling the build...', state: 'build', status: 'cancel'})
       this.spinner.start('\nCanceling the build...')
       isCanceled = true
 
@@ -368,6 +388,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
         retries: 3,
         onRetry: (error: any, attempt: number) => {
           this.debug(error.stack)
+          ipcSendLog({log: `${attempt}: Could not cancel, retrying...`, state: 'build', status: 'cancel'})
           this.log(`${attempt}: Could not cancel, retrying...`)
         }
       }
@@ -375,9 +396,15 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
         await axios.post(`/v2/releases/${releaseID}/cancel`, null, this.axiosConfig)
       }, retryOptions)
 
+      ipcSendLog({log: 'Build canceled.', state: 'build', status: 'cancel'})
       this.spinner.warn('Build canceled.')
       process.exit(3)
+    }
+
+    process.on("message",async () => {
+      await cancelDeployment()
     })
+    const removeInterupListener = onInterupt(cancelDeployment)
 
     return new Promise((resolve, reject) => {
       const poller = new Poller()
@@ -397,9 +424,11 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
             this.spinner.clear().frame()
 
             if (output.stream === 'STDOUT') {
+              ipcSendLog({log: output.line, state: 'build', status: 'pending'})
               process.stdout.write(output.line)
             } else {
               // tslint:disable-next-line: no-console
+              ipcSendLog({log: output.line, state: 'build', status: 'error'})
               console.error(output.line)
               return reject(new Error('Build failed.'))
             }
@@ -407,6 +436,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
 
           if (!buildOutput.length) {
             if (release.state === 'CANCELED') {
+              ipcSendLog({log: 'Build canceled.', state: 'build', status: 'cancel'})
               this.spinner.warn('Build canceled.')
               process.exit(3)
             }
@@ -419,18 +449,23 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
             if (release.state === 'FAILED') {
               this.spinner.fail();
               if(release.failReason) {
+                ipcSendLog({log: this.parseFailReason(release.failReason), state: 'build', status: 'error'})
                 return reject(new DeployException(this.parseFailReason(release.failReason)))
               }
+              ipcSendLog({log: 'Release failed.', state: 'build', status: 'error'})
               return reject(new Error('Release failed.'))
             }
 
             if (release.state === 'DEPLOYING' && !isDeploying) {
               isDeploying = true
+              ipcSendLog({log: 'Image pushed.', state: 'build', status: 'pending'})
               this.spinner.succeed('Image pushed.')
+              ipcSendLog({log: 'Creating a new release...', state: 'build', status: 'pending'})
               this.spinner.start('Creating a new release...')
             }
 
             if (release.state === 'READY') {
+              ipcSendLog({log: 'Release created.', state: 'release', status: 'pending'})
               this.spinner.succeed('Release created.')
               return resolve()
             }
@@ -441,7 +476,9 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
             since = lastLine.createdAt
 
             if (lastLine.line.startsWith('Successfully tagged')) {
+              ipcSendLog({log: 'Build finished.', state: 'build', status: 'finish'})
               this.spinner.succeed('Build finished.')
+              ipcSendLog({log: 'Pushing the image...', state: 'release', status: 'start'})
               this.spinner.start('Pushing the image...')
               removeInterupListener()
             }
@@ -459,6 +496,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
   }
 
   async showReleaseLogs(releaseID: string) {
+    ipcSendLog({log: 'Creating a new release...', state: 'release', status: 'pending'})
     this.spinner.start('Creating a new release...')
 
     return new Promise((resolve, reject) => {
@@ -471,12 +509,15 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
           if (release.state === 'FAILED') {
             this.spinner.fail();
             if(release.failReason) {
+              ipcSendLog({log: this.parseFailReason(release.failReason), state: 'release', status: 'error'})
               return reject(new DeployException(this.parseFailReason(release.failReason)))
             }
+            ipcSendLog({log: 'Release failed.', state: 'release', status: 'pending'})
             return reject(new Error('Release failed.'))
           }
 
           if (release.state === 'READY') {
+            ipcSendLog({log: 'Release created.', state: 'release', status: 'pending'})
             this.spinner.succeed('Release created.')
             return resolve()
           }
@@ -504,26 +545,32 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
 
   dontDeployEmptyProjects(projectPath: string) {
     if (fs.readdirSync(projectPath).length === 0) {
+      ipcSendLog({log: 'Directory is empty', state: 'pre-build', status: 'error'})
       this.error('Directory is empty!')
     }
   }
 
   logKeyValue(key: string, value: string = ''): void {
     this.spinner.clear().frame()
+    ipcSendLog({log: `${key}: ${value}`, state: 'pre-build', status: 'pending'})
     this.log(`${chalk.blue(`${key}:`)} ${value}`)
   }
 
   validateDeploymentConfig(config: IDeploymentConfig) {
     if(config.volume && config.disks) {
+      ipcSendLog({log: "You can't use `volume` and `disks` fields at the same time.\
+      Please consider using only one of them.", state: 'pre-build', status: 'error' })
       this.error("You can't use `volume` and `disks` fields at the same time.\
  Please consider using only one of them.");
     }
 
     if (config.volume && !path.isAbsolute(config.volume)) {
+      ipcSendLog({log: 'Volume path must be absolute.', state: 'pre-build', status: 'error'})
       this.error('Volume path must be absolute.')
     }
 
     if(config.healthCheck && ! config.healthCheck.command) {
+      ipcSendLog({log: '`command` field in healthCheck is required.', state: 'pre-build', status: 'error'})
       this.error('`command` field in healthCheck is required.')
     }
 
@@ -531,6 +578,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
         typeof config.healthCheck.command !== 'string' &&
         ! Array.isArray(config.healthCheck.command)
     ) {
+      ipcSendLog({log: '`command` field in healthCheck must be either an array or a string.', state: 'pre-build', status: 'error'})
       this.error('`command` field in healthCheck must be either an array or a string.')
     }
   }
@@ -620,6 +668,8 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
       const packageJSON = fs.readJSONSync(path.join(projectPath, 'package.json'))
 
       if (!packageJSON.scripts || !packageJSON.scripts.start) {
+        ipcSendLog({log:`A NodeJS app must be runnable with 'npm start'.
+        You must add a 'start' command to your package.json scripts.`, state: 'prebuild', status: 'error'})
         this.error(`A NodeJS app must be runnable with 'npm start'.
 You must add a 'start' command to your package.json scripts.`)
       }
@@ -642,9 +692,11 @@ You must add a 'start' command to your package.json scripts.`)
       const response = await this.got.post(`v2/projects/${project}/sources`, { body })
         .on('uploadProgress', progress => {
           bar.tick(progress.transferred - bar.curr)
+          ipcSendLog({log: `${Math.floor(progress.transferred * 100 / sourceSize)}`, state:'upload', status:'progress'})
         })
         .json<{ sourceID: string }>()
 
+      ipcSendLog({log: 'Upload finished.', state: 'upload', status: 'finish'})  
       this.spinner.succeed('Upload finished.')
 
       this.debug(`source upload response: ${JSON.stringify(response)}`)
@@ -652,6 +704,7 @@ You must add a 'start' command to your package.json scripts.`)
       return response.sourceID
 
     } catch (error) {
+      ipcSendLog({log: 'Upload failed.', state: 'pre-build', status: 'error'})
       this.spinner.fail('Upload failed.')
       throw error
 
