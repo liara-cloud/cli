@@ -669,7 +669,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
 
       if (!packageJSON.scripts || !packageJSON.scripts.start) {
         ipcSendLog({log:`A NodeJS app must be runnable with 'npm start'.
-        You must add a 'start' command to your package.json scripts.`, state: 'prebuild', status: 'error'})
+        You must add a 'start' command to your package.json scripts.`, state: 'pre-build', status: 'error'})
         this.error(`A NodeJS app must be runnable with 'npm start'.
 You must add a 'start' command to your package.json scripts.`)
       }
