@@ -460,7 +460,6 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
               isDeploying = true
               ipcSendLog({log: 'Image pushed.', state: 'build', status: 'pending'})
               this.spinner.succeed('Image pushed.')
-              ipcSendLog({log: 'Creating a new release...', state: 'build', status: 'pending'})
               this.spinner.start('Creating a new release...')
             }
 
