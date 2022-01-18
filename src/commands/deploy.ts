@@ -691,7 +691,7 @@ You must add a 'start' command to your package.json scripts.`)
       const response = await this.got.post(`v2/projects/${project}/sources`, { body })
         .on('uploadProgress', progress => {
           bar.tick(progress.transferred - bar.curr)
-          ipcSendLog({log: `${Math.floor(progress.transferred * 100 / sourceSize)}`, state:'upload', status:'progress'})
+          ipcSendLog({log: `${Math.floor(progress.percent * 100)}`, state:'upload', status:'progress'})
         })
         .json<{ sourceID: string }>()
 
