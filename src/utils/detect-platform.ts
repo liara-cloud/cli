@@ -6,6 +6,7 @@ export default function detectPlatform(projectPath: string) {
   const packageJsonFilePath = path.join(projectPath, 'package.json')
   const composeJsonFilePath = path.join(projectPath, 'composer.json')
   const requirementsTxtFilePath = path.join(projectPath, 'requirements.txt')
+  const pipfilePath = path.join(projectPath, 'Pipfile')
   const indexPHPFilePath = path.join(projectPath, 'index.php')
   const [programCSFilePath] = globby.sync('**/{Startup.cs,Program.cs}', {
     cwd: projectPath,
@@ -17,6 +18,7 @@ export default function detectPlatform(projectPath: string) {
   const hasComposerJsonFile = existsSync(composeJsonFilePath)
   const hasIndexPHPFile = existsSync(indexPHPFilePath)
   const hasRequirementsTxtFile = existsSync(requirementsTxtFilePath)
+  const hasPipfilePathFile = existsSync(pipfilePath)
   const hasDockerFile = existsSync(path.join(projectPath, 'Dockerfile'))
   const hasWPContent = existsSync(path.join(projectPath, 'wp-content'))
   const hasCSProjFile = programCSFilePath && globby.sync('*.csproj', {
@@ -64,6 +66,18 @@ Please specify your platform with --platform=laravel or docker.`)
     }
 
     if (requirementsTxt.includes('Flask') || requirementsTxt.includes('flask')) {
+      return 'flask'
+    }
+  }
+
+  if (hasPipfilePathFile) {
+    const pipfile = readFileSync(pipfilePath)
+
+    if (pipfile.includes('Django') || pipfile.includes('django')) {
+      return 'django'
+    }
+
+    if (pipfile.includes('Flask') || pipfile.includes('flask')) {
       return 'flask'
     }
   }
