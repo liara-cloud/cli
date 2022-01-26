@@ -1,0 +1,3 @@
+export interface IRelease {
+  state: string, status: string, failReason?: string
+}
