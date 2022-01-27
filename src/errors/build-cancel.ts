@@ -1,0 +1,1 @@
+export class BuildCancel extends Error {}
