@@ -3,7 +3,6 @@ import path from 'path'
 import chalk from 'chalk'
 import bytes from 'bytes'
 import fs from 'fs-extra'
-import axios from 'axios'
 import moment from 'moment'
 import inquirer from 'inquirer'
 import ProgressBar from 'progress'
@@ -288,13 +287,13 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
           this.log(`${attempt}: Could not cancel, retrying...`)
         }
       }
-      await cancelDeployment(axios, releaseID, retryOptions, this.axiosConfig)
+      await cancelDeployment(this.got, releaseID, retryOptions)
       this.spinner.warn('Build canceled.')
       process.exit(3)
     })
 
     try {
-      await buildLogs(releaseID, isCanceled,this.axiosConfig,(output) => {
+      await buildLogs(this.got,releaseID, isCanceled,(output) => {
         if (output.state === 'DEPLOYING') {
           this.spinner.succeed('Image pushed.')
           this.spinner.start('Creating a new release...')
@@ -348,7 +347,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
 
       poller.onPoll(async () => {
         try {
-          const {data: {release}} = await axios.get<{release: IRelease}>(`/v1/releases/${releaseID}`, this.axiosConfig)
+          const {release} = await this.got(`v1/releases/${releaseID}`).json<{release: IRelease}>()
 
           if (release.state === 'FAILED') {
             this.spinner.fail();
@@ -421,8 +420,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
     this.spinner.start('Loading...')
 
     try {
-      const {data: {projects}} = await axios.get<IGetProjectsResponse>('/v1/projects', this.axiosConfig)
-
+      const { projects } = await this.got('v1/projects').json<IGetProjectsResponse>()
       this.spinner.stop()
 
       if (!projects.length) {

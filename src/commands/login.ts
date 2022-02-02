@@ -1,5 +1,5 @@
+import got from 'got'
 import chalk from 'chalk'
-import axios from 'axios'
 import fs from 'fs-extra'
 import retry from 'async-retry'
 import {prompt} from 'inquirer'
@@ -45,6 +45,7 @@ export default class Login extends Command {
     }
 
     this.axiosConfig.baseURL = REGIONS_API_URL[region]
+    this.got = got.extend({prefixUrl: REGIONS_API_URL[region]})
 
     if (!flags.email) {
       let emailIsValid = false
@@ -71,7 +72,10 @@ export default class Login extends Command {
 
     const {api_token} = await retry(async () => {
       try {
-        const {data} = await axios.post('/v1/login', body, this.axiosConfig)
+        const data = await this.got.post('v1/login', {
+          json:body,
+          headers: { "Authorization" : undefined
+        }}).json<{api_token: string}>()
         return data
       } catch (err) {
         debug('retrying...')

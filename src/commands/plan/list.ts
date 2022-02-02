@@ -1,6 +1,5 @@
 import { cli } from "cli-ux";
 import Command from "../../base";
-import axios from "axios";
 import {
   ramSpacing,
   cpuSpacing,
@@ -25,10 +24,7 @@ export default class PlanList extends Command {
       ...flags,
     });
 
-    const {
-      data: { plans },
-    } = await axios.get("/v1/me", this.axiosConfig);
-
+    const {plans} = await this.got('v1/me').json()
     const plansData = Object.keys(plans.projects)
       .filter((plan) => plan.includes("ir-") && plans.projects[plan].available)
       .map((plan) => {

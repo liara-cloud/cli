@@ -1,4 +1,3 @@
-import axios from "axios";
 import inquirer from "inquirer";
 import Command from "../../base";
 import { flags } from "@oclif/command";
@@ -54,15 +53,7 @@ export default class EnvSet extends Command {
 
     try {
       if (flags.force || (await this.confirm())) {
-        await axios.post(
-          `/v1/projects/update-envs`,
-          {
-            project: app,
-            variables,
-          },
-          this.axiosConfig
-        );
-
+        await this.got.post('v1/projects/update-envs', {json: {project: app, variables}})
         this.log(`Configuration variable applied and restarting ${app}`);
       }
     } catch (error) {
@@ -71,13 +62,7 @@ export default class EnvSet extends Command {
   }
 
   async fetchEnvs(app: string): Promise<IEnv[]> {
-    const {
-      data: { project },
-    } = await axios.get<IGetProjectResponse>(
-      `/v1/projects/${app}`,
-      this.axiosConfig
-    );
-
+    const {project} = await this.got(`v1/projects/${app}`).json<IGetProjectResponse>()
     const envs = project.envs.map((env) => {
       const key = env.key;
       const value = env.value;
