@@ -1,6 +1,6 @@
-import {ILiaraJSON} from './liara-json'
+import ILiaraJSON from './liara-json'
 
-export interface IDeploymentConfig extends ILiaraJSON {
+export default interface IDeploymentConfig extends ILiaraJSON {
   path: string,
   image?: string,
   'api-token'?: string,

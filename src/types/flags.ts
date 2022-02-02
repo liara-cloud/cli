@@ -1,4 +1,4 @@
-export interface IFlags {
+export default interface IFlags {
   path?: string,
   platform?: string,
   port?: number,

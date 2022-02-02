@@ -2,7 +2,7 @@ import { Got } from "got";
 
 import Poller from "../utils/poller";
 import  BuildFailed from "../errors/build-failed";
-import { IBuildLogsResponse } from "../types/build-logs-response";
+import  IBuildLogsResponse from "../types/build-logs-response";
 import  BuildCanceled  from "../errors/build-cancel";
 import BuildTimeout  from "../errors/build-timeout";
 import  DeployException  from "../errors/deploy-exception";

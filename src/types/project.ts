@@ -1,3 +1,3 @@
-export interface IProject {
+export default interface IProject {
   project_id: string,
 }

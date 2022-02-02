@@ -1,4 +1,4 @@
-export interface IHealthConfig {
+export default interface IHealthConfig {
   command?: string | string[],
   interval?: number,
   timeout?: number,

@@ -1,5 +1,5 @@
-import {IProject} from '../types/project'
+import IProject from '../types/project'
 
-export interface IGetProjectsResponse {
+export default interface IGetProjectsResponse {
   projects: IProject[]
 }

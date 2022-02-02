@@ -1,4 +1,4 @@
-export interface IDisk {
+export default interface IDisk {
   name: String,
   mountTo: String,
 }

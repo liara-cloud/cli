@@ -1,9 +1,9 @@
-import {IDisk} from './disk'
-import {ILaravelPlatformConfig} from './laravel-platform-config'
-import {INodePlatformConfig} from './node-platfrom-config'
-import {IHealthConfig} from './health-config'
+import IDisk from './disk'
+import ILaravelPlatformConfig from './laravel-platform-config'
+import INodePlatformConfig from './node-platfrom-config'
+import IHealthConfig from './health-config'
 
-export interface ILiaraJSON {
+export default interface ILiaraJSON {
   app?: string,
   platform?: string,
   port?: number,

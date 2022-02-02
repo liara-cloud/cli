@@ -1,3 +1,3 @@
-export interface ICreatedRelease {
+export default interface ICreatedRelease {
   releaseID: string,
 }

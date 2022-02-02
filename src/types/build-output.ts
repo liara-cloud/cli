@@ -1,4 +1,4 @@
-export interface IBuildOutput {
+export default interface IBuildOutput {
   _id: string,
   line: string,
   stream: string,
