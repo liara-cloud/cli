@@ -1,1 +1,1 @@
-export class BuildCancel extends Error {}
+export default class BuildCanceled extends Error {}

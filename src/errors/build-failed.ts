@@ -1,4 +1,4 @@
-export class BuildFailed extends Error {
+export default class BuildFailed extends Error {
 
   constructor(message: string, public output: any) {
     super(message)

@@ -1,12 +1,12 @@
 import { Got } from "got";
 
 import Poller from "../utils/poller";
-import { BuildFailed } from "../errors/build-failed";
+import  BuildFailed from "../errors/build-failed";
 import { IBuildLogsResponse } from "../types/build-logs-response";
-import { BuildCancel } from "../errors/build-cancel";
-import { BuildTimeout } from "../errors/build-timeout";
-import { DeployException } from "../errors/deploy-exception";
-import { ReleaseFailed } from "../errors/release-failed";
+import  BuildCanceled  from "../errors/build-cancel";
+import BuildTimeout  from "../errors/build-timeout";
+import  DeployException  from "../errors/deploy-exception";
+import  ReleaseFailed  from "../errors/release-failed";
 
 export default async (
   httpClient: Got,
@@ -36,7 +36,7 @@ export default async (
 
         if (!buildOutput.length) {
           if (release.state === "CANCELED") {
-            return reject(new BuildCancel(""));
+            return reject(new BuildCanceled(""));
           }
 
           if (release.state === "TIMEDOUT") {

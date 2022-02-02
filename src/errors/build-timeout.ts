@@ -1,1 +1,1 @@
-export class BuildTimeout extends Error {}
+export default class BuildTimeout extends Error {}
