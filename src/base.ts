@@ -136,15 +136,9 @@ Please check your network connection.`)
     this.spinner = ora();
     this.spinner.start("Loading...");
     try {
-      const {
-        data: { projects },
-      } = await axios.get<IGetProjectsResponse>(
-        "/v1/projects",
-        this.axiosConfig
-      );
+      const { projects } = await this.got("v1/projects").json<IGetProjectsResponse>()
 
       this.spinner.stop();
-
       if (!projects.length) {
         this.warn(
           "Please go to https://console.liara.ir/apps and create an app, first."

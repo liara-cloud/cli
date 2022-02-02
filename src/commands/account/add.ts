@@ -1,4 +1,4 @@
-import axios from "axios";
+import got from 'got'
 import chalk from "chalk";
 import fs from "fs-extra";
 import retry from "async-retry";
@@ -46,15 +46,11 @@ export default class AccountAdd extends Command {
     };
 
     this.axiosConfig.baseURL = REGIONS_API_URL[region];
-
+    this.got = got.extend({prefixUrl: REGIONS_API_URL[region]})
     const { api_token } = (await retry(
       async () => {
         try {
-          const { data } = await axios.post(
-            "/v1/login",
-            body,
-            this.axiosConfig
-          );
+          const data = await this.got.post('v1/login', {json:body,  headers: { "Authorization" : undefined}}).json<{api_token: string}>()
           return data;
         } catch (err) {
           debug("retrying...");

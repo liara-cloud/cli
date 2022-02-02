@@ -1,4 +1,3 @@
-import axios from "axios";
 import Command from "../../base";
 import { flags } from "@oclif/command";
 import { createDebugLogger } from "../../utils/output";
@@ -26,12 +25,7 @@ export default class AppRestart extends Command {
     const app = flags.app || (await this.promptProject());
 
     try {
-      await axios.post(
-        `/v1/projects/${app}/actions/restart`,
-        null,
-        this.axiosConfig
-      );
-
+      await this.got.post(`v1/projects/${app}/actions/restart`)
       this.log(`App ${app} restarted.`);
     } catch (error) {
       debug(error.message);

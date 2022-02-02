@@ -1,4 +1,3 @@
-import axios from "axios";
 import { cli } from "cli-ux";
 import Command from "../../base";
 import { flags } from "@oclif/command";
@@ -22,10 +21,7 @@ export default class EnvList extends Command {
     });
     const app = flags.app || (await this.promptProject());
 
-    const {
-      data: { project },
-    } = await axios.get(`/v1/projects/${app}`, this.axiosConfig);
-
+    const {project} = await this.got(`v1/projects/${app}`).json()
     cli.table(
       project.envs,
       {

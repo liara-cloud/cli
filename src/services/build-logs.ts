@@ -1,5 +1,4 @@
-import axios, { AxiosRequestConfig } from "axios";
-
+import { Got } from "got";
 
 import Poller from "../utils/poller";
 import { BuildFailed } from "../errors/build-failed";
@@ -10,9 +9,9 @@ import { DeployException } from "../errors/deploy-exception";
 import { ReleaseFailed } from "../errors/release-failed";
 
 export default async (
+  httpClient: Got,
   releaseID: string,
   isCanceled: boolean,
-  axiosConfig: AxiosRequestConfig,
   cb: ({ state, line }: { state: string; line?: string }) => void
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
@@ -23,11 +22,9 @@ export default async (
 
     poller.onPoll(async () => {
       try {
-        const {data: {release, buildOutput}} = await axios.get<IBuildLogsResponse>(
-          `/v2/releases/${releaseID}/build-logs`, {
-            ...axiosConfig,
-            params: {since},
-          })
+        const { release, buildOutput } = await httpClient
+          .get(`v2/releases/${releaseID}/build-logs?since=${since}`)
+          .json<IBuildLogsResponse>();
 
         for (const output of buildOutput) {
           if (output.stream === "STDOUT") {
