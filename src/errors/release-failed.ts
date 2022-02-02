@@ -1,1 +1,1 @@
-export class ReleaseFailed extends Error {}
+export default class ReleaseFailed extends Error {}

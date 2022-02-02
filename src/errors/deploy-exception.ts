@@ -1,1 +1,1 @@
-export class DeployException extends Error {}
+export default class DeployException extends Error {}

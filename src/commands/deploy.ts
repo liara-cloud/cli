@@ -19,21 +19,21 @@ import upload from '../services/upload'
 import {IRelease} from '../types/release'
 import checkPath from '../utils/check-path'
 import onInterupt from '../utils/on-intrupt'
-import pathArchive from '../services/tmp-dir'
+import prepareTmpDirectory from '../services/tmp-dir'
 import buildLogs from '../services/build-logs'
 import {ILiaraJSON} from '../types/liara-json'
 import validatePort from '../utils/validate-port'
 import {createDebugLogger} from '../utils/output'
 import createArchive from '../utils/create-archive'
-import { BuildCancel } from '../errors/build-cancel'
-import { BuildFailed } from '../errors/build-failed'
+import  BuildCanceled  from '../errors/build-cancel'
+import  BuildFailed  from '../errors/build-failed'
 import detectPlatform from '../utils/detect-platform'
-import { BuildTimeout } from '../errors/build-timeout'
+import  BuildTimeout  from '../errors/build-timeout'
 import collectGitInfo from '../utils/collect-git-info'
-import { ReleaseFailed } from '../errors/release-failed'
+import  ReleaseFailed  from '../errors/release-failed'
 import {ICreatedRelease} from '../types/created-release'
 import {IDeploymentConfig} from '../types/deployment-config'
-import { DeployException } from '../errors/deploy-exception'
+import  DeployException  from '../errors/deploy-exception'
 import cancelDeployment from '../services/cancel-deployment'
 import {IGetProjectsResponse} from '../types/get-project-response'
 import mergePlatformConfigWithDefaults from '../utils/merge-platform-config'
@@ -243,7 +243,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
 
     this.spinner.start('Creating an archive...')
 
-    const sourcePath = pathArchive()
+    const sourcePath = prepareTmpDirectory()
     await createArchive(sourcePath, config.path, config.platform, this.debug)
 
     this.spinner.stop()
@@ -314,24 +314,27 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
       if (error instanceof BuildFailed) {
         // tslint:disable-next-line: no-console
         console.error(error.output.line)
+        throw new Error('Build failed')
       }
 
-      if (error instanceof BuildCancel) {
+      if (error instanceof BuildCanceled) {
           this.spinner.warn('Build canceled.')
           process.exit(3)
       }
 
       if (error instanceof BuildTimeout) {
         this.spinner.fail();
+        throw new Error('TIMEOUT')
       }
 
       if (error instanceof DeployException) {
         this.spinner.fail();
-        this.parseFailReason(error.message)
+        throw new Error(this.parseFailReason(error.message))
       }
 
       if (error instanceof ReleaseFailed) {
         this.spinner.fail();
+        throw new Error('Release failed.')
       }
       
       this.debug(error.stack)
