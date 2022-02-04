@@ -1,8 +1,9 @@
 import fs from 'fs-extra'
+import { Got } from 'got';
 import FormData from 'form-data'
 
 
-async function upload (project: string, httpClient: any, sourcePath: string, onProgress: any) {
+async function upload (project: string, httpClient: Got, sourcePath: string, onProgress: any) {
   const body = new FormData();
   body.append('file', fs.createReadStream(sourcePath))
 

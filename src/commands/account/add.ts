@@ -5,6 +5,7 @@ import retry from "async-retry";
 import { prompt } from "inquirer";
 import Command from "../../base";
 import { flags } from "@oclif/command";
+import hooks from '../../interceptors';
 import promptEmail from "email-prompt-ts";
 import eraseLines from "../../utils/erase-lines";
 import { createDebugLogger } from "../../utils/output";
@@ -46,7 +47,7 @@ export default class AccountAdd extends Command {
     };
 
     this.axiosConfig.baseURL = REGIONS_API_URL[region];
-    this.got = got.extend({prefixUrl: REGIONS_API_URL[region]})
+    this.got = got.extend({prefixUrl: REGIONS_API_URL[region], hooks})
     const { api_token } = (await retry(
       async () => {
         try {

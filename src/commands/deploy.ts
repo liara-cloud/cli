@@ -11,24 +11,24 @@ import {CLIError} from '@oclif/errors'
 
 import Logs from './app/logs'
 import Command from '../base'
-import Poller from '../utils/poller'
 import IFlags from '../types/flags'
+import Poller from '../utils/poller'
 import {DEV_MODE} from '../constants'
 import getPort from '../utils/get-port'
 import upload from '../services/upload'
 import IRelease from '../types/release'
 import checkPath from '../utils/check-path'
 import onInterupt from '../utils/on-intrupt'
-import prepareTmpDirectory from '../services/tmp-dir'
-import buildLogs from '../services/build-logs'
 import ILiaraJSON from '../types/liara-json'
+import buildLogs from '../services/build-logs'
 import validatePort from '../utils/validate-port'
 import {createDebugLogger} from '../utils/output'
+import  BuildFailed  from '../errors/build-failed'
 import createArchive from '../utils/create-archive'
 import  BuildCanceled  from '../errors/build-cancel'
-import  BuildFailed  from '../errors/build-failed'
-import detectPlatform from '../utils/detect-platform'
 import  BuildTimeout  from '../errors/build-timeout'
+import prepareTmpDirectory from '../services/tmp-dir'
+import detectPlatform from '../utils/detect-platform'
 import collectGitInfo from '../utils/collect-git-info'
 import  ReleaseFailed  from '../errors/release-failed'
 import ICreatedRelease from '../types/created-release'
@@ -314,7 +314,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
       if (error instanceof BuildFailed) {
         // tslint:disable-next-line: no-console
         console.error(error.output.line)
-        throw new Error('Build failed')
+        throw new Error('Build failed.')
       }
 
       if (error instanceof BuildCanceled) {

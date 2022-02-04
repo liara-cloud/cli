@@ -3,11 +3,12 @@ import chalk from 'chalk'
 import fs from 'fs-extra'
 import retry from 'async-retry'
 import {prompt} from 'inquirer'
-import promptEmail from 'email-prompt-ts'
 import {flags} from '@oclif/command'
+import promptEmail from 'email-prompt-ts'
 import {validate as validateEmail} from 'email-validator'
 
 import Command from '../base'
+import hooks from '../interceptors'
 import eraseLines from '../utils/erase-lines'
 import {createDebugLogger} from '../utils/output'
 import {GLOBAL_CONF_PATH, REGIONS_API_URL} from '../constants'
@@ -45,7 +46,7 @@ export default class Login extends Command {
     }
 
     this.axiosConfig.baseURL = REGIONS_API_URL[region]
-    this.got = got.extend({prefixUrl: REGIONS_API_URL[region]})
+    this.got = got.extend({prefixUrl: REGIONS_API_URL[region], hooks})
 
     if (!flags.email) {
       let emailIsValid = false
@@ -73,9 +74,9 @@ export default class Login extends Command {
     const {api_token} = await retry(async () => {
       try {
         const data = await this.got.post('v1/login', {
-          json:body,
-          headers: { "Authorization" : undefined
-        }}).json<{api_token: string}>()
+          json:body, 
+          headers: { "Authorization" : undefined }
+        }).json<{api_token: string}>()
         return data
       } catch (err) {
         debug('retrying...')
