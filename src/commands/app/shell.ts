@@ -4,7 +4,7 @@ import Command from "../../base";
 import { flags } from "@oclif/command";
 import { CLIError } from "@oclif/errors";
 import { REGIONS_API_URL, FALLBACK_REGION } from "../../constants";
-import WebSocket, { createWebSocketStream } from "ws";
+import { createWebSocketStream } from "ws";
 
 interface IFlags {
   path?: string;
@@ -46,7 +46,7 @@ export default class AppShell extends Command {
       "wss://"
     );
 
-    const ws = new WebSocket(
+    const ws = this.createProxiedWebsocket(
       `${wsURL}/v1/exec?token=${config["api-token"]}&cmd=${flags.command}&project_id=${app}`
     );
 

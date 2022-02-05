@@ -1,8 +1,9 @@
 import os from 'os'
 import ora from "ora"
 import fs from 'fs-extra'
+import WebSocket from "ws"
 import got, {Options} from 'got'
-import inquirer from "inquirer";
+import inquirer from "inquirer"
 import axios, {AxiosRequestConfig} from 'axios'
 import Command, {flags} from '@oclif/command'
 import updateNotifier from 'update-notifier'
@@ -132,6 +133,18 @@ Please check your network connection.`)
 
     this.got = got.extend(gotConfig)
   }
+
+  createProxiedWebsocket(endpoint: string) {
+    const proxy = process.env.http_proxy || process.env.https_proxy
+    if(proxy && !isWin) {
+      // @ts-ignore
+      const agent = new HttpsProxyAgent(proxy)
+      return new WebSocket(endpoint, { agent })
+    }
+
+    return new WebSocket(endpoint)
+  }
+
   async promptProject() {
     this.spinner = ora();
     this.spinner.start("Loading...");
