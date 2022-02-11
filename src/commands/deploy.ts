@@ -522,13 +522,19 @@ You must add a 'start' command to your package.json scripts.`)
       bar.tick(progress.transferred - bar.curr)
     }
     try {
-      const response = await upload(project,this.got, sourcePath, onProgress)   
+      const response = await upload(project,this.got, sourcePath)
+        .on('uploadProgress', onProgress)
+        .json<{ sourceID: string }>()
+
       this.spinner.succeed('Upload finished.')
       this.debug(`source upload response: ${JSON.stringify(response)}`)
       return response.sourceID
     } catch (error) {
       this.spinner.fail('Upload failed.')
       throw error
+    } finally {
+      // cleanup
+      fs.unlink(sourcePath).catch(() => {})
     }
   }
 }
