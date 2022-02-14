@@ -1,5 +1,4 @@
 import ora from "ora";
-import axios from "axios";
 import inquirer from "inquirer";
 import Command from "../../base";
 import { flags } from "@oclif/command";
@@ -48,16 +47,7 @@ export default class AppCreate extends Command {
     const planID = flags.plan || (await this.promptPlan());
 
     try {
-      await axios.post(
-        `/v1/projects/`,
-        {
-          name,
-          planID,
-          platform,
-        },
-        this.axiosConfig
-      );
-
+      await this.got.post('v1/projects/', {json: {name, planID, platform}})
       this.log(`App ${name} created.`);
     } catch (error) {
       debug(error.message);
@@ -82,10 +72,7 @@ export default class AppCreate extends Command {
     this.spinner.start("Loading...");
 
     try {
-      const {
-        data: { plans },
-      } = await axios.get("/v1/me", this.axiosConfig);
-
+      const {plans}= await this.got('v1/me').json()
       this.spinner.stop();
 
       const { plan } = (await inquirer.prompt({
