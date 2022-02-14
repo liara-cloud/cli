@@ -101,7 +101,11 @@ Please check your network connection.`)
   }
 
   setAxiosConfig(config: IConfig): void {
-    const gotConfig: Options = {};
+    const gotConfig: Options = {
+      headers: {
+        'user-agent': this.config.userAgent,
+      },
+    };
 
     const proxy = process.env.http_proxy || process.env.https_proxy
     if(proxy && !isWin) {
@@ -118,7 +122,8 @@ Please check your network connection.`)
 
     if (config['api-token']) {
       this.axiosConfig.headers.Authorization = `Bearer ${config['api-token']}`
-      gotConfig.headers = { Authorization: `Bearer ${config['api-token']}` }
+      // @ts-ignore
+      gotConfig.headers.Authorization = `Bearer ${config['api-token']}`
     }
 
     config['region'] = config['region'] || FALLBACK_REGION;
