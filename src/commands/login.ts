@@ -3,8 +3,8 @@ import axios from 'axios'
 import fs from 'fs-extra'
 import retry from 'async-retry'
 import {prompt} from 'inquirer'
+import {Flags} from '@oclif/core'
 import promptEmail from 'email-prompt-ts'
-import {flags} from '@oclif/command'
 import {validate as validateEmail} from 'email-validator'
 
 import Command from '../base'
@@ -17,12 +17,12 @@ export default class Login extends Command {
 
   static flags = {
     ...Command.flags,
-    email: flags.string({char: 'e', description: 'your email'}),
-    password: flags.string({char: 'p', description: 'your password'}),
+    email: Flags.string({char: 'e', description: 'your email'}),
+    password: Flags.string({char: 'p', description: 'your password'}),
   }
 
   async run() {
-    const {flags} = this.parse(Login)
+    const {flags} = await this.parse(Login)
     const debug = createDebugLogger(flags.debug)
     let region = flags.region;
 

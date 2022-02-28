@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import chalk from "chalk";
 import Command, { IAccounts } from "../../base";
 import { prompt } from "inquirer";
-import { flags } from "@oclif/command";
+import { Flags } from "@oclif/core";
 import { GLOBAL_CONF_PATH } from "../../constants";
 
 export default class AccountUse extends Command {
@@ -10,11 +10,11 @@ export default class AccountUse extends Command {
 
   static flags = {
     ...Command.flags,
-    account: flags.string({ char: "a", description: "account name" }),
+    account: Flags.string({ char: "a", description: "account name" }),
   };
 
   async run() {
-    const { flags } = this.parse(AccountUse);
+    const { flags } = await this.parse(AccountUse);
     const liara_json = this.readGlobalConfig();
     if (!liara_json || !liara_json.accounts || Object.keys(liara_json.accounts).length === 0) {
       this.error("Please add your accounts via 'liara account:add' command, first.");

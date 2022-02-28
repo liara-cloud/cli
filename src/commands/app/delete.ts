@@ -1,7 +1,7 @@
 import axios from "axios";
 import inquirer from "inquirer";
 import Command from "../../base";
-import { flags } from "@oclif/command";
+import { Flags } from "@oclif/core";
 import { createDebugLogger } from "../../utils/output";
 
 export default class AppDelete extends Command {
@@ -9,7 +9,7 @@ export default class AppDelete extends Command {
 
   static flags = {
     ...Command.flags,
-    app: flags.string({
+    app: Flags.string({
       char: "a",
       description: "app id",
     }),
@@ -18,7 +18,7 @@ export default class AppDelete extends Command {
   static aliases = ["delete"];
 
   async run() {
-    const { flags } = this.parse(AppDelete);
+    const { flags } = await this.parse(AppDelete);
     const debug = createDebugLogger(flags.debug);
     this.setAxiosConfig({
       ...this.readGlobalConfig(),

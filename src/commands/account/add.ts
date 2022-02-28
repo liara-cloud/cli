@@ -4,7 +4,7 @@ import fs from "fs-extra";
 import retry from "async-retry";
 import { prompt } from "inquirer";
 import Command from "../../base";
-import { flags } from "@oclif/command";
+import { Flags } from "@oclif/core";
 import promptEmail from "email-prompt-ts";
 import eraseLines from "../../utils/erase-lines";
 import { createDebugLogger } from "../../utils/output";
@@ -16,13 +16,13 @@ export default class AccountAdd extends Command {
 
   static flags = {
     ...Command.flags,
-    account: flags.string({ char: "a", description: "account name" }),
-    email: flags.string({ char: "e", description: "your email" }),
-    password: flags.string({ char: "p", description: "your password" }),
+    account: Flags.string({ char: "a", description: "account name" }),
+    email: Flags.string({ char: "e", description: "your email" }),
+    password: Flags.string({ char: "p", description: "your password" }),
   };
 
   async run() {
-    const { flags } = this.parse(AccountAdd);
+    const { flags } = await this.parse(AccountAdd);
     const debug = createDebugLogger(flags.debug);
     const liara_json = this.readGlobalConfig();
     const currentAccounts = liara_json.accounts;

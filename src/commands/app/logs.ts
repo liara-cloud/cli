@@ -1,9 +1,7 @@
 import axios from "axios";
 import chalk from "chalk";
 import moment from "moment";
-import { flags } from "@oclif/command";
-// tslint:disable-next-line: no-implicit-dependencies
-import { CLIError } from "@oclif/errors";
+import { Flags, Errors } from "@oclif/core";
 
 import Command from "../../base";
 import { createDebugLogger } from "../../utils/output";
@@ -19,8 +17,8 @@ export default class AppLogs extends Command {
 
   static flags = {
     ...Command.flags,
-    app: flags.string({ char: "a", description: "app id" }),
-    since: flags.integer({
+    app: Flags.string({ char: "a", description: "app id" }),
+    since: Flags.integer({
       char: "s",
       description: "show logs since timestamp",
     }),
@@ -29,7 +27,7 @@ export default class AppLogs extends Command {
   static aliases = ["logs"];
 
   async run() {
-    const { flags } = this.parse(AppLogs);
+    const { flags } = await this.parse(AppLogs);
     let since: string | number = flags.since || 1;
 
     this.debug = createDebugLogger(flags.debug);
@@ -58,7 +56,7 @@ export default class AppLogs extends Command {
       } catch (error) {
         if (error.response && error.response.status === 404) {
           // tslint:disable-next-line: no-console
-          console.error(new CLIError("App not found.").render());
+          console.error(new Errors.CLIError("App not found.").render());
           process.exit(2);
         }
 
@@ -70,7 +68,7 @@ export default class AppLogs extends Command {
       if (lastLog && lastLog.datetime === "Error") {
         // tslint:disable-next-line: no-console
         console.error(
-          new CLIError(`${lastLog.message}
+          new Errors.CLIError(`${lastLog.message}
 Sorry for inconvenience. Please contact us.`).render()
         );
         process.exit(1);

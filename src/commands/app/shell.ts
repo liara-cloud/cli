@@ -1,8 +1,7 @@
 import path from "path";
 import fs from "fs-extra";
 import Command from "../../base";
-import { flags } from "@oclif/command";
-import { CLIError } from "@oclif/errors";
+import { Flags, Errors } from "@oclif/core";
 import { REGIONS_API_URL, FALLBACK_REGION } from "../../constants";
 import { createWebSocketStream } from "ws";
 
@@ -22,11 +21,11 @@ export default class AppShell extends Command {
 
   static flags = {
     ...Command.flags,
-    app: flags.string({
+    app: Flags.string({
       char: "a",
       description: "app id",
     }),
-    command: flags.string({
+    command: Flags.string({
       char: "c",
       description: "the command to execute",
       default: "/bin/bash",
@@ -36,7 +35,7 @@ export default class AppShell extends Command {
   static aliases = ["shell"];
 
   async run() {
-    const { flags } = this.parse(AppShell);
+    const { flags } = await this.parse(AppShell);
     const config: IFlags = this.getMergedConfig(flags);
     const CTRL_Q = "\u0011";
     this.setAxiosConfig(config);
@@ -85,13 +84,13 @@ export default class AppShell extends Command {
       // @ts-ignore
       const statusCode = response.socket?._httpMessage.res.statusCode;
       statusCode === 404 &&
-        console.error(new CLIError(`app '${app}' not found.`).render());
+        console.error(new Errors.CLIError(`app '${app}' not found.`).render());
       clearStdinEffects();
       process.exit(2);
     });
 
     ws.on("error", (err) => {
-      console.error(new CLIError(`Unexpected Error: ${err.message}`).render());
+      console.error(new Errors.CLIError(`Unexpected Error: ${err.message}`).render());
       clearStdinEffects();
       process.exit(2);
     });
