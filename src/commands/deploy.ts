@@ -120,6 +120,7 @@ interface ICreatedRelease {
 const MAX_SOURCE_SIZE = 200 * 1024 * 1024 // 200 MB
 
 class DeployException extends Error {}
+class ReachedMaxSourceSizeError extends Error {}
 
 export default class Deploy extends Command {
   static description = 'deploy an app'
@@ -280,6 +281,9 @@ If you are using API token for authentication, please consider updating your API
         process.exit(2)
       }
 
+      if (error instanceof ReachedMaxSourceSizeError) {
+        this.error('Source is too large. (max: 200MB)')
+      }
       this.log(chalk.gray(this.config.userAgent))
       this.log()
       this.error(`Deployment failed.
@@ -337,7 +341,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
     this.logKeyValue('Compressed size', `${bytes(sourceSize)} ${chalk.cyanBright('(use .gitignore to reduce the size)')}`)
 
     if(sourceSize > MAX_SOURCE_SIZE) {
-      this.error('Source is too large. (max: 200MB)')
+      throw new ReachedMaxSourceSizeError()
     }
 
     const sourceID = await this.upload(config.app as string, sourcePath, sourceSize)
