@@ -66,12 +66,8 @@ export default class AppCreate extends Command {
         debug(JSON.stringify(error.response.data));
       }
 
-      if (error.response && error.response.status === 404) {
-        this.error(`Could not create the app.`);
-      }
-
       if (error.response && error.response.status === 409) {
-        this.error(`Another operation is already running. Please wait.`);
+        this.error(`The app already exists. Please use a unique name for your app.`);
       }
 
       this.error(`Could not create the app. Please try again.`);
