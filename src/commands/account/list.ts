@@ -1,19 +1,20 @@
-import { cli } from "cli-ux";
+import { CliUx } from "@oclif/core";
 import Command from "../../base";
 
 export default class AccountList extends Command {
   static description = "list available accounts";
-
+  
   static flags = {
     ...Command.flags,
-    ...cli.table.flags(),
+    ...CliUx.ux.table.flags(),
   };
 
   static aliases = ["account:ls"];
 
   async run() {
-    const { flags } = this.parse(AccountList);
+    const { flags } = await this.parse(AccountList);
     const liara_json = this.readGlobalConfig();
+
     if (
       !liara_json ||
       !liara_json.accounts ||
@@ -32,7 +33,7 @@ export default class AccountList extends Command {
       return { Name, Email, Region, Current };
     });
 
-    cli.table(
+    CliUx.ux.table(
       accountsData,
       { Name: {}, Email: {}, Region: {}, Current: {} },
       flags

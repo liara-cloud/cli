@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import chalk from "chalk";
 import Command, { IAccounts } from "../../base";
 import { prompt } from "inquirer";
-import { flags } from "@oclif/command";
+import { Flags } from "@oclif/core";
 import { GLOBAL_CONF_PATH } from "../../constants";
 
 export default class AccountRemove extends Command {
@@ -10,13 +10,13 @@ export default class AccountRemove extends Command {
 
   static flags = {
     ...Command.flags,
-    account: flags.string({ char: "a", description: "account name" }),
+    account: Flags.string({ char: "a", description: "account name" }),
   };
 
   static aliases = ["account:rm"];
 
   async run() {
-    const { flags } = this.parse(AccountRemove);
+    const { flags } = await this.parse(AccountRemove);
     const liara_json = this.readGlobalConfig();
     if (
       !liara_json ||

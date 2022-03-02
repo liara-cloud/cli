@@ -1,4 +1,4 @@
-import { cli } from "cli-ux";
+import { CliUx } from "@oclif/core";
 import Command, { IGetProjectsResponse } from "../../base";
 import axios from "axios";
 import * as shamsi from "shamsi-date-converter";
@@ -8,13 +8,13 @@ export default class AppList extends Command {
 
   static flags = {
     ...Command.flags,
-    ...cli.table.flags(),
+    ...CliUx.ux.table.flags(),
   };
 
   static aliases = ["app:ls"];
 
   async run() {
-    const { flags } = this.parse(AppList);
+    const { flags } = await this.parse(AppList);
     this.setAxiosConfig({
       ...this.readGlobalConfig(),
       ...flags,
@@ -40,7 +40,7 @@ export default class AppList extends Command {
       };
     });
 
-    cli.table(
+    CliUx.ux.table(
       appsData,
       {
         Name: {},

@@ -2,7 +2,7 @@ import ora from "ora";
 import axios from "axios";
 import inquirer from "inquirer";
 import Command, { IGetProjectsResponse } from "../../base";
-import { flags } from "@oclif/command";
+import { Flags } from "@oclif/core";
 import { createDebugLogger } from "../../utils/output";
 
 export default class DiskCreate extends Command {
@@ -10,15 +10,15 @@ export default class DiskCreate extends Command {
 
   static flags = {
     ...Command.flags,
-    app: flags.string({
+    app: Flags.string({
       char: "a",
       description: "app id",
     }),
-    name: flags.string({
+    name: Flags.string({
       char: "n",
       description: "disk name",
     }),
-    size: flags.string({
+    size: Flags.string({
       char: "s",
       description: "disk size",
     }),
@@ -28,7 +28,7 @@ export default class DiskCreate extends Command {
 
   async run() {
     this.spinner = ora();
-    const { flags } = this.parse(DiskCreate);
+    const { flags } = await this.parse(DiskCreate);
     const debug = createDebugLogger(flags.debug);
     this.setAxiosConfig({
       ...this.readGlobalConfig(),

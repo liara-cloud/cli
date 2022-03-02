@@ -4,11 +4,10 @@ import fs from 'fs-extra'
 import WebSocket from "ws"
 import got, {Options} from 'got'
 import inquirer from "inquirer"
+import {Command, Flags} from '@oclif/core'
 import axios, {AxiosRequestConfig} from 'axios'
-import Command, {flags} from '@oclif/command'
 import updateNotifier from 'update-notifier'
 import HttpsProxyAgent from 'https-proxy-agent'
-
 import './interceptors'
 import {DEV_MODE, FALLBACK_REGION, GLOBAL_CONF_PATH, REGIONS_API_URL} from './constants'
 
@@ -55,11 +54,11 @@ export interface IGetProjectsResponse {
 
 export default abstract class extends Command {
   static flags = {
-    help: flags.help({char: 'h'}),
-    dev: flags.boolean({description: 'run in dev mode', hidden: true}),
-    debug: flags.boolean({description: 'show debug logs'}),
-    'api-token': flags.string({description: 'your api token to use for authentication'}),
-    region: flags.string({description: 'the region you want to deploy your app to', options:['iran', 'germany']}),
+    help: Flags.help({char: 'h'}),
+    dev: Flags.boolean({description: 'run in dev mode', hidden: true}),
+    debug: Flags.boolean({description: 'show debug logs'}),
+    'api-token': Flags.string({description: 'your api token to use for authentication'}),
+    region: Flags.string({description: 'the region you want to deploy your app to', options:['iran', 'germany']}),
   }
 
   axiosConfig: AxiosRequestConfig = {

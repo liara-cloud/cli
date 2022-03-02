@@ -1,7 +1,7 @@
 import axios from "axios";
 import inquirer from "inquirer";
 import Command from "../../base";
-import { flags } from "@oclif/command";
+import { Flags } from "@oclif/core";
 import { createDebugLogger } from "../../utils/output";
 import { IEnv, IGetProjectResponse } from "./set";
 
@@ -17,12 +17,12 @@ export default class EnvUnset extends Command {
 
   static flags = {
     ...Command.flags,
-    app: flags.string({ char: "a", description: "app id" }),
-    force: flags.boolean({ char: "f", description: "force update" }),
+    app: Flags.string({ char: "a", description: "app id" }),
+    force: Flags.boolean({ char: "f", description: "force update" }),
   };
 
   async run() {
-    const { flags, argv } = this.parse(EnvUnset);
+    const { flags, argv } = await this.parse(EnvUnset);
 
     this.setAxiosConfig({
       ...this.readGlobalConfig(),

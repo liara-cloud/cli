@@ -1,21 +1,21 @@
 import axios from "axios";
-import { cli } from "cli-ux";
+import { CliUx, Flags } from "@oclif/core";
 import Command from "../../base";
-import { flags } from "@oclif/command";
+
 
 export default class EnvList extends Command {
   static description = "list environment variables of an app";
 
   static flags = {
     ...Command.flags,
-    app: flags.string({ char: "a", description: "app id" }),
-    ...cli.table.flags(),
+    app: Flags.string({ char: "a", description: "app id" }),
+    ...CliUx.ux.table.flags(),
   };
 
   static aliases = ["env:ls"];
 
   async run() {
-    const { flags } = this.parse(EnvList);
+    const { flags } = await this.parse(EnvList);
     this.setAxiosConfig({
       ...this.readGlobalConfig(),
       ...flags,
@@ -26,7 +26,7 @@ export default class EnvList extends Command {
       data: { project },
     } = await axios.get(`/v1/projects/${app}`, this.axiosConfig);
 
-    cli.table(
+    CliUx.ux.table(
       project.envs,
       {
         key: {},

@@ -2,7 +2,7 @@ import ora from "ora";
 import axios from "axios";
 import inquirer from "inquirer";
 import Command from "../../base";
-import { flags } from "@oclif/command";
+import { Flags } from "@oclif/core";
 import { createDebugLogger } from "../../utils/output";
 import {
   ramSpacing,
@@ -16,14 +16,14 @@ export default class AppCreate extends Command {
 
   static flags = {
     ...Command.flags,
-    app: flags.string({
+    app: Flags.string({
       char: "a",
       description: "app id",
     }),
-    platform: flags.string({
+    platform: Flags.string({
       description: "platform",
     }),
-    plan: flags.string({
+    plan: Flags.string({
       description: "plan",
     }),
   };
@@ -34,7 +34,7 @@ export default class AppCreate extends Command {
 
   async run() {
     this.spinner = ora();
-    const { flags } = this.parse(AppCreate);
+    const { flags } = await this.parse(AppCreate);
     const debug = createDebugLogger(flags.debug);
     this.setAxiosConfig({
       ...this.readGlobalConfig(),

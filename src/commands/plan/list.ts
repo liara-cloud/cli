@@ -1,4 +1,4 @@
-import { cli } from "cli-ux";
+import { CliUx } from "@oclif/core";
 import Command from "../../base";
 import axios from "axios";
 import {
@@ -13,13 +13,13 @@ export default class PlanList extends Command {
 
   static flags = {
     ...Command.flags,
-    ...cli.table.flags(),
+    ...CliUx.ux.table.flags(),
   };
 
   static aliases = ["plan:ls"];
 
   async run() {
-    const { flags } = this.parse(PlanList);
+    const { flags } = await this.parse(PlanList);
     this.setAxiosConfig({
       ...this.readGlobalConfig(),
       ...flags,
@@ -53,7 +53,7 @@ export default class PlanList extends Command {
         };
       });
 
-    cli.table(
+    CliUx.ux.table(
       plansData,
       { Plan: {}, RAM: {}, CPU: {}, Disk: {}, Price: {} },
       flags

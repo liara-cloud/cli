@@ -10,8 +10,8 @@ import inquirer from 'inquirer'
 import retry from 'async-retry'
 import FormData from 'form-data'
 import ProgressBar from 'progress'
-import {flags} from '@oclif/command'
-import {CLIError} from '@oclif/errors'
+import { Flags, Errors} from '@oclif/core'
+
 
 import Logs from './app/logs'
 import Command from '../base'
@@ -127,17 +127,17 @@ export default class Deploy extends Command {
 
   static flags = {
     ...Command.flags,
-    path: flags.string({description: 'app path in your computer'}),
-    platform: flags.string({description: 'the platform your app needs to run'}),
-    app: flags.string({char: 'a', description: 'app id'}),
-    port: flags.integer({char: 'p', description: 'the port that your app listens to'}),
-    volume: flags.string({char: 'v', description: 'volume absolute path'}),
-    image: flags.string({char: 'i', description: 'docker image to deploy'}),
-    'detach': flags.boolean({description: 'do not stream app logs after deployment', default: false}),
-    args: flags.string({description: 'docker image entrypoint args', multiple: true}),
-    'build-arg': flags.string({description: 'docker image build args', multiple: true}),
-    message: flags.string({char: 'm', description: 'the release message'}),
-    disks: flags.string({
+    path: Flags.string({description: 'app path in your computer'}),
+    platform: Flags.string({description: 'the platform your app needs to run'}),
+    app: Flags.string({char: 'a', description: 'app id'}),
+    port: Flags.integer({char: 'p', description: 'the port that your app listens to'}),
+    volume: Flags.string({char: 'v', description: 'volume absolute path'}),
+    image: Flags.string({char: 'i', description: 'docker image to deploy'}),
+    'detach': Flags.boolean({description: 'do not stream app logs after deployment', default: false}),
+    args: Flags.string({description: 'docker image entrypoint args', multiple: true}),
+    'build-arg': Flags.string({description: 'docker image build args', multiple: true}),
+    message: Flags.string({char: 'm', description: 'the release message'}),
+    disks: Flags.string({
       char: "d",
       description: "mount a disk",
       multiple: true
@@ -147,7 +147,7 @@ export default class Deploy extends Command {
   spinner!: ora.Ora
 
   async run() {
-    const {flags} = this.parse(Deploy)
+    const {flags} = await this.parse(Deploy)
     const config: IDeploymentConfig = this.getMergedConfig(flags)
     const debug = createDebugLogger(flags.debug)
     this.debug = debug
@@ -275,7 +275,7 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`
 
       if(error.response && error.response.statusCode === 401) {
         // tslint:disable-next-line: no-console
-        console.error(new CLIError(`Authentication failed.
+        console.error(new Errors.CLIError(`Authentication failed.
 Please login via 'liara login' command.
 If you are using API token for authentication, please consider updating your API token.`).render())
         process.exit(2)

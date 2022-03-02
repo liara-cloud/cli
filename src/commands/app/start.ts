@@ -1,6 +1,6 @@
 import axios from "axios";
 import Command from "../../base";
-import { flags } from "@oclif/command";
+import { Flags } from "@oclif/core";
 import { createDebugLogger } from "../../utils/output";
 
 export default class AppStart extends Command {
@@ -8,7 +8,7 @@ export default class AppStart extends Command {
 
   static flags = {
     ...Command.flags,
-    app: flags.string({
+    app: Flags.string({
       char: "a",
       description: "app id",
     }),
@@ -17,7 +17,7 @@ export default class AppStart extends Command {
   static aliases = ["start"];
 
   async run() {
-    const { flags } = this.parse(AppStart);
+    const { flags } = await this.parse(AppStart);
     const debug = createDebugLogger(flags.debug);
     this.setAxiosConfig({
       ...this.readGlobalConfig(),
