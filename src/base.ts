@@ -9,7 +9,7 @@ import axios, {AxiosRequestConfig} from 'axios'
 import updateNotifier from 'update-notifier'
 import HttpsProxyAgent from 'https-proxy-agent'
 import './interceptors'
-import {DEV_MODE, FALLBACK_REGION, GLOBAL_CONF_PATH, REGIONS_API_URL} from './constants'
+import {DEV_MODE, FALLBACK_REGION, GLOBAL_CONF_PATH, PREVIOUS_GLOBAL_CONF_PATH, REGIONS_API_URL} from './constants'
 
 updateNotifier({pkg: require('../package.json')}).notify()
 
@@ -74,19 +74,20 @@ export default abstract class extends Command {
   readGlobalConfig(): IGlobalLiaraConfig {
     let content
 
-    try {
-      content = JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH).toString('utf-8')) || {}
-    } catch {
-      content = {}
+    for (const [index, path] of [GLOBAL_CONF_PATH, PREVIOUS_GLOBAL_CONF_PATH].entries()) {
+      try {
+        content = JSON.parse(fs.readFileSync(path).toString('utf-8')) || {}
+        content['global_config_path'] = index === 0 ? '.liara-auth.json' : '.liara.json'
+      } catch {}
     }
 
     // For backward compatibility with < 1.0.0 versions
-    if (content.api_token) {
+    if (content && content.api_token) {
       content['api-token'] = content.api_token
       delete content.api_token
     }
-
-    return content
+    
+    return content || { global_config_path: GLOBAL_CONF_PATH}
   }
 
   async catch(error: any) {
