@@ -45,6 +45,7 @@ export default class Login extends Command {
     }
 
     this.axiosConfig.baseURL = REGIONS_API_URL[region]
+    this.axiosConfig.headers.Authorization = `Bearer ${flags['api-token']}`
 
     if (!flags.email) {
       let emailIsValid = false
@@ -65,12 +66,17 @@ export default class Login extends Command {
       this.log()
     }
 
-    if (!flags.password) {
+    if (!flags.password && !flags['api-token']) {
       body.password = await this.promptPassword()
     }
 
-    const {api_token} = await retry(async () => {
+    const {api_token, fullname, avatar} = await retry(async () => {
       try {
+        if (flags['api-token']) {
+          const {data: {user}} = await axios.get('/v1/me', this.axiosConfig)
+          user.api_token = flags['api-token']
+          return user
+        }
         const {data} = await axios.post('/v1/login', body, this.axiosConfig)
         return data
       } catch (err) {
@@ -80,10 +86,13 @@ export default class Login extends Command {
     }, {retries: 3})
 
     const liara_json = this.readGlobalConfig();
+    const name = `${body.email}_${region}`
 
     fs.writeFileSync(GLOBAL_CONF_PATH, JSON.stringify({
       api_token,
       region,
+      fullname,
+      avatar,
       current: null,
       accounts: liara_json.accounts,
     }))

@@ -30,6 +30,7 @@ export interface IGlobalLiaraConfig {
   region?: string,
   current?: string;
   accounts?: IAccounts;
+  global_config_path?: string
 }
 
 export interface IConfig {
@@ -78,6 +79,7 @@ export default abstract class extends Command {
       try {
         content = JSON.parse(fs.readFileSync(path).toString('utf-8')) || {}
         content['global_config_path'] = index === 0 ? '.liara-auth.json' : '.liara.json'
+        break
       } catch {}
     }
 
@@ -87,7 +89,7 @@ export default abstract class extends Command {
       delete content.api_token
     }
     
-    return content || { global_config_path: GLOBAL_CONF_PATH}
+    return content || { global_config_path: '.liara-auth.json'}
   }
 
   async catch(error: any) {
