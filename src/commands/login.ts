@@ -19,6 +19,7 @@ export default class Login extends Command {
       '--api-token', flags['api-token'] || '',
       '--email', flags.email || '',
       '--password', flags.password || '',
+      '--from-login'
     ]
     if (flags.region) {
       sendFlag.push('--region', flags.region)

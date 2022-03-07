@@ -38,7 +38,7 @@ export default class AppShell extends Command {
     const { flags } = await this.parse(AppShell);
     const config: IFlags = this.getMergedConfig(flags);
     const CTRL_Q = "\u0011";
-    this.setAxiosConfig(config);
+    await this.setAxiosConfig(config);
     const app = config.app || (await this.promptProject());
     const wsURL = REGIONS_API_URL[config["region"] || FALLBACK_REGION].replace(
       "https://",
@@ -99,7 +99,6 @@ export default class AppShell extends Command {
   getMergedConfig(flags: IFlags) {
     const defaults = {
       path: flags.path ? flags.path : process.cwd(),
-      ...this.readGlobalConfig(),
     };
     const projectConfig = this.readProjectConfig(defaults.path);
     return {

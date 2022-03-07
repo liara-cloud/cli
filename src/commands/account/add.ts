@@ -1,32 +1,33 @@
 import axios from "axios";
 import chalk from "chalk";
 import fs from "fs-extra";
-import retry from "async-retry";
-import { prompt } from "inquirer";
+import AccountUse from './use';
+import retry from "async-retry"; 
 import Command from "../../base";
+import { prompt } from "inquirer";
 import { Flags } from "@oclif/core";
 import promptEmail from "email-prompt-ts";
 import eraseLines from "../../utils/erase-lines";
 import { createDebugLogger } from "../../utils/output";
 import { validate as validateEmail } from "email-validator";
-import { GLOBAL_CONF_PATH, REGIONS_API_URL } from "../../constants";
+import { GLOBAL_CONF_PATH, GLOBAL_CONF_VERSION, REGIONS_API_URL } from "../../constants";
 
 export default class AccountAdd extends Command {
   static description = "add an account";
 
   static flags = {
     ...Command.flags,
-    account: Flags.string({ char: "a", description: "account name" }),
     email: Flags.string({ char: "e", description: "your email" }),
     password: Flags.string({ char: "p", description: "your password" }),
+    account: Flags.string({ char: "a", description: "account name", required: false }),
+    'from-login': Flags.boolean({required: false, hidden: true, default: false})
   };
 
   async run() {
     const { flags } = await this.parse(AccountAdd);
     const debug = createDebugLogger(flags.debug);
-    const liara_json = this.readGlobalConfig();
+    const liara_json = await this.readGlobalConfig();
     const currentAccounts = liara_json.accounts;
-    const name = flags.account || await this.promptName();
     const region = flags.region || await this.promptRegion();
     if (!flags.email) {
       let emailIsValid = false;
@@ -42,19 +43,25 @@ export default class AccountAdd extends Command {
     }
     const body = {
       email: flags.email,
-      password: flags.password || await this.promptPassword(),
+      password: flags.password || (!flags['api-token'] && await this.promptPassword()),
     };
+    if (flags['from-login']) {
+      flags.account = `${flags.email.split('@')[0]}_${region}`
+    }
+    const name = flags.account ||  await this.promptName(flags.email, region);
 
     this.axiosConfig.baseURL = REGIONS_API_URL[region];
 
-    const { api_token } = (await retry(
+    const { api_token, avatar, fullname } = (await retry(
       async () => {
         try {
-          const { data } = await axios.post(
-            "/v1/login",
-            body,
-            this.axiosConfig
-          );
+          if (flags['api-token']) {
+            this.axiosConfig.headers.Authorization =  `Bearer ${flags['api-token']}`
+            const {data: {user}} = await axios.get('/v1/me', this.axiosConfig)
+            user.api_token = flags['api-token']
+            return user
+          }
+          const {data} = await axios.post("/v1/login", body, this.axiosConfig);
           return data;
         } catch (err) {
           debug("retrying...");
@@ -62,29 +69,28 @@ export default class AccountAdd extends Command {
         }
       },
       { retries: 3 }
-    )) as { api_token: string };
-
+    )) as { api_token: string, avatar: string, fullname: string };
+    
     const accounts = {
       ...currentAccounts,
       [name]: {
         email: body.email,
         api_token,
         region,
+        fullname,
+        avatar,
+        current: false
       },
     };
 
-    const current = liara_json["api-token"] ? liara_json.current : name;
-
-    fs.writeFileSync(
-      GLOBAL_CONF_PATH,
-      JSON.stringify({
-        api_token: liara_json["api-token"] || api_token,
-        region: liara_json.region || region,
-        current,
-        accounts,
-      })
-    );
-
+    fs.writeFileSync(GLOBAL_CONF_PATH,JSON.stringify({accounts, version: GLOBAL_CONF_VERSION}));
+    flags['from-login'] && await AccountUse.run([
+      '--account', name
+    ])
+    const updatedLiaraJson = await this.readGlobalConfig()
+    const current = Object.keys(updatedLiaraJson.accounts).find(
+      account => updatedLiaraJson.accounts[account].current === true
+    )
     this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`);
     current && this.log(`> Current account is: ${current}`);
   }
@@ -100,20 +106,14 @@ export default class AccountAdd extends Command {
     return selectedRegion;
   }
 
-  async promptName(): Promise<string> {
+  async promptName(email: string, region: string): Promise<string> {
     const { name } = (await prompt({
       name: "name",
       type: "input",
-      message: "Enter your prefered name:",
-      validate(input) {
-        if (input.length === 0) {
-          return false;
-        } else {
-          return true;
-        }
-      },
+      message: "Enter an optional name for this account:",
+      default: `${email.split('@')[0]}_${region}` 
     })) as { name: string };
-    const liara_json = this.readGlobalConfig();
+    const liara_json = await this.readGlobalConfig();
     const currentAccounts = liara_json.accounts;
     const currentAccountsName = currentAccounts && Object.keys(currentAccounts);
     return currentAccountsName?.includes(name)
@@ -149,18 +149,18 @@ export default class AccountAdd extends Command {
   }
 
   async promptPassword(): Promise<string> {
-    const { password } = (await prompt({
-      name: "password",
-      type: "password",
-      message: "Enter your password:",
+    const {password} = await prompt({
+      name: 'password',
+      type: 'password',
+      message: 'Enter your password:',
       validate(input) {
         if (input.length === 0) {
-          return false;
+          return false
         }
-        return true;
-      },
-    })) as { password: string };
+        return true
+      }
+    }) as {password: string}
 
-    return password;
+    return password
   }
 }

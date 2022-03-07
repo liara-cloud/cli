@@ -3,7 +3,7 @@ import chalk from "chalk";
 import Command, { IAccounts } from "../../base";
 import { prompt } from "inquirer";
 import { Flags } from "@oclif/core";
-import { GLOBAL_CONF_PATH } from "../../constants";
+import { GLOBAL_CONF_PATH, GLOBAL_CONF_VERSION } from "../../constants";
 
 export default class AccountUse extends Command {
   static description = "select an account";
@@ -15,7 +15,7 @@ export default class AccountUse extends Command {
 
   async run() {
     const { flags } = await this.parse(AccountUse);
-    const liara_json = this.readGlobalConfig();
+    const liara_json = await this.readGlobalConfig();
     if (!liara_json || !liara_json.accounts || Object.keys(liara_json.accounts).length === 0) {
       this.error("Please add your accounts via 'liara account:add' command, first.");
     }
@@ -24,18 +24,17 @@ export default class AccountUse extends Command {
     !Boolean(selectedAccount) &&
       this.error(`Could not find any account associated with this name ${name}.`);
 
-    const api_token = selectedAccount.api_token;
-    const region = selectedAccount.region;
-    const accounts = liara_json.accounts;
+    for (const account of Object.keys(liara_json.accounts)) {
+      liara_json.accounts[account].current = false
+      if (name === account) {
+        liara_json.accounts[account].current = true
+      }
+    }
 
-    const usedLiaraJson = {
-      api_token,
-      region,
-      current: name,
-      accounts,
-    };
-
-    fs.writeFileSync(GLOBAL_CONF_PATH, JSON.stringify(usedLiaraJson));
+    fs.writeFileSync(GLOBAL_CONF_PATH, JSON.stringify({
+      version: GLOBAL_CONF_VERSION,
+      accounts: liara_json.accounts
+    }));
     this.log(chalk.green("> Auth credentials changed."));
   }
 

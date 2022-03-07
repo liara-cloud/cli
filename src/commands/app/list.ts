@@ -15,8 +15,7 @@ export default class AppList extends Command {
 
   async run() {
     const { flags } = await this.parse(AppList);
-    this.setAxiosConfig({
-      ...this.readGlobalConfig(),
+    await this.setAxiosConfig({
       ...flags,
     });
 

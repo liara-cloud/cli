@@ -19,8 +19,7 @@ export default class AppStart extends Command {
   async run() {
     const { flags } = await this.parse(AppStart);
     const debug = createDebugLogger(flags.debug);
-    this.setAxiosConfig({
-      ...this.readGlobalConfig(),
+    await this.setAxiosConfig({
       ...flags,
     });
     const app = flags.app || (await this.promptProject());

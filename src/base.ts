@@ -1,7 +1,8 @@
 import os from 'os'
 import ora from "ora"
 import fs from 'fs-extra'
-import WebSocket from "ws"
+import WebSocket from 'ws'
+import retry from 'async-retry'
 import got, {Options} from 'got'
 import inquirer from "inquirer"
 import {Command, Flags} from '@oclif/core'
@@ -9,7 +10,7 @@ import axios, {AxiosRequestConfig} from 'axios'
 import updateNotifier from 'update-notifier'
 import HttpsProxyAgent from 'https-proxy-agent'
 import './interceptors'
-import {DEV_MODE, FALLBACK_REGION, GLOBAL_CONF_PATH, PREVIOUS_GLOBAL_CONF_PATH, REGIONS_API_URL} from './constants'
+import {DEV_MODE, FALLBACK_REGION, GLOBAL_CONF_PATH, PREVIOUS_GLOBAL_CONF_PATH, REGIONS_API_URL, GLOBAL_CONF_VERSION} from './constants'
 
 updateNotifier({pkg: require('../package.json')}).notify()
 
@@ -17,8 +18,12 @@ const isWin = os.platform() === 'win32';
 
 interface IAccount {
   email: string;
-  api_token: string;
+  api_token?: string;
+  'api-token'?: string;
   region: string;
+  fullname: string;
+  avatar: string;
+  current: boolean;
 }
 
 export interface IAccounts {
@@ -26,11 +31,8 @@ export interface IAccounts {
 }
 
 export interface IGlobalLiaraConfig {
-  'api-token'?: string,
-  region?: string,
-  current?: string;
-  accounts?: IAccounts;
-  global_config_path?: string
+  version: string;
+  accounts: IAccounts;
 }
 
 export interface IConfig {
@@ -72,27 +74,87 @@ export default abstract class extends Command {
 
   got = got.extend()
   spinner!: ora.Ora;
-  readGlobalConfig(): IGlobalLiaraConfig {
-    let content
+  async readGlobalConfig(): Promise<IGlobalLiaraConfig> {
+    const liaraAuthJson = fs.existsSync(GLOBAL_CONF_PATH);
+    const liaraJson = fs.existsSync(PREVIOUS_GLOBAL_CONF_PATH);
 
-    for (const [index, path] of [GLOBAL_CONF_PATH, PREVIOUS_GLOBAL_CONF_PATH].entries()) {
+    if (liaraAuthJson) {
+      liaraJson && fs.removeSync(PREVIOUS_GLOBAL_CONF_PATH);
+      const content = JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH).toString("utf-8")) || {};
+      return content;
+    }
+    if (!liaraJson) {
+      fs.writeFile
+      return { version: GLOBAL_CONF_VERSION, accounts: {}};
+    }
+    const content = JSON.parse(fs.readFileSync(PREVIOUS_GLOBAL_CONF_PATH).toString("utf-8")) || {};
+    if (content.accounts && Object.keys(content.accounts).length) {
+      const accounts: IAccounts = {};
+      for (const account of Object.keys(content.accounts)) {
+        await this.setAxiosConfig({
+          "api-token": content.accounts[account].api_token,
+          region: content.accounts[account].region,
+        });
+        try {
+          const { api_token, avatar, fullname, email } = (await retry(
+            async () => {
+              const {data: { user }} = await axios.get("/v1/me", this.axiosConfig);
+              user.api_token = content.accounts[account].api_token;
+              return user;
+            },
+            { retries: 3 }
+          )) as {api_token: string; avatar: string; fullname: string; email: string;};
+          accounts[account] = {
+            email,
+            api_token,
+            fullname,
+            avatar,
+            region: content.accounts[account].region,
+            current: content.current === account ? true : false,
+          };
+        } catch (error) {}
+      }
+      return { version: GLOBAL_CONF_VERSION, accounts };
+    }
+    if (content.api_token && content.region) {
       try {
-        content = JSON.parse(fs.readFileSync(path).toString('utf-8')) || {}
-        content['global_config_path'] = index === 0 ? '.liara-auth.json' : '.liara.json'
-        break
-      } catch {}
+        const { api_token, avatar, fullname, email } = (await retry(
+          async () => {
+            await this.setAxiosConfig({
+              "api-token": content.api_token,
+              region: content.region,
+            });
+            const {data: { user }} = await axios.get("/v1/me", this.axiosConfig);
+            user.api_token = content.api_token
+            return user;
+          },
+          { retries: 3 }
+        )) as {api_token: string; avatar: string; fullname: string; email: string;};
+        const accounts = {
+          [`${email.split("@")[0]}_${content.region}`]: {
+            email,
+            api_token,
+            region: content.region,
+            fullname,
+            avatar,
+            current: true,
+          },
+        };
+        return { version: GLOBAL_CONF_VERSION, accounts };
+      } catch (error) {
+        return { version: GLOBAL_CONF_PATH, accounts: {}}
+      }
     }
-
     // For backward compatibility with < 1.0.0 versions
-    if (content && content.api_token) {
-      content['api-token'] = content.api_token
-      delete content.api_token
-    }
-    
-    return content || { global_config_path: '.liara-auth.json'}
+    // if (content && content.api_token) {
+    //   content['api-token'] = content.api_token
+    //   delete content.api_token
+    // }
+    return { version: GLOBAL_CONF_VERSION, accounts: {} };
   }
 
   async catch(error: any) {
+    console.log(error)
     if (error.code === 'ECONNREFUSED' || error.code === 'ECONNRESET') {
       this.error(`Could not connect to ${(error.config && error.config.baseURL) || 'https://api.liara.ir'}.
 Please check your network connection.`)
@@ -102,7 +164,7 @@ Please check your network connection.`)
     this.error(error.message)
   }
 
-  setAxiosConfig(config: IConfig): void {
+  async setAxiosConfig(config: IConfig): Promise<void> {
     const gotConfig: Options = {
       headers: {
         'user-agent': this.config.userAgent,
@@ -122,13 +184,12 @@ Please check your network connection.`)
       gotConfig.agent = { https: agent }
     }
 
-    if (config['api-token']) {
-      this.axiosConfig.headers.Authorization = `Bearer ${config['api-token']}`
-      // @ts-ignore
-      gotConfig.headers.Authorization = `Bearer ${config['api-token']}`
-    }
+    const {api_token, region} = await this.currentAccount()
+    this.axiosConfig.headers.Authorization = `Bearer ${config['api-token'] || api_token}`
+    // @ts-ignore
+    gotConfig.headers.Authorization = `Bearer ${config['api-token'] || api_token}`
 
-    config['region'] = config['region'] || FALLBACK_REGION;
+    config['region'] = config['region'] || region || FALLBACK_REGION
 
     const actualBaseURL = REGIONS_API_URL[config['region']];
     this.axiosConfig.baseURL = DEV_MODE ? 'http://localhost:3000' : actualBaseURL;
@@ -184,5 +245,12 @@ Please check your network connection.`)
       this.spinner.stop();
       throw error;
     }
+  }
+  async currentAccount(): Promise<IAccount> {
+    const accounts = (await this.readGlobalConfig()).accounts
+    const accName = Object.keys(accounts).find(
+      account => accounts[account].current
+    )
+    return accounts[accName || '']
   }
 }

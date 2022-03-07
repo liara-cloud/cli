@@ -32,8 +32,7 @@ export default class AppLogs extends Command {
 
     this.debug = createDebugLogger(flags.debug);
 
-    this.setAxiosConfig({
-      ...this.readGlobalConfig(),
+    await this.setAxiosConfig({
       ...flags,
     });
 

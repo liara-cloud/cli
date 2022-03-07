@@ -163,7 +163,7 @@ export default class Deploy extends Command {
       this.dontDeployEmptyProjects(config.path)
     }
 
-    this.setAxiosConfig(config)
+    await this.setAxiosConfig(config)
 
     this.validateDeploymentConfig(config)
 
@@ -585,7 +585,6 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
   getMergedConfig(flags: IFlags): IDeploymentConfig {
     const defaults = {
       path: flags.path ? flags.path : process.cwd(),
-      ...this.readGlobalConfig(),
     };
     const projectConfig = this.readProjectConfig(defaults.path);
 
