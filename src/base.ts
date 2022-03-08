@@ -75,19 +75,12 @@ export default abstract class extends Command {
   got = got.extend()
   spinner!: ora.Ora;
   async readGlobalConfig(): Promise<IGlobalLiaraConfig> {
-    const liaraAuthJson = fs.existsSync(GLOBAL_CONF_PATH);
-    const liaraJson = fs.existsSync(PREVIOUS_GLOBAL_CONF_PATH);
-
-    if (liaraAuthJson) {
-      liaraJson && fs.removeSync(PREVIOUS_GLOBAL_CONF_PATH);
-      const content = JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH).toString("utf-8")) || {};
+    if (fs.existsSync(GLOBAL_CONF_PATH)) {
+      fs.removeSync(PREVIOUS_GLOBAL_CONF_PATH);
+      const content = fs.readJSONSync(GLOBAL_CONF_PATH, {throws: false}) || {}
       return content;
     }
-    if (!liaraJson) {
-      fs.writeFile
-      return { version: GLOBAL_CONF_VERSION, accounts: {}};
-    }
-    const content = JSON.parse(fs.readFileSync(PREVIOUS_GLOBAL_CONF_PATH).toString("utf-8")) || {};
+    const content = fs.readJSONSync(PREVIOUS_GLOBAL_CONF_PATH, {throws: false}) || {}
     if (content.accounts && Object.keys(content.accounts).length) {
       const accounts: IAccounts = {};
       for (const account of Object.keys(content.accounts)) {
@@ -154,7 +147,6 @@ export default abstract class extends Command {
   }
 
   async catch(error: any) {
-    console.log(error)
     if (error.code === 'ECONNREFUSED' || error.code === 'ECONNRESET') {
       this.error(`Could not connect to ${(error.config && error.config.baseURL) || 'https://api.liara.ir'}.
 Please check your network connection.`)
@@ -184,7 +176,7 @@ Please check your network connection.`)
       gotConfig.agent = { https: agent }
     }
 
-    const {api_token, region} = await this.currentAccount()
+    const {api_token, region} = await this.getCurrentAccount()
     this.axiosConfig.headers.Authorization = `Bearer ${config['api-token'] || api_token}`
     // @ts-ignore
     gotConfig.headers.Authorization = `Bearer ${config['api-token'] || api_token}`
@@ -246,7 +238,7 @@ Please check your network connection.`)
       throw error;
     }
   }
-  async currentAccount(): Promise<IAccount> {
+  async getCurrentAccount(): Promise<IAccount> {
     const accounts = (await this.readGlobalConfig()).accounts
     const accName = Object.keys(accounts).find(
       account => accounts[account].current

@@ -32,9 +32,7 @@ export default class AppLogs extends Command {
 
     this.debug = createDebugLogger(flags.debug);
 
-    await this.setAxiosConfig({
-      ...flags,
-    });
+    await this.setAxiosConfig(flags);
 
     const project = flags.app || (await this.promptProject());
 

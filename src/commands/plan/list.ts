@@ -20,9 +20,7 @@ export default class PlanList extends Command {
 
   async run() {
     const { flags } = await this.parse(PlanList);
-    await this.setAxiosConfig({
-      ...flags,
-    });
+    await this.setAxiosConfig(flags);
 
     const {
       data: { plans },

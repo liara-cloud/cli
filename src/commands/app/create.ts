@@ -36,15 +36,11 @@ export default class AppCreate extends Command {
     this.spinner = ora();
     const { flags } = await this.parse(AppCreate);
     const debug = createDebugLogger(flags.debug);
-    await this.setAxiosConfig({
-      ...flags
-    });
+    await this.setAxiosConfig(flags);
+
     const name = flags.app || (await this.promptAppName());
-    const liara_json = await this.readGlobalConfig();
-    const account = Object.keys(liara_json.accounts).find(
-      account => liara_json.accounts[account].current
-    );
-    (account && liara_json.accounts[account].region === "germany" || flags.region === "germany") &&
+    const account = await this.getCurrentAccount();
+    (account && account.region === "germany" || flags.region === "germany") &&
       this.error("We do not support germany any more.");
     const platform = flags.platform || (await this.promptPlatform());
     const planID = flags.plan || (await this.promptPlan());
