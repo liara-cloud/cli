@@ -540,7 +540,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
   }
 
   async promptProject(): Promise<string> {
-    this.spinner.start('Loading...')
+    this.spinner.start('Loading...\n')
 
     try {
       const {data: {projects}} = await axios.get<IGetProjectsResponse>('/v1/projects', this.axiosConfig)
