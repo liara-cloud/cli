@@ -46,7 +46,7 @@ export default class AppCreate extends Command {
     const planID = flags.plan || (await this.promptPlan());
 
     try {
-      await this.got.post('v1/projects/', {json: {name, planID, platform}})
+      await this.got.post("v1/projects/", { json: { name, planID, platform } });
       this.log(`App ${name} created.`);
     } catch (error) {
       debug(error.message);
@@ -60,7 +60,9 @@ export default class AppCreate extends Command {
       }
 
       if (error.response && error.response.status === 409) {
-        this.error(`Another operation is already running. Please wait.`);
+        this.error(
+          `The app already exists. Please use a unique name for your app.`
+        );
       }
 
       this.error(`Could not create the app. Please try again.`);
@@ -71,7 +73,7 @@ export default class AppCreate extends Command {
     this.spinner.start("Loading...");
 
     try {
-      const {plans}= await this.got('v1/me').json()
+      const { plans } = await this.got("v1/me").json();
       this.spinner.stop();
 
       const { plan } = (await inquirer.prompt({
