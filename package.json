@@ -46,6 +46,7 @@
     "@types/concat-stream": "^1.6.0",
     "@types/fs-extra": "^5.0.5",
     "@types/inquirer": "^7.3.3",
+    "@types/jest": "^27.4.1",
     "@types/mocha": "^5.2.6",
     "@types/node": "^12.12.6",
     "@types/progress": "^2.0.3",
@@ -56,8 +57,10 @@
     "@types/ws": "^8.2.0",
     "chai": "^4.2.0",
     "concat-stream": "^2.0.0",
+    "jest": "^27.5.1",
     "mocha": "^5.2.0",
     "nyc": "^13.3.0",
+    "ts-jest": "^27.1.4",
     "ts-node": "^8.0.2",
     "tslint": "^5.12.1",
     "typescript": "^3.7.5"
@@ -114,12 +117,28 @@
       }
     }
   },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "test",
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
+  },
   "repository": "liara-ir/liara-cli",
   "scripts": {
     "postpack": "rm -f oclif.manifest.json tsconfig.tsbuildinfo",
-    "posttest": "tslint -p test -t stylish",
     "prepack": "set -ex; rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
-    "test": "nyc --extension .ts mocha --forbid-only \"test/**/*.test.ts\"",
+    "test": "jest",
     "version": "oclif-dev readme && git add README.md",
     "readme": "oclif-dev readme"
   },
