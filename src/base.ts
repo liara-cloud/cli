@@ -135,7 +135,7 @@ export default abstract class extends Command {
         };
         return { version: GLOBAL_CONF_VERSION, accounts };
       } catch (error) {
-        return { version: GLOBAL_CONF_PATH, accounts: {}}
+        return { version: GLOBAL_CONF_VERSION, accounts: {}}
       }
     }
     // For backward compatibility with < 1.0.0 versions
