@@ -341,8 +341,13 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
     this.logKeyValue('Compressed size', `${bytes(sourceSize)} ${chalk.cyanBright('(use .gitignore to reduce the size)')}`)
 
     if(sourceSize > MAX_SOURCE_SIZE) {
-      fs.removeSync(sourcePath)
-      throw new ReachedMaxSourceSizeError()
+      try {
+        fs.removeSync(sourcePath)
+      } catch (error) {
+        this.debug(error.stack)
+      } finally {
+        throw new ReachedMaxSourceSizeError()
+      }
     }
 
     const sourceID = await this.upload(config.app as string, sourcePath, sourceSize)
