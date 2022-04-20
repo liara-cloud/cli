@@ -87,12 +87,10 @@ export default class AccountAdd extends Command {
     flags['from-login'] && await AccountUse.run([
       '--account', name
     ])
-    const updatedLiaraJson = await this.readGlobalConfig()
-    const current = Object.keys(updatedLiaraJson.accounts).find(
-      account => updatedLiaraJson.accounts[account].current === true
-    )
+
+    const {accountName} = await this.getCurrentAccount()
     this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`);
-    current && this.log(`> Current account is: ${current}`);
+    accountName && this.log(`> Current account is: ${accountName}`);
   }
 
   async promptRegion(): Promise<string> {

@@ -52,10 +52,8 @@ export default class AccountRemove extends Command {
     accountsLength < 1 &&
       this.log(chalk.cyan("There are no more accounts to use. Please add an account via 'liara account:add' command."));
 
-    const current = Object.keys(liara_json.accounts).find(
-      account => liara_json.accounts[account].current === true
-    )
-    current && this.log(chalk.cyan(`Current account is: ${liara_json.accounts[current]}`));
+    const {accountName} = await this.getCurrentAccount()
+    accountName && this.log(chalk.cyan(`Current account is: ${accountName}`));
   }
 
   async promptName(accounts: IAccounts): Promise<string> {

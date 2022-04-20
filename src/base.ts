@@ -2,7 +2,6 @@ import os from 'os'
 import ora from "ora"
 import fs from 'fs-extra'
 import WebSocket from 'ws'
-import retry from 'async-retry'
 import got, {Options} from 'got'
 import inquirer from "inquirer"
 import {Command, Flags} from '@oclif/core'
@@ -24,6 +23,7 @@ interface IAccount {
   fullname: string;
   avatar: string;
   current: boolean;
+  accountName?: string;
 }
 
 export interface IAccounts {
@@ -89,20 +89,16 @@ export default abstract class extends Command {
           region: content.accounts[account].region,
         });
         try {
-          const { api_token, avatar, fullname, email } = (await retry(
-            async () => {
-              const {data: { user }} = await axios.get("/v1/me", this.axiosConfig);
-              user.api_token = content.accounts[account].api_token;
-              return user;
-            },
-            { retries: 3 }
-          )) as {api_token: string; avatar: string; fullname: string; email: string;};
+          const {
+            user: { email, fullname, avatar },
+          } = await got.get("v1/me").json<{ user: IAccount }>();
+
           accounts[account] = {
             email,
-            api_token,
-            fullname,
             avatar,
+            fullname,
             region: content.accounts[account].region,
+            api_token: content.accounts[account].api_token,
             current: content.current === account ? true : false,
           };
         } catch (error) {}
@@ -111,26 +107,23 @@ export default abstract class extends Command {
     }
     if (content.api_token && content.region) {
       try {
-        const { api_token, avatar, fullname, email } = (await retry(
-          async () => {
-            await this.setAxiosConfig({
-              "api-token": content.api_token,
-              region: content.region,
-            });
-            const {data: { user }} = await axios.get("/v1/me", this.axiosConfig);
-            user.api_token = content.api_token
-            return user;
-          },
-          { retries: 3 }
-        )) as {api_token: string; avatar: string; fullname: string; email: string;};
+        await this.setAxiosConfig({
+          "api-token": content.api_token,
+          region: content.region,
+        });
+
+        const {
+          user: { email, fullname, avatar },
+        } = await got.get("v1/me").json<{ user: IAccount }>();
+
         const accounts = {
           [`${email.split("@")[0]}_${content.region}`]: {
             email,
-            api_token,
-            region: content.region,
-            fullname,
             avatar,
+            fullname,
             current: true,
+            region: content.region,
+            api_token: content.api_token,
           },
         };
         return { version: GLOBAL_CONF_VERSION, accounts };
@@ -176,12 +169,17 @@ Please check your network connection.`)
       gotConfig.agent = { https: agent }
     }
 
-    const {api_token, region} = await this.getCurrentAccount()
-    this.axiosConfig.headers.Authorization = `Bearer ${config['api-token'] || api_token}`
-    // @ts-ignore
-    gotConfig.headers.Authorization = `Bearer ${config['api-token'] || api_token}`
+    if (!config['api-token'] || !config.region) {
+      const {api_token, region} = await this.getCurrentAccount();
+      config['api-token'] = api_token;
+      config.region = region;
+    }
 
-    config['region'] = config['region'] || region || FALLBACK_REGION
+    this.axiosConfig.headers.Authorization = `Bearer ${config['api-token']}`
+    // @ts-ignore
+    gotConfig.headers.Authorization = `Bearer ${config['api-token']}`
+
+    config['region'] = config['region'] || FALLBACK_REGION
 
     const actualBaseURL = REGIONS_API_URL[config['region']];
     this.axiosConfig.baseURL = DEV_MODE ? 'http://localhost:3000' : actualBaseURL;
@@ -243,6 +241,6 @@ Please check your network connection.`)
     const accName = Object.keys(accounts).find(
       account => accounts[account].current
     )
-    return accounts[accName || '']
+    return {...accounts[accName || ''], accountName: accName}
   }
 }
