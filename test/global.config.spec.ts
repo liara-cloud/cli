@@ -1,5 +1,6 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import fs from "fs-extra";
+import got from 'got'
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { Config } from "@oclif/core";
 import Command, { IConfig } from "../src/base";
 import {
@@ -56,6 +57,7 @@ const oldContentCredentialsAccounts = {
 };
 
 jest.mock("axios");
+jest.mock("got")
 
 // mocking config (user credentials) change direcotry to /tmp
 jest.mock("../src/constants.ts", () => ({
@@ -161,8 +163,12 @@ describe("reading global configuration", () => {
       },
     };
     //@ts-ignore
-    axios.get.mockImplementation((path: string, config: AxiosRequestConfig) => {
-      return Promise.resolve({ data });
+    got.get.mockImplementation((path: string, config: GotOptions) => {
+      return {
+        json() {
+          return Promise.resolve({ ...data })
+        }
+      }
     });
 
     const content = await new TestConfig([], {} as Config).run();
@@ -194,8 +200,12 @@ describe("reading global configuration", () => {
       },
     };
     //@ts-ignore
-    axios.get.mockImplementation((path: string, config: AxiosRequestConfig) => {
-      return Promise.resolve({ data });
+    got.get.mockImplementation((path: string, config: GotOptions) => {
+      return {
+        json() {
+          return Promise.resolve({ ...data })
+        }
+      }
     });
     await createCredentials("/tmp/.liara.json", oldContentCredentialsAccounts);
     const content = await new TestConfig([], {} as Config).run();

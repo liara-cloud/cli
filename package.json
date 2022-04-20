@@ -47,7 +47,6 @@
     "@types/fs-extra": "^5.0.5",
     "@types/inquirer": "^7.3.3",
     "@types/jest": "^27.4.1",
-    "@types/mocha": "^5.2.6",
     "@types/node": "^12.12.6",
     "@types/progress": "^2.0.3",
     "@types/request": "^2.48.1",
