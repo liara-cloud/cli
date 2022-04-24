@@ -102,7 +102,6 @@ export default abstract class extends Command {
             current: content.current === account ? true : false,
           };
         } catch (error) {
-          console.log(error)
           if (error.response) {
             return { version: GLOBAL_CONF_VERSION, accounts: {}}
           }
@@ -136,7 +135,6 @@ export default abstract class extends Command {
         };
         return { version: GLOBAL_CONF_VERSION, accounts };
       } catch (error) {
-        console.log(error)
         if (error.response) {
           return { version: GLOBAL_CONF_VERSION, accounts: {}}
         }
