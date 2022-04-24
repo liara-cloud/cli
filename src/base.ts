@@ -1,7 +1,7 @@
 import os from 'os'
 import ora from "ora"
 import fs from 'fs-extra'
-import WebSocket from "ws"
+import WebSocket from 'ws'
 import got, {Options} from 'got'
 import inquirer from "inquirer"
 import {Command, Flags} from '@oclif/core'
@@ -9,7 +9,7 @@ import axios, {AxiosRequestConfig} from 'axios'
 import updateNotifier from 'update-notifier'
 import HttpsProxyAgent from 'https-proxy-agent'
 import './interceptors'
-import {DEV_MODE, FALLBACK_REGION, GLOBAL_CONF_PATH, REGIONS_API_URL} from './constants'
+import {DEV_MODE, FALLBACK_REGION, GLOBAL_CONF_PATH, PREVIOUS_GLOBAL_CONF_PATH, REGIONS_API_URL, GLOBAL_CONF_VERSION} from './constants'
 
 updateNotifier({pkg: require('../package.json')}).notify()
 
@@ -17,8 +17,13 @@ const isWin = os.platform() === 'win32';
 
 interface IAccount {
   email: string;
-  api_token: string;
+  api_token?: string;
+  'api-token'?: string;
   region: string;
+  fullname: string;
+  avatar: string;
+  current: boolean;
+  accountName?: string;
 }
 
 export interface IAccounts {
@@ -26,10 +31,8 @@ export interface IAccounts {
 }
 
 export interface IGlobalLiaraConfig {
-  'api-token'?: string,
-  region?: string,
-  current?: string;
-  accounts?: IAccounts;
+  version: string;
+  accounts: IAccounts;
 }
 
 export interface IConfig {
@@ -71,22 +74,80 @@ export default abstract class extends Command {
 
   got = got.extend()
   spinner!: ora.Ora;
-  readGlobalConfig(): IGlobalLiaraConfig {
-    let content
-
-    try {
-      content = JSON.parse(fs.readFileSync(GLOBAL_CONF_PATH).toString('utf-8')) || {}
-    } catch {
-      content = {}
+  async readGlobalConfig(): Promise<IGlobalLiaraConfig> {
+    if (fs.existsSync(GLOBAL_CONF_PATH)) {
+      fs.removeSync(PREVIOUS_GLOBAL_CONF_PATH);
+      const content = fs.readJSONSync(GLOBAL_CONF_PATH, {throws: false}) || {}
+      return content;
     }
+    const content = fs.readJSONSync(PREVIOUS_GLOBAL_CONF_PATH, {throws: false}) || {}
+    if (content.accounts && Object.keys(content.accounts).length) {
+      const accounts: IAccounts = {};
+      for (const account of Object.keys(content.accounts)) {
+        await this.setAxiosConfig({
+          "api-token": content.accounts[account].api_token,
+          region: content.accounts[account].region,
+        });
+        try {
+          const {
+            user: { email, fullname, avatar },
+          } = await this.got.get("v1/me").json<{ user: IAccount }>();
 
+          accounts[account] = {
+            email,
+            avatar,
+            fullname,
+            region: content.accounts[account].region,
+            api_token: content.accounts[account].api_token,
+            current: content.current === account ? true : false,
+          };
+        } catch (error) {
+          if (error.response) {
+            return { version: GLOBAL_CONF_VERSION, accounts: {}}
+          }
+
+          this.debug(error.stack)
+          this.error(error.message)
+        }
+      }
+      return { version: GLOBAL_CONF_VERSION, accounts };
+    }
+    if (content.api_token && content.region) {
+      try {
+        await this.setAxiosConfig({
+          "api-token": content.api_token,
+          region: content.region,
+        });
+
+        const {
+          user: { email, fullname, avatar },
+        } = await this.got.get("v1/me").json<{ user: IAccount }>();
+
+        const accounts = {
+          [`${email.split("@")[0]}_${content.region}`]: {
+            email,
+            avatar,
+            fullname,
+            current: true,
+            region: content.region,
+            api_token: content.api_token,
+          },
+        };
+        return { version: GLOBAL_CONF_VERSION, accounts };
+      } catch (error) {
+        if (error.response) {
+          return { version: GLOBAL_CONF_VERSION, accounts: {}}
+        }
+        this.debug(error.stack)
+        this.error(error.message)
+      }
+    }
     // For backward compatibility with < 1.0.0 versions
-    if (content.api_token) {
-      content['api-token'] = content.api_token
-      delete content.api_token
-    }
-
-    return content
+    // if (content && content.api_token) {
+    //   content['api-token'] = content.api_token
+    //   delete content.api_token
+    // }
+    return { version: GLOBAL_CONF_VERSION, accounts: {} };
   }
 
   async catch(error: any) {
@@ -99,7 +160,7 @@ Please check your network connection.`)
     this.error(error.message)
   }
 
-  setAxiosConfig(config: IConfig): void {
+  async setAxiosConfig(config: IConfig): Promise<void> {
     const gotConfig: Options = {
       headers: {
         'user-agent': this.config.userAgent,
@@ -119,13 +180,17 @@ Please check your network connection.`)
       gotConfig.agent = { https: agent }
     }
 
-    if (config['api-token']) {
-      this.axiosConfig.headers.Authorization = `Bearer ${config['api-token']}`
-      // @ts-ignore
-      gotConfig.headers.Authorization = `Bearer ${config['api-token']}`
+    if (!config['api-token'] || !config.region) {
+      const {api_token, region} = await this.getCurrentAccount();
+      config['api-token'] = api_token;
+      config.region = region;
     }
 
-    config['region'] = config['region'] || FALLBACK_REGION;
+    this.axiosConfig.headers.Authorization = `Bearer ${config['api-token']}`
+    // @ts-ignore
+    gotConfig.headers.Authorization = `Bearer ${config['api-token']}`
+
+    config['region'] = config['region'] || FALLBACK_REGION
 
     const actualBaseURL = REGIONS_API_URL[config['region']];
     this.axiosConfig.baseURL = DEV_MODE ? 'http://localhost:3000' : actualBaseURL;
@@ -181,5 +246,12 @@ Please check your network connection.`)
       this.spinner.stop();
       throw error;
     }
+  }
+  async getCurrentAccount(): Promise<IAccount> {
+    const accounts = (await this.readGlobalConfig()).accounts
+    const accName = Object.keys(accounts).find(
+      account => accounts[account].current
+    )
+    return {...accounts[accName || ''], accountName: accName}
   }
 }

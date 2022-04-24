@@ -3,7 +3,7 @@ import chalk from "chalk";
 import Command, { IAccounts } from "../../base";
 import { prompt } from "inquirer";
 import { Flags } from "@oclif/core";
-import { GLOBAL_CONF_PATH } from "../../constants";
+import { GLOBAL_CONF_PATH, GLOBAL_CONF_VERSION } from "../../constants";
 
 export default class AccountRemove extends Command {
   static description = "remove an account";
@@ -17,7 +17,7 @@ export default class AccountRemove extends Command {
 
   async run() {
     const { flags } = await this.parse(AccountRemove);
-    const liara_json = this.readGlobalConfig();
+    const liara_json = await this.readGlobalConfig();
     if (
       !liara_json ||
       !liara_json.accounts ||
@@ -37,31 +37,23 @@ export default class AccountRemove extends Command {
     const accounts = liara_json.accounts;
     delete accounts[name];
 
-    const api_token = liara_json.current === name ? null : liara_json["api-token"];
-    const region = liara_json.current === name ? null : liara_json.region;
-    const current = liara_json.current === name ? null : liara_json.current;
     const accountsLength = Object.keys(liara_json.accounts).length;
 
-    const usedLiaraJson = {
-      api_token,
-      region,
-      current,
+    fs.writeFileSync(GLOBAL_CONF_PATH, JSON.stringify({
+      version: GLOBAL_CONF_VERSION,
       accounts,
-    };
-
-    fs.writeFileSync(GLOBAL_CONF_PATH, JSON.stringify(usedLiaraJson));
+    }));
     this.log(chalk.red("Auth credentials removed."));
 
-    liara_json.current === name &&
+    selectedAccount.current &&
       accountsLength > 0 &&
         this.log(chalk.cyan("Please select an acount via 'liara account:use' command."));
 
     accountsLength < 1 &&
       this.log(chalk.cyan("There are no more accounts to use. Please add an account via 'liara account:add' command."));
 
-    liara_json.current !== name &&
-      liara_json.current !== null &&
-          this.log(chalk.cyan(`Current account is: ${liara_json.current}`));
+    const {accountName} = await this.getCurrentAccount()
+    accountName && this.log(chalk.cyan(`Current account is: ${accountName}`));
   }
 
   async promptName(accounts: IAccounts): Promise<string> {

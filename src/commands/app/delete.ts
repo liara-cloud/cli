@@ -20,10 +20,7 @@ export default class AppDelete extends Command {
   async run() {
     const { flags } = await this.parse(AppDelete);
     const debug = createDebugLogger(flags.debug);
-    this.setAxiosConfig({
-      ...this.readGlobalConfig(),
-      ...flags,
-    });
+    await this.setAxiosConfig(flags);
     const app = flags.app || (await this.promptProject());
 
     try {

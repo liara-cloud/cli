@@ -163,7 +163,7 @@ export default class Deploy extends Command {
       this.dontDeployEmptyProjects(config.path)
     }
 
-    this.setAxiosConfig(config)
+    await this.setAxiosConfig(config)
 
     this.validateDeploymentConfig(config)
 
@@ -341,7 +341,13 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
     this.logKeyValue('Compressed size', `${bytes(sourceSize)} ${chalk.cyanBright('(use .gitignore to reduce the size)')}`)
 
     if(sourceSize > MAX_SOURCE_SIZE) {
-      throw new ReachedMaxSourceSizeError()
+      try {
+        fs.removeSync(sourcePath)
+      } catch (error) {
+        this.debug(error.stack)
+      } finally {
+        throw new ReachedMaxSourceSizeError()
+      }
     }
 
     const sourceID = await this.upload(config.app as string, sourcePath, sourceSize)
@@ -584,7 +590,6 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
   getMergedConfig(flags: IFlags): IDeploymentConfig {
     const defaults = {
       path: flags.path ? flags.path : process.cwd(),
-      ...this.readGlobalConfig(),
     };
     const projectConfig = this.readProjectConfig(defaults.path);
 

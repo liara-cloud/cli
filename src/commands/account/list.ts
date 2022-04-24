@@ -3,7 +3,7 @@ import Command from "../../base";
 
 export default class AccountList extends Command {
   static description = "list available accounts";
-  
+
   static flags = {
     ...Command.flags,
     ...CliUx.ux.table.flags(),
@@ -13,7 +13,7 @@ export default class AccountList extends Command {
 
   async run() {
     const { flags } = await this.parse(AccountList);
-    const liara_json = this.readGlobalConfig();
+    const liara_json = await this.readGlobalConfig();
 
     if (
       !liara_json ||
@@ -29,7 +29,7 @@ export default class AccountList extends Command {
       const Name = acc[0];
       const Email = acc[1].email;
       const Region = acc[1].region;
-      const Current = Name === liara_json.current ? "👍" : "";
+      const Current = acc[1].current ? "👍" : "";
       return { Name, Email, Region, Current };
     });
 
