@@ -91,7 +91,7 @@ export default abstract class extends Command {
         try {
           const {
             user: { email, fullname, avatar },
-          } = await got.get("v1/me").json<{ user: IAccount }>();
+          } = await this.got.get("v1/me").json<{ user: IAccount }>();
 
           accounts[account] = {
             email,
@@ -101,7 +101,15 @@ export default abstract class extends Command {
             api_token: content.accounts[account].api_token,
             current: content.current === account ? true : false,
           };
-        } catch (error) {}
+        } catch (error) {
+          console.log(error)
+          if (error.response) {
+            return { version: GLOBAL_CONF_VERSION, accounts: {}}
+          }
+
+          this.debug(error.stack)
+          this.error(error.message)
+        }
       }
       return { version: GLOBAL_CONF_VERSION, accounts };
     }
@@ -114,7 +122,7 @@ export default abstract class extends Command {
 
         const {
           user: { email, fullname, avatar },
-        } = await got.get("v1/me").json<{ user: IAccount }>();
+        } = await this.got.get("v1/me").json<{ user: IAccount }>();
 
         const accounts = {
           [`${email.split("@")[0]}_${content.region}`]: {
@@ -128,7 +136,12 @@ export default abstract class extends Command {
         };
         return { version: GLOBAL_CONF_VERSION, accounts };
       } catch (error) {
-        return { version: GLOBAL_CONF_VERSION, accounts: {}}
+        console.log(error)
+        if (error.response) {
+          return { version: GLOBAL_CONF_VERSION, accounts: {}}
+        }
+        this.debug(error.stack)
+        this.error(error.message)
       }
     }
     // For backward compatibility with < 1.0.0 versions

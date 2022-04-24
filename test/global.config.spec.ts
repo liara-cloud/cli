@@ -1,6 +1,5 @@
+import got from "got";
 import fs from "fs-extra";
-import got from 'got'
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { Config } from "@oclif/core";
 import Command, { IConfig } from "../src/base";
 import {
@@ -57,7 +56,7 @@ const oldContentCredentialsAccounts = {
 };
 
 jest.mock("axios");
-jest.mock("got")
+jest.mock("got");
 
 // mocking config (user credentials) change direcotry to /tmp
 jest.mock("../src/constants.ts", () => ({
@@ -71,6 +70,11 @@ jest.mock("../src/constants.ts", () => ({
   get GLOBAL_CONF_VERSION(): string {
     return "1";
   },
+
+  REGIONS_API_URL: {
+    iran: "https://api.iran.liara.ir",
+    germany: "https://api.liara.ir",
+  },
 }));
 
 // create files for user credentials in /tmp directory
@@ -82,18 +86,36 @@ async function createCredentials(path: string, content: any) {
 class TestConfig extends Command {
   async run() {
     // const {api_token, region} = oldContentCredentialsLogin
+    // console.log(
+    //   await this.setAxiosConfig({ region: "iran", "api-token": "test" })
+    // );
+    // console.log(this.axiosConfig);
     this.setAxiosConfig = (config: IConfig): Promise<void> => {
       return Promise.resolve();
     };
+
+    this.got = got;
     return this.readGlobalConfig();
   }
 }
 
+class TestGotRequest extends Command {
+  async run() {
+    await this.setAxiosConfig({ region: "iran", "api-token": "test" });
+    return this.axiosConfig;
+  }
+}
 beforeAll(async () => {
   await createCredentials("/tmp/.liara-auth.json", newContentCredentials);
 });
 
 describe("reading global configuration", () => {
+  test("http configuration", async () => {
+    const configs = await new TestGotRequest([], {} as Config).run();
+    expect(configs.baseURL).toBe("https://api.iran.liara.ir");
+    expect(configs.headers.Authorization).toBe("Bearer test");
+    expect(configs.timeout).toBe(10000);
+  });
   test("check if new global path exist", async () => {
     const content = await new TestConfig([], {} as Config).run();
 
@@ -163,12 +185,13 @@ describe("reading global configuration", () => {
       },
     };
     //@ts-ignore
+
     got.get.mockImplementation((path: string, config: GotOptions) => {
       return {
         json() {
-          return Promise.resolve({ ...data })
-        }
-      }
+          return Promise.resolve({ ...data });
+        },
+      };
     });
 
     const content = await new TestConfig([], {} as Config).run();
@@ -203,9 +226,9 @@ describe("reading global configuration", () => {
     got.get.mockImplementation((path: string, config: GotOptions) => {
       return {
         json() {
-          return Promise.resolve({ ...data })
-        }
-      }
+          return Promise.resolve({ ...data });
+        },
+      };
     });
     await createCredentials("/tmp/.liara.json", oldContentCredentialsAccounts);
     const content = await new TestConfig([], {} as Config).run();
