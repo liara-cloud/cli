@@ -1,5 +1,4 @@
 import ora from "ora";
-import axios from "axios";
 import inquirer from "inquirer";
 import Command from "../../base";
 import { Flags } from "@oclif/core";
@@ -46,16 +45,7 @@ export default class AppCreate extends Command {
     const planID = flags.plan || (await this.promptPlan());
 
     try {
-      await axios.post(
-        `/v1/projects/`,
-        {
-          name,
-          planID,
-          platform,
-        },
-        this.axiosConfig
-      );
-
+      await this.got.post('v1/projects/', {json: {name, planID, platform}})
       this.log(`App ${name} created.`);
     } catch (error) {
       debug(error.message);
@@ -64,8 +54,12 @@ export default class AppCreate extends Command {
         debug(JSON.stringify(error.response.data));
       }
 
+      if (error.response && error.response.status === 404) {
+        this.error(`Could not create the app.`);
+      }
+
       if (error.response && error.response.status === 409) {
-        this.error(`The app already exists. Please use a unique name for your app.`);
+        this.error(`Another operation is already running. Please wait.`);
       }
 
       this.error(`Could not create the app. Please try again.`);
@@ -76,10 +70,7 @@ export default class AppCreate extends Command {
     this.spinner.start("Loading...");
 
     try {
-      const {
-        data: { plans },
-      } = await axios.get("/v1/me", this.axiosConfig);
-
+      const {plans}= await this.got('v1/me').json()
       this.spinner.stop();
 
       const { plan } = (await inquirer.prompt({

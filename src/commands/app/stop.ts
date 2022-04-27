@@ -1,4 +1,3 @@
-import axios from "axios";
 import Command from "../../base";
 import { Flags } from "@oclif/core";
 import { createDebugLogger } from "../../utils/output";
@@ -23,12 +22,7 @@ export default class AppStop extends Command {
     const app = flags.app || (await this.promptProject());
 
     try {
-      await axios.post(
-        `/v1/projects/${app}/actions/scale`,
-        { scale: 0 },
-        this.axiosConfig
-      );
-
+      await this.got.post(`v1/projects/${app}/actions/scale`, {json: {scale: 0}})
       this.log(`App ${app} stopped.`);
     } catch (error) {
       debug(error.message);

@@ -1,4 +1,4 @@
-import axios from "axios";
+import got from 'got'
 import chalk from "chalk";
 import fs from "fs-extra";
 import AccountUse from './use';
@@ -6,6 +6,7 @@ import retry from "async-retry";
 import Command from "../../base";
 import { prompt } from "inquirer";
 import { Flags } from "@oclif/core";
+import hooks from '../../interceptors'
 import promptEmail from "email-prompt-ts";
 import eraseLines from "../../utils/erase-lines";
 import { createDebugLogger } from "../../utils/output";
@@ -51,17 +52,11 @@ export default class AccountAdd extends Command {
     const name = flags.account ||  await this.promptName(flags.email, region);
 
     this.axiosConfig.baseURL = REGIONS_API_URL[region];
-
-    const { api_token, avatar, fullname } = (await retry(
+    this.got = got.extend({prefixUrl: REGIONS_API_URL[region], hooks})
+    const { api_token, fullname, avatar } = (await retry(
       async () => {
         try {
-          if (flags['api-token']) {
-            this.axiosConfig.headers.Authorization =  `Bearer ${flags['api-token']}`
-            const {data: {user}} = await axios.get('/v1/me', this.axiosConfig)
-            user.api_token = flags['api-token']
-            return user
-          }
-          const {data} = await axios.post("/v1/login", body, this.axiosConfig);
+          const data = await this.got.post('v1/login', {json:body,  headers: { "Authorization" : undefined}}).json<{api_token: string}>()
           return data;
         } catch (err) {
           debug("retrying...");

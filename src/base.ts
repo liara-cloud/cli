@@ -218,12 +218,7 @@ Please check your network connection.`)
     this.spinner = ora();
     this.spinner.start("Loading...");
     try {
-      const {
-        data: { projects },
-      } = await axios.get<IGetProjectsResponse>(
-        "/v1/projects",
-        this.axiosConfig
-      );
+      const { projects } = await this.got("v1/projects").json<IGetProjectsResponse>()
 
       this.spinner.stop();
 

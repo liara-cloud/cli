@@ -1,4 +1,3 @@
-import axios from "axios";
 import { CliUx, Flags } from "@oclif/core";
 import Command from "../../base";
 
@@ -19,10 +18,7 @@ export default class EnvList extends Command {
     await this.setAxiosConfig(flags);
     const app = flags.app || (await this.promptProject());
 
-    const {
-      data: { project },
-    } = await axios.get(`/v1/projects/${app}`, this.axiosConfig);
-
+    const {project} = await this.got(`v1/projects/${app}`).json()
     CliUx.ux.table(
       project.envs,
       {

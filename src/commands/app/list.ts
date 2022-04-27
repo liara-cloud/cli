@@ -1,6 +1,5 @@
 import { CliUx } from "@oclif/core";
 import Command, { IGetProjectsResponse } from "../../base";
-import axios from "axios";
 import * as shamsi from "shamsi-date-converter";
 
 export default class AppList extends Command {
@@ -17,10 +16,7 @@ export default class AppList extends Command {
     const { flags } = await this.parse(AppList);
     await this.setAxiosConfig(flags);
 
-    const {
-      data: { projects },
-    } = await axios.get<IGetProjectsResponse>("/v1/projects", this.axiosConfig);
-
+    const {projects} = await this.got('v1/projects').json<IGetProjectsResponse>()
     if (projects.length === 0) {
       this.error("Please create an app via 'liara app:create' command, first.");
     }

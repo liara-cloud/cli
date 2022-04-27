@@ -1,5 +1,4 @@
 import ora from "ora";
-import axios from "axios";
 import inquirer from "inquirer";
 import Command, { IGetProjectsResponse } from "../../base";
 import { Flags } from "@oclif/core";
@@ -35,16 +34,8 @@ export default class DiskCreate extends Command {
     const name = flags.name || (await this.promptDiskName());
     const size = flags.size || (await this.promptDiskSize());
 
-    try {
-      await axios.post(
-        `/v1/projects/${app}/disks`,
-        {
-          name,
-          size,
-        },
-        this.axiosConfig
-      );
-
+    try {      
+      await this.got.post(`v1/projects/${app}/disks`, {json: {name, size}})
       this.log(`Disk ${name} created.`);
     } catch (error) {
       debug(error.message);
@@ -69,13 +60,7 @@ export default class DiskCreate extends Command {
     this.spinner.start("Loading...");
 
     try {
-      const {
-        data: { projects },
-      } = await axios.get<IGetProjectsResponse>(
-        "/v1/projects",
-        this.axiosConfig
-      );
-
+      const {projects} = await this.got('v1/projects').json<IGetProjectsResponse>()      
       this.spinner.stop();
 
       if (projects.length === 0) {

@@ -1,4 +1,3 @@
-import axios from "axios";
 import chalk from "chalk";
 import moment from "moment";
 import { Flags, Errors } from "@oclif/core";
@@ -42,13 +41,7 @@ export default class AppLogs extends Command {
       let logs: ILog[] = [];
 
       try {
-        const { data } = await axios.get<ILog[]>(
-          `/v1/projects/${project}/logs?since=${since}`,
-          {
-            ...this.axiosConfig,
-          }
-        );
-
+        const data = await this.got(`v1/projects/${project}/logs?since=${since}`).json<ILog[]>()
         logs = data;
       } catch (error) {
         if (error.response && error.response.status === 404) {

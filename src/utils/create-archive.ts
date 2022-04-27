@@ -133,11 +133,10 @@ export default async function createArchive(archivePath: string, projectPath: st
 
   const fileList: string[] = fs.readdirSync(projectPath).filter(ignoreFN);
 
-  return tar.create({
+  return await tar.create({
     gzip: {
       level: 9,
     },
-    sync: true,
     cwd: projectPath,
     filter: ignoreFN,
     file: archivePath,
