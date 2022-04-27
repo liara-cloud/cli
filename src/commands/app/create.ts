@@ -35,8 +35,9 @@ export default class AppCreate extends Command {
     this.spinner = ora();
     const { flags } = await this.parse(AppCreate);
     const debug = createDebugLogger(flags.debug);
-    await this.setAxiosConfig(flags);
 
+    await this.setGotConfig(flags);
+    
     const name = flags.app || (await this.promptAppName());
     const account = await this.getCurrentAccount();
     (account && account.region === "germany" || flags.region === "germany") &&

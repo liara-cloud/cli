@@ -23,7 +23,8 @@ export default class EnvUnset extends Command {
   async run() {
     const { flags, argv } = await this.parse(EnvUnset);
 
-    await this.setAxiosConfig(flags);
+    await this.setGotConfig(flags);
+    
     const debug = createDebugLogger(flags.debug);
 
     if (!argv.length) {

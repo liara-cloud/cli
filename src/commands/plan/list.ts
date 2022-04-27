@@ -19,7 +19,8 @@ export default class PlanList extends Command {
 
   async run() {
     const { flags } = await this.parse(PlanList);
-    await this.setAxiosConfig(flags);
+
+    await this.setGotConfig(flags);
 
     const {plans} = await this.got('v1/me').json()
     const plansData = Object.keys(plans.projects)

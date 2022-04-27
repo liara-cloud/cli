@@ -82,7 +82,7 @@ export default class Deploy extends Command {
       this.dontDeployEmptyProjects(config.path)
     }
 
-    await this.setAxiosConfig(config)
+    await this.setGotConfig(config)
 
     this.validateDeploymentConfig(config)
 

@@ -18,7 +18,9 @@ export default class AppRestart extends Command {
   async run() {
     const { flags } = await this.parse(AppRestart);
     const debug = createDebugLogger(flags.debug);
-    await this.setAxiosConfig(flags);
+    
+    await this.setGotConfig(flags);
+    
     const app = flags.app || (await this.promptProject());
 
     try {

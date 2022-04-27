@@ -51,7 +51,6 @@ export default class AccountAdd extends Command {
     }
     const name = flags.account ||  await this.promptName(flags.email, region);
 
-    this.axiosConfig.baseURL = REGIONS_API_URL[region];
     this.got = got.extend({prefixUrl: REGIONS_API_URL[region], hooks})
     const { api_token, fullname, avatar } = (await retry(
       async () => {

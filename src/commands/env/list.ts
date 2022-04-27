@@ -15,7 +15,9 @@ export default class EnvList extends Command {
 
   async run() {
     const { flags } = await this.parse(EnvList);
-    await this.setAxiosConfig(flags);
+
+    await this.setGotConfig(flags);
+    
     const app = flags.app || (await this.promptProject());
 
     const {project} = await this.got(`v1/projects/${app}`).json()

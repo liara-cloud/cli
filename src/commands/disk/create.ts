@@ -29,7 +29,9 @@ export default class DiskCreate extends Command {
     this.spinner = ora();
     const { flags } = await this.parse(DiskCreate);
     const debug = createDebugLogger(flags.debug);
-    await this.setAxiosConfig(flags);
+
+    await this.setGotConfig(flags);
+    
     const app = flags.app || (await this.promptProject());
     const name = flags.name || (await this.promptDiskName());
     const size = flags.size || (await this.promptDiskSize());

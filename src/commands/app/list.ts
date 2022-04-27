@@ -14,7 +14,8 @@ export default class AppList extends Command {
 
   async run() {
     const { flags } = await this.parse(AppList);
-    await this.setAxiosConfig(flags);
+
+    await this.setGotConfig(flags);
 
     const {projects} = await this.got('v1/projects').json<IGetProjectsResponse>()
     if (projects.length === 0) {
