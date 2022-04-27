@@ -90,7 +90,7 @@ class TestConfig extends Command {
     //   await this.setAxiosConfig({ region: "iran", "api-token": "test" })
     // );
     // console.log(this.axiosConfig);
-    this.setAxiosConfig = (config: IConfig): Promise<void> => {
+    this.setGotConfig = (config: IConfig): Promise<void> => {
       return Promise.resolve();
     };
 
@@ -101,8 +101,8 @@ class TestConfig extends Command {
 
 class TestGotRequest extends Command {
   async run() {
-    await this.setAxiosConfig({ region: "iran", "api-token": "test" });
-    return this.axiosConfig;
+    await this.setGotConfig({ region: "iran", "api-token": "test" });
+    return this.got;
   }
 }
 beforeAll(async () => {
@@ -110,12 +110,6 @@ beforeAll(async () => {
 });
 
 describe("reading global configuration", () => {
-  test("http configuration", async () => {
-    const configs = await new TestGotRequest([], {} as Config).run();
-    expect(configs.baseURL).toBe("https://api.iran.liara.ir");
-    expect(configs.headers.Authorization).toBe("Bearer test");
-    expect(configs.timeout).toBe(10000);
-  });
   test("check if new global path exist", async () => {
     const content = await new TestConfig([], {} as Config).run();
 
