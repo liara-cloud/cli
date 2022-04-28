@@ -102,12 +102,11 @@ export default abstract class extends Command {
             current: content.current === account ? true : false,
           };
         } catch (error) {
-          if (error.response) {
-            return { version: GLOBAL_CONF_VERSION, accounts: {}}
+          if (!error.response) {
+            this.debug(error.stack)
+            this.error(error.message)
           }
 
-          this.debug(error.stack)
-          this.error(error.message)
         }
       }
       return { version: GLOBAL_CONF_VERSION, accounts };
