@@ -20,7 +20,6 @@ export default class PlanList extends Command {
 
   async run() {
     const { flags } = await this.parse(PlanList);
-    console.log(flags);
     await this.setAxiosConfig(flags);
 
     const {
@@ -28,7 +27,11 @@ export default class PlanList extends Command {
     } = await axios.get("/v1/me", this.axiosConfig);
 
     const plansData = Object.keys(plans.projects)
-      .filter((plan) => plans.projects[plan].available)
+      .filter(
+        (plan) =>
+          plans.projects[plan].available &&
+          plans.projects[plan].region === "iran"
+      )
       .map((plan) => {
         const Plan = plan;
         const availablePlan = plans.projects[plan];
