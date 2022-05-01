@@ -20,6 +20,7 @@ export default class PlanList extends Command {
 
   async run() {
     const { flags } = await this.parse(PlanList);
+    console.log(flags);
     await this.setAxiosConfig(flags);
 
     const {
@@ -27,7 +28,7 @@ export default class PlanList extends Command {
     } = await axios.get("/v1/me", this.axiosConfig);
 
     const plansData = Object.keys(plans.projects)
-      .filter((plan) => plan.includes("ir-") && plans.projects[plan].available)
+      .filter((plan) => plans.projects[plan].available)
       .map((plan) => {
         const Plan = plan;
         const availablePlan = plans.projects[plan];
@@ -37,10 +38,13 @@ export default class PlanList extends Command {
         const CPU = tCPU + cpuSpacing(tCPU) + "Core";
         const StorageClass = availablePlan.storageClass;
         const tDisk = availablePlan.volume;
-        const Disk = tDisk + diskSpacing(tDisk) + `GB ${StorageClass}`;
+        const Disk = tDisk
+          ? tDisk + diskSpacing(tDisk) + `GB ${StorageClass}`
+          : 0;
         const tPrice = availablePlan.price * 720;
-        const Price =
-          tPrice.toLocaleString() + priceSpacing(tPrice) + "Tomans/Month";
+        const Price = tPrice
+          ? tPrice.toLocaleString() + priceSpacing(tPrice) + "Tomans/Month"
+          : 0;
         return {
           Plan,
           RAM,
