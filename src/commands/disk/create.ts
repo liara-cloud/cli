@@ -53,8 +53,20 @@ export default class DiskCreate extends Command {
         debug(JSON.stringify(error.response.data));
       }
 
-      if (error.response && error.response.status === 400 && error.response.data.message === "not_enough_storage_space") {
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data.message === "not_enough_storage_space"
+      ) {
         this.error(`Not enough storage space.`);
+      }
+
+      if (
+        error.response &&
+        error.response.status === 400 &&
+        error.response.data.message.includes('["size" must be a number]')
+      ) {
+        this.error("Invalid disk size");
       }
 
       if (error.response && error.response.status === 400) {
