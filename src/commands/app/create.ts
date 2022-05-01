@@ -93,7 +93,9 @@ export default class AppCreate extends Command {
         choices: [
           ...Object.keys(plans.projects)
             .filter(
-              (plan) => plan.includes("ir-") && plans.projects[plan].available
+              (plan) =>
+                plans.projects[plan].available &&
+                plans.projects[plan].region === "iran"
             )
             .map((plan) => {
               const availablePlan = plans.projects[plan];
@@ -106,13 +108,11 @@ export default class AppCreate extends Command {
                 value: plan,
                 name: `RAM: ${ram}${ramSpacing(
                   ram
-                )}GB,  CPU: ${cpu}${cpuSpacing(
-                  cpu
-                )}Core,  Disk: ${disk}${diskSpacing(
-                  disk
-                )}GB ${storageClass},  Price: ${price.toLocaleString()}${priceSpacing(
-                  price
-                )}Tomans/Month`,
+                )}GB,  CPU: ${cpu}${cpuSpacing(cpu)}Core,  Disk: ${disk}${
+                  diskSpacing(disk) + "GB"
+                }${storageClass || "SSD"},  Price: ${price.toLocaleString()}${
+                  price ? priceSpacing(price) + "Tomans/Month" : ""
+                }`,
               };
             }),
         ],
