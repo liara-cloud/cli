@@ -102,6 +102,9 @@
       "app": {
         "description": "display commands for working with apps"
       },
+      "db": {
+        "description": "display commands for working with databases"
+      },
       "account": {
         "description": "display commands for working with accounts"
       },
