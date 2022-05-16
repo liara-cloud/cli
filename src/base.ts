@@ -169,8 +169,8 @@ Please check your network connection.`)
 
     if (!config['api-token'] || !config.region) {
       const {api_token, region} = await this.getCurrentAccount();
-      config['api-token'] = api_token;
-      config.region = region;
+      config['api-token'] = config['api-token'] || api_token;
+      config.region = config.region || region;
     }
 
     // @ts-ignore
