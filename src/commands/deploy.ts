@@ -195,7 +195,7 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`
         console.error(new Errors.CLIError(`Authentication failed.
 Please login via 'liara login' command.
 If you are using API token for authentication, please consider updating your API token.
-If you are using the region flag, Please consider your account region. Your specified region is: ${chalk.cyan(config.region!)}`).render());)
+If you are using the region flag, Please consider your account region. Your specified region is: ${chalk.cyan(config.region!)}`).render());
         process.exit(2)
       }
 
