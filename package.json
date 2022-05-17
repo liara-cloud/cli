@@ -105,6 +105,9 @@
       "db": {
         "description": "display commands for working with databases"
       },
+      "db:mssql": {
+        "description": "display commands for working with Microsoft SQL Server databases"
+      },
       "account": {
         "description": "display commands for working with accounts"
       },
