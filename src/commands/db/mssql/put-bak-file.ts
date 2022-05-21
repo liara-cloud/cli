@@ -43,6 +43,17 @@ export default class MssqlBakFile extends Command {
 
     try {
       //TODO: implement bak file upload
+      await axios.post(
+        `/v1/databases/${db}/mssql-bak`,
+        { url },
+        this.axiosConfig
+      );
+
+      this.log(
+        `${chalk.greenBright(
+          "OK"
+        )} -- We will let you know whenever the operation is finished through notifications.`
+      );
     } catch (error) {
       debug(error.message);
 
@@ -56,6 +67,11 @@ export default class MssqlBakFile extends Command {
 
       if (error.response && error.response.status === 409) {
         this.error(`Another operation is already running. Please wait.`);
+      }
+
+      if (error.response && error.response.status === 429) {
+        this.error(`Too many requests.
+Sorry! Rate limit exceeded. Please try again later.`);
       }
 
       this.error(`Could not put bak file. Please try again.`);
