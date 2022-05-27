@@ -20,7 +20,7 @@
     "email-prompt-ts": "0.3.2",
     "email-validator": "^2.0.4",
     "form-data": "^4.0.0",
-    "fs-extra": "^7.0.1",
+    "fs-extra": "^8.0.0",
     "globby": "^11.0.0",
     "got": "^11.8.2",
     "https-proxy-agent": "^5.0.0",
