@@ -7,4 +7,4 @@ build:
 
 install: build
 	npm install -g .
-.PHONY:start
+.PHONY:install
