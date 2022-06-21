@@ -42,7 +42,7 @@ export default class AppCreate extends Command {
 
     const account = await this.getCurrentAccount();
 
-    await this.setAxiosConfig(flags);
+    // await this.setAxiosConfig(flags);
 
     (account && account.region === "germany" || flags.region === "germany") &&
       this.error("We do not support germany any more.");
