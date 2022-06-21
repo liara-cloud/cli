@@ -1,4 +1,3 @@
-import axios from "axios";
 import inquirer from "inquirer";
 import Command from "../../base";
 import { Flags } from "@oclif/core";
@@ -20,13 +19,15 @@ export default class AppDelete extends Command {
   async run() {
     const { flags } = await this.parse(AppDelete);
     const debug = createDebugLogger(flags.debug);
-    await this.setAxiosConfig(flags);
+
+    await this.setGotConfig(flags);
+    
     const app = flags.app || (await this.promptProject());
 
     try {
       // TODO: Add --force or -f flag to force the deletion
       if (await this.confirm(app)) {
-        await axios.delete(`/v1/projects/${app}`, this.axiosConfig);
+        await this.got.delete(`v1/projects/${app}`)
         this.log(`App ${app} deleted.`);
       }
     } catch (error) {

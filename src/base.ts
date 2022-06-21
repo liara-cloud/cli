@@ -5,7 +5,6 @@ import WebSocket from 'ws'
 import got, {Options} from 'got'
 import inquirer from "inquirer"
 import {Command, Flags} from '@oclif/core'
-import axios, {AxiosRequestConfig} from 'axios'
 import updateNotifier from 'update-notifier'
 import HttpsProxyAgent from 'https-proxy-agent'
 import './interceptors'
@@ -64,14 +63,6 @@ export default abstract class extends Command {
     region: Flags.string({description: 'the region you want to deploy your app to', options:['iran', 'germany']}),
   }
 
-  axiosConfig: AxiosRequestConfig = {
-    ...axios.defaults,
-    timeout: 10 * 1000,
-    headers: {
-      'User-Agent': this.config.userAgent
-    }
-  }
-
   got = got.extend()
   spinner!: ora.Ora;
   async readGlobalConfig(): Promise<IGlobalLiaraConfig> {
@@ -84,10 +75,10 @@ export default abstract class extends Command {
     if (content.accounts && Object.keys(content.accounts).length) {
       const accounts: IAccounts = {};
       for (const account of Object.keys(content.accounts)) {
-        await this.setAxiosConfig({
+        await this.setGotConfig({
           "api-token": content.accounts[account].api_token,
           region: content.accounts[account].region,
-        });
+        })
         try {
           const {
             user: { email, fullname, avatar },
@@ -113,11 +104,10 @@ export default abstract class extends Command {
     }
     if (content.api_token && content.region) {
       try {
-        await this.setAxiosConfig({
+        await this.setGotConfig({
           "api-token": content.api_token,
-          region: content.region,
-        });
-
+          region: content.region
+        })
         const {
           user: { email, fullname, avatar },
         } = await this.got.get("v1/me").json<{ user: IAccount }>();
@@ -159,11 +149,12 @@ Please check your network connection.`)
     this.error(error.message)
   }
 
-  async setAxiosConfig(config: IConfig): Promise<void> {
+  async setGotConfig(config: IConfig): Promise<void> {
     const gotConfig: Options = {
       headers: {
-        'user-agent': this.config.userAgent,
+        'User-Agent': this.config.userAgent,
       },
+      timeout: 10 * 1000
     };
 
     const proxy = process.env.http_proxy || process.env.https_proxy
@@ -172,9 +163,6 @@ Please check your network connection.`)
 
       // @ts-ignore
       const agent = new HttpsProxyAgent(proxy)
-
-      this.axiosConfig.httpsAgent = agent
-      this.axiosConfig.proxy = false // Prevents Axios to use proxy envs by itself
 
       gotConfig.agent = { https: agent }
     }
@@ -185,15 +173,14 @@ Please check your network connection.`)
       config.region = region;
     }
 
-    this.axiosConfig.headers.Authorization = `Bearer ${config['api-token']}`
     // @ts-ignore
     gotConfig.headers.Authorization = `Bearer ${config['api-token']}`
 
     config['region'] = config['region'] || FALLBACK_REGION
 
     const actualBaseURL = REGIONS_API_URL[config['region']];
-    this.axiosConfig.baseURL = DEV_MODE ? 'http://localhost:3000' : actualBaseURL;
-    gotConfig.prefixUrl = this.axiosConfig.baseURL
+    gotConfig.prefixUrl = DEV_MODE ? 'http://localhost:3000' : actualBaseURL;
+
     if(DEV_MODE) {
       this.log(`[dev] The actual base url is: ${actualBaseURL}`);
       this.log(`[dev] but in dev mode we use http://localhost:3000`)
@@ -217,12 +204,7 @@ Please check your network connection.`)
     this.spinner = ora();
     this.spinner.start("Loading...");
     try {
-      const {
-        data: { projects },
-      } = await axios.get<IGetProjectsResponse>(
-        "/v1/projects",
-        this.axiosConfig
-      );
+      const { projects } = await this.got("v1/projects").json<IGetProjectsResponse>()
 
       this.spinner.stop();
 

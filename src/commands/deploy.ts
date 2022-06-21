@@ -1,126 +1,45 @@
-import os from 'os'
 import ora from 'ora'
 import path from 'path'
 import chalk from 'chalk'
 import bytes from 'bytes'
 import fs from 'fs-extra'
-import axios from 'axios'
 import moment from 'moment'
 import inquirer from 'inquirer'
-import retry from 'async-retry'
-import FormData from 'form-data'
 import ProgressBar from 'progress'
 import { Flags, Errors} from '@oclif/core'
 
 
 import Logs from './app/logs'
 import Command from '../base'
+import IFlags from '../types/flags'
 import Poller from '../utils/poller'
 import {DEV_MODE} from '../constants'
 import getPort from '../utils/get-port'
+import upload from '../services/upload'
+import IRelease from '../types/release'
 import checkPath from '../utils/check-path'
 import onInterupt from '../utils/on-intrupt'
+import ILiaraJSON from '../types/liara-json'
+import buildLogs from '../services/build-logs'
 import validatePort from '../utils/validate-port'
 import {createDebugLogger} from '../utils/output'
+import  BuildFailed  from '../errors/build-failed'
 import createArchive from '../utils/create-archive'
+import  BuildCanceled  from '../errors/build-cancel'
+import  BuildTimeout  from '../errors/build-timeout'
+import prepareTmpDirectory from '../services/tmp-dir'
 import detectPlatform from '../utils/detect-platform'
 import collectGitInfo from '../utils/collect-git-info'
+import  ReleaseFailed  from '../errors/release-failed'
+import ICreatedRelease from '../types/created-release'
+import IDeploymentConfig from '../types/deployment-config'
+import  DeployException  from '../errors/deploy-exception'
+import cancelDeployment from '../services/cancel-deployment'
+import IGetProjectsResponse from '../types/get-project-response'
+import ReachedMaxSourceSizeError from '../errors/max-source-size'
 import mergePlatformConfigWithDefaults from '../utils/merge-platform-config'
 
-interface ILaravelPlatformConfig {
-  routeCache?: boolean,
-  configCache?: boolean,
-  buildAssets?: boolean,
-}
-
-interface INodePlatformConfig {
-  version?: number,
-}
-
-interface IHealthConfig {
-  command?: string | string[],
-  interval?: number,
-  timeout?: number,
-  retries?: number,
-  startPeriod?: number,
-}
-
-interface IDisk {
-  name: String,
-  mountTo: String,
-}
-
-interface ILiaraJSON {
-  app?: string,
-  platform?: string,
-  port?: number,
-  volume?: string,
-  args?: string[],
-  'build-arg'?: string[],
-  cron?: string[],
-  disks?: IDisk[],
-  laravel?: ILaravelPlatformConfig,
-  node?: INodePlatformConfig,
-  healthCheck?: IHealthConfig,
-}
-
-interface IFlags {
-  path?: string,
-  platform?: string,
-  port?: number,
-  volume?: string,
-  image?: string,
-  'api-token'?: string,
-  region?: string,
-  detach: boolean,
-  args?: string[],
-  'build-arg'?: string[],
-  message?: string,
-  disks?: string[],
-}
-
-interface IDeploymentConfig extends ILiaraJSON {
-  path: string,
-  image?: string,
-  'api-token'?: string,
-  region?: string,
-  detach: boolean,
-  message?: string,
-}
-
-interface IProject {
-  project_id: string,
-}
-
-interface IGetProjectsResponse {
-  projects: IProject[]
-}
-
-interface IRelease {
-  state: string, status: string, failReason?: string
-}
-
-interface IBuildLogsResponse {
-  release: IRelease,
-  buildOutput: IBuildOutput[],
-}
-
-interface IBuildOutput {
-  _id: string,
-  line: string,
-  stream: string,
-  releaseID: string,
-  createdAt: string,
-}
-
-interface ICreatedRelease {
-  releaseID: string,
-}
-
 const MAX_SOURCE_SIZE = 200 * 1024 * 1024 // 200 MB
-
-class DeployException extends Error {}
-class ReachedMaxSourceSizeError extends Error {}
 
 export default class Deploy extends Command {
   static description = 'deploy an app'
@@ -163,7 +82,7 @@ export default class Deploy extends Command {
       this.dontDeployEmptyProjects(config.path)
     }
 
-    await this.setAxiosConfig(config)
+    await this.setGotConfig(config)
 
     this.validateDeploymentConfig(config)
 
@@ -313,7 +232,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
       body.build.args = config['build-arg']
     }
 
-    body.gitInfo = collectGitInfo(config.path, this.debug)
+    body.gitInfo = await collectGitInfo(config.path, this.debug)
 
     // @ts-ignore
     body.platformConfig = mergePlatformConfigWithDefaults(config.path, config.platform, config[config.platform] || {}, this.debug)
@@ -328,10 +247,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
 
     this.spinner.start('Creating an archive...')
 
-    const tmpDir = path.join(os.tmpdir(), '/liara-cli')
-    const sourcePath = path.join(tmpDir, `${Date.now()}.tar.gz`)
-    fs.ensureDirSync(tmpDir)
-
+    const sourcePath = prepareTmpDirectory()
     await createArchive(sourcePath, config.path, config.platform, this.debug)
 
     this.spinner.stop()
@@ -381,91 +297,59 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
           this.log(`${attempt}: Could not cancel, retrying...`)
         }
       }
-      await retry(async () => {
-        await axios.post(`/v2/releases/${releaseID}/cancel`, null, this.axiosConfig)
-      }, retryOptions)
-
+      await cancelDeployment(this.got, releaseID, retryOptions)
       this.spinner.warn('Build canceled.')
       process.exit(3)
     })
 
-    return new Promise((resolve, reject) => {
-      const poller = new Poller()
-
-      let since: string
-      let isDeploying = false
-
-      poller.onPoll(async () => {
-        try {
-          const {data: {release, buildOutput}} = await axios.get<IBuildLogsResponse>(
-            `/v2/releases/${releaseID}/build-logs`, {
-              ...this.axiosConfig,
-              params: {since},
-            })
-
-          for (const output of buildOutput) {
-            this.spinner.clear().frame()
-
-            if (output.stream === 'STDOUT') {
-              process.stdout.write(output.line)
-            } else {
-              // tslint:disable-next-line: no-console
-              console.error(output.line)
-              return reject(new Error('Build failed.'))
-            }
-          }
-
-          if (!buildOutput.length) {
-            if (release.state === 'CANCELED') {
-              this.spinner.warn('Build canceled.')
-              process.exit(3)
-            }
-
-            if (release.state === 'TIMEDOUT') {
-              this.spinner.fail();
-              return reject(new Error('TIMEOUT'))
-            }
-
-            if (release.state === 'FAILED') {
-              this.spinner.fail();
-              if(release.failReason) {
-                return reject(new DeployException(this.parseFailReason(release.failReason)))
-              }
-              return reject(new Error('Release failed.'))
-            }
-
-            if (release.state === 'DEPLOYING' && !isDeploying) {
-              isDeploying = true
-              this.spinner.succeed('Image pushed.')
-              this.spinner.start('Creating a new release...')
-            }
-
-            if (release.state === 'READY') {
-              this.spinner.succeed('Release created.')
-              return resolve()
-            }
-          }
-
-          if (buildOutput.length) {
-            const lastLine = buildOutput[buildOutput.length - 1]
-            since = lastLine.createdAt
-
-            if (lastLine.line.startsWith('Successfully tagged')) {
-              this.spinner.succeed('Build finished.')
-              this.spinner.start('Pushing the image...')
-              removeInterupListener()
-            }
-          }
-
-        } catch (error) {
-          this.debug(error.stack)
+    try {
+      await buildLogs(this.got,releaseID, isCanceled,(output) => {
+        if (output.state === 'DEPLOYING') {
+          this.spinner.succeed('Image pushed.')
+          this.spinner.start('Creating a new release...')
         }
-
-        !isCanceled && poller.poll()
+        if (output.state === 'BUILDING' && output.line) {
+          this.spinner.clear().frame()
+          process.stdout.write(output.line)
+        }
+        if (output.state === 'PUSHING') {
+          this.spinner.succeed('Build finished.')
+          this.spinner.start('Pushing the image...')
+          removeInterupListener()
+        }
       })
+      this.spinner.succeed('Release created.')
 
-      !isCanceled && poller.poll()
-    })
+    } catch (error) {
+      if (error instanceof BuildFailed) {
+        // tslint:disable-next-line: no-console
+        console.error(error.output.line)
+        throw new Error('Build failed.')
+      }
+
+      if (error instanceof BuildCanceled) {
+          this.spinner.warn('Build canceled.')
+          process.exit(3)
+      }
+
+      if (error instanceof BuildTimeout) {
+        this.spinner.fail();
+        throw new Error('TIMEOUT')
+      }
+
+      if (error instanceof DeployException) {
+        this.spinner.fail();
+        throw new Error(this.parseFailReason(error.message))
+      }
+
+      if (error instanceof ReleaseFailed) {
+        this.spinner.fail();
+        throw new Error('Release failed.')
+      }
+      
+      this.debug(error.stack)
+    }
+    
   }
 
   async showReleaseLogs(releaseID: string) {
@@ -476,7 +360,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
 
       poller.onPoll(async () => {
         try {
-          const {data: {release}} = await axios.get<{release: IRelease}>(`/v1/releases/${releaseID}`, this.axiosConfig)
+          const {release} = await this.got(`v1/releases/${releaseID}`).json<{release: IRelease}>()
 
           if (release.state === 'FAILED') {
             this.spinner.fail();
@@ -549,8 +433,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
     this.spinner.start('Loading...\n')
 
     try {
-      const {data: {projects}} = await axios.get<IGetProjectsResponse>('/v1/projects', this.axiosConfig)
-
+      const { projects } = await this.got('v1/projects').json<IGetProjectsResponse>()
       this.spinner.stop()
 
       if (!projects.length) {
@@ -636,9 +519,6 @@ You must add a 'start' command to your package.json scripts.`)
   }
 
   async upload(project: string, sourcePath: string, sourceSize: number): Promise<string> {
-    const body = new FormData();
-    body.append('file', fs.createReadStream(sourcePath))
-
     const bar = new ProgressBar('Uploading [:bar] :percent :etas', {
       total: sourceSize,
       width: 20,
@@ -647,23 +527,20 @@ You must add a 'start' command to your package.json scripts.`)
       clear: true,
     })
 
+    const onProgress = (progress: { transferred: number }) => {
+      bar.tick(progress.transferred - bar.curr)
+    }
     try {
-      const response = await this.got.post(`v2/projects/${project}/sources`, { body })
-        .on('uploadProgress', progress => {
-          bar.tick(progress.transferred - bar.curr)
-        })
+      const response = await upload(project,this.got, sourcePath)
+        .on('uploadProgress', onProgress)
         .json<{ sourceID: string }>()
 
       this.spinner.succeed('Upload finished.')
-
       this.debug(`source upload response: ${JSON.stringify(response)}`)
-
       return response.sourceID
-
     } catch (error) {
       this.spinner.fail('Upload failed.')
       throw error
-
     } finally {
       // cleanup
       fs.unlink(sourcePath).catch(() => {})
