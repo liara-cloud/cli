@@ -37,7 +37,7 @@ export default class AppCreate extends Command {
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
-    
+
     const name = flags.app || (await this.promptAppName());
 
     const account = await this.getCurrentAccount();
@@ -46,7 +46,7 @@ export default class AppCreate extends Command {
       this.error("We do not support germany any more.");
 
     const platform = flags.platform || (await this.promptPlatform());
-    const planID = flags.plan || (await this.promptPlan());
+    const planID = flags.plan || (await this.promptPlan(platform));
 
     try {
       await this.got.post("v1/projects/", { json: { name, planID, platform } });
@@ -72,7 +72,7 @@ export default class AppCreate extends Command {
     }
   }
 
-  async promptPlan() {
+  async promptPlan(platform: string) {
     this.spinner.start("Loading...");
 
     try {
@@ -88,7 +88,8 @@ export default class AppCreate extends Command {
             .filter(
               (plan) =>
                 plans.projects[plan].available &&
-                plans.projects[plan].region === "iran"
+                plans.projects[plan].region === "iran" &&
+                (['react', 'angular', 'vue', 'static'].includes(platform) || plans.projects[plan].price > 0)
             )
             .map((plan) => {
               const availablePlan = plans.projects[plan];
@@ -101,11 +102,9 @@ export default class AppCreate extends Command {
                 value: plan,
                 name: `RAM: ${ram}${ramSpacing(
                   ram
-                )}GB,  CPU: ${cpu}${cpuSpacing(cpu)}Core,  Disk: ${disk}${
-                  diskSpacing(disk) + "GB"
-                }${storageClass || "SSD"},  Price: ${price.toLocaleString()}${
-                  price ? priceSpacing(price) + "Tomans/Month" : ""
-                }`,
+                )}GB,  CPU: ${cpu}${cpuSpacing(cpu)}Core,  Disk: ${disk}${diskSpacing(disk) + "GB"
+                  }${storageClass || "SSD"},  Price: ${price.toLocaleString()}${price ? priceSpacing(price) + "Tomans/Month" : `${" ".repeat(8)} Free`
+                  }`,
               };
             }),
         ],
