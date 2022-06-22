@@ -13,3 +13,5 @@ export const REGIONS_API_URL: {[key: string]: string} = {
 };
 
 export const FALLBACK_REGION = 'germany'
+
+export const MAX_SOURCE_SIZE = 256 * 1024 * 1024 // 200 MiB

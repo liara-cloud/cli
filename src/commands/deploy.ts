@@ -13,7 +13,6 @@ import Logs from './app/logs'
 import Command from '../base'
 import IFlags from '../types/flags'
 import Poller from '../utils/poller'
-import {DEV_MODE} from '../constants'
 import getPort from '../utils/get-port'
 import upload from '../services/upload'
 import IRelease from '../types/release'
@@ -29,6 +28,7 @@ import  BuildCanceled  from '../errors/build-cancel'
 import  BuildTimeout  from '../errors/build-timeout'
 import prepareTmpDirectory from '../services/tmp-dir'
 import detectPlatform from '../utils/detect-platform'
+import {DEV_MODE, MAX_SOURCE_SIZE} from '../constants'
 import collectGitInfo from '../utils/collect-git-info'
 import  ReleaseFailed  from '../errors/release-failed'
 import ICreatedRelease from '../types/created-release'
@@ -38,8 +38,6 @@ import cancelDeployment from '../services/cancel-deployment'
 import IGetProjectsResponse from '../types/get-project-response'
 import ReachedMaxSourceSizeError from '../errors/max-source-size'
 import mergePlatformConfigWithDefaults from '../utils/merge-platform-config'
-
-const MAX_SOURCE_SIZE = 200 * 1024 * 1024 // 200 MB
 
 export default class Deploy extends Command {
   static description = 'deploy an app'
@@ -196,12 +194,14 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`
         // tslint:disable-next-line: no-console
         console.error(new Errors.CLIError(`Authentication failed.
 Please login via 'liara login' command.
-If you are using API token for authentication, please consider updating your API token.`).render())
+
+If you are using API token for authentication, please consider updating your API token.
+You may also want to switch to another region. Your current region is: ${chalk.cyan(config.region!)}`).render());
         process.exit(2)
       }
 
       if (error instanceof ReachedMaxSourceSizeError) {
-        this.error('Source is too large. (max: 200MB)')
+        this.error(`Source is too large. ${chalk.yellowBright('(max: 256MB)')}`)
       }
       this.log(chalk.gray(this.config.userAgent))
       this.log()
