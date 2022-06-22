@@ -1,23 +1,8 @@
-import axios from "axios";
 import { CliUx } from "@oclif/core";
 import * as shamsi from "shamsi-date-converter";
 
 import Command from "../../base";
-
-export interface IDatabase {
-  _id: string;
-  scale: number;
-  hostname: string;
-  type: string;
-  planID: string;
-  status: string;
-  created_at: string;
-}
-
-export interface IGetDatabasesResponse {
-  databases: IDatabase[];
-}
-
+import IGetDatabasesResponse from '../../types/get-dbs-response';
 export default class DatabaseList extends Command {
   static description: string | undefined = "list available databases";
 
@@ -31,14 +16,9 @@ export default class DatabaseList extends Command {
   async run() {
     const { flags } = await this.parse(DatabaseList);
 
-    await this.setAxiosConfig(flags);
+    await this.setGotConfig(flags);
 
-    const {
-      data: { databases },
-    } = await axios.get<IGetDatabasesResponse>(
-      "/v1/databases",
-      this.axiosConfig
-    );
+    const {databases} = await this.got('v1/databases').json<IGetDatabasesResponse>()
 
     if (!databases.length) {
       this.error(`Not found any database.
