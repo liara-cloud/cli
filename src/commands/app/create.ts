@@ -43,6 +43,8 @@ export default class AppCreate extends Command {
 
     const account = await this.getCurrentAccount();
 
+    await this.setGotConfig(flags);
+
     ((account && account.region === "germany") || flags.region === "germany") &&
       this.error("We do not support germany any more.");
 
@@ -60,38 +62,36 @@ export default class AppCreate extends Command {
     } catch (error) {
       debug(error.message);
 
-      if (error.response && error.response.data) {
-        debug(JSON.stringify(error.response.data));
+      if (error.response && error.response.body) {
+        debug(JSON.stringify(error.response.body));
       }
 
-      if (error.response && error.response.status === 404) {
+      if (error.response && error.response.statusCode === 404) {
         this.error(`Could not create the app.`);
       }
 
-      if (error.response && error.response.status === 409) {
+      if (error.response && error.response.statusCode === 409) {
         this.error(
           `The app already exists. Please use a unique name for your app.`
         );
       }
 
       if (
-        error.response &&
-        error.response.data.statusCode === 403 &&
-        error.response.data.data &&
-        error.response.data.data.code === "free_plan_platform"
+        error.response && 
+        error.response.statusCode === 403 &&
+        error.response.body
       ) {
-        this.error(`The free plan is not available for ${platform} platform.`);
-      }
 
-      if (
-        error.response &&
-        error.response.data.statusCode === 403 &&
-        error.response.data.data &&
-        error.response.data.data.code === "free_plan_count"
-      ) {
-        this.error(`You are allowed to create only one app on the free plan`);
-      }
+        const body = JSON.parse(error.response.body);
 
+        if (body.data.code === "free_plan_platform") {
+          this.error(`The free plan is not available for ${platform} platform.`);
+        }
+
+        if (body.data.code === "free_plan_count") {
+          this.error(`You are allowed to create only one app on the free plan`);
+        }
+      }
       this.error(`Could not create the app. Please try again.`);
     }
   }
