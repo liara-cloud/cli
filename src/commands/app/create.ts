@@ -58,6 +58,10 @@ export default class AppCreate extends Command {
         debug(JSON.stringify(error.response.data));
       }
 
+      if (error.response && error.response.statusCode === 403 && JSON.parse(error.response.body).data.code === "free_plan_count") {
+        this.error(`You are allowed to create only one static app on the free plan.`);
+      }
+
       if (error.response && error.response.status === 404) {
         this.error(`Could not create the app.`);
       }
