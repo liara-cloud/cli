@@ -3,6 +3,7 @@ import inquirer from "inquirer";
 import Command from "../../base";
 import { Flags } from "@oclif/core";
 import { createDebugLogger } from "../../utils/output";
+import { AVAILABLE_PLATFORMS, FREE_PLAN_PLATFORMS } from "../../constants";
 import {
   ramSpacing,
   cpuSpacing,
@@ -42,11 +43,18 @@ export default class AppCreate extends Command {
 
     const account = await this.getCurrentAccount();
 
-    (account && account.region === "germany" || flags.region === "germany") &&
+    await this.setGotConfig(flags);
+
+    ((account && account.region === "germany") || flags.region === "germany") &&
       this.error("We do not support germany any more.");
 
     const platform = flags.platform || (await this.promptPlatform());
-    const planID = flags.plan || (await this.promptPlan());
+
+    if (!AVAILABLE_PLATFORMS.includes(platform)) {
+      this.error(`Unknown platform: ${platform}`);
+    }
+
+    const planID = flags.plan || (await this.promptPlan(platform));
 
     try {
       await this.got.post("v1/projects/", { json: { name, planID, platform } });
@@ -54,25 +62,41 @@ export default class AppCreate extends Command {
     } catch (error) {
       debug(error.message);
 
-      if (error.response && error.response.data) {
-        debug(JSON.stringify(error.response.data));
+      if (error.response && error.response.body) {
+        debug(JSON.stringify(error.response.body));
       }
 
-      if (error.response && error.response.status === 404) {
+      if (error.response && error.response.statusCode === 404) {
         this.error(`Could not create the app.`);
       }
 
-      if (error.response && error.response.status === 409) {
+      if (error.response && error.response.statusCode === 409) {
         this.error(
           `The app already exists. Please use a unique name for your app.`
         );
       }
 
+      if (
+        error.response && 
+        error.response.statusCode === 403 &&
+        error.response.body
+      ) {
+
+        const body = JSON.parse(error.response.body);
+
+        if (body.data.code === "free_plan_platform") {
+          this.error(`The free plan is not available for ${platform} platform.`);
+        }
+
+        if (body.data.code === "free_plan_count") {
+          this.error(`You are allowed to create only one app on the free plan`);
+        }
+      }
       this.error(`Could not create the app. Please try again.`);
     }
   }
 
-  async promptPlan() {
+  async promptPlan(platform: string) {
     this.spinner.start("Loading...");
 
     try {
@@ -85,11 +109,18 @@ export default class AppCreate extends Command {
         message: "Please select a plan:",
         choices: [
           ...Object.keys(plans.projects)
-            .filter(
-              (plan) =>
+            .filter((plan) => {
+              if (plan === "free" && !FREE_PLAN_PLATFORMS.includes(platform)) {
+                return false;
+              }
+
+              if (
                 plans.projects[plan].available &&
                 plans.projects[plan].region === "iran"
-            )
+              ) {
+                return true;
+              }
+            })
             .map((plan) => {
               const availablePlan = plans.projects[plan];
               const ram = availablePlan.RAM.amount;
@@ -122,27 +153,13 @@ export default class AppCreate extends Command {
     this.spinner.start("Loading...");
 
     try {
-      const platforms = [
-        "node",
-        "laravel",
-        "php",
-        "django",
-        "flask",
-        "netcore",
-        "react",
-        "angular",
-        "vue",
-        "static",
-        "docker",
-      ];
-
       this.spinner.stop();
 
       const { platform } = (await inquirer.prompt({
         name: "platform",
         type: "list",
         message: "Please select a platform:",
-        choices: [...platforms.map((platform) => platform)],
+        choices: [...AVAILABLE_PLATFORMS.map((platform) => platform)],
       })) as { platform: string };
 
       return platform;
