@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import { CliUx } from "@oclif/core";
 import * as shamsi from "shamsi-date-converter";
 
@@ -27,12 +28,15 @@ Please open up https://console.liara.ir/databases and create the database, first
 
     const databasesData = databases.map((db) => {
       const shamsiData = shamsi.gregorianToJalali(new Date(db.created_at));
+
+      const Scale = db.scale === 1 ? chalk.green('ON') : chalk.gray('OFF');
+      const Status = db.status === "RUNNING" ? 'OK': db.status
       return {
         Name: db.hostname,
         Type: db.type,
         Plan: db.planID,
-        Status: db.status,
-        Scale: db.scale,
+        Status,
+        Scale,
         "Created At": `${shamsiData[0]}-${shamsiData[1]}-${shamsiData[2]}`,
       };
     });
