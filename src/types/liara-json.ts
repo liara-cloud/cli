@@ -5,14 +5,15 @@ import IHealthConfig from './health-config'
 
 export default interface ILiaraJSON {
   app?: string,
-  platform?: string,
   port?: number,
-  volume?: string,
   args?: string[],
-  'build-arg'?: string[],
   cron?: string[],
   disks?: IDisk[],
-  laravel?: ILaravelPlatformConfig,
+  volume?: string,
+  platform?: string,
+  buildCache: boolean,
+  'build-arg'?: string[],
   node?: INodePlatformConfig,
   healthCheck?: IHealthConfig,
+  laravel?: ILaravelPlatformConfig,
 }
