@@ -127,6 +127,15 @@ export default class Deploy extends Command {
       }
     }
 
+    if (config.buildCache === false) {
+      this.logKeyValue("Using Build cache", chalk.yellow("disabled"))
+    }
+
+    if (config.buildCache || config.buildCache === undefined) {
+      config.buildCache = true
+      this.logKeyValue("Using Build cache", chalk.green("enabled"));
+    }
+
     try {
       const response = await this.deploy(config)
 
@@ -221,6 +230,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
       mountPoint: config.volume,
       message: config.message,
       disks: config.disks,
+      buildCache: config.buildCache
     }
 
     if (config.image) {
@@ -426,6 +436,10 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
         ! Array.isArray(config.healthCheck.command)
     ) {
       this.error('`command` field in healthCheck must be either an array or a string.')
+    }
+
+    if (config.buildCache != undefined && typeof config.buildCache !== 'boolean') {
+      this.error("`buildCache` field must be a boolean.")
     }
   }
 
