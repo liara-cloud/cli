@@ -128,12 +128,12 @@ export default class Deploy extends Command {
     }
 
     if (config.buildCache === false) {
-      this.logKeyValue("Using Build cache", chalk.yellow("disabled"))
+      this.debug("Using Build Cache: Disabled");
     }
 
     if (config.buildCache || config.buildCache === undefined) {
       config.buildCache = true
-      this.logKeyValue("Using Build cache", chalk.green("enabled"));
+      this.debug("Using Build Cache: Enabled");
     }
 
     try {
