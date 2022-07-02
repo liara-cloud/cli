@@ -222,7 +222,9 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
 
   async deploy(config: IDeploymentConfig) {
     const body: {[k: string]: any} = {
-      build: {},
+      build: {
+        cache: config.buildCache,
+      },
       cron: config.cron,
       args: config.args,
       port: config.port,
@@ -230,7 +232,6 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
       mountPoint: config.volume,
       message: config.message,
       disks: config.disks,
-      buildCache: config.buildCache
     }
 
     if (config.image) {
