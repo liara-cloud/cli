@@ -127,6 +127,15 @@ export default class Deploy extends Command {
       }
     }
 
+    if (config.buildCache === false) {
+      this.debug("Using Build Cache: Disabled");
+    }
+
+    if (config.buildCache || config.buildCache === undefined) {
+      config.buildCache = true
+      this.debug("Using Build Cache: Enabled");
+    }
+
     try {
       const response = await this.deploy(config)
 
@@ -213,7 +222,9 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
 
   async deploy(config: IDeploymentConfig) {
     const body: {[k: string]: any} = {
-      build: {},
+      build: {
+        cache: config.buildCache,
+      },
       cron: config.cron,
       args: config.args,
       port: config.port,
@@ -426,6 +437,10 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
         ! Array.isArray(config.healthCheck.command)
     ) {
       this.error('`command` field in healthCheck must be either an array or a string.')
+    }
+
+    if (config.buildCache != undefined && typeof config.buildCache !== 'boolean') {
+      this.error("`buildCache` field must be a boolean.")
     }
   }
 
