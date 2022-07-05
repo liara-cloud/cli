@@ -32,7 +32,7 @@ function getDefaultLaravelPlatformConfig(parojectPath: string, userProvidedConfi
 function getRequiredPHPVersion(parojectPath: string, debug: DebugLogger): string | null {
   // semver forces us to use the full semver syntax,
   // but before returning the final result, we remove the last .0 part
-  const supportedPHPVersions = ['8.0.0', '7.4.0', '7.3.0', '7.2.0'];
+  const supportedPHPVersions = ['8.1.0', '8.0.0', '7.4.0', '7.3.0', '7.2.0'];
 
   try {
     const composerJson = fs.readJSONSync(path.join(parojectPath, 'composer.json'))
