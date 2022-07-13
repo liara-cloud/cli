@@ -19,7 +19,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.24.0 linux-x64 node-v16.13.2
+@liara/cli/2.25.0-beta.8 linux-x64 node-v16.14.2
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -41,6 +41,7 @@ USAGE
 * [`liara app:start`](#liara-appstart)
 * [`liara app:stop`](#liara-appstop)
 * [`liara autocomplete [SHELL]`](#liara-autocomplete-shell)
+* [`liara db:list`](#liara-dblist)
 * [`liara deploy`](#liara-deploy)
 * [`liara disk:create`](#liara-diskcreate)
 * [`liara env:list`](#liara-envlist)
@@ -49,6 +50,7 @@ USAGE
 * [`liara help [COMMAND]`](#liara-help-command)
 * [`liara login`](#liara-login)
 * [`liara plan:list`](#liara-planlist)
+* [`liara version`](#liara-version)
 
 ## `liara account:add`
 
@@ -63,14 +65,14 @@ USAGE
 OPTIONS
   -a, --account=account    account name
   -e, --email=email        your email
-  -h, --help               show CLI help
+  -h, --help               Show CLI help.
   -p, --password=password  your password
   --api-token=api-token    your api token to use for authentication
   --debug                  show debug logs
   --region=iran|germany    the region you want to deploy your app to
 ```
 
-_See code: [src/commands/account/add.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/account/add.ts)_
+_See code: [src/commands/account/add.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/account/add.ts)_
 
 ## `liara account:list`
 
@@ -83,7 +85,7 @@ USAGE
   $ liara account:list
 
 OPTIONS
-  -h, --help              show CLI help
+  -h, --help              Show CLI help.
   -x, --extended          show extra columns
   --api-token=api-token   your api token to use for authentication
   --columns=columns       only show provided columns (comma-separated)
@@ -100,7 +102,7 @@ ALIASES
   $ liara account:ls
 ```
 
-_See code: [src/commands/account/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/account/list.ts)_
+_See code: [src/commands/account/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/account/list.ts)_
 
 ## `liara account:remove`
 
@@ -114,7 +116,7 @@ USAGE
 
 OPTIONS
   -a, --account=account  account name
-  -h, --help             show CLI help
+  -h, --help             Show CLI help.
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
@@ -123,7 +125,7 @@ ALIASES
   $ liara account:rm
 ```
 
-_See code: [src/commands/account/remove.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/account/remove.ts)_
+_See code: [src/commands/account/remove.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/account/remove.ts)_
 
 ## `liara account:use`
 
@@ -137,13 +139,13 @@ USAGE
 
 OPTIONS
   -a, --account=account  account name
-  -h, --help             show CLI help
+  -h, --help             Show CLI help.
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/account/use.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/account/use.ts)_
+_See code: [src/commands/account/use.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/account/use.ts)_
 
 ## `liara app:create`
 
@@ -157,7 +159,7 @@ USAGE
 
 OPTIONS
   -a, --app=app          app id
-  -h, --help             show CLI help
+  -h, --help             Show CLI help.
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
   --plan=plan            plan
@@ -168,7 +170,7 @@ ALIASES
   $ liara create
 ```
 
-_See code: [src/commands/app/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/app/create.ts)_
+_See code: [src/commands/app/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/app/create.ts)_
 
 ## `liara app:delete`
 
@@ -182,7 +184,7 @@ USAGE
 
 OPTIONS
   -a, --app=app          app id
-  -h, --help             show CLI help
+  -h, --help             Show CLI help.
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
@@ -191,7 +193,7 @@ ALIASES
   $ liara delete
 ```
 
-_See code: [src/commands/app/delete.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/app/delete.ts)_
+_See code: [src/commands/app/delete.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/app/delete.ts)_
 
 ## `liara app:list`
 
@@ -204,7 +206,7 @@ USAGE
   $ liara app:list
 
 OPTIONS
-  -h, --help              show CLI help
+  -h, --help              Show CLI help.
   -x, --extended          show extra columns
   --api-token=api-token   your api token to use for authentication
   --columns=columns       only show provided columns (comma-separated)
@@ -221,7 +223,7 @@ ALIASES
   $ liara app:ls
 ```
 
-_See code: [src/commands/app/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/app/list.ts)_
+_See code: [src/commands/app/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/app/list.ts)_
 
 ## `liara app:logs`
 
@@ -235,7 +237,7 @@ USAGE
 
 OPTIONS
   -a, --app=app          app id
-  -h, --help             show CLI help
+  -h, --help             Show CLI help.
   -s, --since=since      show logs since timestamp
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
@@ -245,7 +247,7 @@ ALIASES
   $ liara logs
 ```
 
-_See code: [src/commands/app/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/app/logs.ts)_
+_See code: [src/commands/app/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/app/logs.ts)_
 
 ## `liara app:restart`
 
@@ -259,7 +261,7 @@ USAGE
 
 OPTIONS
   -a, --app=app          app id
-  -h, --help             show CLI help
+  -h, --help             Show CLI help.
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
@@ -268,7 +270,7 @@ ALIASES
   $ liara restart
 ```
 
-_See code: [src/commands/app/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/app/restart.ts)_
+_See code: [src/commands/app/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/app/restart.ts)_
 
 ## `liara app:shell`
 
@@ -283,7 +285,7 @@ USAGE
 OPTIONS
   -a, --app=app          app id
   -c, --command=command  [default: /bin/bash] the command to execute
-  -h, --help             show CLI help
+  -h, --help             Show CLI help.
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
@@ -292,7 +294,7 @@ ALIASES
   $ liara shell
 ```
 
-_See code: [src/commands/app/shell.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/app/shell.ts)_
+_See code: [src/commands/app/shell.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/app/shell.ts)_
 
 ## `liara app:start`
 
@@ -306,7 +308,7 @@ USAGE
 
 OPTIONS
   -a, --app=app          app id
-  -h, --help             show CLI help
+  -h, --help             Show CLI help.
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
@@ -315,7 +317,7 @@ ALIASES
   $ liara start
 ```
 
-_See code: [src/commands/app/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/app/start.ts)_
+_See code: [src/commands/app/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/app/start.ts)_
 
 ## `liara app:stop`
 
@@ -329,7 +331,7 @@ USAGE
 
 OPTIONS
   -a, --app=app          app id
-  -h, --help             show CLI help
+  -h, --help             Show CLI help.
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
@@ -338,7 +340,7 @@ ALIASES
   $ liara stop
 ```
 
-_See code: [src/commands/app/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/app/stop.ts)_
+_See code: [src/commands/app/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/app/stop.ts)_
 
 ## `liara autocomplete [SHELL]`
 
@@ -365,6 +367,36 @@ EXAMPLES
 
 _See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v0.3.0/src/commands/autocomplete/index.ts)_
 
+## `liara db:list`
+
+list available databases
+
+```
+list available databases
+
+USAGE
+  $ liara db:list
+
+OPTIONS
+  -h, --help              Show CLI help.
+  -x, --extended          show extra columns
+  --api-token=api-token   your api token to use for authentication
+  --columns=columns       only show provided columns (comma-separated)
+  --csv                   output is csv format [alias: --output=csv]
+  --debug                 show debug logs
+  --filter=filter         filter property by partial string matching, ex: name=foo
+  --no-header             hide table header from output
+  --no-truncate           do not truncate output to fit screen
+  --output=csv|json|yaml  output in a more machine friendly format
+  --region=iran|germany   the region you want to deploy your app to
+  --sort=sort             property to sort by (prepend '-' for descending)
+
+ALIASES
+  $ liara db:ls
+```
+
+_See code: [src/commands/db/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/db/list.ts)_
+
 ## `liara deploy`
 
 deploy an app
@@ -378,7 +410,7 @@ USAGE
 OPTIONS
   -a, --app=app          app id
   -d, --disks=disks      mount a disk
-  -h, --help             show CLI help
+  -h, --help             Show CLI help.
   -i, --image=image      docker image to deploy
   -m, --message=message  the release message
   -p, --port=port        the port that your app listens to
@@ -393,7 +425,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/deploy.ts)_
 
 ## `liara disk:create`
 
@@ -407,7 +439,7 @@ USAGE
 
 OPTIONS
   -a, --app=app          app id
-  -h, --help             show CLI help
+  -h, --help             Show CLI help.
   -n, --name=name        disk name
   -s, --size=size        disk size
   --api-token=api-token  your api token to use for authentication
@@ -415,7 +447,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/disk/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/disk/create.ts)_
+_See code: [src/commands/disk/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/disk/create.ts)_
 
 ## `liara env:list`
 
@@ -429,7 +461,7 @@ USAGE
 
 OPTIONS
   -a, --app=app           app id
-  -h, --help              show CLI help
+  -h, --help              Show CLI help.
   -x, --extended          show extra columns
   --api-token=api-token   your api token to use for authentication
   --columns=columns       only show provided columns (comma-separated)
@@ -446,7 +478,7 @@ ALIASES
   $ liara env:ls
 ```
 
-_See code: [src/commands/env/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/env/list.ts)_
+_See code: [src/commands/env/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/env/list.ts)_
 
 ## `liara env:set [ENV]`
 
@@ -464,13 +496,13 @@ ARGUMENTS
 OPTIONS
   -a, --app=app          app id
   -f, --force            force update
-  -h, --help             show CLI help
+  -h, --help             Show CLI help.
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/env/set.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/env/set.ts)_
+_See code: [src/commands/env/set.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/env/set.ts)_
 
 ## `liara env:unset [ENV]`
 
@@ -488,13 +520,13 @@ ARGUMENTS
 OPTIONS
   -a, --app=app          app id
   -f, --force            force update
-  -h, --help             show CLI help
+  -h, --help             Show CLI help.
   --api-token=api-token  your api token to use for authentication
   --debug                show debug logs
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/env/unset.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/env/unset.ts)_
+_See code: [src/commands/env/unset.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/env/unset.ts)_
 
 ## `liara help [COMMAND]`
 
@@ -527,14 +559,14 @@ USAGE
 
 OPTIONS
   -e, --email=email        your email
-  -h, --help               show CLI help
+  -h, --help               Show CLI help.
   -p, --password=password  your password
   --api-token=api-token    your api token to use for authentication
   --debug                  show debug logs
   --region=iran|germany    the region you want to deploy your app to
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/login.ts)_
 
 ## `liara plan:list`
 
@@ -547,7 +579,7 @@ USAGE
   $ liara plan:list
 
 OPTIONS
-  -h, --help              show CLI help
+  -h, --help              Show CLI help.
   -x, --extended          show extra columns
   --api-token=api-token   your api token to use for authentication
   --columns=columns       only show provided columns (comma-separated)
@@ -564,5 +596,16 @@ ALIASES
   $ liara plan:ls
 ```
 
-_See code: [src/commands/plan/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.24.0/src/commands/plan/list.ts)_
+_See code: [src/commands/plan/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.8/src/commands/plan/list.ts)_
+
+## `liara version`
+
+```
+undefined
+
+USAGE
+  $ liara version
+```
+
+_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.0.4/src/commands/version.ts)_
 <!-- commandsstop -->
