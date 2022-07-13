@@ -80,7 +80,7 @@ export default class Deploy extends Command {
       this.dontDeployEmptyProjects(config.path)
     }
 
-    await this.setGotConfig(config)
+    await this.setGotConfig(config, false)
 
     this.validateDeploymentConfig(config)
 

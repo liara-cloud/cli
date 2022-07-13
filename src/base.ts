@@ -149,12 +149,12 @@ Please check your network connection.`)
     this.error(error.message)
   }
 
-  async setGotConfig(config: IConfig): Promise<void> {
+  async setGotConfig(config: IConfig, setTimeOut:boolean = true): Promise<void> {
     const gotConfig: Options = {
       headers: {
         'User-Agent': this.config.userAgent,
       },
-      timeout: 10 * 1000
+      timeout: setTimeOut ? 10 * 1000 : undefined,
     };
 
     const proxy = process.env.http_proxy || process.env.https_proxy
