@@ -48,7 +48,9 @@ function getRequiredNetCoreVersion(parojectPath: string, debug: DebugLogger): st
 
     const csprojXml = fs.readFileSync(csproj, 'utf8');
 
-    const dotNetVersion = csprojXml.match(/netcoreapp[0-9.]{2,}/g)?.toString().slice(-3)
+    const dotNetVersion = csprojXml.match(/<TargetFramework>(.*?)<\/TargetFramework>/g)?.map((val) => {
+      return val.replace(/<\/?TargetFramework>/g,'')
+    }).toString().slice(-3);
 
     if(!dotNetVersion) {
       debug(`Could not find netcore version in ${csproj}`)
