@@ -1,31 +1,32 @@
 import path from 'path'
+import { exec } from 'child_process'
+
 import fs from 'fs-extra'
 import semver from 'semver'
 
 import { DebugLogger } from './output'
-import listAllFile from './list-file-recursive'
 
 interface IPlatformConfig {
   [key: string]: string | null
 }
 
-export default function mergePlatformConfigWithDefaults(parojectPath: string, platform: string, userProvidedConfig: IPlatformConfig, debug: DebugLogger): IPlatformConfig {
+export default async function mergePlatformConfigWithDefaults(parojectPath: string, platform: string, userProvidedConfig: IPlatformConfig, debug: DebugLogger): Promise<IPlatformConfig> {
   if(platform === 'laravel') {
     return getDefaultLaravelPlatformConfig(parojectPath, userProvidedConfig, debug)
   }
 
   if (platform === "netcore") {
-    return detectNetCorePlatformVersion(parojectPath, userProvidedConfig, debug)
+    return await detectNetCorePlatformVersion(userProvidedConfig, debug)
   }
 
   return userProvidedConfig
 }
 
-function detectNetCorePlatformVersion(parojectPath: string, userProvidedConfig: IPlatformConfig, debug: DebugLogger): IPlatformConfig {
+async function detectNetCorePlatformVersion(userProvidedConfig: IPlatformConfig, debug: DebugLogger): Promise<IPlatformConfig> {
   const newConfig = {...userProvidedConfig}
 
   if(!userProvidedConfig.version) {
-    const detectedNetCoreVersion = getRequiredNetCoreVersion(parojectPath, debug)
+    const detectedNetCoreVersion = await getRequiredNetCoreVersion(debug);
     if(detectedNetCoreVersion) {
       newConfig.version = detectedNetCoreVersion
     }
@@ -34,42 +35,33 @@ function detectNetCorePlatformVersion(parojectPath: string, userProvidedConfig: 
   return newConfig
 }
 
-function getRequiredNetCoreVersion(parojectPath: string, debug: DebugLogger): string | null {
+async function getRequiredNetCoreVersion(debug: DebugLogger){
 
   const supportedNetCoreVersions = ['2.1', '2.2', '3.0', '3.1', '5.0', '6.0'];
 
   try {
-    const csproj = listAllFile(parojectPath).find(file => file.endsWith('.csproj'));
+    const dotnetVersion = await dotnetCLI('dotnet --version', debug)
 
-    if(!csproj) {
-      debug(`Could not find .csproj file in ${parojectPath}`)
+    if(!dotnetVersion) {
+      debug(`Could not find netcore version, dotnet cli is not installed. Skipping...`)
       return null
     }
 
-    const csprojXml = fs.readFileSync(csproj, 'utf8');
+    const dotnetVersionNumber = dotnetVersion.match(/\d+\.\d+/g)?.toString()
 
-    const dotNetVersion = csprojXml.match(/<TargetFramework>(.*?)<\/TargetFramework>/g)?.map((val) => {
-      return val.replace(/<\/?TargetFramework>/g,'')
-    }).toString().slice(-3);
-
-    if(!dotNetVersion) {
-      debug(`Could not find netcore version in ${csproj}`)
+    if(!dotnetVersionNumber) {
+      debug(`Could not find netcore version, dotnet cli is not installed. Skipping...`)
       return null
     }
 
-    if (!supportedNetCoreVersions.includes(dotNetVersion)) {
-      debug(`${dotNetVersion} is not a supported netcore version.`)
+    if (!supportedNetCoreVersions.includes(dotnetVersionNumber)) {
+      debug(`${dotnetVersion} is not a supported netcore version.`)
       return null
     }
 
-    return dotNetVersion
-
+    return dotnetVersionNumber
   } catch (error) {
-    console.log(error)
-    if(error.syscall === 'open') {
-      debug(`Could not open csproj to detect the netcore version. Skipping... message=${error.message}`)
-      return null
-    }
+    debug(`Could not detect netcore version.Skipping... message=${error.message}`)
     throw error
   }
 }
@@ -126,4 +118,16 @@ function normalizePHPVersion(version: string | null) {
     return null
   }
   return version.replace(/.0$/, '')
+}
+
+function dotnetCLI(command: string, debug: DebugLogger): Promise<string | null> {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        debug(`dotnet CLI error: ${error.message}`)
+        return resolve(null)
+      }
+      return resolve(stdout.toString().trim())
+    })
+  })
 }

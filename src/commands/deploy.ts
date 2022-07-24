@@ -246,7 +246,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`)
     body.gitInfo = await collectGitInfo(config.path, this.debug)
 
     // @ts-ignore
-    body.platformConfig = mergePlatformConfigWithDefaults(config.path, config.platform, config[config.platform] || {}, this.debug)
+    body.platformConfig = await mergePlatformConfigWithDefaults(config.path, config.platform, config[config.platform] || {}, this.debug)
 
     if(config.healthCheck) {
       body.healthCheck = config.healthCheck;
