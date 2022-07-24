@@ -3,6 +3,7 @@ import fs from 'fs-extra'
 import semver from 'semver'
 
 import { DebugLogger } from './output'
+import listAllFile from './list-file-recursive'
 
 interface IPlatformConfig {
   [key: string]: string | null
@@ -13,7 +14,62 @@ export default function mergePlatformConfigWithDefaults(parojectPath: string, pl
     return getDefaultLaravelPlatformConfig(parojectPath, userProvidedConfig, debug)
   }
 
+  if (platform === "netcore") {
+    return detectNetCorePlatformVersion(parojectPath, userProvidedConfig, debug)
+  }
+
   return userProvidedConfig
+}
+
+function detectNetCorePlatformVersion(parojectPath: string, userProvidedConfig: IPlatformConfig, debug: DebugLogger): IPlatformConfig {
+  const newConfig = {...userProvidedConfig}
+
+  if(!userProvidedConfig.version) {
+    const detectedNetCoreVersion = getRequiredNetCoreVersion(parojectPath, debug)
+    if(detectedNetCoreVersion) {
+      newConfig.version = detectedNetCoreVersion
+    }
+  }
+
+  return newConfig
+}
+
+function getRequiredNetCoreVersion(parojectPath: string, debug: DebugLogger): string | null {
+
+  const supportedNetCoreVersions = ['2.1', '2.2', '3.0', '3.1', '5.0', '6.0'];
+
+  try {
+    const csproj = listAllFile(parojectPath).find(file => file.endsWith('.csproj'));
+
+    if(!csproj) {
+      debug(`Could not find .csproj file in ${parojectPath}`)
+      return null
+    }
+
+    const csprojXml = fs.readFileSync(csproj, 'utf8');
+
+    const dotNetVersion = csprojXml.match(/netcoreapp[0-9.]{2,}/g)?.toString().slice(-3)
+
+    if(!dotNetVersion) {
+      debug(`Could not find netcore version in ${csproj}`)
+      return null
+    }
+
+    if (!supportedNetCoreVersions.includes(dotNetVersion)) {
+      debug(`${dotNetVersion} is not a supported netcore version.`)
+      return null
+    }
+
+    return dotNetVersion
+
+  } catch (error) {
+    console.log(error)
+    if(error.syscall === 'open') {
+      debug(`Could not open csproj to detect the netcore version. Skipping... message=${error.message}`)
+      return null
+    }
+    throw error
+  }
 }
 
 function getDefaultLaravelPlatformConfig(parojectPath: string, userProvidedConfig: IPlatformConfig, debug: DebugLogger): IPlatformConfig {
