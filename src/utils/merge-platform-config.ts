@@ -1,32 +1,32 @@
 import path from 'path'
-import { exec } from 'child_process'
 
 import fs from 'fs-extra'
 import semver from 'semver'
 
+import findFile from './find-file'
 import { DebugLogger } from './output'
 
 interface IPlatformConfig {
   [key: string]: string | null
 }
 
-export default async function mergePlatformConfigWithDefaults(parojectPath: string, platform: string, userProvidedConfig: IPlatformConfig, debug: DebugLogger): Promise<IPlatformConfig> {
+export default async function mergePlatformConfigWithDefaults(projectPath: string, platform: string, userProvidedConfig: IPlatformConfig, debug: DebugLogger): Promise<IPlatformConfig> {
   if(platform === 'laravel') {
-    return getDefaultLaravelPlatformConfig(parojectPath, userProvidedConfig, debug)
+    return getDefaultLaravelPlatformConfig(projectPath, userProvidedConfig, debug)
   }
 
   if (platform === "netcore") {
-    return await detectNetCorePlatformVersion(userProvidedConfig, debug)
+    return await detectNetCorePlatformVersion(projectPath,userProvidedConfig, debug)
   }
 
   return userProvidedConfig
 }
 
-async function detectNetCorePlatformVersion(userProvidedConfig: IPlatformConfig, debug: DebugLogger): Promise<IPlatformConfig> {
+async function detectNetCorePlatformVersion(projectPath: string,userProvidedConfig: IPlatformConfig, debug: DebugLogger): Promise<IPlatformConfig> {
   const newConfig = {...userProvidedConfig}
 
   if(!userProvidedConfig.version) {
-    const detectedNetCoreVersion = await getRequiredNetCoreVersion(debug);
+    const detectedNetCoreVersion = await getRequiredNetCoreVersion(projectPath, debug);
     if(detectedNetCoreVersion) {
       newConfig.version = detectedNetCoreVersion
     }
@@ -35,33 +35,40 @@ async function detectNetCorePlatformVersion(userProvidedConfig: IPlatformConfig,
   return newConfig
 }
 
-async function getRequiredNetCoreVersion(debug: DebugLogger){
+async function getRequiredNetCoreVersion(projectPath: string, debug: DebugLogger): Promise<string | null> {
 
   const supportedNetCoreVersions = ['2.1', '2.2', '3.0', '3.1', '5.0', '6.0'];
 
   try {
-    const dotnetVersion = await dotnetCLI('dotnet --version', debug)
+    const csproj = await findFile(projectPath, "**/*.csproj")
 
-    if(!dotnetVersion) {
-      debug(`Could not find netcore version, dotnet cli is not installed. Skipping...`)
+    if(!csproj) {
+      debug(`Could not find .csproj file in ${projectPath}`)
       return null
     }
 
-    const dotnetVersionNumber = dotnetVersion.match(/\d+\.\d+/g)?.toString()
+    const csprojXml = fs.readFileSync(csproj, 'utf8');
 
-    if(!dotnetVersionNumber) {
-      debug(`Could not find netcore version, dotnet cli is not installed. Skipping...`)
+    const dotNetVersion = csprojXml.match(/<TargetFramework>(.*?)<\/TargetFramework>/g)?.map((val) => {
+      return val.replace(/<\/?TargetFramework>/g,'')
+    }).toString().slice(-3);
+
+    if(!dotNetVersion) {
+      debug(`Could not find netcore version in ${csproj}`)
       return null
     }
 
-    if (!supportedNetCoreVersions.includes(dotnetVersionNumber)) {
-      debug(`${dotnetVersion} is not a supported netcore version.`)
+    if (!supportedNetCoreVersions.includes(dotNetVersion)) {
+      debug(`${dotNetVersion} is not a supported netcore version.`)
       return null
     }
 
-    return dotnetVersionNumber
+    return dotNetVersion
   } catch (error) {
-    debug(`Could not detect netcore version.Skipping... message=${error.message}`)
+    if(error.syscall === 'open') {
+      debug(`Could not open csproj to detect the netcore version. Skipping... message=${error.message}`)
+      return null
+    }
     throw error
   }
 }
@@ -118,16 +125,4 @@ function normalizePHPVersion(version: string | null) {
     return null
   }
   return version.replace(/.0$/, '')
-}
-
-function dotnetCLI(command: string, debug: DebugLogger): Promise<string | null> {
-  return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        debug(`dotnet CLI error: ${error.message}`)
-        return resolve(null)
-      }
-      return resolve(stdout.toString().trim())
-    })
-  })
 }
