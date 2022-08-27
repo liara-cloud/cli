@@ -50,7 +50,7 @@ async function getRequiredNetCoreVersion(projectPath: string, debug: DebugLogger
 
     const csprojXml = fs.readFileSync(csproj, 'utf8');
 
-    const [dotNetVersion] = findVersions(csprojXml, {loose: true })
+    const dotNetVersion = semver.coerce(csprojXml, {loose: true })?.version
 
     if(!dotNetVersion) {
       debug(`Could not find netcore version in ${csproj}`)
