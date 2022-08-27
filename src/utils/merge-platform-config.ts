@@ -2,6 +2,7 @@ import path from 'path'
 
 import fs from 'fs-extra'
 import semver from 'semver'
+import findVersions from 'find-versions'
 
 import findFile from './find-file'
 import { DebugLogger } from './output'
@@ -49,16 +50,16 @@ async function getRequiredNetCoreVersion(projectPath: string, debug: DebugLogger
 
     const csprojXml = fs.readFileSync(csproj, 'utf8');
 
-    const dotNetVersion = csprojXml.match(/<TargetFramework>(.*?)<\/TargetFramework>/g)?.map((val) => {
-      return val.replace(/<\/?TargetFramework>/g,'')
-    }).toString().slice(-3);
+    const [dotNetVersion] = findVersions(csprojXml, {loose: true })
 
     if(!dotNetVersion) {
       debug(`Could not find netcore version in ${csproj}`)
       return null
     }
 
-    if (!supportedNetCoreVersions.includes(dotNetVersion)) {
+    supportedNetCoreVersions.find(version => dotNetVersion.includes(version))
+
+    if (!supportedNetCoreVersions.find(version => dotNetVersion.includes(version))) {
       debug(`${dotNetVersion} is not a supported netcore version.`)
       return null
     }
