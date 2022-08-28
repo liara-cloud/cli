@@ -1,19 +1,76 @@
 import path from 'path'
+
 import fs from 'fs-extra'
 import semver from 'semver'
 
+import findFile from './find-file'
 import { DebugLogger } from './output'
 
 interface IPlatformConfig {
   [key: string]: string | null
 }
 
-export default function mergePlatformConfigWithDefaults(parojectPath: string, platform: string, userProvidedConfig: IPlatformConfig, debug: DebugLogger): IPlatformConfig {
+export default async function mergePlatformConfigWithDefaults(projectPath: string, platform: string, userProvidedConfig: IPlatformConfig, debug: DebugLogger): Promise<IPlatformConfig> {
   if(platform === 'laravel') {
-    return getDefaultLaravelPlatformConfig(parojectPath, userProvidedConfig, debug)
+    return getDefaultLaravelPlatformConfig(projectPath, userProvidedConfig, debug)
+  }
+
+  if (platform === "netcore") {
+    return await detectNetCorePlatformVersion(projectPath,userProvidedConfig, debug)
   }
 
   return userProvidedConfig
+}
+
+async function detectNetCorePlatformVersion(projectPath: string,userProvidedConfig: IPlatformConfig, debug: DebugLogger): Promise<IPlatformConfig> {
+  const newConfig = {...userProvidedConfig}
+
+  if(!userProvidedConfig.version) {
+    const detectedNetCoreVersion = await getRequiredNetCoreVersion(projectPath, debug);
+    if(detectedNetCoreVersion) {
+      newConfig.version = detectedNetCoreVersion
+    }
+  }
+
+  return newConfig
+}
+
+async function getRequiredNetCoreVersion(projectPath: string, debug: DebugLogger): Promise<string | null> {
+
+  const supportedNetCoreVersions = ['2.1', '2.2', '3.0', '3.1', '5.0', '6.0'];
+
+  try {
+    const csproj = await findFile(projectPath, "**/*.csproj")
+
+    if(!csproj) {
+      debug(`Could not find .csproj file in ${projectPath}`)
+      return null
+    }
+
+    const csprojXml = fs.readFileSync(csproj, 'utf8');
+
+    const dotNetVersion = semver.coerce(csprojXml, {loose: true })?.version
+
+    if(!dotNetVersion) {
+      debug(`Could not find netcore version in ${csproj}`)
+      return null
+    }
+
+    supportedNetCoreVersions.find(version => dotNetVersion.includes(version))
+
+    if (!supportedNetCoreVersions.find(version => dotNetVersion.includes(version))) {
+      debug(`${dotNetVersion} is not a supported netcore version.`)
+      return null
+    }
+
+    return dotNetVersion
+  } catch (error) {
+    if(error.syscall === 'open') {
+      debug(`Could not open csproj to detect the netcore version. Skipping... message=${error.message}`)
+      return null
+    }
+    throw error
+  }
 }
 
 function getDefaultLaravelPlatformConfig(parojectPath: string, userProvidedConfig: IPlatformConfig, debug: DebugLogger): IPlatformConfig {
