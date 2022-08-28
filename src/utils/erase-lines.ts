@@ -1,5 +1,5 @@
-import ansiEscapes from 'ansi-escapes'
+import ansiEscapes from 'ansi-escapes';
 
-const eraseLines = (n: number) => ansiEscapes.eraseLines(n)
+const eraseLines = (n: number) => ansiEscapes.eraseLines(n);
 
-export default eraseLines
+export default eraseLines;

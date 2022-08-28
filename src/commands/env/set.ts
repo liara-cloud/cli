@@ -1,7 +1,7 @@
-import inquirer from "inquirer";
-import Command from "../../base";
-import { Flags } from "@oclif/core";
-import { createDebugLogger } from "../../utils/output";
+import inquirer from 'inquirer';
+import Command from '../../base';
+import { Flags } from '@oclif/core';
+import { createDebugLogger } from '../../utils/output';
 
 export interface IEnv {
   key: string;
@@ -17,30 +17,30 @@ export interface IGetProjectResponse {
 }
 
 export default class EnvSet extends Command {
-  static description = "specifying environment variables to an app";
+  static description = 'specifying environment variables to an app';
   static strict = false;
   static args = [
     {
-      name: "env",
-      description: "key=value pair",
+      name: 'env',
+      description: 'key=value pair',
     },
   ];
 
   static flags = {
     ...Command.flags,
-    app: Flags.string({ char: "a", description: "app id" }),
-    force: Flags.boolean({ char: "f", description: "force update" }),
+    app: Flags.string({ char: 'a', description: 'app id' }),
+    force: Flags.boolean({ char: 'f', description: 'force update' }),
   };
 
   async run() {
     const { flags, argv } = await this.parse(EnvSet);
 
     await this.setGotConfig(flags);
-    
+
     const debug = createDebugLogger(flags.debug);
 
     if (argv.length === 0) {
-      EnvSet.run(["-h"]);
+      EnvSet.run(['-h']);
       this.exit(0);
     }
 
@@ -52,7 +52,9 @@ export default class EnvSet extends Command {
 
     try {
       if (flags.force || (await this.confirm())) {
-        await this.got.post('v1/projects/update-envs', {json: {project: app, variables}})
+        await this.got.post('v1/projects/update-envs', {
+          json: { project: app, variables },
+        });
         this.log(`Configuration variable applied and restarting ${app}`);
       }
     } catch (error) {
@@ -61,7 +63,9 @@ export default class EnvSet extends Command {
   }
 
   async fetchEnvs(app: string): Promise<IEnv[]> {
-    const {project} = await this.got(`v1/projects/${app}`).json<IGetProjectResponse>()
+    const { project } = await this.got(
+      `v1/projects/${app}`
+    ).json<IGetProjectResponse>();
     const envs = project.envs.map((env) => {
       const key = env.key;
       const value = env.value;
@@ -70,19 +74,19 @@ export default class EnvSet extends Command {
 
     return envs;
   }
-  
+
   splitWithDelimiter(delimiter: string, string: string): Array<string> {
     return (
-      string.match(new RegExp(`(${delimiter}|[^${delimiter}]+)`, "g")) || []
+      string.match(new RegExp(`(${delimiter}|[^${delimiter}]+)`, 'g')) || []
     );
   }
 
   removeFirstSyombol(splitedGroup: Array<string>): Array<string> {
     let counter = 0;
     const removedOne = splitedGroup.map((item: any) => {
-      let content = "";
-      if (item === "=") counter++;
-      counter === 1 && item === "=" ? false : (content += item);
+      let content = '';
+      if (item === '=') counter++;
+      counter === 1 && item === '=' ? false : (content += item);
       return content;
     });
     return removedOne;
@@ -90,11 +94,11 @@ export default class EnvSet extends Command {
 
   readKeyValue(env: Array<string>): IEnv[] {
     const variable = env.map((env: any) => {
-      const splitWithDelimiter = this.splitWithDelimiter("=", env);
+      const splitWithDelimiter = this.splitWithDelimiter('=', env);
       const removedOne =
         this.removeFirstSyombol(splitWithDelimiter).filter(Boolean);
       const [tKey, ...tValue] = removedOne;
-      const [key, value] = [tKey, tValue.join("")];
+      const [key, value] = [tKey, tValue.join('')];
       return { key, value };
     });
 
@@ -103,8 +107,8 @@ export default class EnvSet extends Command {
 
   async confirm() {
     const { confirm } = (await inquirer.prompt({
-      name: "confirm",
-      type: "confirm",
+      name: 'confirm',
+      type: 'confirm',
       message: `Your app will be restarted due to these configuration changes. Confirm: `,
       default: false,
     })) as { confirm: boolean };

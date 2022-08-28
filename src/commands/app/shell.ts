@@ -1,13 +1,13 @@
-import path from "path";
-import fs from "fs-extra";
-import Command from "../../base";
-import { Flags, Errors } from "@oclif/core";
-import { REGIONS_API_URL, FALLBACK_REGION } from "../../constants";
-import { createWebSocketStream } from "ws";
+import path from 'path';
+import fs from 'fs-extra';
+import Command from '../../base';
+import { Flags, Errors } from '@oclif/core';
+import { REGIONS_API_URL, FALLBACK_REGION } from '../../constants';
+import { createWebSocketStream } from 'ws';
 
 interface IFlags {
   path?: string;
-  "api-token"?: string;
+  'api-token'?: string;
   region?: string;
   app?: string;
   command?: string;
@@ -17,41 +17,41 @@ interface IFlags {
 // https://www.npmjs.com/package/ws#how-to-detect-and-close-broken-connections
 
 export default class AppShell extends Command {
-  static description = "run a command in a running applet";
+  static description = 'run a command in a running applet';
 
   static flags = {
     ...Command.flags,
     app: Flags.string({
-      char: "a",
-      description: "app id",
+      char: 'a',
+      description: 'app id',
     }),
     command: Flags.string({
-      char: "c",
-      description: "the command to execute",
-      default: "/bin/bash",
+      char: 'c',
+      description: 'the command to execute',
+      default: '/bin/bash',
     }),
   };
 
-  static aliases = ["shell"];
+  static aliases = ['shell'];
 
   async run() {
     const { flags } = await this.parse(AppShell);
     const config: IFlags = this.getMergedConfig(flags);
-    const CTRL_Q = "\u0011";
+    const CTRL_Q = '\u0011';
 
     await this.setGotConfig(config);
-    
+
     const app = config.app || (await this.promptProject());
-    const wsURL = REGIONS_API_URL[config["region"] || FALLBACK_REGION].replace(
-      "https://",
-      "wss://"
+    const wsURL = REGIONS_API_URL[config['region'] || FALLBACK_REGION].replace(
+      'https://',
+      'wss://'
     );
 
     const ws = this.createProxiedWebsocket(
-      `${wsURL}/v1/exec?token=${config["api-token"]}&cmd=${flags.command}&project_id=${app}`
+      `${wsURL}/v1/exec?token=${config['api-token']}&cmd=${flags.command}&project_id=${app}`
     );
 
-    const duplex = createWebSocketStream(ws, { encoding: "utf8" });
+    const duplex = createWebSocketStream(ws, { encoding: 'utf8' });
     const isRaw = process.stdin.isTTY;
 
     const clearStdinEffects = () => {
@@ -60,15 +60,15 @@ export default class AppShell extends Command {
       process.stdin.resume();
     };
 
-    ws.on("open", () => {
+    ws.on('open', () => {
       isRaw && process.stdin.setRawMode(true);
 
-      process.stdin.setEncoding("utf8");
+      process.stdin.setEncoding('utf8');
       process.stdin.resume();
       process.stdin.pipe(duplex);
       duplex.pipe(process.stdout);
 
-      process.stdin.on("data", function (key) {
+      process.stdin.on('data', function (key) {
         if (key.toString() == CTRL_Q) {
           clearStdinEffects();
           ws.terminate();
@@ -77,12 +77,12 @@ export default class AppShell extends Command {
       });
     });
 
-    ws.on("close", () => {
+    ws.on('close', () => {
       clearStdinEffects();
       process.exit(0);
     });
 
-    ws.on("unexpected-response", (response) => {
+    ws.on('unexpected-response', (response) => {
       // @ts-ignore
       const statusCode = response.socket?._httpMessage.res.statusCode;
       statusCode === 404 &&
@@ -91,8 +91,10 @@ export default class AppShell extends Command {
       process.exit(2);
     });
 
-    ws.on("error", (err) => {
-      console.error(new Errors.CLIError(`Unexpected Error: ${err.message}`).render());
+    ws.on('error', (err) => {
+      console.error(
+        new Errors.CLIError(`Unexpected Error: ${err.message}`).render()
+      );
       clearStdinEffects();
       process.exit(2);
     });
@@ -112,13 +114,13 @@ export default class AppShell extends Command {
 
   readProjectConfig(projectPath: string) {
     let content;
-    const liaraJSONPath = path.join(projectPath, "liara.json");
+    const liaraJSONPath = path.join(projectPath, 'liara.json');
     const hasLiaraJSONFile = fs.existsSync(liaraJSONPath);
     if (hasLiaraJSONFile) {
       try {
         content = fs.readJSONSync(liaraJSONPath) || {};
       } catch {
-        this.error("Syntax error in `liara.json`!");
+        this.error('Syntax error in `liara.json`!');
       }
     }
 

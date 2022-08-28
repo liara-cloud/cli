@@ -1,21 +1,21 @@
-import EventEmitter from 'events'
+import EventEmitter from 'events';
 
 export default class Poller extends EventEmitter {
-  timeout: number
+  timeout: number;
 
   /**
    * @param timeout how long should we wait after the poll started?
    */
   constructor(timeout = 1000) {
-    super()
-    this.timeout = timeout
+    super();
+    this.timeout = timeout;
   }
 
   poll() {
-    setTimeout(() => this.emit('poll'), this.timeout)
+    setTimeout(() => this.emit('poll'), this.timeout);
   }
 
   onPoll(cb: () => void) {
-    this.on('poll', cb)
+    this.on('poll', cb);
   }
 }
