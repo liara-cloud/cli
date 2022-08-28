@@ -138,6 +138,7 @@
   },
   "repository": "liara-ir/liara-cli",
   "scripts": {
+    "format": "prettier \"**/*.ts\" \"**/*.js\" \"**/*.json\" --ignore-path ./.prettierignore --write",
     "postpack": "rm -f oclif.manifest.json tsconfig.tsbuildinfo",
     "prepack": "set -ex; rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "jest",
