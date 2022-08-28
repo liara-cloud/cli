@@ -2,7 +2,6 @@ import path from 'path'
 
 import fs from 'fs-extra'
 import semver from 'semver'
-import findVersions from 'find-versions'
 
 import findFile from './find-file'
 import { DebugLogger } from './output'
