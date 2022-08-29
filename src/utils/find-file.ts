@@ -1,9 +1,6 @@
 import globby from 'globby';
 
-async function findFile(
-  projectPath: string,
-  fileName: string
-): Promise<string> {
+async function findFile(projectPath: string, fileName: string): Promise<string> {
   const [path] = await globby(fileName, {
     cwd: projectPath,
     gitignore: true,

@@ -1,7 +1,7 @@
-import IRelease from './release';
-import IBuildOutput from './build-output';
+import IRelease from './release'
+import IBuildOutput from './build-output'
 
 export default interface IBuildLogsResponse {
-  release: IRelease;
-  buildOutput: IBuildOutput[];
+  release: IRelease,
+  buildOutput: IBuildOutput[],
 }

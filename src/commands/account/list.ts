@@ -1,15 +1,15 @@
-import { CliUx } from '@oclif/core';
-import Command from '../../base';
+import { CliUx } from "@oclif/core";
+import Command from "../../base";
 
 export default class AccountList extends Command {
-  static description = 'list available accounts';
+  static description = "list available accounts";
 
   static flags = {
     ...Command.flags,
     ...CliUx.ux.table.flags(),
   };
 
-  static aliases = ['account:ls'];
+  static aliases = ["account:ls"];
 
   async run() {
     const { flags } = await this.parse(AccountList);
@@ -29,7 +29,7 @@ export default class AccountList extends Command {
       const Name = acc[0];
       const Email = acc[1].email;
       const Region = acc[1].region;
-      const Current = acc[1].current ? '👍' : '';
+      const Current = acc[1].current ? "👍" : "";
       return { Name, Email, Region, Current };
     });
 

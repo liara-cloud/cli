@@ -1,5 +1,3 @@
 export default interface IRelease {
-  state: string;
-  status: string;
-  failReason?: string;
+  state: string, status: string, failReason?: string
 }
