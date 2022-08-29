@@ -55,10 +55,12 @@
     "@types/ws": "^8.2.0",
     "chai": "^4.2.0",
     "concat-stream": "^2.0.0",
+    "husky": "^8.0.0",
     "jest": "^27.5.1",
     "mocha": "^5.2.0",
     "nyc": "^13.3.0",
     "prettier": "^2.7.1",
+    "pretty-quick": "^3.1.3",
     "ts-jest": "^27.1.4",
     "ts-node": "^8.0.2",
     "tslint": "^5.12.1",
@@ -143,7 +145,8 @@
     "prepack": "set -ex; rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "jest",
     "version": "oclif-dev readme && git add README.md",
-    "readme": "oclif-dev readme"
+    "readme": "oclif-dev readme",
+    "prepare": "husky install"
   },
   "types": "lib/index.d.ts"
 }
