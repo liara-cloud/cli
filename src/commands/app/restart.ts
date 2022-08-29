@@ -1,30 +1,30 @@
-import Command from '../../base';
-import { Flags } from '@oclif/core';
-import { createDebugLogger } from '../../utils/output';
+import Command from "../../base";
+import { Flags } from "@oclif/core";
+import { createDebugLogger } from "../../utils/output";
 
 export default class AppRestart extends Command {
-  static description = 'restart an app';
+  static description = "restart an app";
 
   static flags = {
     ...Command.flags,
     app: Flags.string({
-      char: 'a',
-      description: 'app id',
+      char: "a",
+      description: "app id",
     }),
   };
 
-  static aliases = ['restart'];
+  static aliases = ["restart"];
 
   async run() {
     const { flags } = await this.parse(AppRestart);
     const debug = createDebugLogger(flags.debug);
-
+    
     await this.setGotConfig(flags);
-
+    
     const app = flags.app || (await this.promptProject());
 
     try {
-      await this.got.post(`v1/projects/${app}/actions/restart`);
+      await this.got.post(`v1/projects/${app}/actions/restart`)
       this.log(`App ${app} restarted.`);
     } catch (error) {
       debug(error.message);

@@ -1,9 +1,9 @@
-import chalk from 'chalk';
-import moment from 'moment';
-import { Flags, Errors } from '@oclif/core';
+import chalk from "chalk";
+import moment from "moment";
+import { Flags, Errors } from "@oclif/core";
 
-import Command from '../../base';
-import { createDebugLogger } from '../../utils/output';
+import Command from "../../base";
+import { createDebugLogger } from "../../utils/output";
 
 interface ILog {
   type: string;
@@ -12,18 +12,18 @@ interface ILog {
 }
 
 export default class AppLogs extends Command {
-  static description = 'fetch the logs of an app';
+  static description = "fetch the logs of an app";
 
   static flags = {
     ...Command.flags,
-    app: Flags.string({ char: 'a', description: 'app id' }),
+    app: Flags.string({ char: "a", description: "app id" }),
     since: Flags.integer({
-      char: 's',
-      description: 'show logs since timestamp',
+      char: "s",
+      description: "show logs since timestamp",
     }),
   };
 
-  static aliases = ['logs'];
+  static aliases = ["logs"];
 
   async run() {
     const { flags } = await this.parse(AppLogs);
@@ -36,19 +36,17 @@ export default class AppLogs extends Command {
     const project = flags.app || (await this.promptProject());
 
     setInterval(async () => {
-      this.debug('Polling...');
+      this.debug("Polling...");
 
       let logs: ILog[] = [];
 
       try {
-        const data = await this.got(
-          `v1/projects/${project}/logs?since=${since}`
-        ).json<ILog[]>();
+        const data = await this.got(`v1/projects/${project}/logs?since=${since}`).json<ILog[]>()
         logs = data;
       } catch (error) {
         if (error.response && error.response.status === 404) {
           // tslint:disable-next-line: no-console
-          console.error(new Errors.CLIError('App not found.').render());
+          console.error(new Errors.CLIError("App not found.").render());
           process.exit(2);
         }
 
@@ -57,7 +55,7 @@ export default class AppLogs extends Command {
 
       const lastLog = logs[logs.length - 1];
 
-      if (lastLog && lastLog.datetime === 'Error') {
+      if (lastLog && lastLog.datetime === "Error") {
         // tslint:disable-next-line: no-console
         console.error(
           new Errors.CLIError(`${lastLog.message}
@@ -72,7 +70,7 @@ Sorry for inconvenience. Please contact us.`).render()
 
       for (const log of logs) {
         const datetime = chalk.gray(
-          moment(log.datetime).format('YYYY-MM-DD HH:mm:ss')
+          moment(log.datetime).format("YYYY-MM-DD HH:mm:ss")
         );
         this.log(`${datetime} | ${log.message}`);
       }

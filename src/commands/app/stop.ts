@@ -1,19 +1,19 @@
-import Command from '../../base';
-import { Flags } from '@oclif/core';
-import { createDebugLogger } from '../../utils/output';
+import Command from "../../base";
+import { Flags } from "@oclif/core";
+import { createDebugLogger } from "../../utils/output";
 
 export default class AppStop extends Command {
-  static description = 'stop an app';
+  static description = "stop an app";
 
   static flags = {
     ...Command.flags,
     app: Flags.string({
-      char: 'a',
-      description: 'app id',
+      char: "a",
+      description: "app id",
     }),
   };
 
-  static aliases = ['stop'];
+  static aliases = ["stop"];
 
   async run() {
     const { flags } = await this.parse(AppStop);
@@ -24,9 +24,7 @@ export default class AppStop extends Command {
     const app = flags.app || (await this.promptProject());
 
     try {
-      await this.got.post(`v1/projects/${app}/actions/scale`, {
-        json: { scale: 0 },
-      });
+      await this.got.post(`v1/projects/${app}/actions/scale`, {json: {scale: 0}})
       this.log(`App ${app} stopped.`);
     } catch (error) {
       debug(error.message);

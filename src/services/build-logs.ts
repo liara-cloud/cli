@@ -1,12 +1,12 @@
-import { Got } from 'got';
+import { Got } from "got";
 
-import Poller from '../utils/poller';
-import BuildFailed from '../errors/build-failed';
-import IBuildLogsResponse from '../types/build-logs-response';
-import BuildCanceled from '../errors/build-cancel';
-import BuildTimeout from '../errors/build-timeout';
-import DeployException from '../errors/deploy-exception';
-import ReleaseFailed from '../errors/release-failed';
+import Poller from "../utils/poller";
+import  BuildFailed from "../errors/build-failed";
+import  IBuildLogsResponse from "../types/build-logs-response";
+import  BuildCanceled  from "../errors/build-cancel";
+import BuildTimeout  from "../errors/build-timeout";
+import  DeployException  from "../errors/deploy-exception";
+import  ReleaseFailed  from "../errors/release-failed";
 
 export default async (
   httpClient: Got,
@@ -27,35 +27,35 @@ export default async (
           .json<IBuildLogsResponse>();
 
         for (const output of buildOutput) {
-          if (output.stream === 'STDOUT') {
-            cb({ state: 'BUILDING', line: output.line });
+          if (output.stream === "STDOUT") {
+            cb({ state: "BUILDING", line: output.line });
           } else {
-            return reject(new BuildFailed('Build failed', output));
+            return reject(new BuildFailed("Build failed", output));
           }
         }
 
         if (!buildOutput.length) {
-          if (release.state === 'CANCELED') {
-            return reject(new BuildCanceled(''));
+          if (release.state === "CANCELED") {
+            return reject(new BuildCanceled(""));
           }
 
-          if (release.state === 'TIMEDOUT') {
-            return reject(new BuildTimeout('TIMEOUT'));
+          if (release.state === "TIMEDOUT") {
+            return reject(new BuildTimeout("TIMEOUT"));
           }
 
-          if (release.state === 'FAILED') {
+          if (release.state === "FAILED") {
             if (release.failReason) {
               return reject(new DeployException(release.failReason));
             }
-            return reject(new ReleaseFailed('Release failed.'));
+            return reject(new ReleaseFailed("Release failed."));
           }
 
-          if (release.state === 'DEPLOYING' && !isDeploying) {
+          if (release.state === "DEPLOYING" && !isDeploying) {
             isDeploying = true;
-            cb({ state: 'DEPLOYING' });
+            cb({ state: "DEPLOYING" });
           }
 
-          if (release.state === 'READY') {
+          if (release.state === "READY") {
             return resolve();
           }
         }
@@ -64,8 +64,8 @@ export default async (
           const lastLine = buildOutput[buildOutput.length - 1];
           since = lastLine.createdAt;
 
-          if (lastLine.line.startsWith('Successfully tagged')) {
-            cb({ state: 'PUSHING' });
+          if (lastLine.line.startsWith("Successfully tagged")) {
+            cb({ state: "PUSHING" });
           }
         }
       } catch (error) {}

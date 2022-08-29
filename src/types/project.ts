@@ -1,3 +1,3 @@
 export default interface IProject {
-  project_id: string;
+  project_id: string,
 }
