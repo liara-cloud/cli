@@ -1,30 +1,32 @@
-import Command from "../../base";
-import { Flags } from "@oclif/core";
-import { createDebugLogger } from "../../utils/output";
+import Command from '../../base';
+import { Flags } from '@oclif/core';
+import { createDebugLogger } from '../../utils/output';
 
 export default class AppStart extends Command {
-  static description = "start an app";
+  static description = 'start an app';
 
   static flags = {
     ...Command.flags,
     app: Flags.string({
-      char: "a",
-      description: "app id",
+      char: 'a',
+      description: 'app id',
     }),
   };
 
-  static aliases = ["start"];
+  static aliases = ['start'];
 
   async run() {
     const { flags } = await this.parse(AppStart);
     const debug = createDebugLogger(flags.debug);
-    
+
     await this.setGotConfig(flags);
-    
+
     const app = flags.app || (await this.promptProject());
 
     try {
-      await this.got.post(`v1/projects/${app}/actions/scale`,{json: {scale: 1}})
+      await this.got.post(`v1/projects/${app}/actions/scale`, {
+        json: { scale: 1 },
+      });
       this.log(`App ${app} started.`);
     } catch (error) {
       debug(error.message);

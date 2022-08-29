@@ -1,3 +1,3 @@
 export default interface ICreatedRelease {
-  releaseID: string,
+  releaseID: string;
 }

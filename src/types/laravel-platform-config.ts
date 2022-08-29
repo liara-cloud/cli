@@ -1,5 +1,5 @@
 export default interface ILaravelPlatformConfig {
-  routeCache?: boolean,
-  configCache?: boolean,
-  buildAssets?: boolean,
+  routeCache?: boolean;
+  configCache?: boolean;
+  buildAssets?: boolean;
 }

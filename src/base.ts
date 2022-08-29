@@ -1,16 +1,23 @@
-import os from 'os'
-import ora from "ora"
-import fs from 'fs-extra'
-import WebSocket from 'ws'
-import got, {Options} from 'got'
-import inquirer from "inquirer"
-import {Command, Flags} from '@oclif/core'
-import updateNotifier from 'update-notifier'
-import HttpsProxyAgent from 'https-proxy-agent'
-import './interceptors'
-import {DEV_MODE, FALLBACK_REGION, GLOBAL_CONF_PATH, PREVIOUS_GLOBAL_CONF_PATH, REGIONS_API_URL, GLOBAL_CONF_VERSION} from './constants'
+import os from 'os';
+import ora from 'ora';
+import fs from 'fs-extra';
+import WebSocket from 'ws';
+import got, { Options } from 'got';
+import inquirer from 'inquirer';
+import { Command, Flags } from '@oclif/core';
+import updateNotifier from 'update-notifier';
+import HttpsProxyAgent from 'https-proxy-agent';
+import './interceptors';
+import {
+  DEV_MODE,
+  FALLBACK_REGION,
+  GLOBAL_CONF_PATH,
+  PREVIOUS_GLOBAL_CONF_PATH,
+  REGIONS_API_URL,
+  GLOBAL_CONF_VERSION,
+} from './constants';
 
-updateNotifier({pkg: require('../package.json')}).notify()
+updateNotifier({ pkg: require('../package.json') }).notify();
 
 const isWin = os.platform() === 'win32';
 
@@ -35,8 +42,8 @@ export interface IGlobalLiaraConfig {
 }
 
 export interface IConfig {
-  'api-token'?: string,
-  region?: string,
+  'api-token'?: string;
+  region?: string;
 }
 
 export interface IProject {
@@ -56,33 +63,40 @@ export interface IGetProjectsResponse {
 
 export default abstract class extends Command {
   static flags = {
-    help: Flags.help({char: 'h'}),
-    dev: Flags.boolean({description: 'run in dev mode', hidden: true}),
-    debug: Flags.boolean({description: 'show debug logs'}),
-    'api-token': Flags.string({description: 'your api token to use for authentication'}),
-    region: Flags.string({description: 'the region you want to deploy your app to', options:['iran', 'germany']}),
-  }
+    help: Flags.help({ char: 'h' }),
+    dev: Flags.boolean({ description: 'run in dev mode', hidden: true }),
+    debug: Flags.boolean({ description: 'show debug logs' }),
+    'api-token': Flags.string({
+      description: 'your api token to use for authentication',
+    }),
+    region: Flags.string({
+      description: 'the region you want to deploy your app to',
+      options: ['iran', 'germany'],
+    }),
+  };
 
-  got = got.extend()
+  got = got.extend();
   spinner!: ora.Ora;
   async readGlobalConfig(): Promise<IGlobalLiaraConfig> {
     if (fs.existsSync(GLOBAL_CONF_PATH)) {
       fs.removeSync(PREVIOUS_GLOBAL_CONF_PATH);
-      const content = fs.readJSONSync(GLOBAL_CONF_PATH, {throws: false}) || {}
+      const content =
+        fs.readJSONSync(GLOBAL_CONF_PATH, { throws: false }) || {};
       return content;
     }
-    const content = fs.readJSONSync(PREVIOUS_GLOBAL_CONF_PATH, {throws: false}) || {}
+    const content =
+      fs.readJSONSync(PREVIOUS_GLOBAL_CONF_PATH, { throws: false }) || {};
     if (content.accounts && Object.keys(content.accounts).length) {
       const accounts: IAccounts = {};
       for (const account of Object.keys(content.accounts)) {
         await this.setGotConfig({
-          "api-token": content.accounts[account].api_token,
+          'api-token': content.accounts[account].api_token,
           region: content.accounts[account].region,
-        })
+        });
         try {
           const {
             user: { email, fullname, avatar },
-          } = await this.got.get("v1/me").json<{ user: IAccount }>();
+          } = await this.got.get('v1/me').json<{ user: IAccount }>();
 
           accounts[account] = {
             email,
@@ -94,10 +108,9 @@ export default abstract class extends Command {
           };
         } catch (error) {
           if (!error.response) {
-            this.debug(error.stack)
-            this.error(error.message)
+            this.debug(error.stack);
+            this.error(error.message);
           }
-
         }
       }
       return { version: GLOBAL_CONF_VERSION, accounts };
@@ -105,15 +118,15 @@ export default abstract class extends Command {
     if (content.api_token && content.region) {
       try {
         await this.setGotConfig({
-          "api-token": content.api_token,
-          region: content.region
-        })
+          'api-token': content.api_token,
+          region: content.region,
+        });
         const {
           user: { email, fullname, avatar },
-        } = await this.got.get("v1/me").json<{ user: IAccount }>();
+        } = await this.got.get('v1/me').json<{ user: IAccount }>();
 
         const accounts = {
-          [`${email.split("@")[0]}_${content.region}`]: {
+          [`${email.split('@')[0]}_${content.region}`]: {
             email,
             avatar,
             fullname,
@@ -125,10 +138,10 @@ export default abstract class extends Command {
         return { version: GLOBAL_CONF_VERSION, accounts };
       } catch (error) {
         if (error.response) {
-          return { version: GLOBAL_CONF_VERSION, accounts: {}}
+          return { version: GLOBAL_CONF_VERSION, accounts: {} };
         }
-        this.debug(error.stack)
-        this.error(error.message)
+        this.debug(error.stack);
+        this.error(error.message);
       }
     }
     // For backward compatibility with < 1.0.0 versions
@@ -141,12 +154,14 @@ export default abstract class extends Command {
 
   async catch(error: any) {
     if (error.code === 'ECONNREFUSED' || error.code === 'ECONNRESET') {
-      this.error(`Could not connect to ${(error.config && error.config.baseURL) || 'https://api.liara.ir'}.
-Please check your network connection.`)
+      this.error(`Could not connect to ${
+        (error.config && error.config.baseURL) || 'https://api.liara.ir'
+      }.
+Please check your network connection.`);
     }
 
-    if (error.oclif && error.oclif.exit === 0) return
-    this.error(error.message)
+    if (error.oclif && error.oclif.exit === 0) return;
+    this.error(error.message);
   }
 
   async setGotConfig(config: IConfig): Promise<void> {
@@ -154,71 +169,73 @@ Please check your network connection.`)
       headers: {
         'User-Agent': this.config.userAgent,
       },
-      timeout: 10 * 1000
+      timeout: 10 * 1000,
     };
 
-    const proxy = process.env.http_proxy || process.env.https_proxy
-    if(proxy && !isWin) {
-      this.log(`Using proxy server ${proxy}`)
+    const proxy = process.env.http_proxy || process.env.https_proxy;
+    if (proxy && !isWin) {
+      this.log(`Using proxy server ${proxy}`);
 
       // @ts-ignore
-      const agent = new HttpsProxyAgent(proxy)
+      const agent = new HttpsProxyAgent(proxy);
 
-      gotConfig.agent = { https: agent }
+      gotConfig.agent = { https: agent };
     }
 
     if (!config['api-token'] || !config.region) {
-      const {api_token, region} = await this.getCurrentAccount();
+      const { api_token, region } = await this.getCurrentAccount();
       config['api-token'] = config['api-token'] || api_token;
       config.region = config.region || region;
     }
 
     // @ts-ignore
-    gotConfig.headers.Authorization = `Bearer ${config['api-token']}`
+    gotConfig.headers.Authorization = `Bearer ${config['api-token']}`;
 
-    config['region'] = config['region'] || FALLBACK_REGION
+    config['region'] = config['region'] || FALLBACK_REGION;
 
     const actualBaseURL = REGIONS_API_URL[config['region']];
     gotConfig.prefixUrl = DEV_MODE ? 'http://localhost:3000' : actualBaseURL;
 
-    if(DEV_MODE) {
+    if (DEV_MODE) {
       this.log(`[dev] The actual base url is: ${actualBaseURL}`);
-      this.log(`[dev] but in dev mode we use http://localhost:3000`)
+      this.log(`[dev] but in dev mode we use http://localhost:3000`);
     }
 
-    this.got = got.extend(gotConfig)
+    this.got = got.extend(gotConfig);
   }
 
   createProxiedWebsocket(endpoint: string) {
-    const proxy = process.env.http_proxy || process.env.https_proxy
-    if(proxy && !isWin) {
+    const proxy = process.env.http_proxy || process.env.https_proxy;
+    if (proxy && !isWin) {
       // @ts-ignore
-      const agent = new HttpsProxyAgent(proxy)
-      return new WebSocket(endpoint, { agent })
+      const agent = new HttpsProxyAgent(proxy);
+      return new WebSocket(endpoint, { agent });
     }
 
-    return new WebSocket(endpoint)
+    return new WebSocket(endpoint);
   }
 
   async promptProject() {
     this.spinner = ora();
-    this.spinner.start("Loading...");
+    this.spinner.start('Loading...');
     try {
-      const { projects } = await this.got("v1/projects").json<IGetProjectsResponse>()
+      const { projects } = await this.got(
+        'v1/projects'
+      ).json<IGetProjectsResponse>();
 
       this.spinner.stop();
 
       if (!projects.length) {
         this.warn(
-          "Please go to https://console.liara.ir/apps and create an app, first."
+          'Please go to https://console.liara.ir/apps and create an app, first.'
         );
         this.exit(1);
       }
 
       const { project } = (await inquirer.prompt({
-        name: "project",
-        type: "list",
-        message: "Please select an app:",
+        name: 'project',
+        type: 'list',
+        message: 'Please select an app:',
         choices: [...projects.map((project) => project.project_id)],
       })) as { project: string };
 
@@ -229,10 +246,10 @@ Please check your network connection.`)
     }
   }
   async getCurrentAccount(): Promise<IAccount> {
-    const accounts = (await this.readGlobalConfig()).accounts
+    const accounts = (await this.readGlobalConfig()).accounts;
     const accName = Object.keys(accounts).find(
-      account => accounts[account].current
-    )
-    return {...accounts[accName || ''], accountName: accName}
+      (account) => accounts[account].current
+    );
+    return { ...accounts[accName || ''], accountName: accName };
   }
 }

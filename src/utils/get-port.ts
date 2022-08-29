@@ -1,5 +1,5 @@
 interface IPorts {
-  [platform: string]: number,
+  [platform: string]: number;
 }
 
 export default function getPort(platform: string): number {
@@ -14,6 +14,6 @@ export default function getPort(platform: string): number {
     flask: 8000,
     php: 80,
     netcore: 80,
-  }
-  return ports[platform]
+  };
+  return ports[platform];
 }
