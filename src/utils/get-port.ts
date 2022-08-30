@@ -2,7 +2,7 @@ interface IPorts {
   [platform: string]: number;
 }
 
-export default function getPort(platform: string): number {
+export function getPort(platform: string): number {
   const ports: IPorts = {
     static: 80,
     react: 80,
@@ -13,7 +13,13 @@ export default function getPort(platform: string): number {
     django: 80,
     flask: 8000,
     php: 80,
-    netcore: 80,
-  };
-  return ports[platform];
+  }
+  return ports[platform]
+}
+
+export function getDefaultPort(platform: string): number {
+  const ports: IPorts = {
+    netcore: 80
+  }
+  return ports[platform] || 3000
 }
