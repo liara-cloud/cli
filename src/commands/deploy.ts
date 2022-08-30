@@ -291,7 +291,9 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
     // @ts-ignore
     body.platformConfig = await mergePlatformConfigWithDefaults(
       config.path, 
+      // @ts-ignore
       config.platform, 
+      // @ts-ignore
       config[config.platform] || {},
       this.debug
     );
