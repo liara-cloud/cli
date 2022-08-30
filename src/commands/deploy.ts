@@ -8,7 +8,6 @@ import inquirer from 'inquirer';
 import ProgressBar from 'progress';
 import { Flags, Errors } from '@oclif/core';
 
-<<<<<<< HEAD
 import Logs from './app/logs';
 import Command from '../base';
 import IFlags from '../types/flags';
