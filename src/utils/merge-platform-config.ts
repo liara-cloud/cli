@@ -71,20 +71,11 @@ async function getRequiredNetCoreVersion(
 
     const csprojXml = fs.readFileSync(csproj, 'utf8');
 
-    const dotNetVersion = semver.coerce(csprojXml, { loose: true })?.version;
+    const dotNetVersion = normalizeVersion(
+      semver.coerce(csprojXml, { loose: true })?.version
+    );
 
-    if (!dotNetVersion) {
-      debug(`Could not find netcore version in ${csproj}`);
-      return null;
-    }
-
-    supportedNetCoreVersions.find((version) => dotNetVersion.includes(version));
-
-    if (
-      !supportedNetCoreVersions.find((version) =>
-        dotNetVersion.includes(version)
-      )
-    ) {
+    if (!supportedNetCoreVersions.find((v) => dotNetVersion === v)) {
       debug(`${dotNetVersion} is not a supported netcore version.`);
       return null;
     }
@@ -133,14 +124,14 @@ function getRequiredPHPVersion(
 
     if (composerJson?.config?.platform?.php) {
       const range = convertSinglePipeToDouble(composerJson.config.platform.php);
-      return normalizePHPVersion(
+      return normalizeVersion(
         semver.maxSatisfying(supportedPHPVersions, range)
       );
     }
 
     if (composerJson?.require?.php) {
       const range = convertSinglePipeToDouble(composerJson.require.php);
-      return normalizePHPVersion(
+      return normalizeVersion(
         semver.maxSatisfying(supportedPHPVersions, range)
       );
     }
@@ -162,7 +153,7 @@ function convertSinglePipeToDouble(input: string) {
   return input.replace(/\|{1,}/g, '||');
 }
 
-function normalizePHPVersion(version: string | null) {
+function normalizeVersion(version?: string | null): string | null {
   if (!version) {
     return null;
   }
