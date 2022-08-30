@@ -1,5 +1,5 @@
-import { Errors } from "@oclif/core";
-import { Hooks } from "got";
+import { Errors } from '@oclif/core';
+import { Hooks } from 'got';
 
 const hooks: Hooks = {
   beforeError: [

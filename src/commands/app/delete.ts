@@ -1,33 +1,33 @@
-import inquirer from "inquirer";
-import Command from "../../base";
-import { Flags } from "@oclif/core";
-import { createDebugLogger } from "../../utils/output";
+import inquirer from 'inquirer';
+import Command from '../../base';
+import { Flags } from '@oclif/core';
+import { createDebugLogger } from '../../utils/output';
 
 export default class AppDelete extends Command {
-  static description = "delete an app";
+  static description = 'delete an app';
 
   static flags = {
     ...Command.flags,
     app: Flags.string({
-      char: "a",
-      description: "app id",
+      char: 'a',
+      description: 'app id',
     }),
   };
 
-  static aliases = ["delete"];
+  static aliases = ['delete'];
 
   async run() {
     const { flags } = await this.parse(AppDelete);
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
-    
+
     const app = flags.app || (await this.promptProject());
 
     try {
       // TODO: Add --force or -f flag to force the deletion
       if (await this.confirm(app)) {
-        await this.got.delete(`v1/projects/${app}`)
+        await this.got.delete(`v1/projects/${app}`);
         this.log(`App ${app} deleted.`);
       }
     } catch (error) {
@@ -51,8 +51,8 @@ export default class AppDelete extends Command {
 
   async confirm(app: string) {
     const { confirmation } = (await inquirer.prompt({
-      name: "confirmation",
-      type: "confirm",
+      name: 'confirmation',
+      type: 'confirm',
       message: `Are you sure you want to delete "${app}"?`,
       default: false,
     })) as { confirmation: boolean };

@@ -1,3 +1,3 @@
 export default interface INodePlatformConfig {
-  version?: number,
+  version?: number;
 }
