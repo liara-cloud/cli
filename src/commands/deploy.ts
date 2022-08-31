@@ -118,7 +118,8 @@ export default class Deploy extends Command {
     }
 
     if (!config.port) {
-      config.port = getPort(config.platform) || await this.promptPort(config.platform)
+      config.port =
+        getPort(config.platform) || (await this.promptPort(config.platform));
     }
 
     this.logKeyValue('App', config.app);
@@ -545,7 +546,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
   }
 
   async promptPort(platform: string): Promise<number> {
-    const {port} = (await inquirer.prompt({
+    const { port } = (await inquirer.prompt({
       name: 'port',
       type: 'input',
       default: getDefaultPort(platform),

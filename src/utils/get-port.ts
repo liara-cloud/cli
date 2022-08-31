@@ -13,13 +13,13 @@ export function getPort(platform: string): number {
     django: 80,
     flask: 8000,
     php: 80,
-  }
-  return ports[platform]
+  };
+  return ports[platform];
 }
 
 export function getDefaultPort(platform: string): number {
   const ports: IPorts = {
-    netcore: 80
-  }
-  return ports[platform] || 3000
+    netcore: 80,
+  };
+  return ports[platform] || 3000;
 }
