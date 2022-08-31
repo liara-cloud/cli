@@ -12,27 +12,27 @@ import Logs from './app/logs';
 import Command from '../base';
 import IFlags from '../types/flags';
 import Poller from '../utils/poller';
-import getPort from '../utils/get-port';
 import upload from '../services/upload';
 import IRelease from '../types/release';
 import checkPath from '../utils/check-path';
 import onInterupt from '../utils/on-intrupt';
 import ILiaraJSON from '../types/liara-json';
 import buildLogs from '../services/build-logs';
-import validatePort from '../utils/validate-port';
-import { createDebugLogger } from '../utils/output';
 import BuildFailed from '../errors/build-failed';
-import createArchive from '../utils/create-archive';
+import validatePort from '../utils/validate-port';
 import BuildCanceled from '../errors/build-cancel';
 import BuildTimeout from '../errors/build-timeout';
+import { createDebugLogger } from '../utils/output';
+import createArchive from '../utils/create-archive';
+import ReleaseFailed from '../errors/release-failed';
 import prepareTmpDirectory from '../services/tmp-dir';
 import detectPlatform from '../utils/detect-platform';
-import { DEV_MODE, MAX_SOURCE_SIZE } from '../constants';
 import collectGitInfo from '../utils/collect-git-info';
-import ReleaseFailed from '../errors/release-failed';
 import ICreatedRelease from '../types/created-release';
-import IDeploymentConfig from '../types/deployment-config';
+import { DEV_MODE, MAX_SOURCE_SIZE } from '../constants';
 import DeployException from '../errors/deploy-exception';
+import IDeploymentConfig from '../types/deployment-config';
+import { getPort, getDefaultPort } from '../utils/get-port';
 import cancelDeployment from '../services/cancel-deployment';
 import IGetProjectsResponse from '../types/get-project-response';
 import ReachedMaxSourceSizeError from '../errors/max-source-size';
@@ -118,7 +118,8 @@ export default class Deploy extends Command {
     }
 
     if (!config.port) {
-      config.port = getPort(config.platform) || (await this.promptPort());
+      config.port =
+        getPort(config.platform) || (await this.promptPort(config.platform));
     }
 
     this.logKeyValue('App', config.app);
@@ -291,7 +292,9 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
     // @ts-ignore
     body.platformConfig = await mergePlatformConfigWithDefaults(
       config.path,
+      // @ts-ignore
       config.platform,
+      // @ts-ignore
       config[config.platform] || {},
       this.debug
     );
@@ -542,11 +545,11 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
     }
   }
 
-  async promptPort(): Promise<number> {
+  async promptPort(platform: string): Promise<number> {
     const { port } = (await inquirer.prompt({
       name: 'port',
       type: 'input',
-      default: 3000,
+      default: getDefaultPort(platform),
       message: 'Enter the port your app listens to:',
       validate: validatePort,
     })) as { port: number };
