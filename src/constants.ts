@@ -12,7 +12,7 @@ export const REGIONS_API_URL: { [key: string]: string } = {
   germany: 'https://api.liara.ir',
 };
 
-export const BASE_REGION = 'iran'
+export const BASE_REGION = 'iran';
 
 export const FALLBACK_REGION = 'germany';
 
