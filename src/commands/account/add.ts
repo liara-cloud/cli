@@ -12,9 +12,10 @@ import eraseLines from '../../utils/erase-lines';
 import { createDebugLogger } from '../../utils/output';
 import { validate as validateEmail } from 'email-validator';
 import {
+  BASE_REGION,
+  REGIONS_API_URL,
   GLOBAL_CONF_PATH,
   GLOBAL_CONF_VERSION,
-  REGIONS_API_URL,
 } from '../../constants';
 
 export default class AccountAdd extends Command {
@@ -41,7 +42,9 @@ export default class AccountAdd extends Command {
     const debug = createDebugLogger(flags.debug);
     const liara_json = await this.readGlobalConfig();
     const currentAccounts = liara_json.accounts;
-    const region = flags.region || (await this.promptRegion());
+
+    const region = flags.region || BASE_REGION;
+
     if (!flags.email) {
       let emailIsValid = false;
       do {
@@ -105,17 +108,6 @@ export default class AccountAdd extends Command {
     const { accountName } = await this.getCurrentAccount();
     this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`);
     accountName && this.log(`> Current account is: ${accountName}`);
-  }
-
-  async promptRegion(): Promise<string> {
-    const { selectedRegion } = (await prompt({
-      name: 'selectedRegion',
-      type: 'list',
-      message: 'Please select a region:',
-      choices: ['iran', 'germany'],
-    })) as { selectedRegion: string };
-
-    return selectedRegion;
   }
 
   async promptName(email: string, region: string): Promise<string> {
