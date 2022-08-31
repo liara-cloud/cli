@@ -110,16 +110,6 @@ export default class AccountAdd extends Command {
     accountName && this.log(`> Current account is: ${accountName}`);
   }
 
-  // async promptRegion(): Promise<string> {
-  //   const { selectedRegion } = (await prompt({
-  //     name: 'selectedRegion',
-  //     type: 'list',
-  //     message: 'Please select a region:',
-  //     choices: ['iran', 'germany'],
-  //   })) as { selectedRegion: string };
-  //   return selectedRegion;
-  // }
-
   async promptName(email: string, region: string): Promise<string> {
     const { name } = (await prompt({
       name: 'name',
