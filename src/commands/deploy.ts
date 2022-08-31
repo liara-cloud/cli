@@ -72,6 +72,9 @@ export default class Deploy extends Command {
       description: 'mount a disk',
       multiple: true,
     }),
+    'no-cache': Flags.boolean({
+      description: 'do not use cache when building the image.',
+    }),
   };
 
   spinner!: ora.Ora;
@@ -145,11 +148,14 @@ export default class Deploy extends Command {
       }
     }
 
-    if (config.buildCache === false) {
+    if (config['no-cache'] || config.buildCache === false) {
       this.debug('Using Build Cache: Disabled');
     }
 
-    if (config.buildCache || config.buildCache === undefined) {
+    if (
+      !config['no-cache'] &&
+      (config.buildCache || config.buildCache === undefined)
+    ) {
       config.buildCache = true;
       this.debug('Using Build Cache: Enabled');
     }
