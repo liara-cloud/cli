@@ -1,0 +1,31 @@
+{
+  "extends": ["oclif", "oclif-typescript"],
+  "rules": {
+    "semi": "off",
+    "quotes": "off",
+    "indent": "off", // Because prettier does.
+    "camelcase": "off",
+    "complexity": "off",
+    "arrow-parens": "off",
+    "comma-dangle": "off",
+    "no-process-exit": "off",
+    "no-return-await": "off",
+    "no-await-in-loop": "off",
+    "operator-linebreak": "off",
+    "no-negated-condition": "off",
+    "unicorn/import-style": "off",
+    "object-curly-spacing": "off",
+    "array-callback-return": "off",
+    "unicorn/no-process-exit": "off",
+    "unicorn/no-array-reduce": "off",
+    "unicorn/prefer-array-some": "off",
+    "unicorn/no-nested-ternary": "off",
+    "unicorn/prefer-node-protocol": "off",
+    "unicorn/explicit-length-check": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "unicorn/no-array-callback-reference": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off"
+  },
+  "ignorePatterns": ["test"]
+}

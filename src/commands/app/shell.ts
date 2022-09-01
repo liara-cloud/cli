@@ -42,7 +42,7 @@ export default class AppShell extends Command {
     await this.setGotConfig(config);
 
     const app = config.app || (await this.promptProject());
-    const wsURL = REGIONS_API_URL[config['region'] || FALLBACK_REGION].replace(
+    const wsURL = REGIONS_API_URL[config.region || FALLBACK_REGION].replace(
       'https://',
       'wss://'
     );
@@ -69,7 +69,7 @@ export default class AppShell extends Command {
       duplex.pipe(process.stdout);
 
       process.stdin.on('data', function (key) {
-        if (key.toString() == CTRL_Q) {
+        if (key.toString() === CTRL_Q) {
           clearStdinEffects();
           ws.terminate();
           process.exit(0);

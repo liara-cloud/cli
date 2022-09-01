@@ -1,4 +1,4 @@
 export default interface IDisk {
-  name: String;
-  mountTo: String;
+  name: string;
+  mountTo: string;
 }

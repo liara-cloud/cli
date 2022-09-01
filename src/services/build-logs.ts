@@ -47,6 +47,7 @@ export default async (
             if (release.failReason) {
               return reject(new DeployException(release.failReason));
             }
+
             return reject(new ReleaseFailed('Release failed.'));
           }
 
@@ -68,7 +69,7 @@ export default async (
             cb({ state: 'PUSHING' });
           }
         }
-      } catch (error) {}
+      } catch {}
 
       !isCanceled && poller.poll();
     });

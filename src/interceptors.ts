@@ -12,6 +12,7 @@ Please login via 'liara login' command.`).render()
         );
         process.exit(2);
       }
+
       return error;
     },
   ],
