@@ -1,5 +1,4 @@
-@liara/cli
-==========
+# @liara/cli
 
 The command line interface for Liara
 
@@ -9,48 +8,56 @@ The command line interface for Liara
 [![License](https://img.shields.io/npm/l/@liara/cli.svg)](https://github.com/liara-ir/liara-cli/blob/master/package.json)
 
 <!-- toc -->
-* [Usage](#usage)
-* [Commands](#commands)
+
+- [Usage](#usage)
+- [Commands](#commands)
 <!-- tocstop -->
+
 # Usage
+
 <!-- usage -->
+
 ```sh-session
 $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (-v|--version|version)
-@liara/cli/2.25.0-beta.9 linux-x64 node-v16.14.2
+@liara/cli/2.25.0-beta.10 linux-x64 node-v16.14.2
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
 ...
 ```
+
 <!-- usagestop -->
+
 # Commands
+
 <!-- commands -->
-* [`liara account:add`](#liara-accountadd)
-* [`liara account:list`](#liara-accountlist)
-* [`liara account:remove`](#liara-accountremove)
-* [`liara account:use`](#liara-accountuse)
-* [`liara app:create`](#liara-appcreate)
-* [`liara app:delete`](#liara-appdelete)
-* [`liara app:list`](#liara-applist)
-* [`liara app:logs`](#liara-applogs)
-* [`liara app:restart`](#liara-apprestart)
-* [`liara app:shell`](#liara-appshell)
-* [`liara app:start`](#liara-appstart)
-* [`liara app:stop`](#liara-appstop)
-* [`liara autocomplete [SHELL]`](#liara-autocomplete-shell)
-* [`liara db:list`](#liara-dblist)
-* [`liara deploy`](#liara-deploy)
-* [`liara disk:create`](#liara-diskcreate)
-* [`liara env:list`](#liara-envlist)
-* [`liara env:set [ENV]`](#liara-envset-env)
-* [`liara env:unset [ENV]`](#liara-envunset-env)
-* [`liara help [COMMAND]`](#liara-help-command)
-* [`liara login`](#liara-login)
-* [`liara plan:list`](#liara-planlist)
-* [`liara version`](#liara-version)
+
+- [`liara account:add`](#liara-accountadd)
+- [`liara account:list`](#liara-accountlist)
+- [`liara account:remove`](#liara-accountremove)
+- [`liara account:use`](#liara-accountuse)
+- [`liara app:create`](#liara-appcreate)
+- [`liara app:delete`](#liara-appdelete)
+- [`liara app:list`](#liara-applist)
+- [`liara app:logs`](#liara-applogs)
+- [`liara app:restart`](#liara-apprestart)
+- [`liara app:shell`](#liara-appshell)
+- [`liara app:start`](#liara-appstart)
+- [`liara app:stop`](#liara-appstop)
+- [`liara autocomplete [SHELL]`](#liara-autocomplete-shell)
+- [`liara db:list`](#liara-dblist)
+- [`liara deploy`](#liara-deploy)
+- [`liara disk:create`](#liara-diskcreate)
+- [`liara env:list`](#liara-envlist)
+- [`liara env:set [ENV]`](#liara-envset-env)
+- [`liara env:unset [ENV]`](#liara-envunset-env)
+- [`liara help [COMMAND]`](#liara-help-command)
+- [`liara login`](#liara-login)
+- [`liara plan:list`](#liara-planlist)
+- [`liara version`](#liara-version)
 
 ## `liara account:add`
 
@@ -72,7 +79,7 @@ OPTIONS
   --region=iran|germany    the region you want to deploy your app to
 ```
 
-_See code: [src/commands/account/add.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/account/add.ts)_
+_See code: [src/commands/account/add.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/account/add.ts)_
 
 ## `liara account:list`
 
@@ -102,7 +109,7 @@ ALIASES
   $ liara account:ls
 ```
 
-_See code: [src/commands/account/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/account/list.ts)_
+_See code: [src/commands/account/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/account/list.ts)_
 
 ## `liara account:remove`
 
@@ -125,7 +132,7 @@ ALIASES
   $ liara account:rm
 ```
 
-_See code: [src/commands/account/remove.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/account/remove.ts)_
+_See code: [src/commands/account/remove.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/account/remove.ts)_
 
 ## `liara account:use`
 
@@ -145,7 +152,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/account/use.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/account/use.ts)_
+_See code: [src/commands/account/use.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/account/use.ts)_
 
 ## `liara app:create`
 
@@ -170,7 +177,7 @@ ALIASES
   $ liara create
 ```
 
-_See code: [src/commands/app/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/app/create.ts)_
+_See code: [src/commands/app/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/create.ts)_
 
 ## `liara app:delete`
 
@@ -193,7 +200,7 @@ ALIASES
   $ liara delete
 ```
 
-_See code: [src/commands/app/delete.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/app/delete.ts)_
+_See code: [src/commands/app/delete.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/delete.ts)_
 
 ## `liara app:list`
 
@@ -223,7 +230,7 @@ ALIASES
   $ liara app:ls
 ```
 
-_See code: [src/commands/app/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/app/list.ts)_
+_See code: [src/commands/app/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/list.ts)_
 
 ## `liara app:logs`
 
@@ -247,7 +254,7 @@ ALIASES
   $ liara logs
 ```
 
-_See code: [src/commands/app/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/app/logs.ts)_
+_See code: [src/commands/app/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/logs.ts)_
 
 ## `liara app:restart`
 
@@ -270,7 +277,7 @@ ALIASES
   $ liara restart
 ```
 
-_See code: [src/commands/app/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/app/restart.ts)_
+_See code: [src/commands/app/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/restart.ts)_
 
 ## `liara app:shell`
 
@@ -294,7 +301,7 @@ ALIASES
   $ liara shell
 ```
 
-_See code: [src/commands/app/shell.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/app/shell.ts)_
+_See code: [src/commands/app/shell.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/shell.ts)_
 
 ## `liara app:start`
 
@@ -317,7 +324,7 @@ ALIASES
   $ liara start
 ```
 
-_See code: [src/commands/app/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/app/start.ts)_
+_See code: [src/commands/app/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/start.ts)_
 
 ## `liara app:stop`
 
@@ -340,7 +347,7 @@ ALIASES
   $ liara stop
 ```
 
-_See code: [src/commands/app/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/app/stop.ts)_
+_See code: [src/commands/app/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/stop.ts)_
 
 ## `liara autocomplete [SHELL]`
 
@@ -365,7 +372,7 @@ EXAMPLES
   $ liara autocomplete --refresh-cache
 ```
 
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v0.3.0/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v1.3.0/src/commands/autocomplete/index.ts)_
 
 ## `liara db:list`
 
@@ -395,7 +402,7 @@ ALIASES
   $ liara db:ls
 ```
 
-_See code: [src/commands/db/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/db/list.ts)_
+_See code: [src/commands/db/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/db/list.ts)_
 
 ## `liara deploy`
 
@@ -420,12 +427,13 @@ OPTIONS
   --build-arg=build-arg  docker image build args
   --debug                show debug logs
   --detach               do not stream app logs after deployment
+  --no-cache             do not use cache when building the image.
   --path=path            app path in your computer
   --platform=platform    the platform your app needs to run
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/deploy.ts)_
 
 ## `liara disk:create`
 
@@ -447,7 +455,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/disk/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/disk/create.ts)_
+_See code: [src/commands/disk/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/disk/create.ts)_
 
 ## `liara env:list`
 
@@ -478,7 +486,7 @@ ALIASES
   $ liara env:ls
 ```
 
-_See code: [src/commands/env/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/env/list.ts)_
+_See code: [src/commands/env/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/env/list.ts)_
 
 ## `liara env:set [ENV]`
 
@@ -502,7 +510,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/env/set.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/env/set.ts)_
+_See code: [src/commands/env/set.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/env/set.ts)_
 
 ## `liara env:unset [ENV]`
 
@@ -526,7 +534,7 @@ OPTIONS
   --region=iran|germany  the region you want to deploy your app to
 ```
 
-_See code: [src/commands/env/unset.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/env/unset.ts)_
+_See code: [src/commands/env/unset.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/env/unset.ts)_
 
 ## `liara help [COMMAND]`
 
@@ -566,7 +574,7 @@ OPTIONS
   --region=iran|germany    the region you want to deploy your app to
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/login.ts)_
 
 ## `liara plan:list`
 
@@ -596,7 +604,7 @@ ALIASES
   $ liara plan:ls
 ```
 
-_See code: [src/commands/plan/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.9/src/commands/plan/list.ts)_
+_See code: [src/commands/plan/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/plan/list.ts)_
 
 ## `liara version`
 
@@ -608,4 +616,5 @@ USAGE
 ```
 
 _See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.0.4/src/commands/version.ts)_
+
 <!-- commandsstop -->
