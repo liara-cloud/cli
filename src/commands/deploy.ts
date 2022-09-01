@@ -181,7 +181,7 @@ export default class Deploy extends Command {
 
       this.log();
 
-      if (flags['detach']) {
+      if (flags.detach) {
         process.exit(0);
       }
 
@@ -262,6 +262,7 @@ You may also want to switch to another region. Your current region is: ${chalk.c
           `Source is too large. ${chalk.yellowBright('(max: 256MB)')}`
         );
       }
+
       this.log(chalk.gray(this.config.userAgent));
       this.log();
       this.error(`Deployment failed.
@@ -335,6 +336,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
       } catch (error) {
         this.debug(error.stack);
       } finally {
+        // eslint-disable-next-line no-unsafe-finally
         throw new ReachedMaxSourceSizeError();
       }
     }
@@ -387,10 +389,12 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
           this.spinner.succeed('Image pushed.');
           this.spinner.start('Creating a new release...');
         }
+
         if (output.state === 'BUILDING' && output.line) {
           this.spinner.clear().frame();
           process.stdout.write(output.line);
         }
+
         if (output.state === 'PUSHING') {
           this.spinner.succeed('Build finished.');
           this.spinner.start('Pushing the image...');
@@ -432,7 +436,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
   async showReleaseLogs(releaseID: string) {
     this.spinner.start('Creating a new release...');
 
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       const poller = new Poller();
 
       poller.onPoll(async () => {
@@ -448,6 +452,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
                 new DeployException(this.parseFailReason(release.failReason))
               );
             }
+
             return reject(new Error('Release failed.'));
           }
 
@@ -482,7 +487,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
     }
   }
 
-  logKeyValue(key: string, value: string = ''): void {
+  logKeyValue(key: string, value = ''): void {
     this.spinner.clear().frame();
     this.log(`${chalk.blue(`${key}:`)} ${value}`);
   }
@@ -490,6 +495,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
   validateDeploymentConfig(config: IDeploymentConfig) {
     if (config.volume && config.disks) {
       this.error(
+        // eslint-disable-next-line no-multi-str
         "You can't use `volume` and `disks` fields at the same time.\
  Please consider using only one of them."
       );
@@ -514,7 +520,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
     }
 
     if (
-      config.buildCache != undefined &&
+      config.buildCache !== undefined &&
       typeof config.buildCache !== 'boolean'
     ) {
       this.error('`buildCache` field must be a boolean.');
@@ -628,6 +634,7 @@ You must add a 'start' command to your package.json scripts.`);
     const onProgress = (progress: { transferred: number }) => {
       bar.tick(progress.transferred - bar.curr);
     };
+
     try {
       const response = await upload(project, this.got, sourcePath)
         .on('uploadProgress', onProgress)

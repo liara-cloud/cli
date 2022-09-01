@@ -54,7 +54,7 @@ export interface IProject {
   status: string;
   project_id: string;
   created_at: string;
-  isDeployed: Boolean;
+  isDeployed: boolean;
 }
 
 export interface IGetProjectsResponse {
@@ -84,8 +84,10 @@ export default abstract class extends Command {
         fs.readJSONSync(GLOBAL_CONF_PATH, { throws: false }) || {};
       return content;
     }
+
     const content =
       fs.readJSONSync(PREVIOUS_GLOBAL_CONF_PATH, { throws: false }) || {};
+
     if (content.accounts && Object.keys(content.accounts).length) {
       const accounts: IAccounts = {};
       for (const account of Object.keys(content.accounts)) {
@@ -104,7 +106,7 @@ export default abstract class extends Command {
             fullname,
             region: content.accounts[account].region,
             api_token: content.accounts[account].api_token,
-            current: content.current === account ? true : false,
+            current: content.current === account,
           };
         } catch (error) {
           if (!error.response) {
@@ -113,8 +115,10 @@ export default abstract class extends Command {
           }
         }
       }
+
       return { version: GLOBAL_CONF_VERSION, accounts };
     }
+
     if (content.api_token && content.region) {
       try {
         await this.setGotConfig({
@@ -140,6 +144,7 @@ export default abstract class extends Command {
         if (error.response) {
           return { version: GLOBAL_CONF_VERSION, accounts: {} };
         }
+
         this.debug(error.stack);
         this.error(error.message);
       }
@@ -149,6 +154,7 @@ export default abstract class extends Command {
     //   content['api-token'] = content.api_token
     //   delete content.api_token
     // }
+
     return { version: GLOBAL_CONF_VERSION, accounts: {} };
   }
 
@@ -191,9 +197,9 @@ Please check your network connection.`);
     // @ts-ignore
     gotConfig.headers.Authorization = `Bearer ${config['api-token']}`;
 
-    config['region'] = config['region'] || FALLBACK_REGION;
+    config.region = config.region || FALLBACK_REGION;
 
-    const actualBaseURL = REGIONS_API_URL[config['region']];
+    const actualBaseURL = REGIONS_API_URL[config.region];
     gotConfig.prefixUrl = DEV_MODE ? 'http://localhost:3000' : actualBaseURL;
 
     if (DEV_MODE) {
@@ -245,6 +251,7 @@ Please check your network connection.`);
       throw error;
     }
   }
+
   async getCurrentAccount(): Promise<IAccount> {
     const accounts = (await this.readGlobalConfig()).accounts;
     const accName = Object.keys(accounts).find(

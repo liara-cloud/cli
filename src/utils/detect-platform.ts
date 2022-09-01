@@ -26,7 +26,7 @@ export default function detectPlatform(projectPath: string) {
     globby.sync('*.csproj', {
       gitignore: true,
       cwd: path.join(projectPath, path.dirname(programCSFilePath)),
-    }).length;
+    }).length > 0;
 
   if (hasCSProjFile && hasDockerFile) {
     throw new Error(`The project contains both of the \`*.csproj\` and \`Dockerfile\` files.

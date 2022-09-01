@@ -93,6 +93,7 @@ export default class AppCreate extends Command {
           this.error(`You are allowed to create only one app on the free plan`);
         }
       }
+
       this.error(`Could not create the app. Please try again.`);
     }
   }
@@ -169,6 +170,7 @@ export default class AppCreate extends Command {
       throw error;
     }
   }
+
   async promptAppName(): Promise<string> {
     const { name } = (await inquirer.prompt({
       name: 'name',

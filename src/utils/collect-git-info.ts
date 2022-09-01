@@ -41,12 +41,13 @@ function retrieveConfig(
   cwd: string,
   debug: DebugLogger
 ): Promise<string | null> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     exec(command, { cwd, windowsHide: true }, (err, stdout) => {
       if (err) {
         debug(err.message);
         return resolve(null);
       }
+
       return resolve(stdout.toString().trim());
     });
   });

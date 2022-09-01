@@ -28,6 +28,7 @@ export default class Login extends Command {
       sendFlag.push('--region', flags.region);
       this.log(`You're logging into "${flags.region}" region:`);
     }
+
     await AccountAdd.run(sendFlag);
     this.log(chalk.green('You have logged in successfully.'));
   }

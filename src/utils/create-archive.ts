@@ -67,6 +67,7 @@ function trimLines(lines: string[]): string[] {
     if (!line.trim() || line.startsWith('#')) {
       return prev;
     }
+
     return [...prev, line];
   }, [] as string[]);
 }
@@ -83,13 +84,14 @@ const loadIgnoreFile = (
   const relativeToProjectPath = patterns.map((pattern: string) => {
     const dir = dirname(ignoreFilePath);
     if (pattern.startsWith('!')) {
-      const absolutePrefix = pattern.substr(1).startsWith('/') ? '/' : '';
+      const absolutePrefix = pattern.slice(1).startsWith('/') ? '/' : '';
       return (
         '!' +
         absolutePrefix +
-        relative(projectPath, join(dir, pattern.substr(1)))
+        relative(projectPath, join(dir, pattern.slice(1)))
       );
     }
+
     const absolutePrefix = pattern.startsWith('/') ? '/' : '';
     return absolutePrefix + relative(projectPath, join(dir, pattern));
   });
@@ -140,6 +142,7 @@ export default async function createArchive(
     if (!ignoreInstance.ignores(f)) {
       return true;
     }
+
     debug(`ignoring ${f}`);
     return false;
   };

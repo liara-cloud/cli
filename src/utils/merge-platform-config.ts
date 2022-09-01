@@ -88,6 +88,7 @@ async function getRequiredNetCoreVersion(
       );
       return null;
     }
+
     throw error;
   }
 }
@@ -144,18 +145,20 @@ function getRequiredPHPVersion(
       );
       return null;
     }
+
     throw error;
   }
 }
 
 // https://getcomposer.org/doc/articles/versions.md#version-range
 function convertSinglePipeToDouble(input: string) {
-  return input.replace(/\|{1,}/g, '||');
+  return input.replace(/\|+/g, '||');
 }
 
 function normalizeVersion(version?: string | null): string | null {
   if (!version) {
     return null;
   }
+
   return version.replace(/.0$/, '');
 }

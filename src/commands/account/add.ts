@@ -57,6 +57,7 @@ export default class AccountAdd extends Command {
 
       this.log();
     }
+
     const body = {
       email: flags.email,
       password:
@@ -66,6 +67,7 @@ export default class AccountAdd extends Command {
     if (flags['from-login']) {
       flags.account = `${flags.email.split('@')[0]}_${region}`;
     }
+
     const name = flags.account || (await this.promptName(flags.email, region));
 
     this.got = got.extend({ prefixUrl: REGIONS_API_URL[region], hooks });
@@ -79,9 +81,9 @@ export default class AccountAdd extends Command {
             })
             .json<{ api_token: string }>();
           return data;
-        } catch (err) {
+        } catch (error) {
           debug('retrying...');
-          throw err;
+          throw error;
         }
       },
       { retries: 3 }
@@ -132,17 +134,16 @@ export default class AccountAdd extends Command {
       return await promptEmail({
         start: `${chalk.green('?')} ${chalk.bold('Enter your email:')} `,
       });
-    } catch (err) {
+    } catch (error) {
       this.log(); // \n
 
-      if (err.message === 'User abort') {
+      if (error.message === 'User abort') {
         process.stdout.write(eraseLines(2));
-        // tslint:disable-next-line: no-console
         console.log(`${chalk.red('> Aborted!')} No changes made.`);
         process.exit(0);
       }
 
-      if (err.message === 'stdin lacks setRawMode support') {
+      if (error.message === 'stdin lacks setRawMode support') {
         this.error(
           `Interactive mode not supported – please run ${chalk.green(
             'liara login --email you@domain.com --password your_password'
@@ -150,7 +151,7 @@ export default class AccountAdd extends Command {
         );
       }
 
-      throw err;
+      throw error;
     }
   }
 
@@ -163,6 +164,7 @@ export default class AccountAdd extends Command {
         if (input.length === 0) {
           return false;
         }
+
         return true;
       },
     })) as { password: string };

@@ -27,9 +27,10 @@ export default class AccountRemove extends Command {
         "Please add your accounts via 'liara account:add' command, first."
       );
     }
+
     const name = flags.account || (await this.promptName(liara_json.accounts));
     const selectedAccount = liara_json.accounts[name];
-    !Boolean(selectedAccount) &&
+    !selectedAccount &&
       this.error(
         `Could not find any account associated with this name ${name}.`
       );
