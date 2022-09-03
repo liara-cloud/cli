@@ -12,7 +12,7 @@ import eraseLines from '../../utils/erase-lines';
 import { createDebugLogger } from '../../utils/output';
 import { validate as validateEmail } from 'email-validator';
 import {
-  BASE_REGION,
+  FALLBACK_REGION,
   REGIONS_API_URL,
   GLOBAL_CONF_PATH,
   GLOBAL_CONF_VERSION,
@@ -43,7 +43,7 @@ export default class AccountAdd extends Command {
     const liara_json = await this.readGlobalConfig();
     const currentAccounts = liara_json.accounts;
 
-    const region = flags.region || BASE_REGION;
+    const region = flags.region || FALLBACK_REGION;
 
     if (!flags.email) {
       let emailIsValid = false;

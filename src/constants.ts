@@ -12,9 +12,7 @@ export const REGIONS_API_URL: { [key: string]: string } = {
   germany: 'https://api.liara.ir',
 };
 
-export const BASE_REGION = 'iran';
-
-export const FALLBACK_REGION = 'germany';
+export const FALLBACK_REGION = 'iran';
 
 export const MAX_SOURCE_SIZE = 256 * 1024 * 1024; // 256 MiB
 
