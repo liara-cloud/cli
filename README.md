@@ -9,6 +9,7 @@ The command line interface for Liara
 
 <!-- toc -->
 
+- [@liara/cli](#liaracli)
 - [Usage](#usage)
 - [Commands](#commands)
 <!-- tocstop -->
@@ -21,8 +22,8 @@ The command line interface for Liara
 $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
-$ liara (-v|--version|version)
-@liara/cli/2.25.0-beta.10 linux-x64 node-v16.14.2
+$ liara (--version|-v)
+@liara/cli/3.0.0-beta.1 linux-x64 node-v16.17.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -35,586 +36,983 @@ USAGE
 
 <!-- commands -->
 
-- [`liara account:add`](#liara-accountadd)
-- [`liara account:list`](#liara-accountlist)
-- [`liara account:remove`](#liara-accountremove)
-- [`liara account:use`](#liara-accountuse)
-- [`liara app:create`](#liara-appcreate)
-- [`liara app:delete`](#liara-appdelete)
-- [`liara app:list`](#liara-applist)
-- [`liara app:logs`](#liara-applogs)
-- [`liara app:restart`](#liara-apprestart)
-- [`liara app:shell`](#liara-appshell)
-- [`liara app:start`](#liara-appstart)
-- [`liara app:stop`](#liara-appstop)
+- [`liara account add`](#liara-account-add)
+- [`liara account list`](#liara-account-list)
+- [`liara account ls`](#liara-account-ls)
+- [`liara account remove`](#liara-account-remove)
+- [`liara account rm`](#liara-account-rm)
+- [`liara account use`](#liara-account-use)
+- [`liara app create`](#liara-app-create)
+- [`liara app delete`](#liara-app-delete)
+- [`liara app list`](#liara-app-list)
+- [`liara app logs`](#liara-app-logs)
+- [`liara app ls`](#liara-app-ls)
+- [`liara app restart`](#liara-app-restart)
+- [`liara app shell`](#liara-app-shell)
+- [`liara app start`](#liara-app-start)
+- [`liara app stop`](#liara-app-stop)
 - [`liara autocomplete [SHELL]`](#liara-autocomplete-shell)
-- [`liara db:list`](#liara-dblist)
+- [`liara create`](#liara-create)
+- [`liara db list`](#liara-db-list)
+- [`liara db ls`](#liara-db-ls)
+- [`liara delete`](#liara-delete)
 - [`liara deploy`](#liara-deploy)
-- [`liara disk:create`](#liara-diskcreate)
-- [`liara env:list`](#liara-envlist)
-- [`liara env:set [ENV]`](#liara-envset-env)
-- [`liara env:unset [ENV]`](#liara-envunset-env)
+- [`liara disk create`](#liara-disk-create)
+- [`liara env list`](#liara-env-list)
+- [`liara env ls`](#liara-env-ls)
+- [`liara env set [ENV]`](#liara-env-set-env)
+- [`liara env unset [ENV]`](#liara-env-unset-env)
 - [`liara help [COMMAND]`](#liara-help-command)
 - [`liara login`](#liara-login)
-- [`liara plan:list`](#liara-planlist)
+- [`liara logs`](#liara-logs)
+- [`liara plan list`](#liara-plan-list)
+- [`liara plan ls`](#liara-plan-ls)
+- [`liara restart`](#liara-restart)
+- [`liara shell`](#liara-shell)
+- [`liara start`](#liara-start)
+- [`liara stop`](#liara-stop)
 - [`liara version`](#liara-version)
 
-## `liara account:add`
+## `liara account add`
 
 add an account
 
 ```
-add an account
-
 USAGE
-  $ liara account:add
+  $ liara account add [-h] [--debug] [--api-token <value>] [--region iran|germany] [-e <value>] [-p <value>] [-a
+    <value>]
 
-OPTIONS
-  -a, --account=account    account name
-  -e, --email=email        your email
-  -h, --help               Show CLI help.
-  -p, --password=password  your password
-  --api-token=api-token    your api token to use for authentication
-  --debug                  show debug logs
-  --region=iran|germany    the region you want to deploy your app to
-```
-
-_See code: [src/commands/account/add.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/account/add.ts)_
-
-## `liara account:list`
-
-list available accounts
-
-```
-list available accounts
-
-USAGE
-  $ liara account:list
-
-OPTIONS
+FLAGS
+  -a, --account=<value>   account name
+  -e, --email=<value>     your email
   -h, --help              Show CLI help.
-  -x, --extended          show extra columns
-  --api-token=api-token   your api token to use for authentication
-  --columns=columns       only show provided columns (comma-separated)
-  --csv                   output is csv format [alias: --output=csv]
+  -p, --password=<value>  your password
+  --api-token=<value>     your api token to use for authentication
   --debug                 show debug logs
-  --filter=filter         filter property by partial string matching, ex: name=foo
-  --no-header             hide table header from output
-  --no-truncate           do not truncate output to fit screen
-  --output=csv|json|yaml  output in a more machine friendly format
-  --region=iran|germany   the region you want to deploy your app to
-  --sort=sort             property to sort by (prepend '-' for descending)
+  --region=<option>       the region you want to deploy your app to
+                          <options: iran|germany>
 
-ALIASES
-  $ liara account:ls
+DESCRIPTION
+  add an account
 ```
 
-_See code: [src/commands/account/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/account/list.ts)_
+## `liara account list`
 
-## `liara account:remove`
+list available accounts
+
+```
+USAGE
+  $ liara account list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
+    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -x, --extended       show extra columns
+  --api-token=<value>  your api token to use for authentication
+  --columns=<value>    only show provided columns (comma-separated)
+  --csv                output is csv format [alias: --output=csv]
+  --debug              show debug logs
+  --filter=<value>     filter property by partial string matching, ex: name=foo
+  --no-header          hide table header from output
+  --no-truncate        do not truncate output to fit screen
+  --output=<option>    output in a more machine friendly format
+                       <options: csv|json|yaml>
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+  --sort=<value>       property to sort by (prepend '-' for descending)
+
+DESCRIPTION
+  list available accounts
+
+ALIASES
+  $ liara account ls
+```
+
+## `liara account ls`
+
+list available accounts
+
+```
+USAGE
+  $ liara account ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
+    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -x, --extended       show extra columns
+  --api-token=<value>  your api token to use for authentication
+  --columns=<value>    only show provided columns (comma-separated)
+  --csv                output is csv format [alias: --output=csv]
+  --debug              show debug logs
+  --filter=<value>     filter property by partial string matching, ex: name=foo
+  --no-header          hide table header from output
+  --no-truncate        do not truncate output to fit screen
+  --output=<option>    output in a more machine friendly format
+                       <options: csv|json|yaml>
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+  --sort=<value>       property to sort by (prepend '-' for descending)
+
+DESCRIPTION
+  list available accounts
+
+ALIASES
+  $ liara account ls
+```
+
+## `liara account remove`
 
 remove an account
 
 ```
-remove an account
-
 USAGE
-  $ liara account:remove
+  $ liara account remove [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
 
-OPTIONS
-  -a, --account=account  account name
+FLAGS
+  -a, --account=<value>  account name
   -h, --help             Show CLI help.
-  --api-token=api-token  your api token to use for authentication
+  --api-token=<value>    your api token to use for authentication
   --debug                show debug logs
-  --region=iran|germany  the region you want to deploy your app to
+  --region=<option>      the region you want to deploy your app to
+                         <options: iran|germany>
+
+DESCRIPTION
+  remove an account
 
 ALIASES
-  $ liara account:rm
+  $ liara account rm
 ```
 
-_See code: [src/commands/account/remove.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/account/remove.ts)_
+## `liara account rm`
 
-## `liara account:use`
+remove an account
+
+```
+USAGE
+  $ liara account rm [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+
+FLAGS
+  -a, --account=<value>  account name
+  -h, --help             Show CLI help.
+  --api-token=<value>    your api token to use for authentication
+  --debug                show debug logs
+  --region=<option>      the region you want to deploy your app to
+                         <options: iran|germany>
+
+DESCRIPTION
+  remove an account
+
+ALIASES
+  $ liara account rm
+```
+
+## `liara account use`
 
 select an account
 
 ```
-select an account
-
 USAGE
-  $ liara account:use
+  $ liara account use [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
 
-OPTIONS
-  -a, --account=account  account name
+FLAGS
+  -a, --account=<value>  account name
   -h, --help             Show CLI help.
-  --api-token=api-token  your api token to use for authentication
+  --api-token=<value>    your api token to use for authentication
   --debug                show debug logs
-  --region=iran|germany  the region you want to deploy your app to
+  --region=<option>      the region you want to deploy your app to
+                         <options: iran|germany>
+
+DESCRIPTION
+  select an account
 ```
 
-_See code: [src/commands/account/use.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/account/use.ts)_
-
-## `liara app:create`
+## `liara app create`
 
 create an app
 
 ```
-create an app
-
 USAGE
-  $ liara app:create
+  $ liara app create [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [--platform
+    <value>] [--plan <value>]
 
-OPTIONS
-  -a, --app=app          app id
-  -h, --help             Show CLI help.
-  --api-token=api-token  your api token to use for authentication
-  --debug                show debug logs
-  --plan=plan            plan
-  --platform=platform    platform
-  --region=iran|germany  the region you want to deploy your app to
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --plan=<value>       plan
+  --platform=<value>   platform
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  create an app
 
 ALIASES
   $ liara create
 ```
 
-_See code: [src/commands/app/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/create.ts)_
-
-## `liara app:delete`
+## `liara app delete`
 
 delete an app
 
 ```
-delete an app
-
 USAGE
-  $ liara app:delete
+  $ liara app delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
 
-OPTIONS
-  -a, --app=app          app id
-  -h, --help             Show CLI help.
-  --api-token=api-token  your api token to use for authentication
-  --debug                show debug logs
-  --region=iran|germany  the region you want to deploy your app to
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  delete an app
 
 ALIASES
   $ liara delete
 ```
 
-_See code: [src/commands/app/delete.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/delete.ts)_
-
-## `liara app:list`
+## `liara app list`
 
 list available apps
 
 ```
-list available apps
-
 USAGE
-  $ liara app:list
+  $ liara app list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
+    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
 
-OPTIONS
-  -h, --help              Show CLI help.
-  -x, --extended          show extra columns
-  --api-token=api-token   your api token to use for authentication
-  --columns=columns       only show provided columns (comma-separated)
-  --csv                   output is csv format [alias: --output=csv]
-  --debug                 show debug logs
-  --filter=filter         filter property by partial string matching, ex: name=foo
-  --no-header             hide table header from output
-  --no-truncate           do not truncate output to fit screen
-  --output=csv|json|yaml  output in a more machine friendly format
-  --region=iran|germany   the region you want to deploy your app to
-  --sort=sort             property to sort by (prepend '-' for descending)
+FLAGS
+  -h, --help           Show CLI help.
+  -x, --extended       show extra columns
+  --api-token=<value>  your api token to use for authentication
+  --columns=<value>    only show provided columns (comma-separated)
+  --csv                output is csv format [alias: --output=csv]
+  --debug              show debug logs
+  --filter=<value>     filter property by partial string matching, ex: name=foo
+  --no-header          hide table header from output
+  --no-truncate        do not truncate output to fit screen
+  --output=<option>    output in a more machine friendly format
+                       <options: csv|json|yaml>
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+  --sort=<value>       property to sort by (prepend '-' for descending)
+
+DESCRIPTION
+  list available apps
 
 ALIASES
-  $ liara app:ls
+  $ liara app ls
 ```
 
-_See code: [src/commands/app/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/list.ts)_
-
-## `liara app:logs`
+## `liara app logs`
 
 fetch the logs of an app
 
 ```
-fetch the logs of an app
-
 USAGE
-  $ liara app:logs
+  $ liara app logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>]
 
-OPTIONS
-  -a, --app=app          app id
-  -h, --help             Show CLI help.
-  -s, --since=since      show logs since timestamp
-  --api-token=api-token  your api token to use for authentication
-  --debug                show debug logs
-  --region=iran|germany  the region you want to deploy your app to
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  -s, --since=<value>  show logs since timestamp
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  fetch the logs of an app
 
 ALIASES
   $ liara logs
 ```
 
-_See code: [src/commands/app/logs.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/logs.ts)_
+## `liara app ls`
 
-## `liara app:restart`
+list available apps
+
+```
+USAGE
+  $ liara app ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
+    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -x, --extended       show extra columns
+  --api-token=<value>  your api token to use for authentication
+  --columns=<value>    only show provided columns (comma-separated)
+  --csv                output is csv format [alias: --output=csv]
+  --debug              show debug logs
+  --filter=<value>     filter property by partial string matching, ex: name=foo
+  --no-header          hide table header from output
+  --no-truncate        do not truncate output to fit screen
+  --output=<option>    output in a more machine friendly format
+                       <options: csv|json|yaml>
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+  --sort=<value>       property to sort by (prepend '-' for descending)
+
+DESCRIPTION
+  list available apps
+
+ALIASES
+  $ liara app ls
+```
+
+## `liara app restart`
 
 restart an app
 
 ```
-restart an app
-
 USAGE
-  $ liara app:restart
+  $ liara app restart [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
 
-OPTIONS
-  -a, --app=app          app id
-  -h, --help             Show CLI help.
-  --api-token=api-token  your api token to use for authentication
-  --debug                show debug logs
-  --region=iran|germany  the region you want to deploy your app to
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  restart an app
 
 ALIASES
   $ liara restart
 ```
 
-_See code: [src/commands/app/restart.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/restart.ts)_
-
-## `liara app:shell`
+## `liara app shell`
 
 run a command in a running applet
 
 ```
-run a command in a running applet
-
 USAGE
-  $ liara app:shell
+  $ liara app shell [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-c <value>]
 
-OPTIONS
-  -a, --app=app          app id
-  -c, --command=command  [default: /bin/bash] the command to execute
+FLAGS
+  -a, --app=<value>      app id
+  -c, --command=<value>  [default: /bin/bash] the command to execute
   -h, --help             Show CLI help.
-  --api-token=api-token  your api token to use for authentication
+  --api-token=<value>    your api token to use for authentication
   --debug                show debug logs
-  --region=iran|germany  the region you want to deploy your app to
+  --region=<option>      the region you want to deploy your app to
+                         <options: iran|germany>
+
+DESCRIPTION
+  run a command in a running applet
 
 ALIASES
   $ liara shell
 ```
 
-_See code: [src/commands/app/shell.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/shell.ts)_
-
-## `liara app:start`
+## `liara app start`
 
 start an app
 
 ```
-start an app
-
 USAGE
-  $ liara app:start
+  $ liara app start [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
 
-OPTIONS
-  -a, --app=app          app id
-  -h, --help             Show CLI help.
-  --api-token=api-token  your api token to use for authentication
-  --debug                show debug logs
-  --region=iran|germany  the region you want to deploy your app to
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  start an app
 
 ALIASES
   $ liara start
 ```
 
-_See code: [src/commands/app/start.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/start.ts)_
-
-## `liara app:stop`
+## `liara app stop`
 
 stop an app
 
 ```
-stop an app
-
 USAGE
-  $ liara app:stop
+  $ liara app stop [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
 
-OPTIONS
-  -a, --app=app          app id
-  -h, --help             Show CLI help.
-  --api-token=api-token  your api token to use for authentication
-  --debug                show debug logs
-  --region=iran|germany  the region you want to deploy your app to
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  stop an app
 
 ALIASES
   $ liara stop
 ```
-
-_See code: [src/commands/app/stop.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/app/stop.ts)_
 
 ## `liara autocomplete [SHELL]`
 
 display autocomplete installation instructions
 
 ```
-display autocomplete installation instructions
-
 USAGE
-  $ liara autocomplete [SHELL]
+  $ liara autocomplete [SHELL] [-r]
 
 ARGUMENTS
   SHELL  shell type
 
-OPTIONS
+FLAGS
   -r, --refresh-cache  Refresh cache (ignores displaying instructions)
+
+DESCRIPTION
+  display autocomplete installation instructions
 
 EXAMPLES
   $ liara autocomplete
+
   $ liara autocomplete bash
+
   $ liara autocomplete zsh
+
   $ liara autocomplete --refresh-cache
 ```
 
 _See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v1.3.0/src/commands/autocomplete/index.ts)_
 
-## `liara db:list`
+## `liara create`
 
-list available databases
+create an app
 
 ```
-list available databases
-
 USAGE
-  $ liara db:list
+  $ liara create [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [--platform
+    <value>] [--plan <value>]
 
-OPTIONS
-  -h, --help              Show CLI help.
-  -x, --extended          show extra columns
-  --api-token=api-token   your api token to use for authentication
-  --columns=columns       only show provided columns (comma-separated)
-  --csv                   output is csv format [alias: --output=csv]
-  --debug                 show debug logs
-  --filter=filter         filter property by partial string matching, ex: name=foo
-  --no-header             hide table header from output
-  --no-truncate           do not truncate output to fit screen
-  --output=csv|json|yaml  output in a more machine friendly format
-  --region=iran|germany   the region you want to deploy your app to
-  --sort=sort             property to sort by (prepend '-' for descending)
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --plan=<value>       plan
+  --platform=<value>   platform
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  create an app
 
 ALIASES
-  $ liara db:ls
+  $ liara create
 ```
 
-_See code: [src/commands/db/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/db/list.ts)_
+## `liara db list`
+
+list available databases
+
+```
+USAGE
+  $ liara db list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
+    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -x, --extended       show extra columns
+  --api-token=<value>  your api token to use for authentication
+  --columns=<value>    only show provided columns (comma-separated)
+  --csv                output is csv format [alias: --output=csv]
+  --debug              show debug logs
+  --filter=<value>     filter property by partial string matching, ex: name=foo
+  --no-header          hide table header from output
+  --no-truncate        do not truncate output to fit screen
+  --output=<option>    output in a more machine friendly format
+                       <options: csv|json|yaml>
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+  --sort=<value>       property to sort by (prepend '-' for descending)
+
+DESCRIPTION
+  list available databases
+
+ALIASES
+  $ liara db ls
+```
+
+## `liara db ls`
+
+list available databases
+
+```
+USAGE
+  $ liara db ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
+    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -x, --extended       show extra columns
+  --api-token=<value>  your api token to use for authentication
+  --columns=<value>    only show provided columns (comma-separated)
+  --csv                output is csv format [alias: --output=csv]
+  --debug              show debug logs
+  --filter=<value>     filter property by partial string matching, ex: name=foo
+  --no-header          hide table header from output
+  --no-truncate        do not truncate output to fit screen
+  --output=<option>    output in a more machine friendly format
+                       <options: csv|json|yaml>
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+  --sort=<value>       property to sort by (prepend '-' for descending)
+
+DESCRIPTION
+  list available databases
+
+ALIASES
+  $ liara db ls
+```
+
+## `liara delete`
+
+delete an app
+
+```
+USAGE
+  $ liara delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  delete an app
+
+ALIASES
+  $ liara delete
+```
 
 ## `liara deploy`
 
 deploy an app
 
 ```
-deploy an app
-
 USAGE
-  $ liara deploy
+  $ liara deploy [-h] [--debug] [--api-token <value>] [--region iran|germany] [--path <value>] [--platform
+    <value>] [-a <value>] [-p <value>] [-i <value>] [--detach] [--args <value>] [--build-arg <value>] [-m <value>] [-d
+    <value>] [--no-cache]
 
-OPTIONS
-  -a, --app=app          app id
-  -d, --disks=disks      mount a disk
-  -h, --help             Show CLI help.
-  -i, --image=image      docker image to deploy
-  -m, --message=message  the release message
-  -p, --port=port        the port that your app listens to
-  -v, --volume=volume    volume absolute path
-  --api-token=api-token  your api token to use for authentication
-  --args=args            docker image entrypoint args
-  --build-arg=build-arg  docker image build args
-  --debug                show debug logs
-  --detach               do not stream app logs after deployment
-  --no-cache             do not use cache when building the image.
-  --path=path            app path in your computer
-  --platform=platform    the platform your app needs to run
-  --region=iran|germany  the region you want to deploy your app to
-```
-
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/deploy.ts)_
-
-## `liara disk:create`
-
-create a disk
-
-```
-create a disk
-
-USAGE
-  $ liara disk:create
-
-OPTIONS
-  -a, --app=app          app id
-  -h, --help             Show CLI help.
-  -n, --name=name        disk name
-  -s, --size=size        disk size
-  --api-token=api-token  your api token to use for authentication
-  --debug                show debug logs
-  --region=iran|germany  the region you want to deploy your app to
-```
-
-_See code: [src/commands/disk/create.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/disk/create.ts)_
-
-## `liara env:list`
-
-list environment variables of an app
-
-```
-list environment variables of an app
-
-USAGE
-  $ liara env:list
-
-OPTIONS
-  -a, --app=app           app id
+FLAGS
+  -a, --app=<value>       app id
+  -d, --disks=<value>...  mount a disk
   -h, --help              Show CLI help.
-  -x, --extended          show extra columns
-  --api-token=api-token   your api token to use for authentication
-  --columns=columns       only show provided columns (comma-separated)
-  --csv                   output is csv format [alias: --output=csv]
+  -i, --image=<value>     docker image to deploy
+  -m, --message=<value>   the release message
+  -p, --port=<value>      the port that your app listens to
+  --api-token=<value>     your api token to use for authentication
+  --args=<value>...       docker image entrypoint args
+  --build-arg=<value>...  docker image build args
   --debug                 show debug logs
-  --filter=filter         filter property by partial string matching, ex: name=foo
-  --no-header             hide table header from output
-  --no-truncate           do not truncate output to fit screen
-  --output=csv|json|yaml  output in a more machine friendly format
-  --region=iran|germany   the region you want to deploy your app to
-  --sort=sort             property to sort by (prepend '-' for descending)
+  --detach                do not stream app logs after deployment
+  --no-cache              do not use cache when building the image
+  --path=<value>          app path in your computer
+  --platform=<value>      the platform your app needs to run
+  --region=<option>       the region you want to deploy your app to
+                          <options: iran|germany>
+
+DESCRIPTION
+  deploy an app
+```
+
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v3.0.0-beta.1/src/commands/deploy.ts)_
+
+## `liara disk create`
+
+create a disk
+
+```
+USAGE
+  $ liara disk create [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-n <value>] [-s
+    <value>]
+
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  -n, --name=<value>   disk name
+  -s, --size=<value>   disk size
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  create a disk
+```
+
+## `liara env list`
+
+list environment variables of an app
+
+```
+USAGE
+  $ liara env list [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
+
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  -x, --extended       show extra columns
+  --api-token=<value>  your api token to use for authentication
+  --columns=<value>    only show provided columns (comma-separated)
+  --csv                output is csv format [alias: --output=csv]
+  --debug              show debug logs
+  --filter=<value>     filter property by partial string matching, ex: name=foo
+  --no-header          hide table header from output
+  --no-truncate        do not truncate output to fit screen
+  --output=<option>    output in a more machine friendly format
+                       <options: csv|json|yaml>
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+  --sort=<value>       property to sort by (prepend '-' for descending)
+
+DESCRIPTION
+  list environment variables of an app
 
 ALIASES
-  $ liara env:ls
+  $ liara env ls
 ```
 
-_See code: [src/commands/env/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/env/list.ts)_
+## `liara env ls`
 
-## `liara env:set [ENV]`
-
-specifying environment variables to an app
+list environment variables of an app
 
 ```
-specifying environment variables to an app
-
 USAGE
-  $ liara env:set [ENV]
+  $ liara env ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
+
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  -x, --extended       show extra columns
+  --api-token=<value>  your api token to use for authentication
+  --columns=<value>    only show provided columns (comma-separated)
+  --csv                output is csv format [alias: --output=csv]
+  --debug              show debug logs
+  --filter=<value>     filter property by partial string matching, ex: name=foo
+  --no-header          hide table header from output
+  --no-truncate        do not truncate output to fit screen
+  --output=<option>    output in a more machine friendly format
+                       <options: csv|json|yaml>
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+  --sort=<value>       property to sort by (prepend '-' for descending)
+
+DESCRIPTION
+  list environment variables of an app
+
+ALIASES
+  $ liara env ls
+```
+
+## `liara env set [ENV]`
+
+specifying environment variables to an app
+
+```
+USAGE
+  $ liara env set [ENV] [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-f]
 
 ARGUMENTS
   ENV  key=value pair
 
-OPTIONS
-  -a, --app=app          app id
-  -f, --force            force update
-  -h, --help             Show CLI help.
-  --api-token=api-token  your api token to use for authentication
-  --debug                show debug logs
-  --region=iran|germany  the region you want to deploy your app to
+FLAGS
+  -a, --app=<value>    app id
+  -f, --force          force update
+  -h, --help           Show CLI help.
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  specifying environment variables to an app
 ```
 
-_See code: [src/commands/env/set.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/env/set.ts)_
-
-## `liara env:unset [ENV]`
+## `liara env unset [ENV]`
 
 remove environment variables from an app
 
 ```
-remove environment variables from an app
-
 USAGE
-  $ liara env:unset [ENV]
+  $ liara env unset [ENV] [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-f]
 
 ARGUMENTS
   ENV  key
 
-OPTIONS
-  -a, --app=app          app id
-  -f, --force            force update
-  -h, --help             Show CLI help.
-  --api-token=api-token  your api token to use for authentication
-  --debug                show debug logs
-  --region=iran|germany  the region you want to deploy your app to
-```
+FLAGS
+  -a, --app=<value>    app id
+  -f, --force          force update
+  -h, --help           Show CLI help.
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
 
-_See code: [src/commands/env/unset.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/env/unset.ts)_
+DESCRIPTION
+  remove environment variables from an app
+```
 
 ## `liara help [COMMAND]`
 
-display help for liara
+Display help for liara.
 
 ```
-display help for <%= config.bin %>
-
 USAGE
-  $ liara help [COMMAND]
+  $ liara help [COMMAND] [-n]
 
 ARGUMENTS
-  COMMAND  command to show help for
+  COMMAND  Command to show help for.
 
-OPTIONS
-  --all  see all commands in CLI
+FLAGS
+  -n, --nested-commands  Include all nested commands in the output.
+
+DESCRIPTION
+  Display help for liara.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v2.2.3/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
 
 ## `liara login`
 
 login to your account
 
 ```
-login to your account
-
 USAGE
-  $ liara login
+  $ liara login [-h] [--debug] [--api-token <value>] [--region iran|germany] [-e <value>] [-p <value>]
 
-OPTIONS
-  -e, --email=email        your email
-  -h, --help               Show CLI help.
-  -p, --password=password  your password
-  --api-token=api-token    your api token to use for authentication
-  --debug                  show debug logs
-  --region=iran|germany    the region you want to deploy your app to
-```
-
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/login.ts)_
-
-## `liara plan:list`
-
-list available plans
-
-```
-list available plans
-
-USAGE
-  $ liara plan:list
-
-OPTIONS
+FLAGS
+  -e, --email=<value>     your email
   -h, --help              Show CLI help.
-  -x, --extended          show extra columns
-  --api-token=api-token   your api token to use for authentication
-  --columns=columns       only show provided columns (comma-separated)
-  --csv                   output is csv format [alias: --output=csv]
+  -p, --password=<value>  your password
+  --api-token=<value>     your api token to use for authentication
   --debug                 show debug logs
-  --filter=filter         filter property by partial string matching, ex: name=foo
-  --no-header             hide table header from output
-  --no-truncate           do not truncate output to fit screen
-  --output=csv|json|yaml  output in a more machine friendly format
-  --region=iran|germany   the region you want to deploy your app to
-  --sort=sort             property to sort by (prepend '-' for descending)
+  --region=<option>       the region you want to deploy your app to
+                          <options: iran|germany>
+
+DESCRIPTION
+  login to your account
+```
+
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v3.0.0-beta.1/src/commands/login.ts)_
+
+## `liara logs`
+
+fetch the logs of an app
+
+```
+USAGE
+  $ liara logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>]
+
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  -s, --since=<value>  show logs since timestamp
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  fetch the logs of an app
 
 ALIASES
-  $ liara plan:ls
+  $ liara logs
 ```
 
-_See code: [src/commands/plan/list.ts](https://github.com/liara-ir/liara-cli/blob/v2.25.0-beta.10/src/commands/plan/list.ts)_
+## `liara plan list`
+
+list available plans
+
+```
+USAGE
+  $ liara plan list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
+    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -x, --extended       show extra columns
+  --api-token=<value>  your api token to use for authentication
+  --columns=<value>    only show provided columns (comma-separated)
+  --csv                output is csv format [alias: --output=csv]
+  --debug              show debug logs
+  --filter=<value>     filter property by partial string matching, ex: name=foo
+  --no-header          hide table header from output
+  --no-truncate        do not truncate output to fit screen
+  --output=<option>    output in a more machine friendly format
+                       <options: csv|json|yaml>
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+  --sort=<value>       property to sort by (prepend '-' for descending)
+
+DESCRIPTION
+  list available plans
+
+ALIASES
+  $ liara plan ls
+```
+
+## `liara plan ls`
+
+list available plans
+
+```
+USAGE
+  $ liara plan ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
+    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -x, --extended       show extra columns
+  --api-token=<value>  your api token to use for authentication
+  --columns=<value>    only show provided columns (comma-separated)
+  --csv                output is csv format [alias: --output=csv]
+  --debug              show debug logs
+  --filter=<value>     filter property by partial string matching, ex: name=foo
+  --no-header          hide table header from output
+  --no-truncate        do not truncate output to fit screen
+  --output=<option>    output in a more machine friendly format
+                       <options: csv|json|yaml>
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+  --sort=<value>       property to sort by (prepend '-' for descending)
+
+DESCRIPTION
+  list available plans
+
+ALIASES
+  $ liara plan ls
+```
+
+## `liara restart`
+
+restart an app
+
+```
+USAGE
+  $ liara restart [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  restart an app
+
+ALIASES
+  $ liara restart
+```
+
+## `liara shell`
+
+run a command in a running applet
+
+```
+USAGE
+  $ liara shell [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-c <value>]
+
+FLAGS
+  -a, --app=<value>      app id
+  -c, --command=<value>  [default: /bin/bash] the command to execute
+  -h, --help             Show CLI help.
+  --api-token=<value>    your api token to use for authentication
+  --debug                show debug logs
+  --region=<option>      the region you want to deploy your app to
+                         <options: iran|germany>
+
+DESCRIPTION
+  run a command in a running applet
+
+ALIASES
+  $ liara shell
+```
+
+## `liara start`
+
+start an app
+
+```
+USAGE
+  $ liara start [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  start an app
+
+ALIASES
+  $ liara start
+```
+
+## `liara stop`
+
+stop an app
+
+```
+USAGE
+  $ liara stop [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  stop an app
+
+ALIASES
+  $ liara stop
+```
 
 ## `liara version`
 
 ```
-undefined
-
 USAGE
-  $ liara version
+  $ liara version [--json] [--verbose]
+
+FLAGS
+  --verbose  Show additional information about the CLI.
+
+GLOBAL FLAGS
+  --json  Format output as json.
+
+FLAG DESCRIPTIONS
+  --verbose  Show additional information about the CLI.
+
+    Additionally shows the architecture, node version, operating system, and versions of plugins that the CLI is using.
 ```
 
-_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.0.4/src/commands/version.ts)_
+_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.1.2/src/commands/version.ts)_
 
 <!-- commandsstop -->
