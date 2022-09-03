@@ -74,8 +74,19 @@ Sorry for inconvenience. Please contact us.`).render()
         const datetime = chalk.gray(
           moment(log.datetime).format('YYYY-MM-DD HH:mm:ss')
         );
-        this.log(`${datetime} | ${log.message}`);
+        this.log(`${datetime} | ${colorfulAccessLog(log.message)}`);
       }
     }, 1000);
   }
+}
+
+function colorfulAccessLog(message: string): string {
+  return message
+    .replace('GET', '\x1B[1;34mGET\x1B[0m') // Blue
+    .replace('POST', '\x1B[1;32mPOST\x1B[0m') // Green
+    .replace('PUT', '\x1B[1;32mPUT\x1B[0m') // Green
+    .replace('DELETE', '\x1B[1;31mDELETE\x1B[0m') // Red
+    .replace('OPTIONS', '\x1B[1;33mOPTIONS\x1B[0m') // Yellow
+    .replace('HEAD', '\x1B[1;33mHEAD\x1B[0m') // Yellow
+    .replace(/("Mozilla.+")/, '\x1B[1;30m$1\x1B[0m'); // Black
 }
