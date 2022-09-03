@@ -9,7 +9,6 @@ export default interface ILiaraJSON {
   args?: string[];
   cron?: string[];
   disks?: IDisk[];
-  volume?: string;
   platform?: string;
   buildCache: boolean;
   'build-arg'?: string[];

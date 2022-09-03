@@ -52,7 +52,6 @@ export default class Deploy extends Command {
       char: 'p',
       description: 'the port that your app listens to',
     }),
-    volume: Flags.string({ char: 'v', description: 'volume absolute path' }),
     image: Flags.string({ char: 'i', description: 'docker image to deploy' }),
     detach: Flags.boolean({
       description: 'do not stream app logs after deployment',
@@ -73,7 +72,7 @@ export default class Deploy extends Command {
       multiple: true,
     }),
     'no-cache': Flags.boolean({
-      description: 'do not use cache when building the image.',
+      description: 'do not use cache when building the image',
     }),
   };
 
@@ -131,15 +130,6 @@ export default class Deploy extends Command {
       ? this.logKeyValue('Detected platform', config.platform)
       : this.logKeyValue('Platform', config.platform);
     this.logKeyValue('Port', String(config.port));
-
-    if (config.volume) {
-      this.logKeyValue('Volume', config.volume);
-      console.log(
-        `${chalk.yellowBright(
-          '[warn]'
-        )} "volume" field is deprecated. Please use "disks" instead: https://docs.liara.ir/apps/disks`
-      );
-    }
 
     if (config.disks) {
       this.logKeyValue('Disks');
@@ -280,7 +270,6 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
       args: config.args,
       port: config.port,
       type: config.platform,
-      mountPoint: config.volume,
       message: config.message,
       disks: config.disks,
     };
@@ -493,18 +482,6 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
   }
 
   validateDeploymentConfig(config: IDeploymentConfig) {
-    if (config.volume && config.disks) {
-      this.error(
-        // eslint-disable-next-line no-multi-str
-        "You can't use `volume` and `disks` fields at the same time.\
- Please consider using only one of them."
-      );
-    }
-
-    if (config.volume && !path.isAbsolute(config.volume)) {
-      this.error('Volume path must be absolute.');
-    }
-
     if (config.healthCheck && !config.healthCheck.command) {
       this.error('`command` field in healthCheck is required.');
     }
