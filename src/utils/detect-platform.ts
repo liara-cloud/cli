@@ -3,24 +3,28 @@ import globby from 'globby';
 import { readJSONSync, existsSync, readFileSync } from 'fs-extra';
 
 export default function detectPlatform(projectPath: string) {
-  const packageJsonFilePath = path.join(projectPath, 'package.json');
-  const composeJsonFilePath = path.join(projectPath, 'composer.json');
-  const requirementsTxtFilePath = path.join(projectPath, 'requirements.txt');
   const pipfilePath = path.join(projectPath, 'Pipfile');
   const indexPHPFilePath = path.join(projectPath, 'index.php');
+  const packageJsonFilePath = path.join(projectPath, 'package.json');
+  const composeJsonFilePath = path.join(projectPath, 'composer.json');
+  const nextConfigJsFilePath = path.join(projectPath, 'next.config.js');
+  const requirementsTxtFilePath = path.join(projectPath, 'requirements.txt');
+
   const [programCSFilePath] = globby.sync('**/{Startup.cs,Program.cs}', {
     cwd: projectPath,
     gitignore: true,
     deep: 5,
   });
 
-  const hasPackageFile = existsSync(packageJsonFilePath);
-  const hasComposerJsonFile = existsSync(composeJsonFilePath);
-  const hasIndexPHPFile = existsSync(indexPHPFilePath);
-  const hasRequirementsTxtFile = existsSync(requirementsTxtFilePath);
   const hasPipfilePathFile = existsSync(pipfilePath);
+  const hasIndexPHPFile = existsSync(indexPHPFilePath);
+  const hasPackageFile = existsSync(packageJsonFilePath);
+  const hasNextConfigFile = existsSync(nextConfigJsFilePath);
+  const hasComposerJsonFile = existsSync(composeJsonFilePath);
+  const hasRequirementsTxtFile = existsSync(requirementsTxtFilePath);
   const hasDockerFile = existsSync(path.join(projectPath, 'Dockerfile'));
   const hasWPContent = existsSync(path.join(projectPath, 'wp-content'));
+
   const hasCSProjFile =
     programCSFilePath &&
     globby.sync('*.csproj', {
@@ -91,6 +95,10 @@ Please specify your platform with --platform=laravel or docker.`);
     if (pipfile.includes('Flask') || pipfile.includes('flask')) {
       return 'flask';
     }
+  }
+
+  if (hasNextConfigFile) {
+    return 'next';
   }
 
   if (hasPackageFile && hasDockerFile) {

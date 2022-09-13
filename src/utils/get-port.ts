@@ -13,6 +13,7 @@ export function getPort(platform: string): number {
     django: 80,
     flask: 8000,
     php: 80,
+    next: 3000,
   };
   return ports[platform];
 }

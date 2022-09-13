@@ -28,6 +28,7 @@ export const AVAILABLE_PLATFORMS = [
   'vue',
   'static',
   'docker',
+  'next',
 ];
 
 export const FREE_PLAN_PLATFORMS = ['static', 'react', 'vue', 'angular'];
