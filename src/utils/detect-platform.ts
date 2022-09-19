@@ -7,7 +7,6 @@ export default function detectPlatform(projectPath: string) {
   const indexPHPFilePath = path.join(projectPath, 'index.php');
   const packageJsonFilePath = path.join(projectPath, 'package.json');
   const composeJsonFilePath = path.join(projectPath, 'composer.json');
-  const nextConfigJsFilePath = path.join(projectPath, 'next.config.js');
   const requirementsTxtFilePath = path.join(projectPath, 'requirements.txt');
 
   const [programCSFilePath] = globby.sync('**/{Startup.cs,Program.cs}', {
@@ -19,7 +18,6 @@ export default function detectPlatform(projectPath: string) {
   const hasPipfilePathFile = existsSync(pipfilePath);
   const hasIndexPHPFile = existsSync(indexPHPFilePath);
   const hasPackageFile = existsSync(packageJsonFilePath);
-  const hasNextConfigFile = existsSync(nextConfigJsFilePath);
   const hasComposerJsonFile = existsSync(composeJsonFilePath);
   const hasRequirementsTxtFile = existsSync(requirementsTxtFilePath);
   const hasDockerFile = existsSync(path.join(projectPath, 'Dockerfile'));
@@ -97,10 +95,6 @@ Please specify your platform with --platform=laravel or docker.`);
     }
   }
 
-  if (hasNextConfigFile) {
-    return 'next';
-  }
-
   if (hasPackageFile && hasDockerFile) {
     throw new Error(`The project contains both of the \`package.json\` and \`Dockerfile\` files.
 Please specify your platform with --platform=node or docker.`);
@@ -108,6 +102,10 @@ Please specify your platform with --platform=node or docker.`);
 
   if (hasPackageFile) {
     const packageJson = readJSONSync(packageJsonFilePath);
+
+    if (packageJson?.dependencies?.next) {
+      return 'next';
+    }
 
     if (packageJson.dependencies && packageJson.dependencies['@angular/core']) {
       return 'angular';
