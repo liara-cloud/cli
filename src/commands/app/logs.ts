@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import moment from 'moment';
+import UAParser from 'ua-parser-js';
 import { Flags, Errors } from '@oclif/core';
 
 import Command from '../../base';
@@ -81,12 +82,54 @@ Sorry for inconvenience. Please contact us.`).render()
 }
 
 function colorfulAccessLog(message: string): string {
+  const COLOR_END = '\x1B[0m';
+  const CYAN = '\x1B[0;36m';
+  const GRAY = '\x1B[1;30m';
+  const MAGENTO = '\x1B[1;35m';
+  const GREEN = '\x1B[1;32m';
+  const RED = '\x1B[1;31m';
+  const YELLOW = '\x1B[1;33m';
+  const BLUE = '\x1B[1;34m';
   return message
-    .replace('GET', '\x1B[1;34mGET\x1B[0m') // Blue
-    .replace('POST', '\x1B[1;32mPOST\x1B[0m') // Green
-    .replace('PUT', '\x1B[1;32mPUT\x1B[0m') // Green
-    .replace('DELETE', '\x1B[1;31mDELETE\x1B[0m') // Red
-    .replace('OPTIONS', '\x1B[1;33mOPTIONS\x1B[0m') // Yellow
-    .replace('HEAD', '\x1B[1;33mHEAD\x1B[0m') // Yellow
-    .replace(/("Mozilla.+")/, '\x1B[1;30m$1\x1B[0m'); // Black
+    .replace(
+      /(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4})/,
+      `${CYAN}$1${COLOR_END}`
+    )
+    .replace(
+      /(GET|POST|PUT|DELETE|OPTIONS|HEAD) (401|402|403|404|409)/,
+      `$1 ${MAGENTO}$2${COLOR_END}`
+    )
+    .replace(
+      /(GET|POST|PUT|DELETE|OPTIONS|HEAD) (301|302|304)/,
+      `$1 ${GRAY}$2${COLOR_END}`
+    )
+    .replace(
+      /(GET|POST|PUT|DELETE|OPTIONS|HEAD) (200|201|204)/,
+      `$1 ${GREEN}$2${COLOR_END}`
+    )
+    .replace(
+      /(GET|POST|PUT|DELETE|OPTIONS|HEAD) (500|502|503|504)/,
+      `$1 ${RED}$2${COLOR_END}`
+    )
+    .replace('GET', `${BLUE}GET${COLOR_END}`)
+    .replace('POST', `${GREEN}POST${COLOR_END}`)
+    .replace('PUT', `${GREEN}PUT${COLOR_END}`)
+    .replace('DELETE', `${RED}DELETE${COLOR_END}`)
+    .replace('OPTIONS', `${YELLOW}OPTIONS${COLOR_END}`)
+    .replace('HEAD', `${YELLOW}HEAD${COLOR_END}`)
+    .replace(/(\[error\].+), client:/, `${RED}$1${COLOR_END}, client:`) // Nginx error log
+    .replace(/("Mozilla.+")/, (match) => {
+      var matchWithoutColors = match.replace(
+        /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
+        ''
+      );
+
+      const { browser, os } = new UAParser(matchWithoutColors).getResult();
+      if (!browser.name || !os.name) {
+        return `${GRAY}${matchWithoutColors}${COLOR_END}`;
+      }
+      return `${GRAY}"${browser.name} ${browser.version || ''} - ${os.name} ${
+        os.version || ''
+      }"${COLOR_END}`;
+    });
 }

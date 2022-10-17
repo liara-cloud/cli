@@ -33,11 +33,11 @@
     "shamsi-date-converter": "^1.0.5",
     "tar": "^6.1.10",
     "tslib": "^1.9.3",
+    "ua-parser-js": "^1.0.32",
     "update-notifier": "^5.1.0",
     "ws": "^8.2.3"
   },
   "devDependencies": {
-    "oclif": "^3",
     "@oclif/test": "^1.2.4",
     "@types/async-retry": "^1.4.0",
     "@types/bytes": "^3.0.0",
@@ -51,6 +51,7 @@
     "@types/request": "^2.48.1",
     "@types/semver": "^7.3.9",
     "@types/tar": "^4.0.5",
+    "@types/ua-parser-js": "^0.7.36",
     "@types/update-notifier": "^5.1.0",
     "@types/ws": "^8.2.0",
     "chai": "^4.2.0",
@@ -62,6 +63,7 @@
     "jest": "^27.5.1",
     "mocha": "^5.2.0",
     "nyc": "^13.3.0",
+    "oclif": "^3",
     "prettier": "^2.7.1",
     "pretty-quick": "^3.1.3",
     "ts-jest": "^27.1.4",
