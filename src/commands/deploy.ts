@@ -153,10 +153,10 @@ export default class Deploy extends Command {
     if (Array.isArray(config['build-arg'])) {
       const buildArgs: { [key: string]: string } = {};
 
-      config['build-arg'].map((arg) => {
+      for (const arg of config['build-arg']) {
         const [key, value] = arg.split('=');
         buildArgs[key] = value;
-      });
+      }
 
       // @ts-ignore
       config['build-arg'] = buildArgs;
