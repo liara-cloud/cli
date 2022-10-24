@@ -33,7 +33,7 @@ export default class PlanList extends Command {
         const Plan = plan;
         const availablePlan = plans.projects[plan];
         const tRAM = availablePlan.RAM.amount;
-        const RAM = tRAM + ramSpacing(tRAM) + 'GB';
+        const RAM = tRAM + ramSpacing(tRAM) + ' GB';
         const tCPU = availablePlan.CPU.amount;
         const CPU = tCPU + cpuSpacing(tCPU) + 'Core';
         const StorageClass = availablePlan.storageClass;

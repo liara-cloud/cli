@@ -1,10 +1,12 @@
 export function ramSpacing(value: number) {
   const inputLength = value.toString().length;
   return inputLength === 1
-    ? ' '.repeat(3)
+    ? ' '.repeat(4)
     : inputLength === 2
-    ? ' '.repeat(2)
+    ? ' '.repeat(3)
     : inputLength === 3
+    ? ' '.repeat(2)
+    : inputLength === 4
     ? ' '
     : '';
 }
@@ -12,10 +14,12 @@ export function ramSpacing(value: number) {
 export function cpuSpacing(value: number) {
   const inputLength = value.toString().length;
   return inputLength === 1
-    ? ' '.repeat(4)
+    ? ' '.repeat(5)
     : inputLength === 2
-    ? ' '.repeat(3)
+    ? ' '.repeat(4)
     : inputLength === 3
+    ? ' '.repeat(3)
+    : inputLength === 4
     ? ' '.repeat(2)
     : ' ';
 }

@@ -2,8 +2,8 @@ import ora from 'ora';
 import inquirer from 'inquirer';
 import Command from '../../base';
 import { Flags } from '@oclif/core';
+import { AVAILABLE_PLATFORMS } from '../../constants';
 import { createDebugLogger } from '../../utils/output';
-import { AVAILABLE_PLATFORMS, FREE_PLAN_PLATFORMS } from '../../constants';
 import {
   ramSpacing,
   cpuSpacing,
@@ -54,7 +54,7 @@ export default class AppCreate extends Command {
       this.error(`Unknown platform: ${platform}`);
     }
 
-    const planID = flags.plan || (await this.promptPlan(platform));
+    const planID = flags.plan || (await this.promptPlan());
 
     try {
       await this.got.post('v1/projects/', { json: { name, planID, platform } });
@@ -98,7 +98,7 @@ export default class AppCreate extends Command {
     }
   }
 
-  async promptPlan(platform: string) {
+  async promptPlan() {
     this.spinner.start('Loading...');
 
     try {
@@ -112,10 +112,6 @@ export default class AppCreate extends Command {
         choices: [
           ...Object.keys(plans.projects)
             .filter((plan) => {
-              if (plan === 'free' && !FREE_PLAN_PLATFORMS.includes(platform)) {
-                return false;
-              }
-
               if (
                 plans.projects[plan].available &&
                 plans.projects[plan].region === 'iran'
@@ -134,7 +130,7 @@ export default class AppCreate extends Command {
                 value: plan,
                 name: `RAM: ${ram}${ramSpacing(
                   ram
-                )}GB,  CPU: ${cpu}${cpuSpacing(cpu)}Core,  Disk: ${disk}${
+                )} GB,  CPU: ${cpu}${cpuSpacing(cpu)}Core,  Disk: ${disk}${
                   diskSpacing(disk) + 'GB'
                 }${storageClass || 'SSD'},  Price: ${price.toLocaleString()}${
                   price ? priceSpacing(price) + 'Tomans/Month' : ''
