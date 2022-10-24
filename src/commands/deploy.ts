@@ -150,6 +150,18 @@ export default class Deploy extends Command {
       this.debug('Using Build Cache: Enabled');
     }
 
+    if (Array.isArray(config['build-arg'])) {
+      const buildArgs: { [key: string]: string } = {};
+
+      config['build-arg'].map((arg) => {
+        const [key, value] = arg.split('=');
+        buildArgs[key] = value;
+      });
+
+      // @ts-ignore
+      config['build-arg'] = buildArgs;
+    }
+
     try {
       const response = await this.deploy(config);
 
