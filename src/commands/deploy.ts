@@ -29,6 +29,7 @@ import prepareTmpDirectory from '../services/tmp-dir';
 import detectPlatform from '../utils/detect-platform';
 import collectGitInfo from '../utils/collect-git-info';
 import ICreatedRelease from '../types/created-release';
+import buildArgsParser from '../utils/build-args-parser';
 import { DEV_MODE, MAX_SOURCE_SIZE } from '../constants';
 import DeployException from '../errors/deploy-exception';
 import IDeploymentConfig from '../types/deployment-config';
@@ -151,15 +152,8 @@ export default class Deploy extends Command {
     }
 
     if (Array.isArray(config['build-arg'])) {
-      const buildArgs: { [key: string]: string } = {};
-
-      for (const arg of config['build-arg']) {
-        const [key, value] = arg.split('=');
-        buildArgs[key] = value;
-      }
-
       // @ts-ignore
-      config['build-arg'] = buildArgs;
+      config['build-arg'] = buildArgsParser(config['build-arg']);
     }
 
     try {
