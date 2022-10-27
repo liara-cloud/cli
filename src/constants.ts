@@ -30,5 +30,3 @@ export const AVAILABLE_PLATFORMS = [
   'docker',
   'next',
 ];
-
-export const FREE_PLAN_PLATFORMS = ['static', 'react', 'vue', 'angular'];
