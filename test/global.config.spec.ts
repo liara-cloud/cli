@@ -55,7 +55,6 @@ const oldContentCredentialsAccounts = {
   },
 };
 
-jest.mock('axios');
 jest.mock('got');
 
 // mocking config (user credentials) change direcotry to /tmp
