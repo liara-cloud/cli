@@ -4,12 +4,7 @@ import Command from '../../base';
 import { Flags } from '@oclif/core';
 import { AVAILABLE_PLATFORMS } from '../../constants';
 import { createDebugLogger } from '../../utils/output';
-import {
-  ramSpacing,
-  cpuSpacing,
-  diskSpacing,
-  priceSpacing,
-} from '../../utils/spacing';
+import { Spacing } from '../../utils/spacing';
 
 export default class AppCreate extends Command {
   static description = 'create an app';
@@ -128,12 +123,13 @@ export default class AppCreate extends Command {
               const storageClass = availablePlan.storageClass;
               return {
                 value: plan,
-                name: `RAM: ${ram}${ramSpacing(
-                  ram
-                )} GB,  CPU: ${cpu}${cpuSpacing(cpu)}Core,  Disk: ${disk}${
-                  diskSpacing(disk) + 'GB'
-                }${storageClass || 'SSD'},  Price: ${price.toLocaleString()}${
-                  price ? priceSpacing(price) + 'Tomans/Month' : ''
+                name: `RAM: ${ram}${Spacing(5, ram)}GB,  CPU: ${cpu}${Spacing(
+                  5,
+                  cpu
+                )}Core,  Disk: ${disk}${Spacing(3, disk) + 'GB'}${
+                  storageClass || 'SSD'
+                },  Price: ${price.toLocaleString()}${
+                  price ? Spacing(7, price) + 'Tomans/Month' : ''
                 }`,
               };
             }),

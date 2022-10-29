@@ -1,11 +1,6 @@
 import { CliUx } from '@oclif/core';
 import Command from '../../base';
-import {
-  ramSpacing,
-  cpuSpacing,
-  diskSpacing,
-  priceSpacing,
-} from '../../utils/spacing';
+import { Spacing } from '../../utils/spacing';
 
 export default class PlanList extends Command {
   static description = 'list available plans';
@@ -33,17 +28,17 @@ export default class PlanList extends Command {
         const Plan = plan;
         const availablePlan = plans.projects[plan];
         const tRAM = availablePlan.RAM.amount;
-        const RAM = tRAM + ramSpacing(tRAM) + ' GB';
+        const RAM = tRAM + Spacing(5, tRAM) + 'GB';
         const tCPU = availablePlan.CPU.amount;
-        const CPU = tCPU + cpuSpacing(tCPU) + 'Core';
+        const CPU = tCPU + Spacing(5, tCPU) + 'Core';
         const StorageClass = availablePlan.storageClass;
         const tDisk = availablePlan.volume;
         const Disk = tDisk
-          ? tDisk + diskSpacing(tDisk) + `GB ${StorageClass}`
+          ? tDisk + Spacing(3, tDisk) + `GB ${StorageClass}`
           : 0;
         const tPrice = availablePlan.price * 720;
         const Price = tPrice
-          ? tPrice.toLocaleString() + priceSpacing(tPrice) + 'Tomans/Month'
+          ? tPrice.toLocaleString() + Spacing(7, tPrice) + 'Tomans/Month'
           : 0;
         return {
           Plan,
