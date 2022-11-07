@@ -17,7 +17,7 @@ import {
   GLOBAL_CONF_VERSION,
 } from './constants';
 
-updateNotifier({ pkg: require('../package.json') }).notify();
+updateNotifier({ pkg: require('../package.json') }).notify({ isGlobal: true });
 
 const isWin = os.platform() === 'win32';
 
