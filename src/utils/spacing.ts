@@ -1,4 +1,4 @@
-export function Spacing(maxLength: number, value: number) {
+export default function spacing(maxLength: number, value: number) {
   const inputLength = value.toString().length;
 
   return inputLength === 1
