@@ -11,7 +11,7 @@ export function getPort(platform: string): number {
     laravel: 80,
     wordpress: 80,
     django: 80,
-    flask: 8000,
+    flask: 80,
     php: 80,
     next: 3000,
   };
