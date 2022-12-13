@@ -59,7 +59,7 @@ async function getRequiredNetCoreVersion(
   projectPath: string,
   debug: DebugLogger
 ): Promise<string | null> {
-  const supportedNetCoreVersions = ['2.1', '2.2', '3.0', '3.1', '5.0', '6.0'];
+  const supportedNetCoreVersions = ['2.1', '2.2', '3.0', '3.1', '5.0', '6.0', '7.0'];
 
   try {
     const csproj = await findFile(projectPath, '**/*.csproj');
