@@ -2,15 +2,16 @@ import got from 'got';
 import chalk from 'chalk';
 import fs from 'fs-extra';
 import AccountUse from './use';
-import retry from 'async-retry';
 import Command from '../../base';
 import { prompt } from 'inquirer';
 import { Flags } from '@oclif/core';
 import hooks from '../../interceptors';
 import promptEmail from 'email-prompt-ts';
 import eraseLines from '../../utils/erase-lines';
+import Liara from '../../utils/liara-api-request';
 import { createDebugLogger } from '../../utils/output';
 import { validate as validateEmail } from 'email-validator';
+
 import {
   FALLBACK_REGION,
   REGIONS_API_URL,
@@ -64,6 +65,7 @@ export default class AccountAdd extends Command {
         flags.password ||
         (!flags['api-token'] && (await this.promptPassword())),
     };
+
     if (flags['from-login']) {
       flags.account = `${flags.email.split('@')[0]}_${region}`;
     }
@@ -71,34 +73,28 @@ export default class AccountAdd extends Command {
     const name = flags.account || (await this.promptName(flags.email, region));
 
     this.got = got.extend({ prefixUrl: REGIONS_API_URL[region], hooks });
-    const { api_token, fullname, avatar } = (await retry(
-      async () => {
-        try {
-          const data = await this.got
-            .post('v1/login', {
-              json: body,
-              headers: { Authorization: undefined },
-            })
-            .json<{ api_token: string }>();
-          return data;
-        } catch (error) {
-          debug('retrying...');
-          throw error;
-        }
-      },
-      { retries: 3 }
-    )) as { api_token: string; avatar: string; fullname: string };
+
+    const liaraAPI = new Liara(this.got, debug);
+
+    const account = flags['api-token']
+      ? await liaraAPI.me({
+          region,
+          email: flags.email,
+          api_token: flags['api-token'],
+        })
+      : await liaraAPI.login({
+          body,
+          api_token: flags['api-token'],
+          region,
+        });
+
+    if (flags.email !== account.email) {
+      this.error(`Email: ${flags.email} is not related to your api-token`);
+    }
 
     const accounts = {
       ...currentAccounts,
-      [name]: {
-        email: body.email,
-        api_token,
-        region,
-        fullname,
-        avatar,
-        current: false,
-      },
+      [name]: account,
     };
 
     fs.writeFileSync(
