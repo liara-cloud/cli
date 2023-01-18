@@ -1,4 +1,5 @@
 import IDisk from './disk';
+import IBuildConfig from './build-config';
 import ILaravelPlatformConfig from './laravel-platform-config';
 import INodePlatformConfig from './node-platfrom-config';
 import IHealthConfig from './health-config';
@@ -12,6 +13,7 @@ export default interface ILiaraJSON {
   platform?: string;
   buildCache: boolean;
   'build-arg'?: string[];
+  build?: IBuildConfig;
   node?: INodePlatformConfig;
   healthCheck?: IHealthConfig;
   laravel?: ILaravelPlatformConfig;
