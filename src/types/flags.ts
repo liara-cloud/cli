@@ -10,4 +10,5 @@ export default interface IFlags {
   'build-arg'?: string[];
   message?: string;
   disks?: string[];
+  dockerfile?: string;
 }

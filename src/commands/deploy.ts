@@ -75,6 +75,10 @@ export default class Deploy extends Command {
     'no-cache': Flags.boolean({
       description: 'do not use cache when building the image',
     }),
+    dockerfile: Flags.string({
+      char: 'f',
+      description: 'name of the Dockerfile (default is "PATH/Dockerfile")',
+    }),
   };
 
   spinner!: ora.Ora;
@@ -149,6 +153,11 @@ export default class Deploy extends Command {
     ) {
       config.buildCache = true;
       this.debug('Using Build Cache: Enabled');
+    }
+
+    config.dockerfile = config.dockerfile || config.build?.dockerfile;
+    if (config.dockerfile) {
+      this.debug(`Using Custom Dockerfile: ${config.dockerfile}`);
     }
 
     if (Array.isArray(config['build-arg'])) {
@@ -271,6 +280,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
     const body: { [k: string]: any } = {
       build: {
         cache: config.buildCache,
+        dockerfile: config.dockerfile,
       },
       cron: config.cron,
       args: config.args,

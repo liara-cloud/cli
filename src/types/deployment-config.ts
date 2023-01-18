@@ -8,4 +8,5 @@ export default interface IDeploymentConfig extends ILiaraJSON {
   detach: boolean;
   message?: string;
   'no-cache'?: string;
+  dockerfile?: string;
 }
