@@ -143,17 +143,11 @@ export default class Deploy extends Command {
       }
     }
 
-    if (config['no-cache'] || config.buildCache === false) {
-      this.debug('Using Build Cache: Disabled');
-    }
+    config.buildCache = !(config['no-cache'] || config.build?.cache === false);
 
-    if (
-      !config['no-cache'] &&
-      (config.buildCache || config.buildCache === undefined)
-    ) {
-      config.buildCache = true;
-      this.debug('Using Build Cache: Enabled');
-    }
+    this.debug(
+      `Using Build Cache: ${config.buildCache ? 'Enabled' : 'Disabled'}`
+    );
 
     config.dockerfile = config.dockerfile || config.build?.dockerfile;
     if (config.dockerfile) {
@@ -512,11 +506,8 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
       );
     }
 
-    if (
-      config.buildCache !== undefined &&
-      typeof config.buildCache !== 'boolean'
-    ) {
-      this.error('`buildCache` field must be a boolean.');
+    if (config.build?.cache && typeof config.build.cache !== 'boolean') {
+      this.error('`cache` parameter field must be a boolean.');
     }
   }
 

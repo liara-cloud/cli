@@ -11,7 +11,6 @@ export default interface ILiaraJSON {
   cron?: string[];
   disks?: IDisk[];
   platform?: string;
-  buildCache: boolean;
   'build-arg'?: string[];
   build?: IBuildConfig;
   node?: INodePlatformConfig;
