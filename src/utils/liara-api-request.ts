@@ -52,11 +52,6 @@ class Liara {
         return await this.httpClient
           .post('v1/login', {
             json: options.body,
-            headers: {
-              Authorization: options.api_token
-                ? `Bearer ${options.api_token}`
-                : undefined,
-            },
           })
           .json<Record<string, any>>();
       } catch (error) {

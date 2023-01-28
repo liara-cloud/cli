@@ -46,7 +46,7 @@ export default class AccountAdd extends Command {
 
     const region = flags.region || FALLBACK_REGION;
 
-    if (!flags.email) {
+    if (!flags['api-token'] && !flags.email) {
       let emailIsValid = false;
       do {
         flags.email = await this.promptEmail();
@@ -66,31 +66,22 @@ export default class AccountAdd extends Command {
         (!flags['api-token'] && (await this.promptPassword())),
     };
 
-    if (flags['from-login']) {
-      flags.account = `${flags.email.split('@')[0]}_${region}`;
-    }
-
-    const name = flags.account || (await this.promptName(flags.email, region));
-
     this.got = got.extend({ prefixUrl: REGIONS_API_URL[region], hooks });
 
     const liaraAPI = new Liara(this.got, debug);
 
     const account = flags['api-token']
       ? await liaraAPI.me({
-          region,
-          email: flags.email,
           api_token: flags['api-token'],
         })
       : await liaraAPI.login({
           body,
-          api_token: flags['api-token'],
           region,
         });
 
-    if (flags.email !== account.email) {
-      this.error(`Email: ${flags.email} is not related to your api-token`);
-    }
+    const name = flags['from-login']
+      ? `${account.email.split('@')[0]}_${region}`
+      : await this.promptName(account.email, region);
 
     const accounts = {
       ...currentAccounts,
