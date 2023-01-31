@@ -154,9 +154,15 @@ export default class Deploy extends Command {
       this.debug(`Using Custom Dockerfile: ${config.dockerfile}`);
     }
 
-    if (Array.isArray(config['build-arg'])) {
+    if (
+      Array.isArray(config.build?.args) ||
+      Array.isArray(config['build-arg'])
+    ) {
+      const FirstPriority = buildArgsParser(config['build-arg'] || []);
+      const SecPriority = buildArgsParser(config.build?.args || []);
+
       // @ts-ignore
-      config['build-arg'] = buildArgsParser(config['build-arg']);
+      config['build-arg'] = { ...SecPriority, ...FirstPriority };
     }
 
     try {
@@ -281,6 +287,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
     const body: { [k: string]: any } = {
       build: {
         cache: config.buildCache,
+        args: config['build-arg'],
         dockerfile: config.dockerfile,
       },
       cron: config.cron,
@@ -294,10 +301,6 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
     if (config.image) {
       body.image = config.image;
       return this.createRelease(config.app as string, body);
-    }
-
-    if (config['build-arg']) {
-      body.build.args = config['build-arg'];
     }
 
     body.gitInfo = await collectGitInfo(config.path, this.debug);
