@@ -34,6 +34,8 @@ const pythonPlatformsIgnores: string[] = [
   'celerybeat-schedule',
 ];
 
+const phpPlatformsIgnores = ['/vendor'];
+
 const platformIgnores: { [platform: string]: string[] } = {
   django: [
     ...pythonPlatformsIgnores,
@@ -42,7 +44,8 @@ const platformIgnores: { [platform: string]: string[] } = {
     'staticfiles',
   ],
   flask: [...pythonPlatformsIgnores, 'instance', '.webassets-cache'],
-  laravel: ['/vendor'],
+  laravel: [...phpPlatformsIgnores],
+  php: [...phpPlatformsIgnores],
   netcore: [
     // Source: https://gist.github.com/vmandic/ac2ecc9c24f6899ee0ec46e4ce444a0e
     'Debug',
