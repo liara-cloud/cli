@@ -112,13 +112,17 @@ Please specify your platform with --platform=node or docker.`);
     }
 
     if (
-      packageJson.devDependencies &&
-      packageJson.devDependencies['@vue/cli-service']
+      (packageJson.devDependencies &&
+        packageJson.devDependencies['@vue/cli-service']) ||
+      (packageJson.dependencies?.vue && packageJson.devDependencies?.vite)
     ) {
       return 'vue';
     }
 
-    if (packageJson.dependencies && packageJson.dependencies['react-scripts']) {
+    if (
+      (packageJson.dependencies && packageJson.dependencies['react-scripts']) ||
+      (packageJson.dependencies?.react && packageJson.devDependencies?.vite)
+    ) {
       return 'react';
     }
 
