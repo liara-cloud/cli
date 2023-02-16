@@ -34,7 +34,7 @@ const pythonPlatformsIgnores: string[] = [
   'celerybeat-schedule',
 ];
 
-const phpPlatformsIgnores = ['vendor'];
+const phpPlatformsIgnores = ['/vendor'];
 
 const platformIgnores: { [platform: string]: string[] } = {
   django: [
