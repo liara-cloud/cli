@@ -111,14 +111,11 @@ Please specify your platform with --platform=node or docker.`);
       return 'angular';
     }
 
-    if (
-      packageJson.devDependencies &&
-      packageJson.devDependencies['@vue/cli-service']
-    ) {
+    if (packageJson.dependencies && packageJson.dependencies.vue) {
       return 'vue';
     }
 
-    if (packageJson.dependencies && packageJson.dependencies['react-scripts']) {
+    if (packageJson.dependencies && packageJson.dependencies.react) {
       return 'react';
     }
 
