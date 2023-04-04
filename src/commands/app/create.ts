@@ -97,7 +97,7 @@ export default class AppCreate extends Command {
     this.spinner.start('Loading...');
 
     try {
-      const { plans } = await this.got('v1/me').json();
+      const { plans } = await this.got('v1/me').json<{ plans: any }>();
       this.spinner.stop();
 
       const { plan } = (await inquirer.prompt({

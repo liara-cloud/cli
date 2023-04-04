@@ -19,7 +19,9 @@ export default class EnvList extends Command {
 
     const app = flags.app || (await this.promptProject());
 
-    const { project } = await this.got(`v1/projects/${app}`).json();
+    const { project } = await this.got(`v1/projects/${app}`).json<{
+      project: any;
+    }>();
     CliUx.ux.table(
       project.envs,
       {

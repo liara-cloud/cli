@@ -8,7 +8,8 @@
     "strict": true,
     "target": "es2017",
     "composite": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "useUnknownInCatchVariables": false
   },
   "include": ["src/**/*"],
   "ts-node": {

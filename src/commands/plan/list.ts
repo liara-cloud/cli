@@ -17,7 +17,7 @@ export default class PlanList extends Command {
 
     await this.setGotConfig(flags);
 
-    const { plans } = await this.got('v1/me').json();
+    const { plans } = await this.got('v1/me').json<{ plans: any }>();
     const plansData = Object.keys(plans.projects)
       .filter(
         (plan) =>
