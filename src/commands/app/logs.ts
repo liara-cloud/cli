@@ -3,8 +3,8 @@ import moment from 'moment';
 import UAParser from 'ua-parser-js';
 import { Flags, Errors } from '@oclif/core';
 
-import Command from '../../base';
-import { createDebugLogger } from '../../utils/output';
+import Command from '../../base.js';
+import { createDebugLogger } from '../../utils/output.js';
 
 interface ILog {
   type: string;

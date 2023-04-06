@@ -1,6 +1,6 @@
 import tar from 'tar';
 import fs from 'fs-extra';
-import { DebugLogger } from './output';
+import { DebugLogger } from './output.js';
 import ignore, { Ignore } from 'ignore';
 import { relative, join, dirname } from 'path';
 

@@ -1,12 +1,12 @@
 import { Got } from 'got';
 
-import Poller from '../utils/poller';
-import BuildFailed from '../errors/build-failed';
-import IBuildLogsResponse from '../types/build-logs-response';
-import BuildCanceled from '../errors/build-cancel';
-import BuildTimeout from '../errors/build-timeout';
-import DeployException from '../errors/deploy-exception';
-import ReleaseFailed from '../errors/release-failed';
+import Poller from '../utils/poller.js';
+import BuildFailed from '../errors/build-failed.js';
+import IBuildLogsResponse from '../types/build-logs-response.js';
+import BuildCanceled from '../errors/build-cancel.js';
+import BuildTimeout from '../errors/build-timeout.js';
+import DeployException from '../errors/deploy-exception.js';
+import ReleaseFailed from '../errors/release-failed.js';
 
 export default async (
   httpClient: Got,

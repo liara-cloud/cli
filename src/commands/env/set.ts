@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
-import Command from '../../base';
-import { Flags } from '@oclif/core';
-import { createDebugLogger } from '../../utils/output';
+import Command from '../../base.js';
+import { Flags, Args } from '@oclif/core';
+import { createDebugLogger } from '../../utils/output.js';
 
 export interface IEnv {
   key: string;
@@ -19,12 +19,9 @@ export interface IGetProjectResponse {
 export default class EnvSet extends Command {
   static description = 'specifying environment variables to an app';
   static strict = false;
-  static args = [
-    {
-      name: 'env',
-      description: 'key=value pair',
-    },
-  ];
+  static args = {
+    env: Args.string({ description: 'key=value pair' }),
+  };
 
   static flags = {
     ...Command.flags,
@@ -44,7 +41,7 @@ export default class EnvSet extends Command {
       this.exit(0);
     }
 
-    const env = this.readKeyValue(argv);
+    const env = this.readKeyValue(argv as string[]);
     const app = flags.app || (await this.promptProject());
     const appliedEnvs = await this.fetchEnvs(app);
 

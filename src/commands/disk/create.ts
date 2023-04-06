@@ -1,8 +1,8 @@
-import ora from 'ora';
+import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
-import Command, { IGetProjectsResponse } from '../../base';
+import Command, { IGetProjectsResponse } from '../../base.js';
 import { Flags } from '@oclif/core';
-import { createDebugLogger } from '../../utils/output';
+import { createDebugLogger } from '../../utils/output.js';
 
 export default class DiskCreate extends Command {
   static description = 'create a disk';
@@ -23,7 +23,7 @@ export default class DiskCreate extends Command {
     }),
   };
 
-  spinner!: ora.Ora;
+  spinner!: Ora;
 
   async run() {
     this.spinner = ora();

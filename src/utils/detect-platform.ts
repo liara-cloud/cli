@@ -1,6 +1,8 @@
 import path from 'path';
-import globby from 'globby';
-import { readJSONSync, existsSync, readFileSync } from 'fs-extra';
+import { globbySync } from 'globby';
+import fs from 'fs-extra';
+
+const { readJSONSync, existsSync, readFileSync } = fs;
 
 export default function detectPlatform(projectPath: string) {
   const pipfilePath = path.join(projectPath, 'Pipfile');
@@ -9,7 +11,7 @@ export default function detectPlatform(projectPath: string) {
   const composeJsonFilePath = path.join(projectPath, 'composer.json');
   const requirementsTxtFilePath = path.join(projectPath, 'requirements.txt');
 
-  const [programCSFilePath] = globby.sync('**/{Startup.cs,Program.cs}', {
+  const [programCSFilePath] = globbySync('**/{Startup.cs,Program.cs}', {
     cwd: projectPath,
     gitignore: true,
     deep: 5,
@@ -25,7 +27,7 @@ export default function detectPlatform(projectPath: string) {
 
   const hasCSProjFile =
     programCSFilePath &&
-    globby.sync('*.csproj', {
+    globbySync('*.csproj', {
       gitignore: true,
       cwd: path.join(projectPath, path.dirname(programCSFilePath)),
     }).length > 0;

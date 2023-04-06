@@ -1,15 +1,15 @@
 import chalk from 'chalk';
-import { CliUx } from '@oclif/core';
+import { ux } from '@oclif/core';
 import * as shamsi from 'shamsi-date-converter';
 
-import Command from '../../base';
-import IGetDatabasesResponse from '../../types/get-dbs-response';
+import Command from '../../base.js';
+import IGetDatabasesResponse from '../../types/get-dbs-response.js';
 export default class DatabaseList extends Command {
   static description: string | undefined = 'list available databases';
 
   static flags = {
     ...Command.flags,
-    ...CliUx.ux.table.flags(),
+    ...ux.table.flags(),
   };
 
   static aliases: string[] = ['db:ls'];
@@ -43,7 +43,7 @@ Please open up https://console.liara.ir/databases and create the database, first
       };
     });
 
-    CliUx.ux.table(
+    ux.table(
       databasesData,
       {
         Name: {},

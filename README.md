@@ -23,7 +23,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/3.4.0 linux-x64 node-v14.21.3
+@liara/cli/3.3.0 linux-x64 node-v18.15.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -62,7 +62,7 @@ USAGE
 - [`liara env ls`](#liara-env-ls)
 - [`liara env set [ENV]`](#liara-env-set-env)
 - [`liara env unset [ENV]`](#liara-env-unset-env)
-- [`liara help [COMMAND]`](#liara-help-command)
+- [`liara help [COMMANDS]`](#liara-help-commands)
 - [`liara login`](#liara-login)
 - [`liara logs`](#liara-logs)
 - [`liara plan list`](#liara-plan-list)
@@ -483,7 +483,7 @@ EXAMPLES
   $ liara autocomplete --refresh-cache
 ```
 
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v1.3.0/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v2.1.8/src/commands/autocomplete/index.ts)_
 
 ## `liara create`
 
@@ -772,16 +772,16 @@ DESCRIPTION
   remove environment variables from an app
 ```
 
-## `liara help [COMMAND]`
+## `liara help [COMMANDS]`
 
 Display help for liara.
 
 ```
 USAGE
-  $ liara help [COMMAND] [-n]
+  $ liara help [COMMANDS] [-n]
 
 ARGUMENTS
-  COMMAND  Command to show help for.
+  COMMANDS  Command to show help for.
 
 FLAGS
   -n, --nested-commands  Include all nested commands in the output.
@@ -790,7 +790,7 @@ DESCRIPTION
   Display help for liara.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.9/src/commands/help.ts)_
 
 ## `liara login`
 
@@ -1014,6 +1014,6 @@ FLAG DESCRIPTIONS
     Additionally shows the architecture, node version, operating system, and versions of plugins that the CLI is using.
 ```
 
-_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.1.2/src/commands/version.ts)_
+_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.3.2/src/commands/version.ts)_
 
 <!-- commandsstop -->

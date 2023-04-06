@@ -1,5 +1,5 @@
 import os from 'os';
-import ora from 'ora';
+import ora, { Ora } from 'ora';
 import fs from 'fs-extra';
 import WebSocket from 'ws';
 import got, { Options } from 'got';
@@ -7,7 +7,7 @@ import inquirer from 'inquirer';
 import { Command, Flags } from '@oclif/core';
 import updateNotifier from 'update-notifier';
 import HttpsProxyAgent from 'https-proxy-agent';
-import './interceptors';
+import './interceptors.js';
 import {
   DEV_MODE,
   FALLBACK_REGION,
@@ -15,9 +15,11 @@ import {
   PREVIOUS_GLOBAL_CONF_PATH,
   REGIONS_API_URL,
   GLOBAL_CONF_VERSION,
-} from './constants';
+} from './constants.js';
 
-updateNotifier({ pkg: require('../package.json') }).notify({ isGlobal: true });
+// @ts-ignore
+import packageJson from '../package.json' assert { type: 'json' };
+updateNotifier({ pkg: packageJson }).notify({ isGlobal: true });
 
 const isWin = os.platform() === 'win32';
 
@@ -76,7 +78,7 @@ export default abstract class extends Command {
   };
 
   got = got.extend();
-  spinner!: ora.Ora;
+  spinner!: Ora;
   async readGlobalConfig(): Promise<IGlobalLiaraConfig> {
     if (fs.existsSync(GLOBAL_CONF_PATH)) {
       fs.removeSync(PREVIOUS_GLOBAL_CONF_PATH);
@@ -171,11 +173,13 @@ Please check your network connection.`);
   }
 
   async setGotConfig(config: IConfig): Promise<void> {
-    const gotConfig: Options = {
+    const gotConfig: Partial<Options> = {
       headers: {
         'User-Agent': this.config.userAgent,
       },
-      timeout: 10 * 1000,
+      timeout: {
+        request: 10 * 1000,
+      },
     };
 
     const proxy = process.env.http_proxy || process.env.https_proxy;

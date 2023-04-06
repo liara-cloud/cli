@@ -1,8 +1,8 @@
 import chalk from 'chalk';
 import { Flags } from '@oclif/core';
 
-import Command from '../base';
-import AccountAdd from './account/add';
+import Command from '../base.js';
+import AccountAdd from './account/add.js';
 
 export default class Login extends Command {
   static description = 'login to your account';

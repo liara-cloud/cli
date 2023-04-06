@@ -1,4 +1,4 @@
-import ora from 'ora';
+import ora, { Ora } from 'ora';
 import path from 'path';
 import chalk from 'chalk';
 import bytes from 'bytes';
@@ -8,36 +8,36 @@ import inquirer from 'inquirer';
 import ProgressBar from 'progress';
 import { Flags, Errors } from '@oclif/core';
 
-import Logs from './app/logs';
-import Command from '../base';
-import IFlags from '../types/flags';
-import Poller from '../utils/poller';
-import upload from '../services/upload';
-import IRelease from '../types/release';
-import checkPath from '../utils/check-path';
-import onInterupt from '../utils/on-intrupt';
-import ILiaraJSON from '../types/liara-json';
-import buildLogs from '../services/build-logs';
-import BuildFailed from '../errors/build-failed';
-import validatePort from '../utils/validate-port';
-import BuildCanceled from '../errors/build-cancel';
-import BuildTimeout from '../errors/build-timeout';
-import { createDebugLogger } from '../utils/output';
-import createArchive from '../utils/create-archive';
-import ReleaseFailed from '../errors/release-failed';
-import prepareTmpDirectory from '../services/tmp-dir';
-import detectPlatform from '../utils/detect-platform';
-import collectGitInfo from '../utils/collect-git-info';
-import ICreatedRelease from '../types/created-release';
-import buildArgsParser from '../utils/build-args-parser';
-import { DEV_MODE, MAX_SOURCE_SIZE } from '../constants';
-import DeployException from '../errors/deploy-exception';
-import IDeploymentConfig from '../types/deployment-config';
-import { getPort, getDefaultPort } from '../utils/get-port';
-import cancelDeployment from '../services/cancel-deployment';
-import IGetProjectsResponse from '../types/get-project-response';
-import ReachedMaxSourceSizeError from '../errors/max-source-size';
-import mergePlatformConfigWithDefaults from '../utils/merge-platform-config';
+import Logs from './app/logs.js';
+import Command from '../base.js';
+import IFlags from '../types/flags.js';
+import Poller from '../utils/poller.js';
+import upload from '../services/upload.js';
+import IRelease from '../types/release.js';
+import checkPath from '../utils/check-path.js';
+import onInterupt from '../utils/on-intrupt.js';
+import ILiaraJSON from '../types/liara-json.js';
+import buildLogs from '../services/build-logs.js';
+import BuildFailed from '../errors/build-failed.js';
+import validatePort from '../utils/validate-port.js';
+import BuildCanceled from '../errors/build-cancel.js';
+import BuildTimeout from '../errors/build-timeout.js';
+import { createDebugLogger } from '../utils/output.js';
+import createArchive from '../utils/create-archive.js';
+import ReleaseFailed from '../errors/release-failed.js';
+import prepareTmpDirectory from '../services/tmp-dir.js';
+import detectPlatform from '../utils/detect-platform.js';
+import collectGitInfo from '../utils/collect-git-info.js';
+import ICreatedRelease from '../types/created-release.js';
+import buildArgsParser from '../utils/build-args-parser.js';
+import { DEV_MODE, MAX_SOURCE_SIZE } from '../constants.js';
+import DeployException from '../errors/deploy-exception.js';
+import IDeploymentConfig from '../types/deployment-config.js';
+import { getPort, getDefaultPort } from '../utils/get-port.js';
+import cancelDeployment from '../services/cancel-deployment.js';
+import IGetProjectsResponse from '../types/get-project-response.js';
+import ReachedMaxSourceSizeError from '../errors/max-source-size.js';
+import mergePlatformConfigWithDefaults from '../utils/merge-platform-config.js';
 
 export default class Deploy extends Command {
   static description = 'deploy an app';
@@ -81,7 +81,7 @@ export default class Deploy extends Command {
     }),
   };
 
-  spinner!: ora.Ora;
+  spinner!: Ora;
 
   async run() {
     const { flags } = await this.parse(Deploy);

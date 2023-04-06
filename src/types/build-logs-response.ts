@@ -1,5 +1,5 @@
-import IRelease from './release';
-import IBuildOutput from './build-output';
+import IRelease from './release.js';
+import IBuildOutput from './build-output.js';
 
 export default interface IBuildLogsResponse {
   release: IRelease;
