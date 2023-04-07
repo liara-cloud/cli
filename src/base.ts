@@ -1,4 +1,6 @@
 import os from 'os';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import ora, { Ora } from 'ora';
 import fs from 'fs-extra';
 import WebSocket from 'ws';
@@ -17,8 +19,9 @@ import {
   GLOBAL_CONF_VERSION,
 } from './constants.js';
 
-// @ts-ignore
-import packageJson from '../package.json' assert { type: 'json' };
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const packageJson = fs.readJSONSync(path.join(__dirname, '..', 'package.json'));
 updateNotifier({ pkg: packageJson }).notify({ isGlobal: true });
 
 const isWin = os.platform() === 'win32';
