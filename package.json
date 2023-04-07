@@ -126,14 +126,25 @@
     ],
     "rootDir": "test",
     "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "transform": {
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "useESM": true
+        }
+      ]
+    }
   },
   "repository": "liara-ir/liara-cli",
   "scripts": {
@@ -141,7 +152,7 @@
     "format": "prettier \"**/*.ts\" \"**/*.js\" \"**/*.json\" --ignore-path ./.prettierignore --write",
     "postpack": "rm -f oclif.manifest.json tsconfig.tsbuildinfo",
     "prepack": "set -ex; rm -rf lib && tsc -b && oclif manifest && oclif readme",
-    "test": "jest",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "version": "oclif readme && git add README.md",
     "readme": "oclif readme",
     "prepare": "husky install"
