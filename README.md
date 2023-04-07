@@ -8,16 +8,14 @@ The command line interface for Liara
 [![License](https://img.shields.io/npm/l/@liara/cli.svg)](https://github.com/liara-ir/liara-cli/blob/master/package.json)
 
 <!-- toc -->
-
-- [@liara/cli](#liaracli)
-- [Usage](#usage)
-- [Commands](#commands)
+* [@liara/cli](#liaracli)
+* [Usage](#usage)
+* [Commands](#commands)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
-
 ```sh-session
 $ npm install -g @liara/cli
 $ liara COMMAND
@@ -29,49 +27,47 @@ USAGE
   $ liara COMMAND
 ...
 ```
-
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-
-- [`liara account add`](#liara-account-add)
-- [`liara account list`](#liara-account-list)
-- [`liara account ls`](#liara-account-ls)
-- [`liara account remove`](#liara-account-remove)
-- [`liara account rm`](#liara-account-rm)
-- [`liara account use`](#liara-account-use)
-- [`liara app create`](#liara-app-create)
-- [`liara app delete`](#liara-app-delete)
-- [`liara app list`](#liara-app-list)
-- [`liara app logs`](#liara-app-logs)
-- [`liara app ls`](#liara-app-ls)
-- [`liara app restart`](#liara-app-restart)
-- [`liara app shell`](#liara-app-shell)
-- [`liara app start`](#liara-app-start)
-- [`liara app stop`](#liara-app-stop)
-- [`liara autocomplete [SHELL]`](#liara-autocomplete-shell)
-- [`liara create`](#liara-create)
-- [`liara db list`](#liara-db-list)
-- [`liara db ls`](#liara-db-ls)
-- [`liara delete`](#liara-delete)
-- [`liara deploy`](#liara-deploy)
-- [`liara disk create`](#liara-disk-create)
-- [`liara env list`](#liara-env-list)
-- [`liara env ls`](#liara-env-ls)
-- [`liara env set [ENV]`](#liara-env-set-env)
-- [`liara env unset [ENV]`](#liara-env-unset-env)
-- [`liara help [COMMANDS]`](#liara-help-commands)
-- [`liara login`](#liara-login)
-- [`liara logs`](#liara-logs)
-- [`liara plan list`](#liara-plan-list)
-- [`liara plan ls`](#liara-plan-ls)
-- [`liara restart`](#liara-restart)
-- [`liara shell`](#liara-shell)
-- [`liara start`](#liara-start)
-- [`liara stop`](#liara-stop)
-- [`liara version`](#liara-version)
+* [`liara account add`](#liara-account-add)
+* [`liara account list`](#liara-account-list)
+* [`liara account ls`](#liara-account-ls)
+* [`liara account remove`](#liara-account-remove)
+* [`liara account rm`](#liara-account-rm)
+* [`liara account use`](#liara-account-use)
+* [`liara app create`](#liara-app-create)
+* [`liara app delete`](#liara-app-delete)
+* [`liara app list`](#liara-app-list)
+* [`liara app logs`](#liara-app-logs)
+* [`liara app ls`](#liara-app-ls)
+* [`liara app restart`](#liara-app-restart)
+* [`liara app shell`](#liara-app-shell)
+* [`liara app start`](#liara-app-start)
+* [`liara app stop`](#liara-app-stop)
+* [`liara autocomplete [SHELL]`](#liara-autocomplete-shell)
+* [`liara create`](#liara-create)
+* [`liara db list`](#liara-db-list)
+* [`liara db ls`](#liara-db-ls)
+* [`liara delete`](#liara-delete)
+* [`liara deploy`](#liara-deploy)
+* [`liara disk create`](#liara-disk-create)
+* [`liara env list`](#liara-env-list)
+* [`liara env ls`](#liara-env-ls)
+* [`liara env set [ENV]`](#liara-env-set-env)
+* [`liara env unset [ENV]`](#liara-env-unset-env)
+* [`liara help [COMMANDS]`](#liara-help-commands)
+* [`liara login`](#liara-login)
+* [`liara logs`](#liara-logs)
+* [`liara plan list`](#liara-plan-list)
+* [`liara plan ls`](#liara-plan-ls)
+* [`liara restart`](#liara-restart)
+* [`liara shell`](#liara-shell)
+* [`liara start`](#liara-start)
+* [`liara stop`](#liara-stop)
+* [`liara version`](#liara-version)
 
 ## `liara account add`
 
@@ -1015,5 +1011,4 @@ FLAG DESCRIPTIONS
 ```
 
 _See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.3.2/src/commands/version.ts)_
-
 <!-- commandsstop -->
