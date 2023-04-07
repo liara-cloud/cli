@@ -39,7 +39,6 @@
   "devDependencies": {
     "@types/async-retry": "^1.4.5",
     "@types/bytes": "^3.0.0",
-    "@types/concat-stream": "^2.0.0",
     "@types/fs-extra": "^11.0.1",
     "@types/inquirer": "^9.0.3",
     "@types/jest": "^29.5.0",
@@ -50,7 +49,6 @@
     "@types/ua-parser-js": "^0.7.36",
     "@types/update-notifier": "^6.0.2",
     "@types/ws": "^8.5.4",
-    "concat-stream": "^2.0.0",
     "eslint": "^8.37.0",
     "eslint-config-oclif": "^4.0.0",
     "eslint-config-oclif-typescript": "^1.0.2",
