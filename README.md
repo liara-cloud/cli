@@ -23,7 +23,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/3.3.0 linux-x64 node-v18.13.0
+@liara/cli/3.4.0 linux-x64 node-v14.21.3
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -606,31 +606,32 @@ deploy an app
 USAGE
   $ liara deploy [-h] [--debug] [--api-token <value>] [--region iran|germany] [--path <value>] [--platform
     <value>] [-a <value>] [-p <value>] [-i <value>] [--detach] [--args <value>] [--build-arg <value>] [-m <value>] [-d
-    <value>] [--no-cache]
+    <value>] [--no-cache] [-f <value>]
 
 FLAGS
-  -a, --app=<value>       app id
-  -d, --disks=<value>...  mount a disk
-  -h, --help              Show CLI help.
-  -i, --image=<value>     docker image to deploy
-  -m, --message=<value>   the release message
-  -p, --port=<value>      the port that your app listens to
-  --api-token=<value>     your api token to use for authentication
-  --args=<value>...       docker image entrypoint args
-  --build-arg=<value>...  docker image build args
-  --debug                 show debug logs
-  --detach                do not stream app logs after deployment
-  --no-cache              do not use cache when building the image
-  --path=<value>          app path in your computer
-  --platform=<value>      the platform your app needs to run
-  --region=<option>       the region you want to deploy your app to
-                          <options: iran|germany>
+  -a, --app=<value>         app id
+  -d, --disks=<value>...    mount a disk
+  -f, --dockerfile=<value>  name of the Dockerfile (default is "PATH/Dockerfile")
+  -h, --help                Show CLI help.
+  -i, --image=<value>       docker image to deploy
+  -m, --message=<value>     the release message
+  -p, --port=<value>        the port that your app listens to
+  --api-token=<value>       your api token to use for authentication
+  --args=<value>...         docker image entrypoint args
+  --build-arg=<value>...    docker image build args
+  --debug                   show debug logs
+  --detach                  do not stream app logs after deployment
+  --no-cache                do not use cache when building the image
+  --path=<value>            app path in your computer
+  --platform=<value>        the platform your app needs to run
+  --region=<option>         the region you want to deploy your app to
+                            <options: iran|germany>
 
 DESCRIPTION
   deploy an app
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v3.3.0/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v3.4.0/src/commands/deploy.ts)_
 
 ## `liara disk create`
 
@@ -812,7 +813,7 @@ DESCRIPTION
   login to your account
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v3.3.0/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v3.4.0/src/commands/login.ts)_
 
 ## `liara logs`
 
