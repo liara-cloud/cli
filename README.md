@@ -8,70 +8,66 @@ The command line interface for Liara
 [![License](https://img.shields.io/npm/l/@liara/cli.svg)](https://github.com/liara-ir/liara-cli/blob/master/package.json)
 
 <!-- toc -->
-
-- [@liara/cli](#liaracli)
-- [Usage](#usage)
-- [Commands](#commands)
+* [@liara/cli](#liaracli)
+* [Usage](#usage)
+* [Commands](#commands)
 <!-- tocstop -->
 
 # Usage
 
 <!-- usage -->
-
 ```sh-session
 $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/3.4.0 linux-x64 node-v14.21.3
+@liara/cli/3.4.0 linux-x64 node-v18.15.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
 ...
 ```
-
 <!-- usagestop -->
 
 # Commands
 
 <!-- commands -->
-
-- [`liara account add`](#liara-account-add)
-- [`liara account list`](#liara-account-list)
-- [`liara account ls`](#liara-account-ls)
-- [`liara account remove`](#liara-account-remove)
-- [`liara account rm`](#liara-account-rm)
-- [`liara account use`](#liara-account-use)
-- [`liara app create`](#liara-app-create)
-- [`liara app delete`](#liara-app-delete)
-- [`liara app list`](#liara-app-list)
-- [`liara app logs`](#liara-app-logs)
-- [`liara app ls`](#liara-app-ls)
-- [`liara app restart`](#liara-app-restart)
-- [`liara app shell`](#liara-app-shell)
-- [`liara app start`](#liara-app-start)
-- [`liara app stop`](#liara-app-stop)
-- [`liara autocomplete [SHELL]`](#liara-autocomplete-shell)
-- [`liara create`](#liara-create)
-- [`liara db list`](#liara-db-list)
-- [`liara db ls`](#liara-db-ls)
-- [`liara delete`](#liara-delete)
-- [`liara deploy`](#liara-deploy)
-- [`liara disk create`](#liara-disk-create)
-- [`liara env list`](#liara-env-list)
-- [`liara env ls`](#liara-env-ls)
-- [`liara env set [ENV]`](#liara-env-set-env)
-- [`liara env unset [ENV]`](#liara-env-unset-env)
-- [`liara help [COMMAND]`](#liara-help-command)
-- [`liara login`](#liara-login)
-- [`liara logs`](#liara-logs)
-- [`liara plan list`](#liara-plan-list)
-- [`liara plan ls`](#liara-plan-ls)
-- [`liara restart`](#liara-restart)
-- [`liara shell`](#liara-shell)
-- [`liara start`](#liara-start)
-- [`liara stop`](#liara-stop)
-- [`liara version`](#liara-version)
+* [`liara account add`](#liara-account-add)
+* [`liara account list`](#liara-account-list)
+* [`liara account ls`](#liara-account-ls)
+* [`liara account remove`](#liara-account-remove)
+* [`liara account rm`](#liara-account-rm)
+* [`liara account use`](#liara-account-use)
+* [`liara app create`](#liara-app-create)
+* [`liara app delete`](#liara-app-delete)
+* [`liara app list`](#liara-app-list)
+* [`liara app logs`](#liara-app-logs)
+* [`liara app ls`](#liara-app-ls)
+* [`liara app restart`](#liara-app-restart)
+* [`liara app shell`](#liara-app-shell)
+* [`liara app start`](#liara-app-start)
+* [`liara app stop`](#liara-app-stop)
+* [`liara autocomplete [SHELL]`](#liara-autocomplete-shell)
+* [`liara create`](#liara-create)
+* [`liara db list`](#liara-db-list)
+* [`liara db ls`](#liara-db-ls)
+* [`liara delete`](#liara-delete)
+* [`liara deploy`](#liara-deploy)
+* [`liara disk create`](#liara-disk-create)
+* [`liara env list`](#liara-env-list)
+* [`liara env ls`](#liara-env-ls)
+* [`liara env set [ENV]`](#liara-env-set-env)
+* [`liara env unset [ENV]`](#liara-env-unset-env)
+* [`liara help [COMMANDS]`](#liara-help-commands)
+* [`liara login`](#liara-login)
+* [`liara logs`](#liara-logs)
+* [`liara plan list`](#liara-plan-list)
+* [`liara plan ls`](#liara-plan-ls)
+* [`liara restart`](#liara-restart)
+* [`liara shell`](#liara-shell)
+* [`liara start`](#liara-start)
+* [`liara stop`](#liara-stop)
+* [`liara version`](#liara-version)
 
 ## `liara account add`
 
@@ -483,7 +479,7 @@ EXAMPLES
   $ liara autocomplete --refresh-cache
 ```
 
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v1.3.0/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v2.1.8/src/commands/autocomplete/index.ts)_
 
 ## `liara create`
 
@@ -772,16 +768,16 @@ DESCRIPTION
   remove environment variables from an app
 ```
 
-## `liara help [COMMAND]`
+## `liara help [COMMANDS]`
 
 Display help for liara.
 
 ```
 USAGE
-  $ liara help [COMMAND] [-n]
+  $ liara help [COMMANDS] [-n]
 
 ARGUMENTS
-  COMMAND  Command to show help for.
+  COMMANDS  Command to show help for.
 
 FLAGS
   -n, --nested-commands  Include all nested commands in the output.
@@ -790,7 +786,7 @@ DESCRIPTION
   Display help for liara.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.12/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.9/src/commands/help.ts)_
 
 ## `liara login`
 
@@ -1014,6 +1010,5 @@ FLAG DESCRIPTIONS
     Additionally shows the architecture, node version, operating system, and versions of plugins that the CLI is using.
 ```
 
-_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.1.2/src/commands/version.ts)_
-
+_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.3.2/src/commands/version.ts)_
 <!-- commandsstop -->

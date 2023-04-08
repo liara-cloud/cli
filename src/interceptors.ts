@@ -1,7 +1,7 @@
 import { Errors } from '@oclif/core';
 import { Hooks } from 'got';
 
-const hooks: Hooks = {
+const hooks: Partial<Hooks> = {
   beforeError: [
     (error) => {
       const { response } = error;

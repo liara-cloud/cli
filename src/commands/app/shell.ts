@@ -1,8 +1,8 @@
 import path from 'path';
 import fs from 'fs-extra';
-import Command from '../../base';
+import Command from '../../base.js';
 import { Flags, Errors } from '@oclif/core';
-import { REGIONS_API_URL, FALLBACK_REGION } from '../../constants';
+import { REGIONS_API_URL, FALLBACK_REGION } from '../../constants.js';
 import { createWebSocketStream } from 'ws';
 
 interface IFlags {

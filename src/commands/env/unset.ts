@@ -1,18 +1,15 @@
 import inquirer from 'inquirer';
-import Command from '../../base';
-import { Flags } from '@oclif/core';
-import { createDebugLogger } from '../../utils/output';
-import { IEnv, IGetProjectResponse } from './set';
+import Command from '../../base.js';
+import { Flags, Args } from '@oclif/core';
+import { createDebugLogger } from '../../utils/output.js';
+import { IEnv, IGetProjectResponse } from './set.js';
 
 export default class EnvUnset extends Command {
   static description = 'remove environment variables from an app';
   static strict = false;
-  static args = [
-    {
-      name: 'env',
-      description: 'key',
-    },
-  ];
+  static args = {
+    env: Args.string({ description: 'key' }),
+  };
 
   static flags = {
     ...Command.flags,

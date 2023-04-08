@@ -1,10 +1,10 @@
-import ora from 'ora';
+import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
-import Command from '../../base';
+import Command from '../../base.js';
 import { Flags } from '@oclif/core';
-import { AVAILABLE_PLATFORMS } from '../../constants';
-import { createDebugLogger } from '../../utils/output';
-import spacing from '../../utils/spacing';
+import { AVAILABLE_PLATFORMS } from '../../constants.js';
+import { createDebugLogger } from '../../utils/output.js';
+import spacing from '../../utils/spacing.js';
 
 export default class AppCreate extends Command {
   static description = 'create an app';
@@ -25,7 +25,7 @@ export default class AppCreate extends Command {
 
   static aliases = ['create'];
 
-  spinner!: ora.Ora;
+  spinner!: Ora;
 
   async run() {
     this.spinner = ora();
@@ -97,7 +97,8 @@ export default class AppCreate extends Command {
     this.spinner.start('Loading...');
 
     try {
-      const { plans } = await this.got('v1/me').json();
+      // TODO: Use proper type for plans
+      const { plans } = await this.got('v1/me').json<{ plans: any }>();
       this.spinner.stop();
 
       const { plan } = (await inquirer.prompt({

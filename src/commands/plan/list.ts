@@ -1,13 +1,13 @@
-import { CliUx } from '@oclif/core';
-import Command from '../../base';
-import spacing from '../../utils/spacing';
+import { ux } from '@oclif/core';
+import Command from '../../base.js';
+import spacing from '../../utils/spacing.js';
 
 export default class PlanList extends Command {
   static description = 'list available plans';
 
   static flags = {
     ...Command.flags,
-    ...CliUx.ux.table.flags(),
+    ...ux.table.flags(),
   };
 
   static aliases = ['plan:ls'];
@@ -17,7 +17,8 @@ export default class PlanList extends Command {
 
     await this.setGotConfig(flags);
 
-    const { plans } = await this.got('v1/me').json();
+    // TODO: Use proper type for plans
+    const { plans } = await this.got('v1/me').json<{ plans: any }>();
     const plansData = Object.keys(plans.projects)
       .filter(
         (plan) =>
@@ -49,7 +50,7 @@ export default class PlanList extends Command {
         };
       });
 
-    CliUx.ux.table(
+    ux.table(
       plansData,
       { Plan: {}, RAM: {}, CPU: {}, Disk: {}, Price: {} },
       flags

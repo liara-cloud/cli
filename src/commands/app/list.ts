@@ -1,5 +1,5 @@
-import { CliUx } from '@oclif/core';
-import Command, { IGetProjectsResponse } from '../../base';
+import { ux } from '@oclif/core';
+import Command, { IGetProjectsResponse } from '../../base.js';
 import * as shamsi from 'shamsi-date-converter';
 
 export default class AppList extends Command {
@@ -7,7 +7,7 @@ export default class AppList extends Command {
 
   static flags = {
     ...Command.flags,
-    ...CliUx.ux.table.flags(),
+    ...ux.table.flags(),
   };
 
   static aliases = ['app:ls'];
@@ -38,7 +38,7 @@ export default class AppList extends Command {
       };
     });
 
-    CliUx.ux.table(
+    ux.table(
       appsData,
       {
         Name: {},

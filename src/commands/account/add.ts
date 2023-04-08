@@ -1,22 +1,22 @@
 import got from 'got';
 import chalk from 'chalk';
 import fs from 'fs-extra';
-import AccountUse from './use';
+import AccountUse from './use.js';
 import retry from 'async-retry';
-import Command from '../../base';
-import { prompt } from 'inquirer';
+import Command from '../../base.js';
+import inquirer from 'inquirer';
 import { Flags } from '@oclif/core';
-import hooks from '../../interceptors';
+import hooks from '../../interceptors.js';
 import promptEmail from 'email-prompt-ts';
-import eraseLines from '../../utils/erase-lines';
-import { createDebugLogger } from '../../utils/output';
+import eraseLines from '../../utils/erase-lines.js';
+import { createDebugLogger } from '../../utils/output.js';
 import { validate as validateEmail } from 'email-validator';
 import {
   FALLBACK_REGION,
   REGIONS_API_URL,
   GLOBAL_CONF_PATH,
   GLOBAL_CONF_VERSION,
-} from '../../constants';
+} from '../../constants.js';
 
 export default class AccountAdd extends Command {
   static description = 'add an account';
@@ -113,7 +113,7 @@ export default class AccountAdd extends Command {
   }
 
   async promptName(email: string, region: string): Promise<string> {
-    const { name } = (await prompt({
+    const { name } = (await inquirer.prompt({
       name: 'name',
       type: 'input',
       message: 'Enter an optional name for this account:',
@@ -156,7 +156,7 @@ export default class AccountAdd extends Command {
   }
 
   async promptPassword(): Promise<string> {
-    const { password } = (await prompt({
+    const { password } = (await inquirer.prompt({
       name: 'password',
       type: 'password',
       message: 'Enter your password:',

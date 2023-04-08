@@ -1,12 +1,12 @@
-import { CliUx } from '@oclif/core';
-import Command from '../../base';
+import { ux } from '@oclif/core';
+import Command from '../../base.js';
 
 export default class AccountList extends Command {
   static description = 'list available accounts';
 
   static flags = {
     ...Command.flags,
-    ...CliUx.ux.table.flags(),
+    ...ux.table.flags(),
   };
 
   static aliases = ['account:ls'];
@@ -33,7 +33,7 @@ export default class AccountList extends Command {
       return { Name, Email, Region, Current };
     });
 
-    CliUx.ux.table(
+    ux.table(
       accountsData,
       { Name: {}, Email: {}, Region: {}, Current: {} },
       flags

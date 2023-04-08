@@ -1,7 +1,7 @@
 import inquirer from 'inquirer';
-import Command from '../../base';
+import Command from '../../base.js';
 import { Flags } from '@oclif/core';
-import { createDebugLogger } from '../../utils/output';
+import { createDebugLogger } from '../../utils/output.js';
 
 export default class AppDelete extends Command {
   static description = 'delete an app';

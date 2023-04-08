@@ -1,5 +1,5 @@
 import { exec } from 'child_process';
-import { DebugLogger } from './output';
+import { DebugLogger } from './output.js';
 
 export default async function collectGitInfo(cwd: string, debug: DebugLogger) {
   const branch = await retrieveConfig(

@@ -1,9 +1,9 @@
 import fs from 'fs-extra';
 import chalk from 'chalk';
-import Command, { IAccounts } from '../../base';
-import { prompt } from 'inquirer';
+import Command, { IAccounts } from '../../base.js';
+import inquirer from 'inquirer';
 import { Flags } from '@oclif/core';
-import { GLOBAL_CONF_PATH, GLOBAL_CONF_VERSION } from '../../constants';
+import { GLOBAL_CONF_PATH, GLOBAL_CONF_VERSION } from '../../constants.js';
 
 export default class AccountUse extends Command {
   static description = 'select an account';
@@ -51,7 +51,7 @@ export default class AccountUse extends Command {
   }
 
   async promptName(accounts: IAccounts): Promise<string> {
-    const { name } = (await prompt({
+    const { name } = (await inquirer.prompt({
       name: 'name',
       type: 'list',
       message: 'Enter your account name:',

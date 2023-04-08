@@ -3,8 +3,8 @@ import path from 'path';
 import fs from 'fs-extra';
 import semver from 'semver';
 
-import findFile from './find-file';
-import { DebugLogger } from './output';
+import findFile from './find-file.js';
+import { DebugLogger } from './output.js';
 
 interface IPlatformConfig {
   [key: string]: string | null;
@@ -59,7 +59,15 @@ async function getRequiredNetCoreVersion(
   projectPath: string,
   debug: DebugLogger
 ): Promise<string | null> {
-  const supportedNetCoreVersions = ['2.1', '2.2', '3.0', '3.1', '5.0', '6.0', '7.0'];
+  const supportedNetCoreVersions = [
+    '2.1',
+    '2.2',
+    '3.0',
+    '3.1',
+    '5.0',
+    '6.0',
+    '7.0',
+  ];
 
   try {
     const csproj = await findFile(projectPath, '**/*.csproj');

@@ -1,4 +1,4 @@
-import ILiaraJSON from './liara-json';
+import ILiaraJSON from './liara-json.js';
 
 export default interface IDeploymentConfig extends ILiaraJSON {
   path: string;
