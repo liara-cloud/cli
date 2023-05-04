@@ -1,6 +1,7 @@
-import { ux } from '@oclif/core';
-import Command, { IGetProjectsResponse } from '../../base.js';
+import { Flags, ux } from '@oclif/core';
 import * as shamsi from 'shamsi-date-converter';
+
+import Command, { IGetProjectsResponse } from '../../base.js';
 
 export default class AppList extends Command {
   static description = 'list available apps';
@@ -8,6 +9,9 @@ export default class AppList extends Command {
   static flags = {
     ...Command.flags,
     ...ux.table.flags(),
+    'wp-plus': Flags.boolean({
+      description: 'show wordpress plus apps',
+    }),
   };
 
   static aliases = ['app:ls'];
@@ -17,9 +21,10 @@ export default class AppList extends Command {
 
     await this.setGotConfig(flags);
 
-    const { projects } = await this.got(
-      'v1/projects'
-    ).json<IGetProjectsResponse>();
+    const { projects } = await this.got('v1/projects', {
+      searchParams: { 'is-wp-plus': flags['wp-plus'] },
+    }).json<IGetProjectsResponse>();
+
     if (projects.length === 0) {
       this.error("Please create an app via 'liara app:create' command, first.");
     }
