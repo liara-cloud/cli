@@ -4,6 +4,8 @@ import fs from 'fs-extra';
 
 const { readJSONSync, existsSync, readFileSync } = fs;
 
+import addNullBetweenChars from './add-null-between-chars.js';
+
 export default function detectPlatform(projectPath: string) {
   const pipfilePath = path.join(projectPath, 'Pipfile');
   const indexPHPFilePath = path.join(projectPath, 'index.php');
@@ -72,14 +74,18 @@ Please specify your platform with --platform=laravel or docker.`);
 
     if (
       requirementsTxt.includes('Django') ||
-      requirementsTxt.includes('django')
+      requirementsTxt.includes('django') ||
+      requirementsTxt.includes(addNullBetweenChars('Django')) ||
+      requirementsTxt.includes(addNullBetweenChars('django'))
     ) {
       return 'django';
     }
 
     if (
       requirementsTxt.includes('Flask') ||
-      requirementsTxt.includes('flask')
+      requirementsTxt.includes('flask') ||
+      requirementsTxt.includes(addNullBetweenChars('Flask')) ||
+      requirementsTxt.includes(addNullBetweenChars('flask'))
     ) {
       return 'flask';
     }
