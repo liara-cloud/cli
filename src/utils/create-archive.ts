@@ -150,15 +150,24 @@ export default async function createArchive(
     return false;
   };
 
-  const fileList: string[] = fs.readdirSync(projectPath).filter(ignoreFN);
+  const addPrefix = (input: string): string => {
+    if (input.startsWith('@')) {
+      return `./${input}`;
+    }
+    return input;
+  };
 
-  return await tar.create(
+  const fileList: string[] = fs
+    .readdirSync(projectPath)
+    .filter(ignoreFN)
+    .map(addPrefix);
+
+  return tar.create(
     {
       gzip: {
         level: 9,
       },
       cwd: projectPath,
-      filter: ignoreFN,
       file: archivePath,
     },
     fileList
