@@ -47,7 +47,7 @@
     "@types/semver": "^7.5.0",
     "@types/tar": "^6.1.5",
     "@types/ua-parser-js": "^0.7.36",
-    "@types/update-notifier": "^6.0.2",
+    "@types/update-notifier": "^6.0.4",
     "@types/ws": "^8.5.4",
     "eslint": "^8.37.0",
     "eslint-config-oclif": "^4.0.0",
