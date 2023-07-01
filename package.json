@@ -41,7 +41,7 @@
     "@types/bytes": "^3.0.0",
     "@types/fs-extra": "^11.0.1",
     "@types/inquirer": "^9.0.3",
-    "@types/jest": "^29.5.0",
+    "@types/jest": "^29.5.2",
     "@types/node": "18.15.11",
     "@types/progress": "^2.0.3",
     "@types/semver": "^7.3.13",
