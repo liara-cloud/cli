@@ -27,7 +27,7 @@
     "ignore": "^5.2.4",
     "inquirer": "9.2.7",
     "moment": "^2.24.0",
-    "ora": "^6.3.0",
+    "ora": "^6.3.1",
     "progress": "^2.0.3",
     "semver": "^7.3.5",
     "shamsi-date-converter": "^1.0.5",
