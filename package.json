@@ -31,7 +31,7 @@
     "progress": "^2.0.3",
     "semver": "^7.5.3",
     "shamsi-date-converter": "^1.0.5",
-    "tar": "^6.1.13",
+    "tar": "^6.1.15",
     "ua-parser-js": "^1.0.35",
     "update-notifier": "^6.0.2",
     "ws": "^8.13.0"
