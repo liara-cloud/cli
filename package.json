@@ -10,7 +10,7 @@
   "bugs": "https://github.com/liara-ir/liara-cli/issues",
   "dependencies": {
     "@oclif/core": "^2.8.10",
-    "@oclif/plugin-autocomplete": "^2.1.8",
+    "@oclif/plugin-autocomplete": "^2.3.1",
     "@oclif/plugin-help": "^5.1.23",
     "@oclif/plugin-version": "^1.1.4",
     "ansi-escapes": "^6.1.0",
