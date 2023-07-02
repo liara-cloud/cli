@@ -128,7 +128,7 @@ export default async function createArchive(
   platform?: string,
   debug: DebugLogger = () => {}
 ) {
-  const ignoreInstance = ignore({ ignorecase: false });
+  const ignoreInstance = ignore.default({ ignorecase: false });
   ignoreInstance.add(defaultIgnores);
   // @ts-ignore
   ignoreInstance.add(platformIgnores[platform] || []);
