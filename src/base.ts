@@ -1,6 +1,6 @@
-import os from 'os';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import ora, { Ora } from 'ora';
 import fs from 'fs-extra';
 import WebSocket from 'ws';

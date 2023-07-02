@@ -1,5 +1,5 @@
 import ora, { Ora } from 'ora';
-import path from 'path';
+import path from 'node:path';
 import chalk from 'chalk';
 import bytes from 'bytes';
 import fs from 'fs-extra';

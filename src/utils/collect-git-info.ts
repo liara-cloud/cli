@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { exec } from 'node:child_process';
 import { DebugLogger } from './output.js';
 
 export default async function collectGitInfo(cwd: string, debug: DebugLogger) {
