@@ -2,8 +2,8 @@
   "compilerOptions": {
     "declaration": true,
     "importHelpers": true,
-    "module": "ES2020",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "outDir": "lib",
     "rootDir": "src",
     "strict": true,

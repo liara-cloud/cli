@@ -2,7 +2,7 @@ import tar from 'tar';
 import fs from 'fs-extra';
 import { DebugLogger } from './output.js';
 import ignore, { Ignore } from 'ignore';
-import { relative, join, dirname } from 'path';
+import { relative, join, dirname } from 'node:path';
 
 const defaultIgnores: string[] = [
   '.git',
@@ -128,7 +128,7 @@ export default async function createArchive(
   platform?: string,
   debug: DebugLogger = () => {}
 ) {
-  const ignoreInstance = ignore({ ignorecase: false });
+  const ignoreInstance = ignore.default({ ignorecase: false });
   ignoreInstance.add(defaultIgnores);
   // @ts-ignore
   ignoreInstance.add(platformIgnores[platform] || []);

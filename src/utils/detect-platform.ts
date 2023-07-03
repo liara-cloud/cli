@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { globbySync } from 'globby';
 import fs from 'fs-extra';
 

@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import fs from 'fs-extra';
 import Command from '../../base.js';
 import { Flags, Errors } from '@oclif/core';

@@ -21,7 +21,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/3.5.0 linux-x64 node-v14.21.3
+@liara/cli/3.5.0 linux-x64 node-v18.15.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -461,7 +461,7 @@ USAGE
   $ liara autocomplete [SHELL] [-r]
 
 ARGUMENTS
-  SHELL  shell type
+  SHELL  (zsh|bash|powershell) Shell type
 
 FLAGS
   -r, --refresh-cache  Refresh cache (ignores displaying instructions)
@@ -476,10 +476,12 @@ EXAMPLES
 
   $ liara autocomplete zsh
 
+  $ liara autocomplete powershell
+
   $ liara autocomplete --refresh-cache
 ```
 
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v2.1.8/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v2.3.1/src/commands/autocomplete/index.ts)_
 
 ## `liara create`
 
@@ -786,7 +788,7 @@ DESCRIPTION
   Display help for liara.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.9/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.11/src/commands/help.ts)_
 
 ## `liara login`
 
@@ -1010,5 +1012,5 @@ FLAG DESCRIPTIONS
     Additionally shows the architecture, node version, operating system, and versions of plugins that the CLI is using.
 ```
 
-_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.3.2/src/commands/version.ts)_
+_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.3.6/src/commands/version.ts)_
 <!-- commandsstop -->
