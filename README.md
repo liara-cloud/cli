@@ -21,7 +21,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/3.5.0 linux-x64 node-v14.21.3
+@liara/cli/3.5.1 linux-x64 node-v18.16.1
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -58,7 +58,7 @@ USAGE
 * [`liara env ls`](#liara-env-ls)
 * [`liara env set [ENV]`](#liara-env-set-env)
 * [`liara env unset [ENV]`](#liara-env-unset-env)
-* [`liara help [COMMANDS]`](#liara-help-commands)
+* [`liara help [COMMAND]`](#liara-help-command)
 * [`liara login`](#liara-login)
 * [`liara logs`](#liara-logs)
 * [`liara plan list`](#liara-plan-list)
@@ -627,7 +627,7 @@ DESCRIPTION
   deploy an app
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v3.5.0/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v3.5.1/src/commands/deploy.ts)_
 
 ## `liara disk create`
 
@@ -768,16 +768,16 @@ DESCRIPTION
   remove environment variables from an app
 ```
 
-## `liara help [COMMANDS]`
+## `liara help [COMMAND]`
 
 Display help for liara.
 
 ```
 USAGE
-  $ liara help [COMMANDS] [-n]
+  $ liara help [COMMAND] [-n]
 
 ARGUMENTS
-  COMMANDS  Command to show help for.
+  COMMAND  Command to show help for.
 
 FLAGS
   -n, --nested-commands  Include all nested commands in the output.
@@ -786,7 +786,7 @@ DESCRIPTION
   Display help for liara.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.9/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.23/src/commands/help.ts)_
 
 ## `liara login`
 
@@ -809,7 +809,7 @@ DESCRIPTION
   login to your account
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v3.5.0/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v3.5.1/src/commands/login.ts)_
 
 ## `liara logs`
 
@@ -1010,5 +1010,5 @@ FLAG DESCRIPTIONS
     Additionally shows the architecture, node version, operating system, and versions of plugins that the CLI is using.
 ```
 
-_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.3.2/src/commands/version.ts)_
+_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.1.4/src/commands/version.ts)_
 <!-- commandsstop -->
