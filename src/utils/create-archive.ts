@@ -1,8 +1,10 @@
+import { relative, join, dirname } from 'node:path';
+
 import tar from 'tar';
 import fs from 'fs-extra';
-import { DebugLogger } from './output.js';
 import ignore, { Ignore } from 'ignore';
-import { relative, join, dirname } from 'node:path';
+
+import { DebugLogger } from './output.js';
 
 const defaultIgnores: string[] = [
   '.git',
@@ -14,6 +16,7 @@ const defaultIgnores: string[] = [
   'liara.json',
   'node_modules',
   'bower_components',
+  '.DS_Store',
 ];
 
 const pythonPlatformsIgnores: string[] = [
