@@ -1,14 +1,16 @@
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import ora, { Ora } from 'ora';
+
 import fs from 'fs-extra';
 import WebSocket from 'ws';
-import got, { Options } from 'got';
+import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
+import got, { Options } from 'got';
 import { Command, Flags } from '@oclif/core';
 import updateNotifier from 'update-notifier';
-import HttpsProxyAgent from 'https-proxy-agent';
+import { HttpsProxyAgent } from 'https-proxy-agent';
+
 import './interceptors.js';
 import {
   DEV_MODE,
@@ -189,7 +191,6 @@ Please check your network connection.`);
     if (proxy && !isWin) {
       this.log(`Using proxy server ${proxy}`);
 
-      // @ts-ignore
       const agent = new HttpsProxyAgent(proxy);
 
       gotConfig.agent = { https: agent };
@@ -220,7 +221,6 @@ Please check your network connection.`);
   createProxiedWebsocket(endpoint: string) {
     const proxy = process.env.http_proxy || process.env.https_proxy;
     if (proxy && !isWin) {
-      // @ts-ignore
       const agent = new HttpsProxyAgent(proxy);
       return new WebSocket(endpoint, { agent });
     }
