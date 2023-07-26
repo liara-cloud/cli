@@ -1,7 +1,7 @@
 {
   "name": "@liara/cli",
   "description": "The command line interface for Liara",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "author": "Mhe <mhemrg120@gmail.com> (http://liara.ir/) @mhemrg",
   "type": "module",
   "bin": {
