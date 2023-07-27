@@ -48,10 +48,10 @@ export default class AppLogs extends Command {
 
     const project = flags.app || (await this.promptProject());
 
-    let pendingPooling = false;
+    let pendingFetch = false;
     const fetchLogs = async () => {
-      if (pendingPooling) return;
-      pendingPooling = true;
+      if (pendingFetch) return;
+      pendingFetch = true;
 
       this.debug('Polling...');
 
@@ -102,10 +102,11 @@ Sorry for inconvenience. Please contact us.`).render()
         socket.write(log.message + '\n');
       }
 
-      pendingPooling = false;
+      pendingFetch = false;
     };
 
     if (follow) {
+      fetchLogs();
       setInterval(fetchLogs, 1000);
     } else {
       await fetchLogs();
