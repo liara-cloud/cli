@@ -51,6 +51,7 @@ export interface IGlobalLiaraConfig {
 export interface IConfig {
   'api-token'?: string;
   region?: string;
+  image?: string;
 }
 
 export interface IProject {
@@ -183,7 +184,7 @@ Please check your network connection.`);
         'User-Agent': this.config.userAgent,
       },
       timeout: {
-        request: 10 * 1000,
+        request: (config.image ? 25 : 10) * 1000,
       },
     };
 
