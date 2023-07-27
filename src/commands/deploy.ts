@@ -190,6 +190,8 @@ export default class Deploy extends Command {
         config.app,
         '--since',
         moment().unix().toString(),
+        '--follow',
+        '--timestamp',
         '--api-token',
         config['api-token'] || '',
         '--region',
