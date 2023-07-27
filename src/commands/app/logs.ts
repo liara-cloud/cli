@@ -22,6 +22,16 @@ export default class AppLogs extends Command {
       char: 's',
       description: 'show logs since timestamp',
     }),
+    timestamp: Flags.boolean({
+      char: 't',
+      description: 'Show timestamps',
+      default: false,
+    }),
+    follow: Flags.boolean({
+      char: 'f',
+      description: 'Follow log output',
+      default: false,
+    }),
   };
 
   static aliases = ['logs'];
@@ -29,6 +39,8 @@ export default class AppLogs extends Command {
   async run() {
     const { flags } = await this.parse(AppLogs);
     let since: string | number = flags.since || 1;
+    const timestamp = flags.timestamp;
+    const follow = flags.follow;
 
     this.debug = createDebugLogger(flags.debug);
 
@@ -36,7 +48,11 @@ export default class AppLogs extends Command {
 
     const project = flags.app || (await this.promptProject());
 
-    setInterval(async () => {
+    let pendingPooling = false;
+    const fetchLogs = async () => {
+      if (pendingPooling) return;
+      pendingPooling = true;
+
       this.debug('Polling...');
 
       let logs: ILog[] = [];
@@ -72,12 +88,28 @@ Sorry for inconvenience. Please contact us.`).render()
       }
 
       for (const log of logs) {
-        const datetime = chalk.gray(
-          moment(log.datetime).format('YYYY-MM-DD HH:mm:ss')
-        );
-        this.log(`${datetime} | ${colorfulAccessLog(log.message)}`);
+        if (timestamp) {
+          // add timestamp prefix and colorize it
+          const datetime = chalk.gray(
+            moment(log.datetime).format('YYYY-MM-DD HH:mm:ss')
+          );
+          this.log(`${datetime} | ${colorfulAccessLog(log.message)}`);
+          continue;
+        }
+
+        // emit app raw log
+        const socket = log.type === 'stderr' ? process.stderr : process.stdout;
+        socket.write(log.message + '\n');
       }
-    }, 1000);
+
+      pendingPooling = false;
+    };
+
+    if (follow) {
+      setInterval(fetchLogs, 1000);
+    } else {
+      await fetchLogs();
+    }
   }
 }
 

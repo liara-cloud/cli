@@ -309,12 +309,15 @@ fetch the logs of an app
 
 ```
 USAGE
-  $ liara app logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>]
+  $ liara app logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>] [-t]
+    [-f]
 
 FLAGS
   -a, --app=<value>    app id
+  -f, --follow         Follow log output
   -h, --help           Show CLI help.
   -s, --since=<value>  show logs since timestamp
+  -t, --timestamp      Show timestamps
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -819,12 +822,15 @@ fetch the logs of an app
 
 ```
 USAGE
-  $ liara logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>]
+  $ liara logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>] [-t]
+    [-f]
 
 FLAGS
   -a, --app=<value>    app id
+  -f, --follow         Follow log output
   -h, --help           Show CLI help.
   -s, --since=<value>  show logs since timestamp
+  -t, --timestamp      Show timestamps
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
