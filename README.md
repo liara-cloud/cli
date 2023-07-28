@@ -310,10 +310,11 @@ fetch the logs of an app
 ```
 USAGE
   $ liara app logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>] [-t]
-    [-f]
+    [-f] [-c]
 
 FLAGS
   -a, --app=<value>    app id
+  -c, --colorize       Colorize log output
   -f, --follow         Follow log output
   -h, --help           Show CLI help.
   -s, --since=<value>  show logs since timestamp
@@ -823,10 +824,11 @@ fetch the logs of an app
 ```
 USAGE
   $ liara logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>] [-t]
-    [-f]
+    [-f] [-c]
 
 FLAGS
   -a, --app=<value>    app id
+  -c, --colorize       Colorize log output
   -f, --follow         Follow log output
   -h, --help           Show CLI help.
   -s, --since=<value>  show logs since timestamp

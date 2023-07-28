@@ -32,15 +32,25 @@ export default class AppLogs extends Command {
       description: 'Follow log output',
       default: false,
     }),
+    colorize: Flags.boolean({
+      char: 'c',
+      description: 'Colorize log output',
+      default: false,
+    }),
   };
 
   static aliases = ['logs'];
 
+  #timestamp = false;
+  #colorize = false;
+
   async run() {
     const { flags } = await this.parse(AppLogs);
     let since: string | number = flags.since || 1;
-    const timestamp = flags.timestamp;
-    const follow = flags.follow;
+    const { follow, colorize, timestamp } = flags;
+
+    this.#timestamp = timestamp;
+    this.#colorize = colorize;
 
     this.debug = createDebugLogger(flags.debug);
 
@@ -88,18 +98,7 @@ Sorry for inconvenience. Please contact us.`).render()
       }
 
       for (const log of logs) {
-        if (timestamp) {
-          // add timestamp prefix and colorize it
-          const datetime = chalk.gray(
-            moment(log.datetime).format('YYYY-MM-DD HH:mm:ss')
-          );
-          this.log(`${datetime} | ${colorfulAccessLog(log.message)}`);
-          continue;
-        }
-
-        // emit app raw log
-        const socket = log.type === 'stderr' ? process.stderr : process.stdout;
-        socket.write(log.message + '\n');
+        this.#printLogLine(log);
       }
 
       pendingFetch = false;
@@ -111,6 +110,26 @@ Sorry for inconvenience. Please contact us.`).render()
     } else {
       await fetchLogs();
     }
+  }
+
+  #gray(message: string) {
+    if (!this.#colorize) return message;
+    return chalk.gray(message);
+  }
+
+  #printLogLine(log: ILog) {
+    let message = log.message;
+    if (this.#colorize) {
+      message = colorfulAccessLog(message);
+    }
+
+    if (this.#timestamp) {
+      // iso string is docker's log format when using --timestamp
+      message = `${this.#gray(moment(log.datetime).toISOString())} ${message}`;
+    }
+
+    const socket = log.type === 'stderr' ? process.stderr : process.stdout;
+    socket.write(message + '\n');
   }
 }
 
