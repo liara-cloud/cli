@@ -192,6 +192,7 @@ export default class Deploy extends Command {
         moment().unix().toString(),
         '--follow',
         '--timestamp',
+        '--colorize',
         '--api-token',
         config['api-token'] || '',
         '--region',
