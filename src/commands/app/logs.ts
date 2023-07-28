@@ -22,7 +22,7 @@ export default class AppLogs extends Command {
       char: 's',
       description: 'show logs since timestamp',
     }),
-    timestamp: Flags.boolean({
+    timestamps: Flags.boolean({
       char: 't',
       description: 'Show timestamps',
       default: false,
@@ -41,15 +41,15 @@ export default class AppLogs extends Command {
 
   static aliases = ['logs'];
 
-  #timestamp = false;
+  #timestamps = false;
   #colorize = false;
 
   async run() {
     const { flags } = await this.parse(AppLogs);
     let since: string | number = flags.since || 1;
-    const { follow, colorize, timestamp } = flags;
+    const { follow, colorize, timestamps } = flags;
 
-    this.#timestamp = timestamp;
+    this.#timestamps = timestamps;
     this.#colorize = colorize;
 
     this.debug = createDebugLogger(flags.debug);
@@ -123,8 +123,8 @@ Sorry for inconvenience. Please contact us.`).render()
       message = colorfulAccessLog(message);
     }
 
-    if (this.#timestamp) {
-      // iso string is docker's log format when using --timestamp
+    if (this.#timestamps) {
+      // iso string is docker's log format when using --timestamps
       message = `${this.#gray(moment(log.datetime).toISOString())} ${message}`;
     }
 
