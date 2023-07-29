@@ -5,6 +5,7 @@ import fs from 'fs-extra';
 import ignore, { Ignore } from 'ignore';
 
 import { DebugLogger } from './output.js';
+import CreateArchiveException from '../errors/create-archive.js';
 
 const defaultIgnores: string[] = [
   '.git',
@@ -154,6 +155,10 @@ export default async function createArchive(
   };
 
   const fileList: string[] = fs.readdirSync(projectPath).filter(ignoreFN);
+
+  if (fileList.length === 0) {
+    throw new CreateArchiveException('All files have been ignored!');
+  }
 
   return await tar.create(
     {

@@ -35,6 +35,7 @@ import DeployException from '../errors/deploy-exception.js';
 import IDeploymentConfig from '../types/deployment-config.js';
 import { getPort, getDefaultPort } from '../utils/get-port.js';
 import cancelDeployment from '../services/cancel-deployment.js';
+import CreateArchiveException from '../errors/create-archive.js';
 import IGetProjectsResponse from '../types/get-project-response.js';
 import ReachedMaxSourceSizeError from '../errors/max-source-size.js';
 import mergePlatformConfigWithDefaults from '../utils/merge-platform-config.js';
@@ -256,6 +257,10 @@ You may also want to switch to another region. Your current region is: ${chalk.c
         process.exit(2);
       }
 
+      if (error instanceof CreateArchiveException) {
+        return this.error(error.message);
+      }
+
       if (error instanceof ReachedMaxSourceSizeError) {
         this.error(
           `Source is too large. ${chalk.yellowBright('(max: 256MB)')}`
@@ -316,9 +321,11 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
     this.spinner.start('Creating an archive...');
 
     const sourcePath = prepareTmpDirectory();
-    await createArchive(sourcePath, config.path, config.platform, this.debug);
-
-    this.spinner.stop();
+    try {
+      await createArchive(sourcePath, config.path, config.platform, this.debug);
+    } finally {
+      this.spinner.stop();
+    }
 
     const { size: sourceSize } = fs.statSync(sourcePath);
 
