@@ -23,7 +23,7 @@
     "fs-extra": "^11.1.1",
     "globby": "^13.2.2",
     "got": "^13.0.0",
-    "https-proxy-agent": "^7.0.0",
+    "https-proxy-agent": "^7.0.1",
     "ignore": "^5.2.4",
     "inquirer": "9.2.9",
     "moment": "^2.24.0",
