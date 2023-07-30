@@ -60,7 +60,6 @@ export default class Deploy extends Command {
     }),
     args: Flags.string({
       description: 'docker image entrypoint args',
-      multiple: true,
     }),
     'build-arg': Flags.string({
       description: 'docker image build args',
@@ -566,11 +565,14 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
         })
       : projectConfig.disks;
 
+    const args = flags.args ? flags.args.split(' ') : projectConfig.args;
+
     return {
       ...defaults,
       ...projectConfig,
       ...flags,
       disks,
+      args,
     };
   }
 
