@@ -157,7 +157,9 @@ export default async function createArchive(
   const fileList: string[] = fs.readdirSync(projectPath).filter(ignoreFN);
 
   if (fileList.length === 0) {
-    throw new CreateArchiveException('All files have been ignored!');
+    throw new CreateArchiveException(`Seems like you have ignored everything so we can't upload any of your files. Please double-check the content of your .gitignore, .dockerignore and .liaraignore files.
+    
+> Read more: https://docs.liara.ir/app-features/ignore`);
   }
 
   return await tar.create(
