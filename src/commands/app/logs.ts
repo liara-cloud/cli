@@ -22,13 +22,35 @@ export default class AppLogs extends Command {
       char: 's',
       description: 'show logs since timestamp',
     }),
+    timestamps: Flags.boolean({
+      char: 't',
+      description: 'show timestamps',
+      default: false,
+    }),
+    follow: Flags.boolean({
+      char: 'f',
+      description: 'follow log output',
+      default: false,
+    }),
+    colorize: Flags.boolean({
+      char: 'c',
+      description: 'colorize log output',
+      default: false,
+    }),
   };
 
   static aliases = ['logs'];
 
+  #timestamps = false;
+  #colorize = false;
+
   async run() {
     const { flags } = await this.parse(AppLogs);
     let since: string | number = flags.since || 1;
+    const { follow, colorize, timestamps } = flags;
+
+    this.#timestamps = timestamps;
+    this.#colorize = colorize;
 
     this.debug = createDebugLogger(flags.debug);
 
@@ -36,7 +58,11 @@ export default class AppLogs extends Command {
 
     const project = flags.app || (await this.promptProject());
 
-    setInterval(async () => {
+    let pendingFetch = false;
+    const fetchLogs = async () => {
+      if (pendingFetch) return;
+      pendingFetch = true;
+
       this.debug('Polling...');
 
       let logs: ILog[] = [];
@@ -72,12 +98,38 @@ Sorry for inconvenience. Please contact us.`).render()
       }
 
       for (const log of logs) {
-        const datetime = chalk.gray(
-          moment(log.datetime).format('YYYY-MM-DD HH:mm:ss')
-        );
-        this.log(`${datetime} | ${colorfulAccessLog(log.message)}`);
+        this.#printLogLine(log);
       }
-    }, 1000);
+
+      pendingFetch = false;
+    };
+
+    if (follow) {
+      fetchLogs();
+      setInterval(fetchLogs, 1000);
+    } else {
+      await fetchLogs();
+    }
+  }
+
+  #gray(message: string) {
+    if (!this.#colorize) return message;
+    return chalk.gray(message);
+  }
+
+  #printLogLine(log: ILog) {
+    let message = log.message;
+    if (this.#colorize) {
+      message = colorfulAccessLog(message);
+    }
+
+    if (this.#timestamps) {
+      // iso string is docker's log format when using --timestamps
+      message = `${this.#gray(moment(log.datetime).toISOString())} ${message}`;
+    }
+
+    const socket = log.type === 'stderr' ? process.stderr : process.stdout;
+    socket.write(message + '\n');
   }
 }
 
