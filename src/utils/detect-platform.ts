@@ -129,7 +129,8 @@ Please specify your platform with --platform=node or docker.`);
 
     if (
       (packageJson.dependencies && packageJson.dependencies['react-scripts']) ||
-      (packageJson.dependencies?.react && packageJson.devDependencies?.vite)
+      (packageJson.devDependencies?.vite && packageJson.dependencies?.react) ||
+      packageJson.dependencies?.preact
     ) {
       return 'react';
     }
