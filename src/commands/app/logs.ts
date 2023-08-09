@@ -29,7 +29,7 @@ export default class AppLogs extends Command {
     }),
     follow: Flags.boolean({
       char: 'f',
-      description: 'Follow log output',
+      description: 'follow log output',
       default: false,
     }),
     colorize: Flags.boolean({
