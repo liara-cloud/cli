@@ -24,7 +24,7 @@ export default class AppLogs extends Command {
     }),
     timestamps: Flags.boolean({
       char: 't',
-      description: 'Show timestamps',
+      description: 'show timestamps',
       default: false,
     }),
     follow: Flags.boolean({
