@@ -6,7 +6,7 @@ export default interface IFlags {
   'api-token'?: string;
   region?: string;
   detach: boolean;
-  args?: string[];
+  args?: string;
   'build-arg'?: string[];
   message?: string;
   disks?: string[];
