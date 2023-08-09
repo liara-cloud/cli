@@ -34,7 +34,7 @@ export default class AppLogs extends Command {
     }),
     colorize: Flags.boolean({
       char: 'c',
-      description: 'Colorize log output',
+      description: 'colorize log output',
       default: false,
     }),
   };
