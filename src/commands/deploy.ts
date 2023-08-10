@@ -162,7 +162,7 @@ export default class Deploy extends Command {
       const SecPriority = buildArgsParser(config.build?.args || []);
 
       // @ts-ignore
-      config['build-arg'] = { ...SecPriority, ...FirstPriority };
+      config['build-arg'] = { ...secondPriority, ...firstPriority };
     }
 
     try {
