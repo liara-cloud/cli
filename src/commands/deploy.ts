@@ -154,12 +154,13 @@ export default class Deploy extends Command {
       this.debug(`Using Custom Dockerfile: ${config.dockerfile}`);
     }
 
+    const buildArgs = config.build?.args || config['build-arg'];
+
     if (
-      Array.isArray(config.build?.args) ||
-      Array.isArray(config['build-arg'])
+      Array.isArray(buildArgs)
     ) {
-      const FirstPriority = buildArgsParser(config['build-arg'] || []);
-      const SecPriority = buildArgsParser(config.build?.args || []);
+      const firstPriority = buildArgsParser(config['build-arg'] || []);
+      const secondPriority = buildArgsParser(config.build?.args || []);
 
       // @ts-ignore
       config['build-arg'] = { ...secondPriority, ...firstPriority };
