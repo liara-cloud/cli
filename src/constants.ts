@@ -10,6 +10,7 @@ export const GLOBAL_CONF_VERSION = '1';
 export const REGIONS_API_URL: { [key: string]: string } = {
   iran: 'https://api.iran.liara.ir',
   germany: 'https://api.liara.ir',
+  objStorage: 'https://storage-service.iran.liara.ir',
 };
 
 export const FALLBACK_REGION = 'iran';
