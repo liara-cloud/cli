@@ -121,6 +121,22 @@ export interface IProjectDetailsResponse {
   project: IProjectDetails;
 }
 
+export interface IBucket {
+  id: string;
+  name: string;
+  plan: number;
+  status: string;
+  permission: string;
+  project_id: string;
+  createdAt: string;
+  updatedAt: boolean;
+}
+
+export interface IGetBucketsResponse {
+  status: string;
+  buckets: IBucket[];
+}
+
 export default abstract class extends Command {
   static flags = {
     help: Flags.help({ char: 'h' }),
