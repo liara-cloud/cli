@@ -1,0 +1,152 @@
+import ora, { Ora } from 'ora';
+import inquirer from 'inquirer';
+import Command, { IConfig } from '../../base.js';
+import { Flags } from '@oclif/core';
+import {
+  MAILBOX_MODES,
+  MAILBOX_PLANS,
+  REGIONS_API_URL,
+  DEV_MODE,
+} from '../../constants.js';
+import { createDebugLogger } from '../../utils/output.js';
+
+export default class MailCreate extends Command {
+  static description = 'create a mailbox';
+
+  static flags = {
+    ...Command.flags,
+    domain: Flags.string({
+      description: 'domain',
+    }),
+    plan: Flags.string({
+      description: 'plan',
+    }),
+    mode: Flags.string({
+      description: 'mode',
+    }),
+  };
+
+  static aliases = ['create'];
+
+  spinner!: Ora;
+
+  async setGotConfig(config: IConfig): Promise<void> {
+    await super.setGotConfig(config);
+    this.got = this.got.extend({
+      prefixUrl: DEV_MODE ? 'http://localhost:3000' : REGIONS_API_URL['mail'],
+    });
+  }
+
+  async run() {
+    this.spinner = ora();
+    const { flags } = await this.parse(MailCreate);
+    const debug = createDebugLogger(flags.debug);
+
+    await this.setGotConfig(flags);
+
+    const domain = flags.domain || (await this.promptDomain());
+
+    const account = await this.getCurrentAccount();
+
+    await this.setGotConfig(flags);
+
+    ((account && account.region === 'germany') || flags.region === 'germany') &&
+      this.error('We do not support germany any more.');
+
+    const plan = flags.platform || (await this.promptPlan());
+
+    if (!MAILBOX_PLANS.includes(plan)) {
+      this.error(`Unknown plan: ${plan}`);
+    }
+
+    const mode = flags.plan || (await this.promptMode());
+
+    if (!MAILBOX_MODES.includes(mode)) {
+      this.error(`Unknown mode: ${mode}`);
+    }
+
+    try {
+      await this.got.post('api/v1/mails', { json: { domain, plan, mode } });
+      this.log(`Mailbox ${domain} created.`);
+    } catch (error) {
+      debug(error.message);
+
+      if (error.response && error.response.body) {
+        debug(JSON.stringify(error.response.body));
+      }
+
+      if (error.response && error.response.statusCode === 404) {
+        this.error(`Could not create the app.`);
+      }
+
+      if (error.response && error.response.statusCode === 409) {
+        this.error(
+          `The app already exists. Please use a unique name for your app.`
+        );
+      }
+
+      if (
+        error.response &&
+        error.response.statusCode === 403 &&
+        error.response.body
+      ) {
+        this.error(
+          `You are allowed to create only one Mail Server on the free plan.`
+        );
+      }
+
+      this.error(`Could not create the app. Please try again.`);
+    }
+  }
+
+  async promptDomain(): Promise<string> {
+    const { domain } = (await inquirer.prompt({
+      name: 'domain',
+      type: 'input',
+      message: 'Enter your domain:',
+      validate: (input) => input.length > 2,
+    })) as { domain: string };
+
+    return domain;
+  }
+
+  async promptPlan() {
+    this.spinner.start('Loading...');
+
+    try {
+      this.spinner.stop();
+
+      const { plan } = (await inquirer.prompt({
+        name: 'plan',
+        type: 'list',
+        message: 'Please select the plan you want:',
+        choices: [...MAILBOX_PLANS.map((plan) => plan)],
+      })) as { plan: string };
+
+      return plan;
+    } catch (error) {
+      this.spinner.stop();
+      throw error;
+    }
+  }
+
+  async promptMode() {
+    this.spinner.start('Loading...');
+
+    try {
+      this.spinner.stop();
+
+      const { mode } = (await inquirer.prompt({
+        name: 'mode',
+        type: 'list',
+        message: 'Please select the mode you want:',
+        choices: [...MAILBOX_MODES.map((mode) => mode)],
+      })) as { mode: string };
+
+      return mode;
+    } catch (error) {
+      this.spinner.stop();
+      throw error;
+    }
+  }
+}

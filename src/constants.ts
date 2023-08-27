@@ -36,4 +36,10 @@ export const AVAILABLE_PLATFORMS = [
   'next',
 ];
 
+<<<<<<< HEAD
 export const OBJ_PERMISSION = ['public', 'private'];
+=======
+export const MAILBOX_PLANS = ['free-included', 'premium'];
+
+export const MAILBOX_MODES = ['DEV', 'LIVE'];
+>>>>>>> 387ea1c (feat: add create mails)
