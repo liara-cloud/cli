@@ -37,6 +37,7 @@ export default class MailList extends Command {
     const mailsData = data.mailServers.map((mail) => {
       const shamshiDate = shamsi.gregorianToJalali(new Date(mail.createdAt));
       return {
+        plan: mail.plan.name,
         domain: mail.domain,
         recordsStatus: mail.recordsStatus,
         mode: mail.mode,
@@ -48,6 +49,7 @@ export default class MailList extends Command {
     ux.table(
       mailsData,
       {
+        plan: {},
         domain: {},
         recordsStatus: {},
         mode: {},
