@@ -1,5 +1,6 @@
 import { ux } from '@oclif/core';
-import Command, { IConfig, IGetBucketsResponse } from '../../base.js';
+import Command, { IConfig } from '../../base.js';
+import { IGetBucketsResponse } from './base.js';
 import * as shamsi from 'shamsi-date-converter';
 import { REGIONS_API_URL, DEV_MODE } from '../../constants.js';
 
