@@ -31,3 +31,18 @@ export const AVAILABLE_PLATFORMS = [
   'docker',
   'next',
 ];
+
+export const OBJ_PERMISSION = ['public', 'private'];
+
+export const OBJ_PLAN = [
+  '2.5g',
+  '5g',
+  '10g',
+  '20g',
+  '40g',
+  '80g',
+  '160g',
+  '320g',
+  '640g',
+  '1280g',
+];
