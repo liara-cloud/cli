@@ -9,7 +9,6 @@ import {
   DEV_MODE,
 } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
-import spacing from '../../utils/spacing.js';
 
 export default class BucketCreate extends Command {
   static description = 'create a bucket';

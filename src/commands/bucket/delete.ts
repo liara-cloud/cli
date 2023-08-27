@@ -1,7 +1,6 @@
 import inquirer from 'inquirer';
-import Command, { IConfig } from '../../base.js';
+import Command, { IConfig, IGetBucketsResponse } from '../../base.js';
 import { Flags } from '@oclif/core';
-import { IGetBucketsResponse } from './base.js';
 import { createDebugLogger } from '../../utils/output.js';
 import ora from 'ora';
 import { REGIONS_API_URL, DEV_MODE } from '../../constants.js';
