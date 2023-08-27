@@ -5,10 +5,11 @@ import { Flags } from '@oclif/core';
 import { AVAILABLE_PLATFORMS } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
 import spacing from '../../utils/spacing.js';
-import { constrainedMemory } from 'process';
 
 export default class Hello extends Command {
   static description = 'create a new database';
+
+  static PATH = 'v1/databases';
 
   static flags = {
     ...Command.flags,
@@ -50,15 +51,15 @@ export default class Hello extends Command {
     const type = flags.type || (await this.promptType());
     const version = flags.version || (await this.promptVersion(type));
     const publicNetwork =
-      flags.publicnetwork || (await this.promptPublicNetwork());
+      flags.publicnetwork ||
+      ((await this.promptPublicNetwork()) === 'y' ? true : false);
+
     const planID = flags.plan || (await this.promptPlan(type));
 
     try {
-      // await this.got.post(Hello.PATH, {
-      //   json: { hostname, planID, publicNetwork, type, version },
-      // });
-      console.log(this.got);
-      this.log('sending request');
+      await this.got.post(Hello.PATH, {
+        json: { hostname, planID, publicNetwork, type, version },
+      });
       this.log(`Database ${hostname} created.`);
     } catch (error) {
       debug(error.message);
