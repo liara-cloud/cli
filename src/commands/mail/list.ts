@@ -30,7 +30,7 @@ export default class MailList extends Command {
     ).json<IGetMailboxesResponse>();
     if (data.mailServers.length === 0) {
       this.error(
-        "Please create an app via 'liara mail:create' command, first."
+        "Please create an mail via 'liara mail:create' command, first."
       );
     }
 

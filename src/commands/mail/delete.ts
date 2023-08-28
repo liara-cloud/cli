@@ -6,7 +6,7 @@ import { createDebugLogger } from '../../utils/output.js';
 import { REGIONS_API_URL, DEV_MODE } from '../../constants.js';
 
 export default class MailDelete extends Command {
-  static description = 'delete an app';
+  static description = 'delete an mail';
 
   static flags = {
     ...Command.flags,
@@ -54,14 +54,14 @@ export default class MailDelete extends Command {
       }
 
       if (error.response && error.response.status === 404) {
-        this.error(`Could not find the app.`);
+        this.error(`Could not find the mail.`);
       }
 
       if (error.response && error.response.status === 409) {
         this.error(`Another operation is already running. Please wait.`);
       }
 
-      this.error(`Could not delete the app. Please try again.`);
+      this.error(`Could not delete the mail. Please try again.`);
     }
   }
 

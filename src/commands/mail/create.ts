@@ -26,7 +26,7 @@ export default class MailCreate extends Command {
     }),
   };
 
-  static aliases = ['create'];
+  static aliases = ['mail:create'];
 
   spinner!: Ora;
 
@@ -76,12 +76,12 @@ export default class MailCreate extends Command {
       }
 
       if (error.response && error.response.statusCode === 404) {
-        this.error(`Could not create the app.`);
+        this.error(`Could not create the mail.`);
       }
 
       if (error.response && error.response.statusCode === 409) {
         this.error(
-          `The app already exists. Please use a unique name for your app.`
+          `The mail already exists. Please use a unique name for your mail.`
         );
       }
 
@@ -95,7 +95,7 @@ export default class MailCreate extends Command {
         );
       }
 
-      this.error(`Could not create the app. Please try again.`);
+      this.error(`Could not create the mail. Please try again.`);
     }
   }
 
