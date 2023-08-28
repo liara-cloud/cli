@@ -69,6 +69,26 @@ export interface IGetProjectsResponse {
   projects: IProject[];
 }
 
+export interface IDomains {
+  _id: string;
+  name: string;
+  type: string;
+  project: {
+    _id: string;
+    project_id: string;
+  };
+  status: string;
+  certificatesStatus: string;
+  redirectTo: '';
+  redirectStatus: number;
+  created_at: string;
+  CNameRecord: string;
+}
+
+export interface IGetDomainsResponse {
+  domains: IDomains[];
+}
+
 export default abstract class extends Command {
   static flags = {
     help: Flags.help({ char: 'h' }),

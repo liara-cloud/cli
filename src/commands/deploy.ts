@@ -9,7 +9,7 @@ import ProgressBar from 'progress';
 import { Flags, Errors } from '@oclif/core';
 
 import Logs from './app/logs.js';
-import Command from '../base.js';
+import Command, { IGetDomainsResponse } from '../base.js';
 import IFlags from '../types/flags.js';
 import Poller from '../utils/poller.js';
 import upload from '../services/upload.js';
@@ -156,9 +156,7 @@ export default class Deploy extends Command {
 
     const buildArgs = config.build?.args || config['build-arg'];
 
-    if (
-      Array.isArray(buildArgs)
-    ) {
+    if (Array.isArray(buildArgs)) {
       const firstPriority = buildArgsParser(config['build-arg'] || []);
       const secondPriority = buildArgsParser(config.build?.args || []);
 
@@ -184,6 +182,17 @@ export default class Deploy extends Command {
           `    ${chalk.cyan(`http://${config.app}.liara.localhost`)}`
         : `    ${chalk.cyan(`https://${config.app}${defaultSubdomain}`)}`;
       this.log(urlLogMessage);
+
+      const { domains } = await this.got(
+        `v1/domains?project=${config.app}`
+      ).json<IGetDomainsResponse>();
+      domains.map((domain) => {
+        if (domain.certificatesStatus === 'ACTIVE') {
+          this.log(chalk.yellow(`    https://${domain.name}`));
+        } else {
+          this.log(chalk.yellow(`    http://${domain.name}`));
+        }
+      });
 
       this.log();
 
