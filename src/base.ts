@@ -170,6 +170,12 @@ export interface IGetMailsAccountsResponse {
   };
 }
 
+export interface Files {
+  content_type: string | null;
+  data: string;
+  name: string;
+}
+
 export default abstract class extends Command {
   static flags = {
     help: Flags.help({ char: 'h' }),

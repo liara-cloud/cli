@@ -6,7 +6,7 @@ import { createDebugLogger } from '../../utils/output.js';
 import { REGIONS_API_URL, DEV_MODE } from '../../constants.js';
 
 export default class MailDelete extends Command {
-  static description = 'delete an mail';
+  static description = 'delete an MailServer';
 
   static flags = {
     ...Command.flags,
@@ -44,7 +44,7 @@ export default class MailDelete extends Command {
       // TODO: Add --force or -f flag to force the deletion
       if (await this.confirm(mailDomain)) {
         await this.got.delete(`api/v1/mails/${mailId}`);
-        this.log(`Mail ${mailDomain} deleted.`);
+        this.log(`MailServer ${mailDomain} deleted.`);
       }
     } catch (error) {
       debug(error.message);
@@ -54,14 +54,14 @@ export default class MailDelete extends Command {
       }
 
       if (error.response && error.response.status === 404) {
-        this.error(`Could not find the mail.`);
+        this.error(`Could not find the MailServer.`);
       }
 
       if (error.response && error.response.status === 409) {
         this.error(`Another operation is already running. Please wait.`);
       }
 
-      this.error(`Could not delete the mail. Please try again.`);
+      this.error(`Could not delete the MailServer. Please try again.`);
     }
   }
 
@@ -77,7 +77,7 @@ export default class MailDelete extends Command {
 
       if (!data.mailServers.length) {
         this.warn(
-          'Please go to https://console.liara.ir/mail and create an mailbox, first.'
+          'Please go to https://console.liara.ir/mail and create an MailServer, first.'
         );
         this.exit(1);
       }
@@ -85,7 +85,7 @@ export default class MailDelete extends Command {
       const { mailDomain } = (await inquirer.prompt({
         name: 'mailDomain',
         type: 'list',
-        message: 'Please select a mail:',
+        message: 'Please select a MailServer:',
         choices: [...data.mailServers.map((mail) => mail.domain)],
       })) as { mailDomain: string };
 
@@ -100,7 +100,7 @@ export default class MailDelete extends Command {
     const { confirmation } = (await inquirer.prompt({
       name: 'confirmation',
       type: 'confirm',
-      message: `Are you sure you want to delete "${mail}"?`,
+      message: `Are you sure you want to delete MailServer "${mail}"?`,
       default: false,
     })) as { confirmation: boolean };
 

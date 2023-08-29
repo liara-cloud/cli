@@ -4,6 +4,7 @@ import inquirer from 'inquirer';
 import ora, { Ora } from 'ora';
 import { Flags } from '@oclif/core';
 import Command, {
+  Files,
   IConfig,
   IGetMailboxesResponse,
   IGetMailsAccountsResponse,
@@ -12,13 +13,13 @@ import { createDebugLogger } from '../../utils/output.js';
 import { REGIONS_API_URL, DEV_MODE } from '../../constants.js';
 
 export default class SendMail extends Command {
-  static description = 'send an mail';
+  static description = 'send a mail';
 
   static flags = {
     ...Command.flags,
     mail: Flags.string({
       char: 'a',
-      description: 'mail id',
+      description: 'MailServer id',
     }),
     from: Flags.string({
       description: 'from',
@@ -93,7 +94,7 @@ export default class SendMail extends Command {
       }
 
       if (error.response && error.response.statusCode === 404) {
-        this.error(`Could not send the mail.`);
+        this.error(`Could not send the MailServer.`);
       }
 
       if (error.response && error.response.statusCode === 401) {
@@ -133,7 +134,7 @@ export default class SendMail extends Command {
 
       if (!data.mailServers.length) {
         this.warn(
-          'Please go to https://console.liara.ir/mail and create an mailbox, first.'
+          'Please go to https://console.liara.ir/mail and create an MailServer, first.'
         );
         this.exit(1);
       }
@@ -166,7 +167,7 @@ export default class SendMail extends Command {
 
       if (!data.accounts.length) {
         this.warn(
-          'Please go to https://console.liara.ir/mail and create an mail account, first.'
+          'Please go to https://console.liara.ir/mail and create an MailServer account, first.'
         );
         this.exit(1);
       }
@@ -192,7 +193,7 @@ export default class SendMail extends Command {
     const { to } = (await inquirer.prompt({
       name: 'to',
       type: 'input',
-      message: 'To which email address should it be sent:',
+      message: 'Enter the destination address:',
       validate: (input) => input.length > 2,
     })) as { to: string };
 
@@ -221,15 +222,10 @@ export default class SendMail extends Command {
     return text;
   }
 
-  async promptFiles() {
-    type Files = {
-      content_type: string | null;
-      data: string;
-      name: string;
-    };
+  getFiles(path: string = './'): Files[] {
     const files: Files[] = [];
 
-    fs.readdirSync('./').forEach((file) => {
+    fs.readdirSync(path).forEach((file) => {
       if (!fs.statSync(file).isDirectory()) {
         const resultFiles: Files = {
           content_type: mime.getType(file),
@@ -242,6 +238,12 @@ export default class SendMail extends Command {
         files.push(resultFiles);
       }
     });
+
+    return files;
+  }
+
+  async promptFiles(): Promise<any[]> {
+    const files = this.getFiles();
 
     const { attachments } = (await inquirer.prompt({
       name: 'attachments',

@@ -4,7 +4,7 @@ import * as shamsi from 'shamsi-date-converter';
 import { REGIONS_API_URL, DEV_MODE } from '../../constants.js';
 
 export default class MailList extends Command {
-  static description = 'list available mailboxes';
+  static description = 'list available MailServer';
 
   static flags = {
     ...Command.flags,
@@ -30,7 +30,7 @@ export default class MailList extends Command {
     ).json<IGetMailboxesResponse>();
     if (data.mailServers.length === 0) {
       this.error(
-        "Please create an mail via 'liara mail:create' command, first."
+        "Please create an MailServer via 'liara mail:create' command, first."
       );
     }
 
