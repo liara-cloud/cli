@@ -179,8 +179,8 @@ export default class Deploy extends Command {
         config.region === 'iran' ? '.iran.liara.run' : '.liara.run';
       const urlLogMessage = DEV_MODE
         ? // tslint:disable-next-line: no-http-string
-          `    ${chalk.cyan(`http://${config.app}.liara.localhost`)}`
-        : `    ${chalk.cyan(`https://${config.app}${defaultSubdomain}`)}`;
+          `    ${`http://${config.app}.liara.localhost`}`
+        : `    ${`https://${config.app}${defaultSubdomain}`}`;
       this.log(urlLogMessage);
 
       const { domains } = await this.got(
@@ -188,9 +188,9 @@ export default class Deploy extends Command {
       ).json<IGetDomainsResponse>();
       domains.map((domain) => {
         if (domain.certificatesStatus === 'ACTIVE') {
-          this.log(chalk.yellow(`    https://${domain.name}`));
+          this.log(chalk.white(`    https://${domain.name}`));
         } else {
-          this.log(chalk.yellow(`    http://${domain.name}`));
+          this.log(chalk.white(`    http://${domain.name}`));
         }
       });
 
