@@ -1,5 +1,5 @@
 import fs from 'fs';
-import path from 'path';
+import mime from 'mime';
 import inquirer from 'inquirer';
 import ora, { Ora } from 'ora';
 import { Flags } from '@oclif/core';
@@ -76,10 +76,12 @@ export default class SendMail extends Command {
 
     const text = flags.text || (await this.promptText());
 
+    const attachments = await this.promptFiles();
+
     try {
       if (await this.confirm(to)) {
         await this.got.post(`api/v1/mails/${mailId}/messages`, {
-          json: { from, to, subject, text },
+          json: { from, to, subject, text, attachments },
         });
         this.log(`Mail has been sent to ${to}.`);
       }
@@ -113,7 +115,7 @@ export default class SendMail extends Command {
       ) {
         this.error(`Mail Server not found.`);
       }
-
+      this.log(error.response.body);
       this.error(`Could not send the mail. Please try again.`);
     }
   }
@@ -217,6 +219,47 @@ export default class SendMail extends Command {
     })) as { text: string };
 
     return text;
+  }
+
+  async promptFiles() {
+    type Files = {
+      content_type: string | null;
+      data: string;
+      name: string;
+    };
+    const files: Files[] = [];
+
+    fs.readdirSync('./').forEach((file) => {
+      if (!fs.statSync(file).isDirectory()) {
+        const resultFiles: Files = {
+          content_type: mime.getType(file),
+          data: `data:${mime.getType(file)};base64,${fs.readFileSync(file, {
+            encoding: 'base64',
+          })}`,
+          name: file,
+        };
+
+        files.push(resultFiles);
+      }
+    });
+
+    const { attachments } = (await inquirer.prompt({
+      name: 'attachments',
+      type: 'checkbox',
+      message: 'Select your attachments:',
+      choices: files.map((file) => file.name),
+    })) as { attachments: string[] };
+
+    const filesResult: any[] = [];
+    attachments.map((attachment) => {
+      files.find((file) => {
+        if (attachment === file.name) {
+          filesResult.push(file);
+        }
+      });
+    });
+
+    return filesResult;
   }
 
   async confirm(dest: string) {
