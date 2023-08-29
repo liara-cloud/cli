@@ -1,10 +1,12 @@
-import ora, { Ora } from 'ora';
+import ora from 'ora';
 import inquirer from 'inquirer';
 import Command from '../../base.js';
 import { Flags } from '@oclif/core';
-import { AVAILABLE_PLATFORMS } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
 import spacing from '../../utils/spacing.js';
+import { ux } from '@oclif/core';
+import { string } from '@oclif/core/lib/flags.js';
+import { relativeTimeThreshold } from 'moment';
 
 export default class Hello extends Command {
   static description = 'create a new database';
@@ -14,14 +16,14 @@ export default class Hello extends Command {
   static flags = {
     ...Command.flags,
     hostname: Flags.string({
-      char: 'h',
+      char: 'a',
       description: 'hostname for your database',
     }),
     plan: Flags.string({
       char: 'p',
       description: 'plan',
     }),
-    publicnetwork: Flags.boolean({
+    network: Flags.string({
       char: 'n',
       description: 'use public network or not',
     }),
@@ -29,9 +31,13 @@ export default class Hello extends Command {
       char: 't',
       description: 'choose which database to use',
     }),
-    version: Flags.boolean({
+    version: Flags.string({
       char: 'v',
       description: 'version of the database',
+    }),
+    yes: Flags.boolean({
+      char: 'y',
+      description: 'say yes to continue prompt',
     }),
   };
 
@@ -51,12 +57,36 @@ export default class Hello extends Command {
     const type = flags.type || (await this.promptType());
     const version = flags.version || (await this.promptVersion(type));
     const publicNetwork =
-      flags.publicnetwork ||
-      ((await this.promptPublicNetwork()) === 'y' ? true : false);
-
+      flags.network === 'public'
+        ? true
+        : flags.network === 'private'
+        ? false
+        : (await this.promptPublicNetwork()) === 'y';
     const planID = flags.plan || (await this.promptPlan(type));
+    const sayYes = flags.yes;
 
     try {
+      const tableData = [
+        {
+          type: type,
+          version: version,
+          hostname: hostname,
+          network: publicNetwork.toString(),
+        },
+      ];
+      const tableConfig = {
+        Hostname: { get: (row: any) => row.hostname },
+        Type: { get: (row: any) => row.type },
+        Version: { get: (row: any) => row.version },
+        Network: { get: (row: any) => row.network },
+      };
+      ux.table(tableData, tableConfig, {
+        title: 'Database Specification',
+      });
+      if (!sayYes && (await this.promptContinue()) === 'n') {
+        this.log('Operation cancelled');
+        return;
+      }
       await this.got.post(Hello.PATH, {
         json: { hostname, planID, publicNetwork, type, version },
       });
@@ -110,6 +140,7 @@ export default class Hello extends Command {
 
     return hostname;
   }
+
   async promptPlan(databaseType: string) {
     this.spinner.start('Loading...');
     try {
@@ -215,5 +246,16 @@ export default class Hello extends Command {
       this.spinner.stop();
       throw error;
     }
+  }
+
+  async promptContinue() {
+    const { yes } = (await inquirer.prompt({
+      name: 'yes',
+      type: 'input',
+      message: 'continue? (y/n):',
+      validate: (input) => input === 'y' || input === 'n',
+    })) as { yes: string };
+
+    return yes;
   }
 }
