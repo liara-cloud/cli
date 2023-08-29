@@ -1,7 +1,13 @@
+import fs from 'fs';
+import path from 'path';
 import inquirer from 'inquirer';
 import ora, { Ora } from 'ora';
 import { Flags } from '@oclif/core';
-import Command, { IConfig, IGetMailboxesResponse } from '../../base.js';
+import Command, {
+  IConfig,
+  IGetMailboxesResponse,
+  IGetMailsAccountsResponse,
+} from '../../base.js';
 import { createDebugLogger } from '../../utils/output.js';
 import { REGIONS_API_URL, DEV_MODE } from '../../constants.js';
 
@@ -10,6 +16,10 @@ export default class SendMail extends Command {
 
   static flags = {
     ...Command.flags,
+    mail: Flags.string({
+      char: 'a',
+      description: 'mail id',
+    }),
     from: Flags.string({
       description: 'from',
     }),
@@ -21,9 +31,6 @@ export default class SendMail extends Command {
     }),
     text: Flags.string({
       description: 'text',
-    }),
-    mail: Flags.string({
-      description: 'mail name',
     }),
   };
 
@@ -52,21 +59,30 @@ export default class SendMail extends Command {
     const mailDomain = await this.promptMails();
     const mailId =
       flags.mail ||
-      data.mailServers.find((mail) => mail.domain === mailDomain)?.id;
+      data.mailServers.find((mail) => mail.domain === mailDomain)?.id ||
+      '';
 
-    const from = flags.from || (await this.promptFrom());
+    const from = flags.from || (await this.promptFrom(mailId));
 
     const to = flags.to || (await this.promptTo());
+
+    const mailRegex = new RegExp(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g);
+    const isValidDestination = mailRegex.test(to);
+    if (!isValidDestination) {
+      this.error(`Invalid destination email address.`);
+    }
 
     const subject = flags.subject || (await this.promptSubject());
 
     const text = flags.text || (await this.promptText());
 
     try {
-      await this.got.post(`api/v1/mails/${mailId}/messages`, {
-        json: { from, to, subject, text },
-      });
-      this.log(`Mail has been sent to ${to}`);
+      if (await this.confirm(to)) {
+        await this.got.post(`api/v1/mails/${mailId}/messages`, {
+          json: { from, to, subject, text },
+        });
+        this.log(`Mail has been sent to ${to}.`);
+      }
     } catch (error) {
       debug(error.message);
 
@@ -105,6 +121,7 @@ export default class SendMail extends Command {
   async promptMails() {
     this.spinner = ora();
     this.spinner.start('Loading...');
+
     try {
       const { data } = await this.got(
         'api/v1/mails'
@@ -124,6 +141,7 @@ export default class SendMail extends Command {
         type: 'list',
         message: 'Please select a mail:',
         choices: [...data.mailServers.map((mail) => mail.domain)],
+        validate: (input) => input.length > 2,
       })) as { mailDomain: string };
 
       return mailDomain;
@@ -133,15 +151,39 @@ export default class SendMail extends Command {
     }
   }
 
-  async promptFrom(): Promise<string> {
-    const { from } = (await inquirer.prompt({
-      name: 'from',
-      type: 'input',
-      message: 'What address should it be sent from:',
-      validate: (input) => input.length > 2,
-    })) as { from: string };
+  async promptFrom(mailId: string): Promise<string> {
+    this.spinner = ora();
+    this.spinner.start('Loading...');
 
-    return from;
+    try {
+      const { data } = await this.got(
+        `api/v1/mails/${mailId}/accounts`
+      ).json<IGetMailsAccountsResponse>();
+
+      this.spinner.stop();
+
+      if (!data.accounts.length) {
+        this.warn(
+          'Please go to https://console.liara.ir/mail and create an mail account, first.'
+        );
+        this.exit(1);
+      }
+
+      const { from } = (await inquirer.prompt({
+        name: 'from',
+        type: 'list',
+        message: 'What address should it be sent from:',
+        choices: [
+          ...data.accounts.map((account) => `${account.name}@${data.domain}`),
+        ],
+        validate: (input) => input.length > 2,
+      })) as { from: string };
+
+      return from;
+    } catch (error) {
+      this.spinner.stop();
+      throw error;
+    }
   }
 
   async promptTo(): Promise<string> {
@@ -169,11 +211,22 @@ export default class SendMail extends Command {
   async promptText(): Promise<string> {
     const { text } = (await inquirer.prompt({
       name: 'text',
-      type: 'input',
+      type: 'editor',
       message: 'The text of your mail:',
       validate: (input) => input.length > 2,
     })) as { text: string };
 
     return text;
+  }
+
+  async confirm(dest: string) {
+    const { confirmation } = (await inquirer.prompt({
+      name: 'confirmation',
+      type: 'confirm',
+      message: `Are you sure send mail to "${dest}"?`,
+      default: false,
+    })) as { confirmation: boolean };
+
+    return confirmation;
   }
 }

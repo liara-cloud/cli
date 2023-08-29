@@ -156,6 +156,20 @@ export interface IGetMailboxesResponse {
   };
 }
 
+export interface IGetMailsAccounts {
+  name: string;
+  createdAt: string;
+  id: string;
+}
+
+export interface IGetMailsAccountsResponse {
+  status: string;
+  data: {
+    accounts: IGetMailsAccounts[];
+    domain: string;
+  };
+}
+
 export default abstract class extends Command {
   static flags = {
     help: Flags.help({ char: 'h' }),
