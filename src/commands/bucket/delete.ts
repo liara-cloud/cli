@@ -11,8 +11,7 @@ export default class BucketDelete extends Command {
   static flags = {
     ...Command.flags,
     bucket: Flags.string({
-      char: 'a',
-      description: 'app name',
+      description: 'bucket name',
     }),
   };
 
@@ -39,7 +38,7 @@ export default class BucketDelete extends Command {
       // TODO: Add --force or -f flag to force the deletion
       if (await this.confirm(bucket)) {
         await this.got.delete(`api/v1/buckets/${bucket}`);
-        this.log(`App ${bucket} deleted.`);
+        this.log(`Bucket ${bucket} deleted.`);
       }
     } catch (error) {
       debug(error.message);
@@ -49,14 +48,14 @@ export default class BucketDelete extends Command {
       }
 
       if (error.response && error.response.status === 404) {
-        this.error(`Could not find the app.`);
+        this.error(`Could not find the bucket.`);
       }
 
       if (error.response && error.response.status === 409) {
         this.error(`Another operation is already running. Please wait.`);
       }
 
-      this.error(`Could not delete the app. Please try again.`);
+      this.error(`Could not delete the bucket. Please try again.`);
     }
   }
 
@@ -72,7 +71,7 @@ export default class BucketDelete extends Command {
 
       if (!buckets.length) {
         this.warn(
-          'Please go to https://console.liara.ir/buckets and create an app, first.'
+          'Please go to https://console.liara.ir/buckets and create an bucket, first.'
         );
         this.exit(1);
       }

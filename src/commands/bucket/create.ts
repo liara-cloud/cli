@@ -9,6 +9,7 @@ import {
   DEV_MODE,
 } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
+import spacing from '../../utils/spacing.js';
 
 export default class BucketCreate extends Command {
   static description = 'create a bucket';
@@ -16,7 +17,6 @@ export default class BucketCreate extends Command {
   static flags = {
     ...Command.flags,
     name: Flags.string({
-      char: 'a',
       description: 'name',
     }),
     permission: Flags.string({
@@ -31,13 +31,20 @@ export default class BucketCreate extends Command {
 
   spinner!: Ora;
 
-  async setGotConfig(config: IConfig): Promise<void> {
-    await super.setGotConfig(config);
-    this.got = this.got.extend({
-      prefixUrl: DEV_MODE
-        ? 'http://localhost:3000'
-        : REGIONS_API_URL['objStorage'],
-    });
+  async setGotConfig(
+    config: IConfig,
+    isObjMode: boolean = true
+  ): Promise<void> {
+    if (isObjMode) {
+      await super.setGotConfig(config);
+      this.got = this.got.extend({
+        prefixUrl: DEV_MODE
+          ? 'http://localhost:3000'
+          : REGIONS_API_URL['objStorage'],
+      });
+    } else {
+      await super.setGotConfig(config);
+    }
   }
 
   async run() {
@@ -88,7 +95,7 @@ export default class BucketCreate extends Command {
         this.error(`Bucket ${name} is not available`);
       }
 
-      this.error(`Could not create the app. Please try again.`);
+      this.error(`Could not create the bucket. Please try again.`);
     }
   }
 
@@ -115,15 +122,48 @@ export default class BucketCreate extends Command {
   async promptPlan() {
     this.spinner.start('Loading...');
 
+    const { flags } = await this.parse(BucketCreate);
+
+    await this.setGotConfig(flags, false);
+
     try {
+      // TODO: Use proper type for plans
+      const { plans } = await this.got('v1/me').json<{ plans: any }>();
       this.spinner.stop();
 
       const { plan } = (await inquirer.prompt({
         name: 'plan',
         type: 'list',
-        message: 'Please select the plan you want:',
-        choices: [...OBJ_PLAN.map((plan) => plan)],
+        message: 'Please select a plan:',
+        choices: [
+          ...Object.keys(plans.objectStorage)
+            .filter((plan) => {
+              if (plans.objectStorage[plan].available) {
+                return true;
+              }
+            })
+            .map((plan) => {
+              const availablePlan = plans.objectStorage[plan];
+              const price = availablePlan.price * 720;
+              const space = availablePlan.space;
+              const storageClass = availablePlan.storageClass;
+              return {
+                value: plan,
+                name: `Space: ${space}${spacing(
+                  5,
+                  space
+                )}GB,  Storage Class: ${storageClass}${spacing(
+                  5,
+                  storageClass
+                )},  Price: ${price.toLocaleString()}${
+                  price ? spacing(7, price) + 'Tomans/Month' : ''
+                }`,
+              };
+            }),
+        ],
       })) as { plan: string };
+
+      await this.setGotConfig(flags);
 
       return plan;
     } catch (error) {
