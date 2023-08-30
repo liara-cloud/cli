@@ -11,6 +11,7 @@ export default class BucketDelete extends Command {
   static flags = {
     ...Command.flags,
     bucket: Flags.string({
+      char: 'b',
       description: 'bucket name',
     }),
   };
