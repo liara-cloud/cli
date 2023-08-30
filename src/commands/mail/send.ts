@@ -18,7 +18,6 @@ export default class SendMail extends Command {
   static flags = {
     ...Command.flags,
     mail: Flags.string({
-      char: 'a',
       description: 'MailServer id',
     }),
     from: Flags.string({
@@ -32,6 +31,10 @@ export default class SendMail extends Command {
     }),
     text: Flags.string({
       description: 'text',
+    }),
+    attachments: Flags.string({
+      multiple: true,
+      description: 'path of your attachments',
     }),
   };
 
@@ -77,7 +80,10 @@ export default class SendMail extends Command {
 
     const text = flags.text || (await this.promptText());
 
-    const attachments = await this.promptFiles();
+    const flagAttachments = flags.attachments
+      ? this.getFlagFiles(flags.attachments)
+      : undefined;
+    const attachments = flagAttachments || (await this.promptFiles());
 
     try {
       if (await this.confirm(to)) {
@@ -222,12 +228,32 @@ export default class SendMail extends Command {
     return text;
   }
 
-  getFiles(path: string = './'): Files[] {
+  getFlagFiles(flagFiles: string[]): Files[] {
     const files: Files[] = [];
 
-    fs.readdirSync(path).forEach((file) => {
+    flagFiles.forEach((flagFile) => {
+      const resultFile: Files = {
+        content_type: mime.getType(flagFile),
+        data: `data:${mime.getType(flagFile)};base64,${fs.readFileSync(
+          flagFile,
+          {
+            encoding: 'base64',
+          }
+        )}`,
+        name: flagFile,
+      };
+      files.push(resultFile);
+    });
+
+    return files;
+  }
+
+  getFiles(): Files[] {
+    const files: Files[] = [];
+
+    fs.readdirSync('./').forEach((file) => {
       if (!fs.statSync(file).isDirectory()) {
-        const resultFiles: Files = {
+        const resultFile: Files = {
           content_type: mime.getType(file),
           data: `data:${mime.getType(file)};base64,${fs.readFileSync(file, {
             encoding: 'base64',
@@ -235,7 +261,7 @@ export default class SendMail extends Command {
           name: file,
         };
 
-        files.push(resultFiles);
+        files.push(resultFile);
       }
     });
 

@@ -11,8 +11,8 @@ export default class MailDelete extends Command {
   static flags = {
     ...Command.flags,
     mail: Flags.string({
-      char: 'a',
-      description: 'mail id',
+      char: 'm',
+      description: 'MailServer id',
     }),
   };
 
