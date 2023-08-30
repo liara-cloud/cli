@@ -9,7 +9,7 @@ import { ux } from '@oclif/core';
 export default class Hello extends Command {
   static description = 'create a new database';
 
-  static PATH = 'v1/databases';
+  static PATH = 'v1/databases/{database-id}';
 
   static aliases = ['db:rm'];
 
@@ -66,7 +66,7 @@ export default class Hello extends Command {
         return;
       }
       const databaseID = database._id;
-      await this.got.delete(Hello.PATH + `/${databaseID}`);
+      await this.got.delete(Hello.PATH.replace('{database-id}', databaseID));
       this.log(`Database ${hostname} removed.`);
     } catch (error) {
       debug(error.message);
