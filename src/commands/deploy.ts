@@ -79,6 +79,10 @@ export default class Deploy extends Command {
       char: 'f',
       description: 'name of the Dockerfile (default is "PATH/Dockerfile")',
     }),
+    'builder-location': Flags.string({
+      char: 'b',
+      description: `name of the builder's location`,
+    }),
   };
 
   spinner!: Ora;
@@ -154,11 +158,15 @@ export default class Deploy extends Command {
       this.debug(`Using Custom Dockerfile: ${config.dockerfile}`);
     }
 
+    config['builder-location'] =
+      config['builder-location'] || config.build?.builderLocation;
+    if (config['builder-location']) {
+      this.debug(`Declared builder location: ${config['builder-location']}`);
+    }
+
     const buildArgs = config.build?.args || config['build-arg'];
 
-    if (
-      Array.isArray(buildArgs)
-    ) {
+    if (Array.isArray(buildArgs)) {
       const firstPriority = buildArgsParser(config['build-arg'] || []);
       const secondPriority = buildArgsParser(config.build?.args || []);
 
@@ -290,6 +298,7 @@ To file a ticket, please head to: https://console.liara.ir/tickets`);
         cache: config.buildCache,
         args: config['build-arg'],
         dockerfile: config.dockerfile,
+        builderLocation: config['builder-location'],
       },
       cron: config.cron,
       args: config.args,
