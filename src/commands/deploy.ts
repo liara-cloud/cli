@@ -186,13 +186,14 @@ export default class Deploy extends Command {
       const { domains } = await this.got(
         `v1/domains?project=${config.app}`
       ).json<IGetDomainsResponse>();
-      domains.map((domain) => {
+
+      for (const domain of domains) {
         if (domain.certificatesStatus === 'ACTIVE') {
           this.log(chalk.white(`    https://${domain.name}`));
         } else {
           this.log(chalk.white(`    http://${domain.name}`));
         }
-      });
+      }
 
       this.log();
 
