@@ -79,7 +79,7 @@ export interface IDomains {
   };
   status: string;
   certificatesStatus: string;
-  redirectTo: '';
+  redirectTo: string;
   redirectStatus: number;
   created_at: string;
   CNameRecord: string;
