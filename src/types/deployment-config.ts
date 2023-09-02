@@ -11,4 +11,5 @@ export default interface IDeploymentConfig extends ILiaraJSON {
   buildCache?: boolean;
   dockerfile?: string;
   'build-arg'?: string[];
+  'build-location'?: string;
 }
