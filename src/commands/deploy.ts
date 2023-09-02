@@ -82,6 +82,7 @@ export default class Deploy extends Command {
     'build-location': Flags.string({
       char: 'b',
       description: `name of the build's location`,
+      options: ['iran', 'germany'],
     }),
   };
 
