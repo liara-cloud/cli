@@ -9,7 +9,10 @@ import ProgressBar from 'progress';
 import { Flags, Errors } from '@oclif/core';
 
 import Logs from './app/logs.js';
-import Command, { IGetDomainsResponse } from '../base.js';
+import Command, {
+  IGetDomainsResponse,
+  IDtailsProjectResponse,
+} from '../base.js';
 import IFlags from '../types/flags.js';
 import Poller from '../utils/poller.js';
 import upload from '../services/upload.js';
@@ -175,13 +178,18 @@ export default class Deploy extends Command {
       this.log(chalk.white('Open up the url below in your browser:'));
       this.log();
 
+      const { project } = await this.got(
+        `v1/projects/${config.app}`
+      ).json<IDtailsProjectResponse>();
+
       const defaultSubdomain: string =
         config.region === 'iran' ? '.iran.liara.run' : '.liara.run';
       const urlLogMessage = DEV_MODE
         ? // tslint:disable-next-line: no-http-string
           `    ${`http://${config.app}.liara.localhost`}`
         : `    ${`https://${config.app}${defaultSubdomain}`}`;
-      this.log(urlLogMessage);
+
+      if (project.defaultSubdomain) this.log(urlLogMessage);
 
       const { domains } = await this.got(
         `v1/domains?project=${config.app}`
