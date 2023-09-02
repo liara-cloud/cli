@@ -21,7 +21,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/5.0.0-beta.1 linux-x64 node-v18.17.1
+@liara/cli/5.0.0-beta.2 linux-x64 node-v18.17.1
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -309,12 +309,16 @@ fetch the logs of an app
 
 ```
 USAGE
-  $ liara app logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>]
+  $ liara app logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>] [-t]
+    [-f] [-c]
 
 FLAGS
   -a, --app=<value>    app id
+  -c, --colorize       colorize log output
+  -f, --follow         follow log output
   -h, --help           Show CLI help.
   -s, --since=<value>  show logs since timestamp
+  -t, --timestamps     show timestamps
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -615,7 +619,7 @@ FLAGS
   -m, --message=<value>     the release message
   -p, --port=<value>        the port that your app listens to
   --api-token=<value>       your api token to use for authentication
-  --args=<value>...         docker image entrypoint args
+  --args=<value>            docker image entrypoint args
   --build-arg=<value>...    docker image build args
   --debug                   show debug logs
   --detach                  do not stream app logs after deployment
@@ -629,7 +633,7 @@ DESCRIPTION
   deploy an app
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v5.0.0-beta.1/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v5.0.0-beta.2/src/commands/deploy.ts)_
 
 ## `liara disk create`
 
@@ -811,7 +815,7 @@ DESCRIPTION
   login to your account
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v5.0.0-beta.1/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v5.0.0-beta.2/src/commands/login.ts)_
 
 ## `liara logs`
 
@@ -819,12 +823,16 @@ fetch the logs of an app
 
 ```
 USAGE
-  $ liara logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>]
+  $ liara logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>] [-t]
+    [-f] [-c]
 
 FLAGS
   -a, --app=<value>    app id
+  -c, --colorize       colorize log output
+  -f, --follow         follow log output
   -h, --help           Show CLI help.
   -s, --since=<value>  show logs since timestamp
+  -t, --timestamps     show timestamps
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
