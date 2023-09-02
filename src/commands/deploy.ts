@@ -188,11 +188,10 @@ export default class Deploy extends Command {
       ).json<IGetDomainsResponse>();
 
       for (const domain of domains) {
-        if (domain.certificatesStatus === 'ACTIVE') {
-          this.log(chalk.white(`    https://${domain.name}`));
-        } else {
-          this.log(chalk.white(`    http://${domain.name}`));
-        }
+        const protocol: string =
+          domain.certificatesStatus === 'ACTIVE' ? 'https' : 'http';
+
+        this.log(chalk.white(`    ${protocol}://${domain.name}`));
       }
 
       this.log();
