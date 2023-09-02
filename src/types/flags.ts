@@ -11,4 +11,5 @@ export default interface IFlags {
   message?: string;
   disks?: string[];
   dockerfile?: string;
+  'build-location'?: string;
 }
