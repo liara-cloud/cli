@@ -11,7 +11,7 @@ import { Flags, Errors } from '@oclif/core';
 import Logs from './app/logs.js';
 import Command, {
   IGetDomainsResponse,
-  IDtailsProjectResponse,
+  IProjectDetailsResponse,
 } from '../base.js';
 import IFlags from '../types/flags.js';
 import Poller from '../utils/poller.js';
@@ -180,7 +180,7 @@ export default class Deploy extends Command {
 
       const { project } = await this.got(
         `v1/projects/${config.app}`
-      ).json<IDtailsProjectResponse>();
+      ).json<IProjectDetailsResponse>();
 
       const defaultSubdomain: string =
         config.region === 'iran' ? '.iran.liara.run' : '.liara.run';

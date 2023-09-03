@@ -96,7 +96,7 @@ export interface IEnvs {
   _id: string;
 }
 
-export interface IDtailsProject {
+export interface IProjectDetails {
   _id: string;
   project_id: string;
   type: string;
@@ -117,8 +117,8 @@ export interface IDtailsProject {
   reservedDiskSpace: number;
 }
 
-export interface IDtailsProjectResponse {
-  project: IDtailsProject;
+export interface IProjectDetailsResponse {
+  project: IProjectDetails;
 }
 
 export default abstract class extends Command {
