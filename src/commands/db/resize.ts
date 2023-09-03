@@ -7,7 +7,7 @@ import IGetDatabasesResponse from '../../types/get-dbs-response.js';
 import spacing from '../../utils/spacing.js';
 
 export default class Hello extends Command {
-  static description = 'create a new database';
+  static description = 'resize a database';
 
   static PATH = 'v1/databases/{database-id}/resize';
 
