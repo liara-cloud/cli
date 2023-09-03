@@ -69,6 +69,58 @@ export interface IGetProjectsResponse {
   projects: IProject[];
 }
 
+export interface IDomains {
+  _id: string;
+  name: string;
+  type: string;
+  project: {
+    _id: string;
+    project_id: string;
+  };
+  status: string;
+  certificatesStatus: string;
+  redirectTo: string;
+  redirectStatus: number;
+  created_at: string;
+  CNameRecord: string;
+}
+
+export interface IGetDomainsResponse {
+  domains: IDomains[];
+}
+
+export interface IEnvs {
+  key: string;
+  value: string;
+  encrypted: boolean;
+  _id: string;
+}
+
+export interface IProjectDetails {
+  _id: string;
+  project_id: string;
+  type: string;
+  status: string;
+  defaultSubdomain: boolean;
+  zeroDowntime: boolean;
+  scale: number;
+  envs: IEnvs[];
+  planID: string;
+  fixedIPStatus: string;
+  created_at: string;
+  node: {
+    _id: string;
+    IP: string;
+  };
+  hourlyPrice: number;
+  isDeployed: boolean;
+  reservedDiskSpace: number;
+}
+
+export interface IProjectDetailsResponse {
+  project: IProjectDetails;
+}
+
 export default abstract class extends Command {
   static flags = {
     help: Flags.help({ char: 'h' }),
