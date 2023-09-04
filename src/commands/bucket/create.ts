@@ -2,12 +2,7 @@ import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
 import Command, { IConfig } from '../../base.js';
 import { Flags } from '@oclif/core';
-import {
-  OBJ_PLAN,
-  OBJ_PERMISSION,
-  REGIONS_API_URL,
-  DEV_MODE,
-} from '../../constants.js';
+import { OBJ_PERMISSION, REGIONS_API_URL, DEV_MODE } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
 import spacing from '../../utils/spacing.js';
 
@@ -64,10 +59,6 @@ export default class BucketCreate extends Command {
       this.error('We do not support germany any more.');
 
     const plan = flags.plan || (await this.promptPlan());
-
-    if (!OBJ_PLAN.includes(plan)) {
-      this.error(`Unknown plan: ${plan}`);
-    }
 
     const permission = flags.permission || (await this.promptPermission());
 
