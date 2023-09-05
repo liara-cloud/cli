@@ -42,6 +42,14 @@ export default class Hello extends Command {
 
     await this.setGotConfig(flags);
 
+    const debug = createDebugLogger(flags.debug);
+
+    await this.setGotConfig(flags);
+    const account = await this.getCurrentAccount();
+
+    ((account && account.region === 'germany') || flags.region === 'germany') &&
+      this.error('We do not support germany any more.');
+
     try {
       const { data } = await this.got(Hello.PATH).json<ZonesI>();
       const zonesData = data.map((zone) => {
