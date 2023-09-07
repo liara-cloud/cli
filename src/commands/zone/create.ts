@@ -17,9 +17,9 @@ export default class Hello extends Command {
 
   static flags = {
     ...Command.flags,
-    name: Flags.string({
-      char: 'n',
-      description: 'domain name',
+    zone: Flags.string({
+      char: 'z',
+      description: 'zone name (name)',
     }),
   };
 
@@ -35,7 +35,7 @@ export default class Hello extends Command {
     ((account && account.region === 'germany') || flags.region === 'germany') &&
       this.error('We do not support germany any more.');
 
-    const name = flags.name || (await this.promptName());
+    const name = flags.zone || (await this.promptName());
 
     try {
       await this.got.post(Hello.PATH, {
