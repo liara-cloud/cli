@@ -19,7 +19,7 @@ export default class Hello extends Command {
     ...Command.flags,
     zone: Flags.string({
       char: 'z',
-      description: 'zone name (name)',
+      description: 'zone name (domain)',
     }),
   };
 
