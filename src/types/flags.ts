@@ -6,6 +6,7 @@ export default interface IFlags {
   'api-token'?: string;
   region?: string;
   detach: boolean;
+  'no-app-logs': boolean;
   args?: string;
   'build-arg'?: string[];
   message?: string;

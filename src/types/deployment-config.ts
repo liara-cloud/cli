@@ -5,7 +5,6 @@ export default interface IDeploymentConfig extends ILiaraJSON {
   image?: string;
   'api-token'?: string;
   region?: string;
-  detach: boolean;
   message?: string;
   'no-cache'?: boolean;
   buildCache?: boolean;

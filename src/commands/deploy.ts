@@ -59,6 +59,10 @@ export default class Deploy extends Command {
     }),
     image: Flags.string({ char: 'i', description: 'docker image to deploy' }),
     detach: Flags.boolean({
+      description: 'run build in background',
+      default: false,
+    }),
+    'no-app-logs': Flags.boolean({
       description: 'do not stream app logs after deployment',
       default: false,
     }),
@@ -181,58 +185,63 @@ export default class Deploy extends Command {
     try {
       const response = await this.deploy(config);
 
-      !config.image && (await this.showBuildLogs(response.releaseID));
-      config.image && (await this.showReleaseLogs(response.releaseID));
-
-      this.log();
-      this.log(chalk.green('Deployment finished successfully.'));
-      this.log(chalk.white('Open up the url below in your browser:'));
-      this.log();
-
-      const { project } = await this.got(
-        `v1/projects/${config.app}`
-      ).json<IProjectDetailsResponse>();
-
-      const defaultSubdomain: string =
-        config.region === 'iran' ? '.iran.liara.run' : '.liara.run';
-      const urlLogMessage = DEV_MODE
-        ? // tslint:disable-next-line: no-http-string
-          `    ${`http://${config.app}.liara.localhost`}`
-        : `    ${`https://${config.app}${defaultSubdomain}`}`;
-
-      const { domains } = await this.got(
-        `v1/domains?project=${config.app}`
-      ).json<IGetDomainsResponse>();
-
-      if (!domains.length || project.defaultSubdomain) this.log(urlLogMessage);
-
-      for (const domain of domains) {
-        const protocol: string =
-          domain.certificatesStatus === 'ACTIVE' ? 'https' : 'http';
-
-        this.log(chalk.white(`    ${protocol}://${domain.name}`));
-      }
-
-      this.log();
-
       if (flags.detach) {
-        process.exit(0);
-      }
+        this.log(chalk.green('Deployment created successfully.'));
+      } else {
+        !config.image && (await this.showBuildLogs(response.releaseID));
+        config.image && (await this.showReleaseLogs(response.releaseID));
 
-      this.log('Reading app logs...');
-      await Logs.run([
-        '--app',
-        config.app,
-        '--since',
-        moment().unix().toString(),
-        '--follow',
-        '--timestamps',
-        '--colorize',
-        '--api-token',
-        config['api-token'] || '',
-        '--region',
-        config.region || '',
-      ]);
+        this.log();
+        this.log(chalk.green('Deployment finished successfully.'));
+        this.log(chalk.white('Open up the url below in your browser:'));
+        this.log();
+
+        const { project } = await this.got(
+          `v1/projects/${config.app}`
+        ).json<IProjectDetailsResponse>();
+
+        const defaultSubdomain: string =
+          config.region === 'iran' ? '.iran.liara.run' : '.liara.run';
+        const urlLogMessage = DEV_MODE
+          ? // tslint:disable-next-line: no-http-string
+            `    ${`http://${config.app}.liara.localhost`}`
+          : `    ${`https://${config.app}${defaultSubdomain}`}`;
+
+        const { domains } = await this.got(
+          `v1/domains?project=${config.app}`
+        ).json<IGetDomainsResponse>();
+
+        if (!domains.length || project.defaultSubdomain)
+          this.log(urlLogMessage);
+
+        for (const domain of domains) {
+          const protocol: string =
+            domain.certificatesStatus === 'ACTIVE' ? 'https' : 'http';
+
+          this.log(chalk.white(`    ${protocol}://${domain.name}`));
+        }
+
+        this.log();
+
+        if (flags['no-app-logs']) {
+          process.exit(0);
+        }
+
+        this.log('Reading app logs...');
+        await Logs.run([
+          '--app',
+          config.app,
+          '--since',
+          moment().unix().toString(),
+          '--follow',
+          '--timestamps',
+          '--colorize',
+          '--api-token',
+          config['api-token'] || '',
+          '--region',
+          config.region || '',
+        ]);
+      }
     } catch (error) {
       this.log();
       this.spinner.stop();
