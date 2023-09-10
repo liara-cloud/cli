@@ -45,7 +45,32 @@ const promptRecordContent = {
     }
     return result;
   },
-  AAAA: (): AContentI => {},
+  AAAA: async (flags: any): Promise<[AContentI]> => {
+    // @ts-ignore
+    let result: [AContentI] = [];
+    if (flags.ip) {
+      flags.ip.map((ip: string) => {
+        result.push({ ip: ip });
+      });
+    } else {
+      let done = false;
+      let i = 1;
+      do {
+        const { ip } = (await inquirer.prompt({
+          name: 'ip',
+          type: 'input',
+          message: `Enter ip${i} (leave empty to finish):`,
+          validate: (input) => input.length >= 0 || done === true,
+        })) as { ip: string };
+        if (ip.length > 0) {
+          result.push({ ip: ip });
+        } else {
+          done = true;
+        }
+      } while (!done);
+    }
+    return result;
+  },
   ALIAS: (): ALIASContentI => {},
   CNAME: (): ALIASContentI => {},
   MX: (): MXContentI => {},
@@ -177,7 +202,7 @@ export default class Hello extends Command {
     const { name } = (await inquirer.prompt({
       name: 'name',
       type: 'input',
-      message: 'Enter domain:',
+      message: 'Enter record name:',
       validate: (input) => input.length > 2,
     })) as { name: string };
 
