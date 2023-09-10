@@ -41,6 +41,7 @@ const promptRecordContent = {
         } else {
           done = true;
         }
+        i++;
       } while (!done);
     }
     return result;
@@ -67,11 +68,36 @@ const promptRecordContent = {
         } else {
           done = true;
         }
+        i++;
       } while (!done);
     }
     return result;
   },
-  ALIAS: (): ALIASContentI => {},
+  ALIAS: async (flags: any): Promise<[ALIASContentI]> => {
+    // @ts-ignore
+    let result: [ALIASContentI] = [];
+    if (flags.host) {
+      result.push({ host: flags.host });
+    } else {
+      let done = true;
+      let i = 1;
+      do {
+        const { host } = (await inquirer.prompt({
+          name: 'host',
+          type: 'input',
+          message: `Enter host${i} (leave empty to finish):`,
+          validate: (input) => input.length >= 0 || done === true,
+        })) as { host: string };
+        if (host.length > 0) {
+          result.push({ host: host });
+        } else {
+          done = true;
+        }
+        i++;
+      } while (!done);
+    }
+    return result;
+  },
   CNAME: (): ALIASContentI => {},
   MX: (): MXContentI => {},
   SRV: (): SRVContentI => {},
@@ -138,6 +164,10 @@ export default class Hello extends Command {
       char: 'i',
       description: 'ip value for A and AAAA record type',
       multiple: true,
+    }),
+    host: Flags.string({
+      char: 's',
+      description: 'host value for record ALIAS',
     }),
   };
 
