@@ -98,7 +98,31 @@ const promptRecordContent = {
     }
     return result;
   },
-  CNAME: (): ALIASContentI => {},
+  CNAME: async (flags: any): Promise<[ALIASContentI]> => {
+    // @ts-ignore
+    let result: [ALIASContentI] = [];
+    if (flags.host) {
+      result.push({ host: flags.host });
+    } else {
+      let done = true;
+      let i = 1;
+      do {
+        const { host } = (await inquirer.prompt({
+          name: 'host',
+          type: 'input',
+          message: `Enter host${i} (leave empty to finish):`,
+          validate: (input) => input.length >= 0 || done === true,
+        })) as { host: string };
+        if (host.length > 0) {
+          result.push({ host: host });
+        } else {
+          done = true;
+        }
+        i++;
+      } while (!done);
+    }
+    return result;
+  },
   MX: (): MXContentI => {},
   SRV: (): SRVContentI => {},
   TXT: (): TXTContentI => {},
