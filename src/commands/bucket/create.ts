@@ -2,7 +2,12 @@ import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
 import Command, { IConfig } from '../../base.js';
 import { Flags } from '@oclif/core';
-import { OBJ_PERMISSION, REGIONS_API_URL, DEV_MODE } from '../../constants.js';
+import {
+  OBJECT_STORAGE_API_URL_DEV,
+  OBJECT_STORAGE_API_URL,
+  OBJ_PERMISSION,
+  DEV_MODE,
+} from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
 import spacing from '../../utils/spacing.js';
 
@@ -34,8 +39,8 @@ export default class BucketCreate extends Command {
       await super.setGotConfig(config);
       this.got = this.got.extend({
         prefixUrl: DEV_MODE
-          ? 'http://localhost:3000'
-          : REGIONS_API_URL['objStorage'],
+          ? OBJECT_STORAGE_API_URL_DEV['devUri']
+          : OBJECT_STORAGE_API_URL['prodUri'],
       });
     } else {
       await super.setGotConfig(config);

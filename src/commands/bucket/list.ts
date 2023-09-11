@@ -1,7 +1,11 @@
 import { ux } from '@oclif/core';
 import Command, { IConfig, IGetBucketsResponse } from '../../base.js';
 import * as shamsi from 'shamsi-date-converter';
-import { REGIONS_API_URL, DEV_MODE } from '../../constants.js';
+import {
+  OBJECT_STORAGE_API_URL_DEV,
+  OBJECT_STORAGE_API_URL,
+  DEV_MODE,
+} from '../../constants.js';
 
 export default class BucketList extends Command {
   static description = 'list available buckets';
@@ -17,8 +21,8 @@ export default class BucketList extends Command {
     await super.setGotConfig(config);
     this.got = this.got.extend({
       prefixUrl: DEV_MODE
-        ? 'http://localhost:3000'
-        : REGIONS_API_URL['objStorage'],
+        ? OBJECT_STORAGE_API_URL_DEV['devUri']
+        : OBJECT_STORAGE_API_URL['prodUri'],
     });
   }
 

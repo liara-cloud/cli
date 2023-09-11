@@ -3,7 +3,11 @@ import Command, { IConfig, IGetBucketsResponse } from '../../base.js';
 import { Flags } from '@oclif/core';
 import { createDebugLogger } from '../../utils/output.js';
 import ora from 'ora';
-import { REGIONS_API_URL, DEV_MODE } from '../../constants.js';
+import {
+  OBJECT_STORAGE_API_URL_DEV,
+  OBJECT_STORAGE_API_URL,
+  DEV_MODE,
+} from '../../constants.js';
 
 export default class BucketDelete extends Command {
   static description = 'delete a bucket';
@@ -14,6 +18,10 @@ export default class BucketDelete extends Command {
       char: 'b',
       description: 'bucket name',
     }),
+    force: Flags.boolean({
+      char: 'f',
+      description: 'force the deletion',
+    }),
   };
 
   static aliases = ['bucket:delete'];
@@ -22,8 +30,8 @@ export default class BucketDelete extends Command {
     await super.setGotConfig(config);
     this.got = this.got.extend({
       prefixUrl: DEV_MODE
-        ? 'http://localhost:3000'
-        : REGIONS_API_URL['objStorage'],
+        ? OBJECT_STORAGE_API_URL_DEV['devUri']
+        : OBJECT_STORAGE_API_URL['prodUri'],
     });
   }
 
@@ -36,8 +44,10 @@ export default class BucketDelete extends Command {
     const bucket = flags.bucket || (await this.promptBuckets());
 
     try {
-      // TODO: Add --force or -f flag to force the deletion
-      if (await this.confirm(bucket)) {
+      if (flags.force) {
+        await this.got.delete(`api/v1/buckets/${bucket}`);
+        this.log(`Bucket ${bucket} deleted.`);
+      } else if (await this.confirm(bucket)) {
         await this.got.delete(`api/v1/buckets/${bucket}`);
         this.log(`Bucket ${bucket} deleted.`);
       }
