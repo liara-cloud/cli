@@ -123,7 +123,44 @@ const promptRecordContent = {
     }
     return result;
   },
-  MX: (): MXContentI => {},
+  MX: async (flags: any): Promise<[MXContentI]> => {
+    // @ts-ignore
+    let result: [MXContentI] = [];
+    if (flags.mx) {
+      flags.mx.map((combineInput: string) => {
+        const parsed = combineInput.split(',');
+        if (parsed.length != 2) {
+          throw Error('mx flag should be like this: <hostname>,<priority>');
+        }
+        result.push({ host: parsed[0], priority: parsed[1] });
+      });
+    } else {
+      let done = false;
+      let i = 1;
+      do {
+        const { combineInput } = (await inquirer.prompt({
+          name: 'combineInput',
+          type: 'input',
+          message: `Enter hostname and priority ${i} (<hostname> <priority>. leave empty to finish):`,
+          validate: (input) =>
+            input.length == 0 || input.split(' ').length == 2 || done === true,
+        })) as { combineInput: string };
+        if (combineInput.length > 0) {
+          const parsed = combineInput.split(' ');
+          if (parsed.length != 2) {
+            throw Error(
+              'hostname and priority should be like this: <hostname> <priority>'
+            );
+          }
+          result.push({ host: parsed[0], priority: parsed[1] });
+        } else {
+          done = true;
+        }
+        i++;
+      } while (!done);
+    }
+    return result;
+  },
   SRV: (): SRVContentI => {},
   TXT: (): TXTContentI => {},
 };
@@ -186,12 +223,18 @@ export default class Hello extends Command {
     }),
     ip: Flags.string({
       char: 'i',
-      description: 'ip value for A and AAAA record type',
+      description: 'ip value for record A and AAAA',
       multiple: true,
     }),
     host: Flags.string({
       char: 's',
-      description: 'host value for record ALIAS',
+      description: 'host value for record ALIAS and CNAME',
+    }),
+    mx: Flags.string({
+      char: 'm',
+      description:
+        'host and priority values for MX record. mx flag should be like this: --mx <hostname>,<priority>',
+      multiple: true,
     }),
   };
 
