@@ -205,7 +205,33 @@ const promptRecordContent = {
     }
     return result;
   },
-  TXT: (): TXTContentI => {},
+  TXT: async (flags: any): Promise<[TXTContentI]> => {
+    // @ts-ignore
+    let result: [TXTContentI] = [];
+    if (flags.txt) {
+      flags.txt.map((txt: string) => {
+        result.push({ text: txt });
+      });
+    } else {
+      let done = false;
+      let i = 1;
+      do {
+        const { text } = (await inquirer.prompt({
+          name: 'text',
+          type: 'input',
+          message: `Enter text${i} (leave empty to finish):`,
+          validate: (input) => input.length >= 0 || done === true,
+        })) as { text: string };
+        if (text.length > 0) {
+          result.push({ text: text });
+        } else {
+          done = true;
+        }
+        i++;
+      } while (!done);
+    }
+    return result;
+  },
 };
 
 interface AContentI {
@@ -283,6 +309,11 @@ export default class Hello extends Command {
       char: 'r',
       description:
         'hostname, port, priority and weight values for SRV record. srv flag should be like this: <hostname>,<port>,<priority>,<weight>',
+      multiple: true,
+    }),
+    txt: Flags.string({
+      char: 'x',
+      description: 'text value for record TXT',
       multiple: true,
     }),
   };
