@@ -3,10 +3,6 @@ import inquirer from 'inquirer';
 import Command, { IConfig } from '../../../base.js';
 import { Flags, Args } from '@oclif/core';
 import { createDebugLogger } from '../../../utils/output.js';
-import spacing from '../../../utils/spacing.js';
-import { ux } from '@oclif/core';
-import { string } from '@oclif/core/lib/flags.js';
-import { type } from 'os';
 
 enum RecordType {
   'A',
@@ -148,9 +144,7 @@ const promptRecordContent = {
         if (combineInput.length > 0) {
           const parsed = combineInput.split(' ');
           if (parsed.length != 2) {
-            throw Error(
-              'hostname and priority should be like this: <hostname> <priority>'
-            );
+            throw Error('mx inputs should be like this: <hostname> <priority>');
           }
           result.push({ host: parsed[0], priority: parsed[1] });
         } else {
@@ -161,7 +155,56 @@ const promptRecordContent = {
     }
     return result;
   },
-  SRV: (): SRVContentI => {},
+  SRV: async (flags: any): Promise<[SRVContentI]> => {
+    // @ts-ignore
+    let result: [SRVContentI] = [];
+    if (flags.srv) {
+      flags.srv.map((combineInput: string) => {
+        const parsed = combineInput.split(',');
+        if (parsed.length != 4) {
+          throw Error(
+            'srv flag should be like this: <hostname>,<port>,<priority>,<weight>'
+          );
+        }
+        result.push({
+          host: parsed[0],
+          port: parsed[1],
+          priority: parsed[2],
+          weight: parsed[3],
+        });
+      });
+    } else {
+      let done = false;
+      let i = 1;
+      do {
+        const { combineInput } = (await inquirer.prompt({
+          name: 'combineInput',
+          type: 'input',
+          message: `Enter hostname, port, priority and weight  ${i} (<hostname> <port> <priority> <weight>. leave empty to finish):`,
+          validate: (input) =>
+            input.length == 0 || input.split(' ').length == 4 || done === true,
+        })) as { combineInput: string };
+        if (combineInput.length > 0) {
+          const parsed = combineInput.split(' ');
+          if (parsed.length != 4) {
+            throw Error(
+              'srv inputs should be like this: <hostname> <port> <priority> <weight>'
+            );
+          }
+          result.push({
+            host: parsed[0],
+            port: parsed[1],
+            priority: parsed[2],
+            weight: parsed[3],
+          });
+        } else {
+          done = true;
+        }
+        i++;
+      } while (!done);
+    }
+    return result;
+  },
   TXT: (): TXTContentI => {},
 };
 
@@ -234,6 +277,12 @@ export default class Hello extends Command {
       char: 'm',
       description:
         'host and priority values for MX record. mx flag should be like this: --mx <hostname>,<priority>',
+      multiple: true,
+    }),
+    srv: Flags.string({
+      char: 'r',
+      description:
+        'hostname, port, priority and weight values for SRV record. srv flag should be like this: <hostname>,<port>,<priority>,<weight>',
       multiple: true,
     }),
   };
