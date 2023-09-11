@@ -27,7 +27,7 @@ export interface ZonesI {
 }
 
 export default class Hello extends Command {
-  static description = 'get a zone.';
+  static description = 'Check a zone.';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
 
