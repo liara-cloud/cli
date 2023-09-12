@@ -307,8 +307,11 @@ You may also want to switch to another region. Your current region is: ${chalk.c
       this.log(chalk.gray(this.config.userAgent));
       this.log();
       this.error(`Deployment failed.
-Sorry for inconvenience. If you think it's a bug, please contact us.
-To file a ticket, please head to: https://console.liara.ir/tickets`);
+      Sorry for the inconvenience. If you think it's a bug, please contact us.
+      To file a ticket, please head to: https://console.liara.ir/tickets
+      
+      You can also retry the build using the debug flag to get more logs:
+        ${chalk.cyan('liara deploy --debug')}`);
     }
   }
 
