@@ -67,11 +67,13 @@ interface singleDNSRecordI {
 }
 
 export default class Hello extends Command {
-  static description = 'get a DNS record for a zone.';
+  static description = 'remove a DNS record for a zone.';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
 
   static PATH = 'api/v1/zones/{zone}/dns-records/{id}';
+
+  static aliases = ['zone:dns:rm'];
 
   static flags = {
     ...Command.flags,
@@ -108,57 +110,10 @@ export default class Hello extends Command {
     }
 
     try {
-      const { data } = await this.got(
+      await this.got.delete(
         Hello.PATH.replace('{zone}', zone).replace('{id}', recordID)
-      ).json<singleDNSRecordI>();
-
-      // @ts-ignore
-      let contents: [string] = [];
-
-      switch (data.type) {
-        case RecordType.A:
-        case RecordType.AAAA:
-          data.contents.map((rec) => {
-            // @ts-ignore
-            contents.push(rec.ip);
-          });
-          break;
-        case RecordType.ALIAS:
-        case RecordType.CNAME:
-        case RecordType.MX:
-        case RecordType.SRV:
-          data.contents.map((rec) => {
-            // @ts-ignore
-            contents.push(rec.host);
-          });
-          break;
-        case RecordType.TXT:
-          data.contents.map((rec) => {
-            // @ts-ignore
-            contents.push(rec.text);
-          });
-          break;
-        default:
-          this.error('Unknown error in showing records');
-      }
-
-      const tableData = {
-        id: data.id,
-        name: data.name,
-        type: data.type,
-        ttl: data.ttl,
-        contents: contents.join('\n'),
-      };
-
-      const columnConfig = {
-        id: {},
-        name: {},
-        type: {},
-        ttl: {},
-        contents: {},
-      };
-
-      ux.table([tableData], columnConfig, flags);
+      );
+      this.log(`Record ${name} removed.`);
     } catch (error) {
       if (error.response && error.response.statusCode === 404) {
         this.error(`Zone not found.`);
