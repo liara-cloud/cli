@@ -311,7 +311,7 @@ You may also want to switch to another region. Your current region is: ${chalk.c
       To file a ticket, please head to: https://console.liara.ir/tickets
       
       You can also retry the build using the debug flag to get more logs:
-        ${chalk.cyan('liara deploy --debug')}`);
+          ${chalk.cyan('liara deploy --debug')}`);
     }
   }
 
