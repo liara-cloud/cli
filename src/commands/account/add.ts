@@ -47,25 +47,23 @@ export default class AccountAdd extends Command {
 
     this.got = got.extend({ prefixUrl: REGIONS_API_URL[region], hooks });
 
-    if (!flags.email) {
-      if (flags['api-token']) {
-        const { user } = await this.got('v1/me', {
-          headers: { Authorization: `Bearer ${flags['api-token']}` },
-        }).json<{ user: IAccount }>();
+    if (flags['api-token']) {
+      const { user } = await this.got('v1/me', {
+        headers: { Authorization: `Bearer ${flags['api-token']}` },
+      }).json<{ user: IAccount }>();
 
-        flags.email = user.email;
-      } else {
-        let emailIsValid = false;
-        do {
-          flags.email = await this.promptEmail();
-          emailIsValid = validateEmail(flags.email);
-          if (!emailIsValid) {
-            process.stdout.write(eraseLines(1));
-          }
-        } while (!emailIsValid);
+      flags.email = user.email;
+    } else if (!flags.email) {
+      let emailIsValid = false;
+      do {
+        flags.email = await this.promptEmail();
+        emailIsValid = validateEmail(flags.email);
+        if (!emailIsValid) {
+          process.stdout.write(eraseLines(1));
+        }
+      } while (!emailIsValid);
 
-        this.log();
-      }
+      this.log();
     }
 
     const body = {
