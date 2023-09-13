@@ -21,7 +21,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/5.0.0-beta.3 linux-x64 node-v18.17.1
+@liara/cli/5.0.0 linux-x64 node-v18.17.1
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -607,8 +607,8 @@ deploy an app
 ```
 USAGE
   $ liara deploy [-h] [--debug] [--api-token <value>] [--region iran|germany] [--path <value>] [--platform
-    <value>] [-a <value>] [-p <value>] [-i <value>] [--detach] [--args <value>] [--build-arg <value>] [-m <value>] [-d
-    <value>] [--no-cache] [-f <value>] [-b iran|germany]
+    <value>] [-a <value>] [-p <value>] [-i <value>] [--detach] [--no-app-logs] [--args <value>] [--build-arg <value>]
+    [-m <value>] [-d <value>] [--no-cache] [-f <value>] [-b iran|germany]
 
 FLAGS
   -a, --app=<value>              app id
@@ -624,7 +624,8 @@ FLAGS
   --args=<value>                 docker image entrypoint args
   --build-arg=<value>...         docker image build args
   --debug                        show debug logs
-  --detach                       do not stream app logs after deployment
+  --detach                       run build in background
+  --no-app-logs                  do not stream app logs after deployment
   --no-cache                     do not use cache when building the image
   --path=<value>                 app path in your computer
   --platform=<value>             the platform your app needs to run
@@ -635,7 +636,7 @@ DESCRIPTION
   deploy an app
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v5.0.0-beta.3/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v5.0.0/src/commands/deploy.ts)_
 
 ## `liara disk create`
 
@@ -817,7 +818,7 @@ DESCRIPTION
   login to your account
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v5.0.0-beta.3/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v5.0.0/src/commands/login.ts)_
 
 ## `liara logs`
 
