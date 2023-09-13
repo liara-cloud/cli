@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import fs from 'fs-extra';
 import AccountUse from './use.js';
 import retry from 'async-retry';
-import Command from '../../base.js';
+import Command, { IAccount } from '../../base.js';
 import inquirer from 'inquirer';
 import { Flags } from '@oclif/core';
 import hooks from '../../interceptors.js';
@@ -45,17 +45,27 @@ export default class AccountAdd extends Command {
 
     const region = flags.region || FALLBACK_REGION;
 
-    if (!flags.email) {
-      let emailIsValid = false;
-      do {
-        flags.email = await this.promptEmail();
-        emailIsValid = validateEmail(flags.email);
-        if (!emailIsValid) {
-          process.stdout.write(eraseLines(1));
-        }
-      } while (!emailIsValid);
+    this.got = got.extend({ prefixUrl: REGIONS_API_URL[region], hooks });
 
-      this.log();
+    if (!flags.email) {
+      if (flags['api-token']) {
+        const { user } = await this.got('v1/me', {
+          headers: { Authorization: `Bearer ${flags['api-token']}` },
+        }).json<{ user: IAccount }>();
+
+        flags.email = user.email;
+      } else {
+        let emailIsValid = false;
+        do {
+          flags.email = await this.promptEmail();
+          emailIsValid = validateEmail(flags.email);
+          if (!emailIsValid) {
+            process.stdout.write(eraseLines(1));
+          }
+        } while (!emailIsValid);
+
+        this.log();
+      }
     }
 
     const body = {
@@ -70,24 +80,38 @@ export default class AccountAdd extends Command {
 
     const name = flags.account || (await this.promptName(flags.email, region));
 
-    this.got = got.extend({ prefixUrl: REGIONS_API_URL[region], hooks });
     const { api_token, fullname, avatar } = (await retry(
       async () => {
         try {
-          const data = await this.got
-            .post('v1/login', {
-              json: body,
-              headers: { Authorization: undefined },
-            })
-            .json<{ api_token: string }>();
-          return data;
+          if (!flags['api-token']) {
+            const data = await this.got
+              .post('v1/login', {
+                json: body,
+                headers: { Authorization: undefined },
+              })
+              .json<IAccount>();
+            return data;
+          } else {
+            let { user } = await this.got('v1/me', {
+              headers: { Authorization: `Bearer ${flags['api-token']}` },
+            }).json<{ user: IAccount }>();
+
+            user.api_token = flags['api-token'];
+
+            return user;
+          }
         } catch (error) {
           debug('retrying...');
           throw error;
         }
       },
       { retries: 3 }
-    )) as { api_token: string; avatar: string; fullname: string };
+    )) as {
+      api_token: string;
+      avatar: string;
+      fullname: string;
+      email: string;
+    };
 
     const accounts = {
       ...currentAccounts,

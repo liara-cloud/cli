@@ -28,7 +28,7 @@ updateNotifier({ pkg: packageJson }).notify({ isGlobal: true });
 
 const isWin = os.platform() === 'win32';
 
-interface IAccount {
+export interface IAccount {
   email: string;
   api_token?: string;
   'api-token'?: string;
