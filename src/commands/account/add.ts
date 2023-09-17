@@ -48,9 +48,7 @@ export default class AccountAdd extends Command {
     this.got = got.extend({ prefixUrl: REGIONS_API_URL[region], hooks });
 
     if (flags['api-token']) {
-      const { user } = await this.got('v1/me', {
-        headers: { Authorization: `Bearer ${flags['api-token']}` },
-      }).json<{ user: IAccount }>();
+      const user = await this.getMe(flags);
 
       flags.email = user.email;
     } else if (!flags.email) {
@@ -90,9 +88,7 @@ export default class AccountAdd extends Command {
               .json<IAccount>();
             return data;
           } else {
-            let { user } = await this.got('v1/me', {
-              headers: { Authorization: `Bearer ${flags['api-token']}` },
-            }).json<{ user: IAccount }>();
+            let user = await this.getMe(flags);
 
             user.api_token = flags['api-token'];
 
@@ -192,5 +188,13 @@ export default class AccountAdd extends Command {
     })) as { password: string };
 
     return password;
+  }
+
+  async getMe(flags: any): Promise<IAccount> {
+    const { user } = await this.got('v1/me', {
+      headers: { Authorization: `Bearer ${flags['api-token']}` },
+    }).json<{ user: IAccount }>();
+
+    return user;
   }
 }
