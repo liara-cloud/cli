@@ -14,10 +14,9 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 import './interceptors.js';
 import {
   DEV_MODE,
+  REGIONS_API_URL,
   FALLBACK_REGION,
   GLOBAL_CONF_PATH,
-  PREVIOUS_GLOBAL_CONF_PATH,
-  REGIONS_API_URL,
   GLOBAL_CONF_VERSION,
 } from './constants.js';
 
@@ -138,84 +137,11 @@ export default abstract class extends Command {
   got = got.extend();
   spinner!: Ora;
   async readGlobalConfig(): Promise<IGlobalLiaraConfig> {
-    if (fs.existsSync(GLOBAL_CONF_PATH)) {
-      fs.removeSync(PREVIOUS_GLOBAL_CONF_PATH);
-      const content =
-        fs.readJSONSync(GLOBAL_CONF_PATH, { throws: false }) || {};
-      return content;
-    }
-
-    const content =
-      fs.readJSONSync(PREVIOUS_GLOBAL_CONF_PATH, { throws: false }) || {};
-
-    if (content.accounts && Object.keys(content.accounts).length) {
-      const accounts: IAccounts = {};
-      for (const account of Object.keys(content.accounts)) {
-        await this.setGotConfig({
-          'api-token': content.accounts[account].api_token,
-          region: content.accounts[account].region,
-        });
-        try {
-          const {
-            user: { email, fullname, avatar },
-          } = await this.got.get('v1/me').json<{ user: IAccount }>();
-
-          accounts[account] = {
-            email,
-            avatar,
-            fullname,
-            region: content.accounts[account].region,
-            api_token: content.accounts[account].api_token,
-            current: content.current === account,
-          };
-        } catch (error) {
-          if (!error.response) {
-            this.debug(error.stack);
-            this.error(error.message);
-          }
-        }
-      }
-
-      return { version: GLOBAL_CONF_VERSION, accounts };
-    }
-
-    if (content.api_token && content.region) {
-      try {
-        await this.setGotConfig({
-          'api-token': content.api_token,
-          region: content.region,
-        });
-        const {
-          user: { email, fullname, avatar },
-        } = await this.got.get('v1/me').json<{ user: IAccount }>();
-
-        const accounts = {
-          [`${email.split('@')[0]}_${content.region}`]: {
-            email,
-            avatar,
-            fullname,
-            current: true,
-            region: content.region,
-            api_token: content.api_token,
-          },
-        };
-        return { version: GLOBAL_CONF_VERSION, accounts };
-      } catch (error) {
-        if (error.response) {
-          return { version: GLOBAL_CONF_VERSION, accounts: {} };
-        }
-
-        this.debug(error.stack);
-        this.error(error.message);
-      }
-    }
-    // For backward compatibility with < 1.0.0 versions
-    // if (content && content.api_token) {
-    //   content['api-token'] = content.api_token
-    //   delete content.api_token
-    // }
-
-    return { version: GLOBAL_CONF_VERSION, accounts: {} };
+    const content = fs.readJSONSync(GLOBAL_CONF_PATH, { throws: false }) || {
+      version: GLOBAL_CONF_VERSION,
+      accounts: {},
+    };
+    return content;
   }
 
   async catch(error: any) {
