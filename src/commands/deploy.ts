@@ -1,18 +1,20 @@
-import ora, { Ora } from 'ora';
 import path from 'node:path';
+
+import fs from 'fs-extra';
 import chalk from 'chalk';
 import bytes from 'bytes';
-import fs from 'fs-extra';
 import moment from 'moment';
+import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
 import ProgressBar from 'progress';
 import { Flags, Errors } from '@oclif/core';
 
-import Logs from './app/logs.js';
 import Command, {
   IGetDomainsResponse,
   IProjectDetailsResponse,
 } from '../base.js';
+
+import Logs from './app/logs.js';
 import IFlags from '../types/flags.js';
 import Poller from '../utils/poller.js';
 import upload from '../services/upload.js';
@@ -316,8 +318,10 @@ You may also want to switch to another region. Your current region is: ${chalk.c
       this.log(chalk.gray(this.config.userAgent));
       this.log();
       this.error(`Deployment failed.
-Sorry for inconvenience. If you think it's a bug, please contact us.
-To file a ticket, please head to: https://console.liara.ir/tickets`);
+To get help, visit our documentation at: https://docs.liara.ir
+
+Additionally, you can also retry the build with the debug flag:
+    $ ${chalk.cyan('liara deploy --debug')}`);
     }
   }
 
