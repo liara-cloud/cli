@@ -47,11 +47,19 @@ export default class AccountAdd extends Command {
 
     this.got = got.extend({ prefixUrl: REGIONS_API_URL[region], hooks });
 
-    if (flags['api-token']) {
-      const user = await this.getMe(flags);
+    let api_token;
+    let fullname;
+    let avatar;
 
+    const user = flags['api-token'] ? await this.getMe(flags) : null;
+    if (user) {
       flags.email = user.email;
-    } else if (!flags.email) {
+      api_token = flags['api-token'];
+      fullname = user.fullname;
+      avatar = user.avatar;
+    }
+
+    if (!flags.email) {
       let emailIsValid = false;
       do {
         flags.email = await this.promptEmail();
@@ -76,7 +84,7 @@ export default class AccountAdd extends Command {
 
     const name = flags.account || (await this.promptName(flags.email, region));
 
-    const { api_token, fullname, avatar } = (await retry(
+    const data = (await retry(
       async () => {
         try {
           if (!flags['api-token']) {
@@ -87,12 +95,6 @@ export default class AccountAdd extends Command {
               })
               .json<IAccount>();
             return data;
-          } else {
-            let user = await this.getMe(flags);
-
-            user.api_token = flags['api-token'];
-
-            return user;
           }
         } catch (error) {
           debug('retrying...');
@@ -110,11 +112,11 @@ export default class AccountAdd extends Command {
     const accounts = {
       ...currentAccounts,
       [name]: {
-        email: body.email,
-        api_token,
+        email: body.email || data.email,
+        api_token: api_token || data.api_token,
         region,
-        fullname,
-        avatar,
+        fullname: fullname || data.fullname,
+        avatar: avatar || data.avatar,
         current: false,
       },
     };
