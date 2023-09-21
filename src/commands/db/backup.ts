@@ -6,18 +6,18 @@ import { createDebugLogger } from '../../utils/output.js';
 import IGetDatabasesResponse from '../../types/get-dbs-response.js';
 import * as shamsi from 'shamsi-date-converter';
 
-export interface BackUpI {
+export interface IBackUp {
   name: string;
   lastModified: string;
   etag: string;
   size: number;
 }
 
-export interface BackupsI {
+export interface IBackups {
   backups: BackUpI[];
 }
 
-export default class Hello extends Command {
+export default class BackUp extends Command {
   static description = 'manage backups for a database';
 
   static PATH = 'v1/databases/{database-id}/backups';
@@ -45,7 +45,7 @@ export default class Hello extends Command {
   async run(): Promise<void> {
     this.spinner = ora();
 
-    const { flags, args } = await this.parse(Hello);
+    const { flags, args } = await this.parse(BackUp);
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
@@ -64,11 +64,11 @@ export default class Hello extends Command {
       }
       const databaseID = database._id;
       if (args.subCommand === 'create') {
-        await this.got.post(Hello.PATH.replace('{database-id}', databaseID));
+        await this.got.post(BackUp.PATH.replace('{database-id}', databaseID));
         this.log(`Backup task for database ${hostname} created.`);
       } else if (args.subCommand === 'list') {
         const { backups } = await this.got
-          .get(Hello.PATH.replace('{database-id}', databaseID))
+          .get(BackUp.PATH.replace('{database-id}', databaseID))
           .json<BackupsI>();
         const tableData = backups.map((backup) => {
           const shamsiData = shamsi.gregorianToJalali(
@@ -92,7 +92,7 @@ export default class Hello extends Command {
         const backupName = flags.backup || (await this.promptBackupName());
         const downloadLink = await this.got
           .post(
-            Hello.PATH.replace('{database-id}', databaseID) +
+            BackUp.PATH.replace('{database-id}', databaseID) +
               `/${backupName}/download`
           )
           .json<any>();

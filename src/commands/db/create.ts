@@ -8,7 +8,7 @@ import { ux } from '@oclif/core';
 import { string } from '@oclif/core/lib/flags.js';
 import { relativeTimeThreshold } from 'moment';
 
-export default class Hello extends Command {
+export default class Create extends Command {
   static description = 'create a new database';
 
   static PATH = 'v1/databases';
@@ -44,7 +44,7 @@ export default class Hello extends Command {
   async run(): Promise<void> {
     this.spinner = ora();
 
-    const { flags } = await this.parse(Hello);
+    const { flags } = await this.parse(Create);
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
@@ -87,7 +87,7 @@ export default class Hello extends Command {
         this.log('Operation cancelled');
         return;
       }
-      await this.got.post(Hello.PATH, {
+      await this.got.post(Create.PATH, {
         json: { hostname, planID, publicNetwork, type, version },
       });
       this.log(`Database ${hostname} created.`);

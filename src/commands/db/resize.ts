@@ -6,7 +6,7 @@ import { createDebugLogger } from '../../utils/output.js';
 import IGetDatabasesResponse from '../../types/get-dbs-response.js';
 import spacing from '../../utils/spacing.js';
 
-export default class Hello extends Command {
+export default class Resize extends Command {
   static description = 'resize a database';
 
   static PATH = 'v1/databases/{database-id}/resize';
@@ -32,7 +32,7 @@ export default class Hello extends Command {
   async run(): Promise<void> {
     this.spinner = ora();
 
-    const { flags } = await this.parse(Hello);
+    const { flags } = await this.parse(Resize);
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
@@ -59,7 +59,7 @@ export default class Hello extends Command {
       }
       const planID = flags.plan || (await this.promptPlan(database.type));
       const databaseID = database._id;
-      await this.got.post(Hello.PATH.replace('{database-id}', databaseID), {
+      await this.got.post(Resize.PATH.replace('{database-id}', databaseID), {
         json: { planID: planID, disk: disk },
       });
       this.log(`Database ${hostname} changed to plan ${planID}.`);

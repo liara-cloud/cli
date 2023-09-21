@@ -6,7 +6,7 @@ import { createDebugLogger } from '../../utils/output.js';
 import IGetDatabasesResponse from '../../types/get-dbs-response.js';
 import { ux } from '@oclif/core';
 
-export default class Hello extends Command {
+export default class Remove extends Command {
   static description = 'remove a database';
 
   static PATH = 'v1/databases/{database-id}';
@@ -28,7 +28,7 @@ export default class Hello extends Command {
   async run(): Promise<void> {
     this.spinner = ora();
 
-    const { flags } = await this.parse(Hello);
+    const { flags } = await this.parse(Remove);
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
@@ -66,7 +66,7 @@ export default class Hello extends Command {
         return;
       }
       const databaseID = database._id;
-      await this.got.delete(Hello.PATH.replace('{database-id}', databaseID));
+      await this.got.delete(Remove.PATH.replace('{database-id}', databaseID));
       this.log(`Database ${hostname} removed.`);
     } catch (error) {
       debug(error.message);

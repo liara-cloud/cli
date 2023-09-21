@@ -5,7 +5,7 @@ import { Flags } from '@oclif/core';
 import { createDebugLogger } from '../../utils/output.js';
 import IGetDatabasesResponse from '../../types/get-dbs-response.js';
 
-export default class Hello extends Command {
+export default class Start extends Command {
   static description = 'start a database';
 
   static PATH = 'v1/databases/{database-id}/actions/scale';
@@ -23,7 +23,7 @@ export default class Hello extends Command {
   async run(): Promise<void> {
     this.spinner = ora();
 
-    const { flags } = await this.parse(Hello);
+    const { flags } = await this.parse(Start);
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
@@ -41,7 +41,7 @@ export default class Hello extends Command {
         return;
       }
       const databaseID = database._id;
-      await this.got.post(Hello.PATH.replace('{database-id}', databaseID), {
+      await this.got.post(Start.PATH.replace('{database-id}', databaseID), {
         json: { scale: 1 },
       });
       this.log(`Database ${hostname} started.`);
