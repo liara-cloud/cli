@@ -20,9 +20,7 @@ export default class BucketList extends Command {
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
     this.got = this.got.extend({
-      prefixUrl: DEV_MODE
-        ? OBJECT_STORAGE_API_URL_DEV['devUri']
-        : OBJECT_STORAGE_API_URL['prodUri'],
+      prefixUrl: DEV_MODE ? OBJECT_STORAGE_API_URL_DEV : OBJECT_STORAGE_API_URL,
     });
   }
 
