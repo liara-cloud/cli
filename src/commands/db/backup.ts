@@ -14,7 +14,7 @@ export interface IBackUp {
 }
 
 export interface IBackups {
-  backups: BackUpI[];
+  backups: IBackUp[];
 }
 
 export default class BackUp extends Command {
@@ -69,7 +69,7 @@ export default class BackUp extends Command {
       } else if (args.subCommand === 'list') {
         const { backups } = await this.got
           .get(BackUp.PATH.replace('{database-id}', databaseID))
-          .json<BackupsI>();
+          .json<IBackups>();
         const tableData = backups.map((backup) => {
           const shamsiData = shamsi.gregorianToJalali(
             new Date(backup.lastModified)
