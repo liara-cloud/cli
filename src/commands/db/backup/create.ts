@@ -18,11 +18,9 @@ export interface IBackups {
 }
 
 export default class BackUp extends Command {
-  static description = 'list backups for a database';
+  static description = 'create a database backup';
 
   static PATH = 'v1/databases/{database-id}/backups';
-
-  static aliases = ['db:backup:ls'];
 
   static flags = {
     ...Command.flags,
@@ -53,34 +51,15 @@ export default class BackUp extends Command {
         return;
       }
       const databaseID = database._id;
-      const { backups } = await this.got
-        .get(BackUp.PATH.replace('{database-id}', databaseID))
-        .json<IBackups>();
-      const tableData = backups.map((backup) => {
-        const shamsiData = shamsi.gregorianToJalali(
-          new Date(backup.lastModified)
-        );
-        return {
-          lastModified: `${shamsiData[0]}-${shamsiData[1]}-${shamsiData[2]}`,
-          size: backup.size,
-          name: backup.name,
-        };
-      });
-      const tableConfig = {
-        'last modified': { get: (row: any) => row.lastModified },
-        size: { get: (row: any) => row.size + ' bytes' }, // TODO: output a better format for big size backups
-        name: { get: (row: any) => row.name },
-      };
-      ux.table(tableData, tableConfig, {
-        title: 'Backups',
-      });
+      await this.got.post(BackUp.PATH.replace('{database-id}', databaseID));
+      this.log(`Backup task for database ${hostname} created.`);
     } catch (error) {
       debug(error.message);
 
       if (error.response && error.response.body) {
         debug(JSON.stringify(error.response.body));
       }
-      this.error(`Could not list backups. Please try again.`);
+      this.error(`Could not do the. Please try again.`);
     }
   }
 
