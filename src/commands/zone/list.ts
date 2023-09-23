@@ -1,16 +1,9 @@
-import ora from 'ora';
-import inquirer from 'inquirer';
 import Command, { IConfig } from '../../base.js';
-import { Flags } from '@oclif/core';
 import { createDebugLogger } from '../../utils/output.js';
-import spacing from '../../utils/spacing.js';
 import { ux } from '@oclif/core';
-import { string } from '@oclif/core/lib/flags.js';
-import { relativeTimeThreshold } from 'moment';
-import got, { Options } from 'got';
 import * as shamsi from 'shamsi-date-converter';
 
-export interface ZoneI {
+export interface IZone {
   name: 'string';
   status: 'string';
   nameServers: ['string'];
@@ -19,8 +12,8 @@ export interface ZoneI {
   createdAt: 'string';
 }
 
-export interface ZonesI {
-  data: ZoneI[];
+export interface IZones {
+  data: IZone[];
 }
 
 export default class List extends Command {
@@ -51,7 +44,7 @@ export default class List extends Command {
       this.error('We do not support germany any more.');
 
     try {
-      const { data } = await this.got(List.PATH).json<ZonesI>();
+      const { data } = await this.got(List.PATH).json<IZones>();
       const zonesData = data.map((zone) => {
         const createdAtshamsiData = shamsi.gregorianToJalali(
           new Date(zone.createdAt)

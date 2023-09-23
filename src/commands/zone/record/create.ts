@@ -15,9 +15,9 @@ enum RecordType {
 }
 
 const promptRecordContent = {
-  A: async (flags: any): Promise<[AContentI]> => {
+  A: async (flags: any): Promise<[IAContent]> => {
     // @ts-ignore
-    let result: [AContentI] = [];
+    let result: [IAContent] = [];
     if (flags.ip) {
       flags.ip.map((ip: string) => {
         result.push({ ip: ip });
@@ -42,9 +42,9 @@ const promptRecordContent = {
     }
     return result;
   },
-  AAAA: async (flags: any): Promise<[AContentI]> => {
+  AAAA: async (flags: any): Promise<[IAContent]> => {
     // @ts-ignore
-    let result: [AContentI] = [];
+    let result: [IAContent] = [];
     if (flags.ip) {
       flags.ip.map((ip: string) => {
         result.push({ ip: ip });
@@ -69,9 +69,9 @@ const promptRecordContent = {
     }
     return result;
   },
-  ALIAS: async (flags: any): Promise<[ALIASContentI]> => {
+  ALIAS: async (flags: any): Promise<[IALIASContent]> => {
     // @ts-ignore
-    let result: [ALIASContentI] = [];
+    let result: [IALIASContent] = [];
     if (flags.host) {
       result.push({ host: flags.host });
     } else {
@@ -94,9 +94,9 @@ const promptRecordContent = {
     }
     return result;
   },
-  CNAME: async (flags: any): Promise<[ALIASContentI]> => {
+  CNAME: async (flags: any): Promise<[IALIASContent]> => {
     // @ts-ignore
-    let result: [ALIASContentI] = [];
+    let result: [IALIASContent] = [];
     if (flags.host) {
       result.push({ host: flags.host });
     } else {
@@ -119,9 +119,9 @@ const promptRecordContent = {
     }
     return result;
   },
-  MX: async (flags: any): Promise<[MXContentI]> => {
+  MX: async (flags: any): Promise<[IMXContent]> => {
     // @ts-ignore
-    let result: [MXContentI] = [];
+    let result: [IMXContent] = [];
     if (flags.mx) {
       flags.mx.map((combineInput: string) => {
         const parsed = combineInput.split(',');
@@ -155,9 +155,9 @@ const promptRecordContent = {
     }
     return result;
   },
-  SRV: async (flags: any): Promise<[SRVContentI]> => {
+  SRV: async (flags: any): Promise<[ISRVContent]> => {
     // @ts-ignore
-    let result: [SRVContentI] = [];
+    let result: [ISRVContent] = [];
     if (flags.srv) {
       flags.srv.map((combineInput: string) => {
         const parsed = combineInput.split(',');
@@ -205,9 +205,9 @@ const promptRecordContent = {
     }
     return result;
   },
-  TXT: async (flags: any): Promise<[TXTContentI]> => {
+  TXT: async (flags: any): Promise<[ITXTContent]> => {
     // @ts-ignore
-    let result: [TXTContentI] = [];
+    let result: [ITXTContent] = [];
     if (flags.txt) {
       flags.txt.map((txt: string) => {
         result.push({ text: txt });
@@ -234,38 +234,38 @@ const promptRecordContent = {
   },
 };
 
-interface AContentI {
+interface IAContent {
   // AAAA content is also like this.
   ip: string;
 }
 
-interface ALIASContentI {
+interface IALIASContent {
   // CNAME content is also like this.
   host: string;
 }
 
-interface MXContentI {
+interface IMXContent {
   host: string;
   priority: string;
 }
 
-interface SRVContentI {
+interface ISRVContent {
   host: string;
   port: string;
   priority: string;
   weight: string;
 }
 
-interface TXTContentI {
+interface ITXTContent {
   text: string;
 }
 
-export interface DNSRecordI {
+export interface IDNSRecord {
   name: string;
   type: RecordType;
   ttl: number;
   contents: [
-    AContentI | ALIASContentI | MXContentI | SRVContentI | TXTContentI
+    IAContent | IALIASContent | IMXContent | ISRVContent | ITXTContent
   ];
 }
 
@@ -339,7 +339,7 @@ export default class Create extends Command {
     const ttl = flags.ttl || (await this.promptTTL());
     const zone = args.zone;
 
-    const DNSRecord: DNSRecordI = {
+    const DNSRecord: IDNSRecord = {
       name: name,
       type: _type as unknown as RecordType,
       ttl: ttl,

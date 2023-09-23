@@ -1,30 +1,8 @@
-import ora from 'ora';
 import inquirer from 'inquirer';
 import Command, { IConfig } from '../../base.js';
 import { Flags } from '@oclif/core';
 import { createDebugLogger } from '../../utils/output.js';
-import spacing from '../../utils/spacing.js';
 import { ux } from '@oclif/core';
-import { string } from '@oclif/core/lib/flags.js';
-import { relativeTimeThreshold } from 'moment';
-import got, { Options } from 'got';
-import * as shamsi from 'shamsi-date-converter';
-
-export interface ZoneI {
-  status: string;
-  data: {
-    name: 'string';
-    status: 'string';
-    nameServers: ['string'];
-    currentNameServers: ['string'];
-    lastCheckAt: 'string';
-    createdAt: 'string';
-  };
-}
-
-export interface ZonesI {
-  data: ZoneI[];
-}
 
 export default class Delete extends Command {
   static description = 'delete a zone.';

@@ -1,14 +1,8 @@
-import ora from 'ora';
 import inquirer from 'inquirer';
 import Command, { IConfig } from '../../../base.js';
 import { Flags } from '@oclif/core';
 import { createDebugLogger } from '../../../utils/output.js';
-import spacing from '../../../utils/spacing.js';
 import { ux } from '@oclif/core';
-import { string } from '@oclif/core/lib/flags.js';
-import { relativeTimeThreshold } from 'moment';
-import got, { Options } from 'got';
-import * as shamsi from 'shamsi-date-converter';
 
 enum RecordType {
   'A' = 'A',
@@ -20,65 +14,65 @@ enum RecordType {
   'TXT' = 'TXT',
 }
 
-interface AContentI {
+interface IAContent {
   // AAAA content is also like this.
   ip: string;
 }
 
-interface ALIASContentI {
+interface IALIASContent {
   // CNAME content is also like this.
   host: string;
 }
 
-interface MXContentI {
+interface IMXContent {
   host: string;
   priority: string;
 }
 
-interface SRVContentI {
+interface ISRVContent {
   host: string;
   port: string;
   priority: string;
   weight: string;
 }
 
-interface TXTContentI {
+interface ITXTContent {
   text: string;
 }
 
-export interface DNSRecordI {
+export interface IDNSRecord {
   id?: string;
   name: string;
   type: RecordType;
   ttl: number;
   contents: [
-    AContentI | ALIASContentI | MXContentI | SRVContentI | TXTContentI
+    IAContent | IALIASContent | IMXContent | ISRVContent | ITXTContent
   ];
 }
 
-export interface UpdateDNSRecordI {
+export interface IUpdateDNSRecord {
   name: string;
   type: RecordType;
   ttl: number;
   contents: [
-    AContentI | ALIASContentI | MXContentI | SRVContentI | TXTContentI
+    IAContent | IALIASContent | IMXContent | ISRVContent | ITXTContent
   ];
 }
 
-interface DNSRecordsI {
+interface IDNSRecords {
   status: string;
-  data: [DNSRecordI];
+  data: [IDNSRecord];
 }
 
-interface singleDNSRecordI {
+interface ISingleDNSRecord {
   status: string;
-  data: DNSRecordI;
+  data: IDNSRecord;
 }
 
 const promptRecordContent = {
-  A: async (flags: any): Promise<[AContentI]> => {
+  A: async (flags: any): Promise<[IAContent]> => {
     // @ts-ignore
-    let result: [AContentI] = [];
+    let result: [IAContent] = [];
     if (flags.ip) {
       flags.ip.map((ip: string) => {
         result.push({ ip: ip });
@@ -103,9 +97,9 @@ const promptRecordContent = {
     }
     return result;
   },
-  AAAA: async (flags: any): Promise<[AContentI]> => {
+  AAAA: async (flags: any): Promise<[IAContent]> => {
     // @ts-ignore
-    let result: [AContentI] = [];
+    let result: [IAContent] = [];
     if (flags.ip) {
       flags.ip.map((ip: string) => {
         result.push({ ip: ip });
@@ -130,9 +124,9 @@ const promptRecordContent = {
     }
     return result;
   },
-  ALIAS: async (flags: any): Promise<[ALIASContentI]> => {
+  ALIAS: async (flags: any): Promise<[IALIASContent]> => {
     // @ts-ignore
-    let result: [ALIASContentI] = [];
+    let result: [IALIASContent] = [];
     if (flags.host) {
       result.push({ host: flags.host });
     } else {
@@ -155,9 +149,9 @@ const promptRecordContent = {
     }
     return result;
   },
-  CNAME: async (flags: any): Promise<[ALIASContentI]> => {
+  CNAME: async (flags: any): Promise<[IALIASContent]> => {
     // @ts-ignore
-    let result: [ALIASContentI] = [];
+    let result: [IALIASContent] = [];
     if (flags.host) {
       result.push({ host: flags.host });
     } else {
@@ -180,9 +174,9 @@ const promptRecordContent = {
     }
     return result;
   },
-  MX: async (flags: any): Promise<[MXContentI]> => {
+  MX: async (flags: any): Promise<[IMXContent]> => {
     // @ts-ignore
-    let result: [MXContentI] = [];
+    let result: [IMXContent] = [];
     if (flags.mx) {
       flags.mx.map((combineInput: string) => {
         const parsed = combineInput.split(',');
@@ -216,9 +210,9 @@ const promptRecordContent = {
     }
     return result;
   },
-  SRV: async (flags: any): Promise<[SRVContentI]> => {
+  SRV: async (flags: any): Promise<[ISRVContent]> => {
     // @ts-ignore
-    let result: [SRVContentI] = [];
+    let result: [ISRVContent] = [];
     if (flags.srv) {
       flags.srv.map((combineInput: string) => {
         const parsed = combineInput.split(',');
@@ -266,9 +260,9 @@ const promptRecordContent = {
     }
     return result;
   },
-  TXT: async (flags: any): Promise<[TXTContentI]> => {
+  TXT: async (flags: any): Promise<[ITXTContent]> => {
     // @ts-ignore
-    let result: [TXTContentI] = [];
+    let result: [ITXTContent] = [];
     if (flags.txt) {
       flags.txt.map((txt: string) => {
         result.push({ text: txt });
@@ -301,8 +295,6 @@ export default class Update extends Command {
   static baseURL = 'https://dns-service.iran.liara.ir';
 
   static PATH = 'api/v1/zones/{zone}/dns-records/{id}';
-
-  static aliases = ['zone:dns:ls'];
 
   static flags = {
     ...Command.flags,
@@ -369,7 +361,7 @@ export default class Update extends Command {
       this.error(`Record ${name} for zone ${zone} not found`);
     }
 
-    const DNSRecord: DNSRecordI = {
+    const DNSRecord: IDNSRecord = {
       name: name,
       type: record.type,
       ttl: ttl,
@@ -382,7 +374,7 @@ export default class Update extends Command {
         .put(Update.PATH.replace('{zone}', zone).replace('{id}', record.id), {
           json: { ...DNSRecord },
         })
-        .json<singleDNSRecordI>();
+        .json<ISingleDNSRecord>();
 
       // @ts-ignore
       let contents: [string] = [];
@@ -470,7 +462,7 @@ export default class Update extends Command {
   async getRecordByName(zone: string, name: string) {
     const { data } = await this.got(
       'api/v1/zones/{zone}/dns-records'.replace('{zone}', zone)
-    ).json<DNSRecordsI>();
+    ).json<IDNSRecords>();
 
     if (!data.length) {
       this.error(`Not found any records.

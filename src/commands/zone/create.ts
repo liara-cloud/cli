@@ -3,10 +3,6 @@ import inquirer from 'inquirer';
 import Command, { IConfig } from '../../base.js';
 import { Flags } from '@oclif/core';
 import { createDebugLogger } from '../../utils/output.js';
-import spacing from '../../utils/spacing.js';
-import { ux } from '@oclif/core';
-import { string } from '@oclif/core/lib/flags.js';
-import { relativeTimeThreshold } from 'moment';
 
 export default class Create extends Command {
   static description = 'create a new zone';

@@ -1,14 +1,8 @@
-import ora from 'ora';
 import inquirer from 'inquirer';
 import Command, { IConfig } from '../../../base.js';
 import { Flags } from '@oclif/core';
 import { createDebugLogger } from '../../../utils/output.js';
-import spacing from '../../../utils/spacing.js';
 import { ux } from '@oclif/core';
-import { string } from '@oclif/core/lib/flags.js';
-import { relativeTimeThreshold } from 'moment';
-import got, { Options } from 'got';
-import * as shamsi from 'shamsi-date-converter';
 
 enum RecordType {
   'A' = 'A',
@@ -20,50 +14,45 @@ enum RecordType {
   'TXT' = 'TXT',
 }
 
-interface AContentI {
+interface IAContent {
   // AAAA content is also like this.
   ip: string;
 }
 
-interface ALIASContentI {
+interface IALIASContent {
   // CNAME content is also like this.
   host: string;
 }
 
-interface MXContentI {
+interface IMXContent {
   host: string;
   priority: string;
 }
 
-interface SRVContentI {
+interface ISRVContent {
   host: string;
   port: string;
   priority: string;
   weight: string;
 }
 
-interface TXTContentI {
+interface ITXTContent {
   text: string;
 }
 
-export interface DNSRecordI {
+export interface IDNSRecord {
   id?: string;
   name: string;
   type: RecordType;
   ttl: number;
   contents: [
-    AContentI | ALIASContentI | MXContentI | SRVContentI | TXTContentI
+    IAContent | IALIASContent | IMXContent | ISRVContent | ITXTContent
   ];
 }
 
-interface DNSRecordsI {
+interface IDNSRecords {
   status: string;
-  data: [DNSRecordI];
-}
-
-interface singleDNSRecordI {
-  status: string;
-  data: DNSRecordI;
+  data: [IDNSRecord];
 }
 
 export default class Remove extends Command {
@@ -73,7 +62,7 @@ export default class Remove extends Command {
 
   static PATH = 'api/v1/zones/{zone}/dns-records/{id}';
 
-  static aliases = ['zone:dns:rm'];
+  static aliases = ['zone:record:rm'];
 
   static flags = {
     ...Command.flags,
@@ -153,7 +142,7 @@ export default class Remove extends Command {
   async getRecordIDByName(zone: string, name: string) {
     const { data } = await this.got(
       'api/v1/zones/{zone}/dns-records'.replace('{zone}', zone)
-    ).json<DNSRecordsI>();
+    ).json<IDNSRecords>();
 
     if (!data.length) {
       this.error(`Not found any records.
