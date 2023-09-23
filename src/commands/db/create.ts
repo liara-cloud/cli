@@ -15,16 +15,14 @@ export default class Create extends Command {
 
   static flags = {
     ...Command.flags,
-    hostname: Flags.string({
-      char: 'a',
-      description: 'hostname for your database',
+    name: Flags.string({
+      char: 'n',
+      description: 'name of your database',
     }),
     plan: Flags.string({
-      char: 'p',
       description: 'plan',
     }),
     network: Flags.string({
-      char: 'n',
       description: 'use public network or not',
     }),
     type: Flags.string({
@@ -53,7 +51,7 @@ export default class Create extends Command {
     ((account && account.region === 'germany') || flags.region === 'germany') &&
       this.error('We do not support germany any more.');
 
-    const hostname = flags.hostname || (await this.promptHostname());
+    const hostname = flags.name || (await this.promptHostname());
     const type = flags.type || (await this.promptType());
     const version = flags.version || (await this.promptVersion(type));
     const publicNetwork =

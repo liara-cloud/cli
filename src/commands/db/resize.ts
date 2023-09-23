@@ -11,16 +11,13 @@ export default class Resize extends Command {
 
   static PATH = 'v1/databases/{database-id}/resize';
 
-  static aliases = ['db:on'];
-
   static flags = {
     ...Command.flags,
-    hostname: Flags.string({
-      char: 'a',
-      description: 'hostname for your database',
+    name: Flags.string({
+      char: 'n',
+      description: 'name of your database',
     }),
     plan: Flags.string({
-      char: 'p',
       description: 'new plan name',
     }),
     disk: Flags.string({
@@ -41,7 +38,7 @@ export default class Resize extends Command {
     ((account && account.region === 'germany') || flags.region === 'germany') &&
       this.error('We do not support germany any more.');
 
-    const hostname = flags.hostname || (await this.promptHostname());
+    const hostname = flags.name || (await this.promptHostname());
     const disk =
       flags.disk === 'y'
         ? true

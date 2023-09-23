@@ -14,7 +14,7 @@ export default class AppDelete extends Command {
     }),
   };
 
-  static aliases = ['delete'];
+  static aliases = ['delete', 'app:remove', 'app:rm'];
 
   async run() {
     const { flags } = await this.parse(AppDelete);

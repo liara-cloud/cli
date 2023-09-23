@@ -10,13 +10,11 @@ export default class Stop extends Command {
 
   static PATH = 'v1/databases/{database-id}/actions/scale';
 
-  static aliases = ['db:off'];
-
   static flags = {
     ...Command.flags,
-    hostname: Flags.string({
-      char: 'a',
-      description: 'hostname for your database',
+    name: Flags.string({
+      char: 'n',
+      description: 'name of your database',
     }),
   };
 
@@ -32,7 +30,7 @@ export default class Stop extends Command {
     ((account && account.region === 'germany') || flags.region === 'germany') &&
       this.error('We do not support germany any more.');
 
-    const hostname = flags.hostname || (await this.promptHostname());
+    const hostname = flags.name || (await this.promptHostname());
 
     try {
       const database = await this.getDatabaseByHostname(hostname);
