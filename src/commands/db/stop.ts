@@ -54,14 +54,14 @@ export default class Stop extends Command {
   }
 
   async promptHostname() {
-    const { hostname } = (await inquirer.prompt({
-      name: 'hostname',
+    const { name } = (await inquirer.prompt({
+      name: 'name',
       type: 'input',
-      message: 'Enter hostname:',
+      message: 'Enter name:',
       validate: (input) => input.length > 2,
-    })) as { hostname: string };
+    })) as { name: string };
 
-    return hostname;
+    return name;
   }
 
   async getDatabaseByHostname(hostname: string) {
