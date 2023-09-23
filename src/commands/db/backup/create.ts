@@ -59,7 +59,7 @@ export default class BackUp extends Command {
       if (error.response && error.response.body) {
         debug(JSON.stringify(error.response.body));
       }
-      this.error(`Could not do the. Please try again.`);
+      this.error(`Could not create backup task. Please try again.`);
     }
   }
 
