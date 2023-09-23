@@ -1,9 +1,9 @@
 import ora from 'ora';
 import inquirer from 'inquirer';
-import Command from '../../base.js';
+import Command from '../../../base.js';
 import { Args, Flags, ux } from '@oclif/core';
-import { createDebugLogger } from '../../utils/output.js';
-import IGetDatabasesResponse from '../../types/get-dbs-response.js';
+import { createDebugLogger } from '../../../utils/output.js';
+import IGetDatabasesResponse from '../../../types/get-dbs-response.js';
 import * as shamsi from 'shamsi-date-converter';
 
 export interface IBackUp {
@@ -18,7 +18,7 @@ export interface IBackups {
 }
 
 export default class BackUp extends Command {
-  static description = 'manage backups for a database';
+  static description = 'list backups for a database';
 
   static PATH = 'v1/databases/{database-id}/backups';
 
@@ -27,18 +27,6 @@ export default class BackUp extends Command {
     name: Flags.string({
       char: 'n',
       description: 'name of your database',
-    }),
-    backup: Flags.string({
-      char: 'b',
-      description: 'select which backup to download',
-    }),
-  };
-
-  static args = {
-    subCommand: Args.string({
-      description: 'operation',
-      required: true,
-      options: ['list', 'create', 'download', 'dl'],
     }),
   };
 
@@ -63,60 +51,46 @@ export default class BackUp extends Command {
         return;
       }
       const databaseID = database._id;
-      if (args.subCommand === 'create') {
-        await this.got.post(BackUp.PATH.replace('{database-id}', databaseID));
-        this.log(`Backup task for database ${hostname} created.`);
-      } else if (args.subCommand === 'list') {
-        const { backups } = await this.got
-          .get(BackUp.PATH.replace('{database-id}', databaseID))
-          .json<IBackups>();
-        const tableData = backups.map((backup) => {
-          const shamsiData = shamsi.gregorianToJalali(
-            new Date(backup.lastModified)
-          );
-          return {
-            lastModified: `${shamsiData[0]}-${shamsiData[1]}-${shamsiData[2]}`,
-            size: backup.size,
-            name: backup.name,
-          };
-        });
-        const tableConfig = {
-          'last modified': { get: (row: any) => row.lastModified },
-          size: { get: (row: any) => row.size + ' bytes' }, // TODO: output a better format for big size backups
-          name: { get: (row: any) => row.name },
+      const { backups } = await this.got
+        .get(BackUp.PATH.replace('{database-id}', databaseID))
+        .json<IBackups>();
+      const tableData = backups.map((backup) => {
+        const shamsiData = shamsi.gregorianToJalali(
+          new Date(backup.lastModified)
+        );
+        return {
+          lastModified: `${shamsiData[0]}-${shamsiData[1]}-${shamsiData[2]}`,
+          size: backup.size,
+          name: backup.name,
         };
-        ux.table(tableData, tableConfig, {
-          title: 'Backups',
-        });
-      } else if (['dl', 'download'].includes(args.subCommand)) {
-        const backupName = flags.backup || (await this.promptBackupName());
-        const downloadLink = await this.got
-          .post(
-            BackUp.PATH.replace('{database-id}', databaseID) +
-              `/${backupName}/download`
-          )
-          .json<any>();
-        this.log(`download link: ${downloadLink.link}`);
-      }
+      });
+      const tableConfig = {
+        'last modified': { get: (row: any) => row.lastModified },
+        size: { get: (row: any) => row.size + ' bytes' }, // TODO: output a better format for big size backups
+        name: { get: (row: any) => row.name },
+      };
+      ux.table(tableData, tableConfig, {
+        title: 'Backups',
+      });
     } catch (error) {
       debug(error.message);
 
       if (error.response && error.response.body) {
         debug(JSON.stringify(error.response.body));
       }
-      this.error(`Could not do the. Please try again.`);
+      this.error(`Could not list backups. Please try again.`);
     }
   }
 
   async promptHostname() {
-    const { hostname } = (await inquirer.prompt({
-      name: 'hostname',
+    const { name } = (await inquirer.prompt({
+      name: 'name',
       type: 'input',
-      message: 'Enter hostname:',
+      message: 'Enter name:',
       validate: (input) => input.length > 2,
-    })) as { hostname: string };
+    })) as { name: string };
 
-    return hostname;
+    return name;
   }
 
   async getDatabaseByHostname(hostname: string) {
