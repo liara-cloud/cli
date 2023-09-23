@@ -12,6 +12,10 @@ export const REGIONS_API_URL: { [key: string]: string } = {
   germany: 'https://api.liara.ir',
 };
 
+export const OBJECT_STORAGE_API_URL = 'https://storage-service.iran.liara.ir';
+
+export const OBJECT_STORAGE_API_URL_DEV = 'http://localhost:3001';
+
 export const FALLBACK_REGION = 'iran';
 
 export const MAX_SOURCE_SIZE = 256 * 1024 * 1024; // 256 MiB
@@ -30,3 +34,5 @@ export const AVAILABLE_PLATFORMS = [
   'docker',
   'next',
 ];
+
+export const OBJ_PERMISSION = ['public', 'private'];
