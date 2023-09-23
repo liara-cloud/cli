@@ -26,7 +26,7 @@ export interface ZonesI {
   data: ZoneI[];
 }
 
-export default class Hello extends Command {
+export default class Delete extends Command {
   static description = 'delete a zone.';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
@@ -49,7 +49,7 @@ export default class Hello extends Command {
   };
 
   async run() {
-    const { flags } = await this.parse(Hello);
+    const { flags } = await this.parse(Delete);
 
     await this.setGotConfig(flags);
 
@@ -69,7 +69,7 @@ export default class Hello extends Command {
         this.log('Operation cancelled');
         return;
       }
-      await this.got.delete(Hello.PATH.replace('{zone}', zone));
+      await this.got.delete(Delete.PATH.replace('{zone}', zone));
       this.log('zone deleted');
     } catch (error) {
       if (error.response && error.response.statusCode === 404) {
@@ -81,7 +81,7 @@ export default class Hello extends Command {
 
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
-    const new_got = this.got.extend({ prefixUrl: Hello.baseURL });
+    const new_got = this.got.extend({ prefixUrl: Delete.baseURL });
     this.got = new_got; // baseURL is different for zone api
   }
 

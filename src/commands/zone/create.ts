@@ -8,7 +8,7 @@ import { ux } from '@oclif/core';
 import { string } from '@oclif/core/lib/flags.js';
 import { relativeTimeThreshold } from 'moment';
 
-export default class Hello extends Command {
+export default class Create extends Command {
   static description = 'create a new zone';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
@@ -26,7 +26,7 @@ export default class Hello extends Command {
   async run(): Promise<void> {
     this.spinner = ora();
 
-    const { flags } = await this.parse(Hello);
+    const { flags } = await this.parse(Create);
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
@@ -38,7 +38,7 @@ export default class Hello extends Command {
     const name = flags.zone || (await this.promptName());
 
     try {
-      await this.got.post(Hello.PATH, {
+      await this.got.post(Create.PATH, {
         json: { name: name },
       });
       this.log(`Zone ${name} created.`);
@@ -74,7 +74,7 @@ export default class Hello extends Command {
 
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
-    const new_got = this.got.extend({ prefixUrl: Hello.baseURL });
+    const new_got = this.got.extend({ prefixUrl: Create.baseURL });
     this.got = new_got; // baseURL is different for zone api
   }
 }

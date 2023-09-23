@@ -1,17 +1,78 @@
 import ora from 'ora';
 import inquirer from 'inquirer';
 import Command, { IConfig } from '../../../base.js';
-import { Flags, Args } from '@oclif/core';
+import { Flags } from '@oclif/core';
 import { createDebugLogger } from '../../../utils/output.js';
+import spacing from '../../../utils/spacing.js';
+import { ux } from '@oclif/core';
+import { string } from '@oclif/core/lib/flags.js';
+import { relativeTimeThreshold } from 'moment';
+import got, { Options } from 'got';
+import * as shamsi from 'shamsi-date-converter';
 
 enum RecordType {
-  'A',
-  'AAAA',
-  'ALIAS',
-  'CNAME',
-  'MX',
-  'SRV',
-  'TXT',
+  'A' = 'A',
+  'AAAA' = 'AAAA',
+  'ALIAS' = 'ALIAS',
+  'CNAME' = 'CNAME',
+  'MX' = 'MX',
+  'SRV' = 'SRV',
+  'TXT' = 'TXT',
+}
+
+interface AContentI {
+  // AAAA content is also like this.
+  ip: string;
+}
+
+interface ALIASContentI {
+  // CNAME content is also like this.
+  host: string;
+}
+
+interface MXContentI {
+  host: string;
+  priority: string;
+}
+
+interface SRVContentI {
+  host: string;
+  port: string;
+  priority: string;
+  weight: string;
+}
+
+interface TXTContentI {
+  text: string;
+}
+
+export interface DNSRecordI {
+  id?: string;
+  name: string;
+  type: RecordType;
+  ttl: number;
+  contents: [
+    AContentI | ALIASContentI | MXContentI | SRVContentI | TXTContentI
+  ];
+}
+
+export interface UpdateDNSRecordI {
+  name: string;
+  type: RecordType;
+  ttl: number;
+  contents: [
+    AContentI | ALIASContentI | MXContentI | SRVContentI | TXTContentI
+  ];
+}
+
+interface DNSRecordsI {
+  status: string;
+  data: [DNSRecordI];
+}
+
+interface singleDNSRecordI {
+  status: string;
+  data: DNSRecordI;
 }
 
 const promptRecordContent = {
@@ -234,57 +295,24 @@ const promptRecordContent = {
   },
 };
 
-interface AContentI {
-  // AAAA content is also like this.
-  ip: string;
-}
-
-interface ALIASContentI {
-  // CNAME content is also like this.
-  host: string;
-}
-
-interface MXContentI {
-  host: string;
-  priority: string;
-}
-
-interface SRVContentI {
-  host: string;
-  port: string;
-  priority: string;
-  weight: string;
-}
-
-interface TXTContentI {
-  text: string;
-}
-
-export interface DNSRecordI {
-  name: string;
-  type: RecordType;
-  ttl: number;
-  contents: [
-    AContentI | ALIASContentI | MXContentI | SRVContentI | TXTContentI
-  ];
-}
-
-export default class Hello extends Command {
-  static description = 'create a new dns record';
+export default class Update extends Command {
+  static description = 'update a DNS record for a zone.';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
 
-  static PATH = 'api/v1/zones/{zone}/dns-records';
+  static PATH = 'api/v1/zones/{zone}/dns-records/{id}';
+
+  static aliases = ['zone:dns:ls'];
 
   static flags = {
     ...Command.flags,
+    zone: Flags.string({
+      char: 'z',
+      description: 'name of the zone (domain)',
+    }),
     name: Flags.string({
       char: 'n',
       description: 'record name',
-    }),
-    type: Flags.string({
-      char: 't',
-      description: 'record type',
     }),
     ttl: Flags.integer({
       char: 'l',
@@ -316,16 +344,14 @@ export default class Hello extends Command {
       description: 'text value for record TXT',
       multiple: true,
     }),
+    ...ux.table.flags(),
   };
 
-  static args = {
-    zone: Args.string({ description: 'zone name (domain)', required: true }),
-  };
+  async run() {
+    const { flags } = await this.parse(Update);
 
-  async run(): Promise<void> {
-    this.spinner = ora();
+    await this.setGotConfig(flags);
 
-    const { flags, args } = await this.parse(Hello);
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
@@ -334,45 +360,89 @@ export default class Hello extends Command {
     ((account && account.region === 'germany') || flags.region === 'germany') &&
       this.error('We do not support germany any more.');
 
+    const zone = flags.zone || (await this.promptZone());
     const name = flags.name || (await this.promptName());
-    const _type = flags.type || (await this.promptType());
     const ttl = flags.ttl || (await this.promptTTL());
-    const zone = args.zone;
+
+    const record = await this.getRecordByName(zone, name);
+    if (record === undefined || record.id === undefined) {
+      this.error(`Record ${name} for zone ${zone} not found`);
+    }
 
     const DNSRecord: DNSRecordI = {
       name: name,
-      type: _type as unknown as RecordType,
+      type: record.type,
       ttl: ttl,
       // @ts-ignore
-      contents: await promptRecordContent[_type](flags),
+      contents: await promptRecordContent[record.type](flags),
     };
 
     try {
-      await this.got.post(Hello.PATH.replace('{zone}', zone), {
-        json: { ...DNSRecord },
-      });
-      this.log(`Record ${name} created.`);
+      const { data } = await this.got
+        .put(Update.PATH.replace('{zone}', zone).replace('{id}', record.id), {
+          json: { ...DNSRecord },
+        })
+        .json<singleDNSRecordI>();
+
+      // @ts-ignore
+      let contents: [string] = [];
+
+      switch (data.type) {
+        case RecordType.A:
+        case RecordType.AAAA:
+          data.contents.map((rec) => {
+            // @ts-ignore
+            contents.push(rec.ip);
+          });
+          break;
+        case RecordType.ALIAS:
+        case RecordType.CNAME:
+        case RecordType.MX:
+        case RecordType.SRV:
+          data.contents.map((rec) => {
+            // @ts-ignore
+            contents.push(rec.host);
+          });
+          break;
+        case RecordType.TXT:
+          data.contents.map((rec) => {
+            // @ts-ignore
+            contents.push(rec.text);
+          });
+          break;
+        default:
+          this.error('Unknown error in showing records');
+      }
+
+      const tableData = {
+        id: data.id,
+        name: data.name,
+        type: data.type,
+        ttl: data.ttl,
+        contents: contents.join('\n'),
+      };
+
+      const columnConfig = {
+        id: {},
+        name: {},
+        type: {},
+        ttl: {},
+        contents: {},
+      };
+
+      ux.table([tableData], columnConfig, flags);
     } catch (error) {
-      debug(error.message);
-
-      if (error.response && error.response.body) {
-        debug(JSON.stringify(error.response.body));
-      }
-
-      if (error.response && error.response.statusCode === 400) {
-        this.error(`Enter correct infortmation.`);
-      }
-
       if (error.response && error.response.statusCode === 404) {
-        this.error(`Zone does not exist.`);
+        this.error(`Zone not found.`);
       }
-
-      if (error.response && error.response.statusCode === 409) {
-        this.error(`This record already exists.`);
-      }
-
-      this.error(`Could not create the record. Please try again.`);
+      this.error(error.response.message);
     }
+  }
+
+  async setGotConfig(config: IConfig): Promise<void> {
+    await super.setGotConfig(config);
+    const new_got = this.got.extend({ prefixUrl: Update.baseURL });
+    this.got = new_got; // baseURL is different for zone api
   }
 
   async promptName() {
@@ -380,22 +450,35 @@ export default class Hello extends Command {
       name: 'name',
       type: 'input',
       message: 'Enter record name:',
-      validate: (input) => input.length > 2,
+      validate: (input) => input.length > 0,
     })) as { name: string };
 
     return name;
   }
 
-  async promptType() {
-    const { type } = (await inquirer.prompt({
-      name: 'type',
+  async promptZone() {
+    const { zone } = (await inquirer.prompt({
+      name: 'zone',
       type: 'input',
-      message: 'Enter record type:',
-      validate: (input: RecordType) =>
-        Object.values(RecordType).includes(input),
-    })) as { type: string };
+      message: 'Enter domain:',
+      validate: (input) => input.length > 2,
+    })) as { zone: string };
 
-    return type;
+    return zone;
+  }
+
+  async getRecordByName(zone: string, name: string) {
+    const { data } = await this.got(
+      'api/v1/zones/{zone}/dns-records'.replace('{zone}', zone)
+    ).json<DNSRecordsI>();
+
+    if (!data.length) {
+      this.error(`Not found any records.
+Please open up https://console.liara.ir/zones.`);
+    }
+
+    const recordID = data.find((record) => record.name === name);
+    return recordID;
   }
 
   async promptTTL() {
@@ -407,14 +490,8 @@ export default class Hello extends Command {
         const parsed = parseInt(input);
         return !isNaN(parsed);
       },
-    })) as { ttl: number };
+    })) as { ttl: string };
 
-    return ttl;
-  }
-
-  async setGotConfig(config: IConfig): Promise<void> {
-    await super.setGotConfig(config);
-    const new_got = this.got.extend({ prefixUrl: Hello.baseURL });
-    this.got = new_got; // baseURL is different for zone api
+    return parseInt(ttl);
   }
 }

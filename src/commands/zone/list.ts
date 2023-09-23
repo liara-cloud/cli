@@ -23,7 +23,7 @@ export interface ZonesI {
   data: ZoneI[];
 }
 
-export default class Hello extends Command {
+export default class List extends Command {
   static description = 'list all zones.';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
@@ -38,7 +38,7 @@ export default class Hello extends Command {
   };
 
   async run() {
-    const { flags } = await this.parse(Hello);
+    const { flags } = await this.parse(List);
 
     await this.setGotConfig(flags);
 
@@ -51,7 +51,7 @@ export default class Hello extends Command {
       this.error('We do not support germany any more.');
 
     try {
-      const { data } = await this.got(Hello.PATH).json<ZonesI>();
+      const { data } = await this.got(List.PATH).json<ZonesI>();
       const zonesData = data.map((zone) => {
         const createdAtshamsiData = shamsi.gregorianToJalali(
           new Date(zone.createdAt)
@@ -89,7 +89,7 @@ export default class Hello extends Command {
 
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
-    const new_got = this.got.extend({ prefixUrl: Hello.baseURL });
+    const new_got = this.got.extend({ prefixUrl: List.baseURL });
     this.got = new_got; // baseURL is different for zone api
   }
 }
