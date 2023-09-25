@@ -3,9 +3,9 @@ import inquirer from 'inquirer';
 import Command, { IConfig } from '../../base.js';
 import { Flags } from '@oclif/core';
 import {
-  MAILBOX_MODES,
-  MAILBOX_PLANS,
-  REGIONS_API_URL,
+  MAIL_SERVICE_MODES,
+  MAIL_SERVICE_PLANS,
+  MAIL_SERVICE_URL,
   DEV_MODE,
 } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
@@ -33,7 +33,7 @@ export default class MailCreate extends Command {
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
     this.got = this.got.extend({
-      prefixUrl: DEV_MODE ? 'http://localhost:3000' : REGIONS_API_URL['mail'],
+      prefixUrl: DEV_MODE ? 'http://localhost:3000' : MAIL_SERVICE_URL,
     });
   }
 
@@ -55,13 +55,13 @@ export default class MailCreate extends Command {
 
     const plan = flags.platform || (await this.promptPlan());
 
-    if (!MAILBOX_PLANS.includes(plan)) {
+    if (!MAIL_SERVICE_PLANS.includes(plan)) {
       this.error(`Unknown plan: ${plan}`);
     }
 
     const mode = flags.plan || (await this.promptMode());
 
-    if (!MAILBOX_MODES.includes(mode)) {
+    if (!MAIL_SERVICE_MODES.includes(mode)) {
       this.error(`Unknown mode: ${mode}`);
     }
 
@@ -120,7 +120,7 @@ export default class MailCreate extends Command {
         name: 'plan',
         type: 'list',
         message: 'Please select the plan you want:',
-        choices: [...MAILBOX_PLANS.map((plan) => plan)],
+        choices: [...MAIL_SERVICE_PLANS.map((plan) => plan)],
       })) as { plan: string };
 
       return plan;
@@ -140,7 +140,7 @@ export default class MailCreate extends Command {
         name: 'mode',
         type: 'list',
         message: 'Please select the mode you want:',
-        choices: [...MAILBOX_MODES.map((mode) => mode)],
+        choices: [...MAIL_SERVICE_MODES.map((mode) => mode)],
       })) as { mode: string };
 
       return mode;

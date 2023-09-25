@@ -10,8 +10,9 @@ export const GLOBAL_CONF_VERSION = '1';
 export const REGIONS_API_URL: { [key: string]: string } = {
   iran: 'https://api.iran.liara.ir',
   germany: 'https://api.liara.ir',
-  mail: 'https://mail-service.iran.liara.ir',
 };
+
+export const MAIL_SERVICE_URL = 'https://mail-service.iran.liara.ir';
 
 export const OBJECT_STORAGE_API_URL = 'https://storage-service.iran.liara.ir';
 
@@ -36,10 +37,7 @@ export const AVAILABLE_PLATFORMS = [
   'next',
 ];
 
-<<<<<<< HEAD
 export const OBJ_PERMISSION = ['public', 'private'];
-=======
-export const MAILBOX_PLANS = ['free-included', 'premium'];
+export const MAIL_SERVICE_PLANS = ['free-included', 'premium'];
 
-export const MAILBOX_MODES = ['DEV', 'LIVE'];
->>>>>>> 387ea1c (feat: add create mails)
+export const MAIL_SERVICE_MODES = ['DEV', 'LIVE'];

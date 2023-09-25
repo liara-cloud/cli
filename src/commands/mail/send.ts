@@ -10,7 +10,7 @@ import Command, {
   IGetMailsAccountsResponse,
 } from '../../base.js';
 import { createDebugLogger } from '../../utils/output.js';
-import { REGIONS_API_URL, DEV_MODE } from '../../constants.js';
+import { MAIL_SERVICE_URL, DEV_MODE } from '../../constants.js';
 
 export default class SendMail extends Command {
   static description = 'send a mail';
@@ -45,7 +45,7 @@ export default class SendMail extends Command {
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
     this.got = this.got.extend({
-      prefixUrl: DEV_MODE ? 'http://localhost:3000' : REGIONS_API_URL['mail'],
+      prefixUrl: DEV_MODE ? 'http://localhost:3000' : MAIL_SERVICE_URL,
     });
   }
 

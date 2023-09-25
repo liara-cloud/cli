@@ -1,7 +1,7 @@
 import { ux } from '@oclif/core';
 import Command, { IGetMailboxesResponse, IConfig } from '../../base.js';
 import * as shamsi from 'shamsi-date-converter';
-import { REGIONS_API_URL, DEV_MODE } from '../../constants.js';
+import { MAIL_SERVICE_URL, DEV_MODE } from '../../constants.js';
 
 export default class MailList extends Command {
   static description = 'list available MailServer';
@@ -16,7 +16,7 @@ export default class MailList extends Command {
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
     this.got = this.got.extend({
-      prefixUrl: DEV_MODE ? 'http://localhost:3000' : REGIONS_API_URL['mail'],
+      prefixUrl: DEV_MODE ? 'http://localhost:3000' : MAIL_SERVICE_URL,
     });
   }
 
