@@ -216,9 +216,9 @@ export default class Deploy extends Command {
         if (!domains.length || project.defaultSubdomain)
           this.log(urlLogMessage);
 
-        domains = domains.reverse();
+        const firstFiveDomains = domains.reverse().slice(0, 5);
 
-        for (const domain of domains) {
+        for (const domain of firstFiveDomains) {
           let totalLog = 0;
 
           const protocol: string =
