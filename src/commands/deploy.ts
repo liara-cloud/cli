@@ -209,18 +209,25 @@ export default class Deploy extends Command {
             `    ${`http://${config.app}.liara.localhost`}`
           : `    ${`https://${config.app}${defaultSubdomain}`}`;
 
-        const { domains } = await this.got(
+        let { domains } = await this.got(
           `v1/domains?project=${config.app}`
         ).json<IGetDomainsResponse>();
 
         if (!domains.length || project.defaultSubdomain)
           this.log(urlLogMessage);
 
+        domains = domains.reverse();
+
         for (const domain of domains) {
+          let totalLog = 0;
+
           const protocol: string =
             domain.certificatesStatus === 'ACTIVE' ? 'https' : 'http';
 
           this.log(chalk.white(`    ${protocol}://${domain.name}`));
+
+          totalLog++;
+          if (totalLog === 5) break;
         }
 
         this.log();
