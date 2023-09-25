@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import fs from 'fs-extra';
 import AccountUse from './use.js';
 import retry from 'async-retry';
-import Command from '../../base.js';
+import Command, { IAccount } from '../../base.js';
 import inquirer from 'inquirer';
 import { Flags } from '@oclif/core';
 import hooks from '../../interceptors.js';
@@ -45,6 +45,20 @@ export default class AccountAdd extends Command {
 
     const region = flags.region || FALLBACK_REGION;
 
+    this.got = got.extend({ prefixUrl: REGIONS_API_URL[region], hooks });
+
+    let api_token;
+    let fullname;
+    let avatar;
+
+    const user = flags['api-token'] ? await this.getMe(flags) : null;
+    if (user) {
+      flags.email = user.email;
+      api_token = flags['api-token'];
+      fullname = user.fullname;
+      avatar = user.avatar;
+    }
+
     if (!flags.email) {
       let emailIsValid = false;
       do {
@@ -70,33 +84,39 @@ export default class AccountAdd extends Command {
 
     const name = flags.account || (await this.promptName(flags.email, region));
 
-    this.got = got.extend({ prefixUrl: REGIONS_API_URL[region], hooks });
-    const { api_token, fullname, avatar } = (await retry(
+    const data = (await retry(
       async () => {
         try {
-          const data = await this.got
-            .post('v1/login', {
-              json: body,
-              headers: { Authorization: undefined },
-            })
-            .json<{ api_token: string }>();
-          return data;
+          if (!flags['api-token']) {
+            const data = await this.got
+              .post('v1/login', {
+                json: body,
+                headers: { Authorization: undefined },
+              })
+              .json<IAccount>();
+            return data;
+          }
         } catch (error) {
           debug('retrying...');
           throw error;
         }
       },
       { retries: 3 }
-    )) as { api_token: string; avatar: string; fullname: string };
+    )) as {
+      api_token: string;
+      avatar: string;
+      fullname: string;
+      email: string;
+    };
 
     const accounts = {
       ...currentAccounts,
       [name]: {
-        email: body.email,
-        api_token,
+        email: body.email || data.email,
+        api_token: api_token || data.api_token,
         region,
-        fullname,
-        avatar,
+        fullname: fullname || data.fullname,
+        avatar: avatar || data.avatar,
         current: false,
       },
     };
@@ -170,5 +190,13 @@ export default class AccountAdd extends Command {
     })) as { password: string };
 
     return password;
+  }
+
+  async getMe(flags: any): Promise<IAccount> {
+    const { user } = await this.got('v1/me', {
+      headers: { Authorization: `Bearer ${flags['api-token']}` },
+    }).json<{ user: IAccount }>();
+
+    return user;
   }
 }
