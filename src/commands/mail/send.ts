@@ -10,7 +10,11 @@ import Command, {
   IGetMailsAccountsResponse,
 } from '../../base.js';
 import { createDebugLogger } from '../../utils/output.js';
-import { MAIL_SERVICE_URL, DEV_MODE } from '../../constants.js';
+import {
+  MAIL_SERVICE_URL,
+  DEV_MODE,
+  MAIL_SERVICE_URL_DEV,
+} from '../../constants.js';
 
 export default class SendMail extends Command {
   static description = 'send a mail';
@@ -45,7 +49,7 @@ export default class SendMail extends Command {
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
     this.got = this.got.extend({
-      prefixUrl: DEV_MODE ? 'http://localhost:3000' : MAIL_SERVICE_URL,
+      prefixUrl: DEV_MODE ? MAIL_SERVICE_URL_DEV : MAIL_SERVICE_URL,
     });
   }
 
@@ -108,9 +112,8 @@ export default class SendMail extends Command {
       }
 
       if (
-        error.response &&
-        error.response.statusCode === 404 &&
-        error.response.body.message === 'Account not found.'
+        error.response?.statusCode === 404 &&
+        error.response?.body.message === 'Account not found.'
       ) {
         this.error(`Account not found.`);
       }
@@ -251,10 +254,12 @@ export default class SendMail extends Command {
   getFiles(): Files[] {
     const files: Files[] = [];
 
-    fs.readdirSync('./').forEach((file) => {
+    const filesInCurrentDirectory: string[] = fs.readdirSync('./');
+
+    for (const file of filesInCurrentDirectory) {
       if (!fs.statSync(file).isDirectory()) {
         const resultFile: Files = {
-          content_type: mime.getType(file),
+          content_type: mime.getType(file) || '',
           data: `data:${mime.getType(file)};base64,${fs.readFileSync(file, {
             encoding: 'base64',
           })}`,
@@ -263,7 +268,7 @@ export default class SendMail extends Command {
 
         files.push(resultFile);
       }
-    });
+    }
 
     return files;
   }

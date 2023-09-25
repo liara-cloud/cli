@@ -14,6 +14,8 @@ export const REGIONS_API_URL: { [key: string]: string } = {
 
 export const MAIL_SERVICE_URL = 'https://mail-service.iran.liara.ir';
 
+export const MAIL_SERVICE_URL_DEV = 'http://localhost:3002';
+
 export const OBJECT_STORAGE_API_URL = 'https://storage-service.iran.liara.ir';
 
 export const OBJECT_STORAGE_API_URL_DEV = 'http://localhost:3001';

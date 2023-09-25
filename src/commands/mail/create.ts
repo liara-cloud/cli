@@ -7,6 +7,7 @@ import {
   MAIL_SERVICE_PLANS,
   MAIL_SERVICE_URL,
   DEV_MODE,
+  MAIL_SERVICE_URL_DEV,
 } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
 
@@ -33,7 +34,7 @@ export default class MailCreate extends Command {
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
     this.got = this.got.extend({
-      prefixUrl: DEV_MODE ? 'http://localhost:3000' : MAIL_SERVICE_URL,
+      prefixUrl: DEV_MODE ? MAIL_SERVICE_URL_DEV : MAIL_SERVICE_URL,
     });
   }
 
