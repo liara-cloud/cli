@@ -3,6 +3,7 @@ import Command, { IConfig } from '../../base.js';
 import { createDebugLogger } from '../../utils/output.js';
 import { ux } from '@oclif/core';
 import * as shamsi from 'shamsi-date-converter';
+import moment from 'moment';
 
 export interface IZone {
   name: string;
@@ -50,9 +51,12 @@ export default class List extends Command {
         const createdAtshamsiData = shamsi.gregorianToJalali(
           new Date(zone.createdAt)
         );
-        const lastCheckAtshamsiData = shamsi.gregorianToJalali(
-          new Date(zone.lastCheckAt)
-        );
+
+        const lastCheckAt = new Date(zone.lastCheckAt);
+
+        const lastCheckDuration = moment
+          .duration(moment(lastCheckAt).diff(moment(Date.now())))
+          .humanize(true);
 
         return {
           Name: zone.name,
@@ -60,8 +64,8 @@ export default class List extends Command {
             zone.status === 'ACTIVE'
               ? chalk.green('ACTIVE')
               : chalk.gray('PENDING'),
-          'lastCheck At': `${lastCheckAtshamsiData[0]}-${lastCheckAtshamsiData[1]}-${lastCheckAtshamsiData[2]}`,
           'created At': `${createdAtshamsiData[0]}-${createdAtshamsiData[1]}-${createdAtshamsiData[2]}`,
+          'lastCheck At': lastCheckDuration,
           'current Name Servers': zone.currentNameServers.join(', '),
           'name Servers': zone.nameServers.join(', '),
         };
@@ -72,8 +76,8 @@ export default class List extends Command {
         {
           Name: {},
           status: {},
-          'lastCheck At': {},
           'created At': {},
+          'lastCheck At': {},
           'current Name Servers': {},
           'name Servers': {},
         },
