@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import mime from 'mime';
 import inquirer from 'inquirer';
 import ora, { Ora } from 'ora';
@@ -119,9 +120,8 @@ export default class SendMail extends Command {
       }
 
       if (
-        error.response &&
-        error.response.statusCode === 404 &&
-        error.response.body.message === 'Mail Server not found.'
+        error.response?.statusCode === 404 &&
+        error.response?.body.message === 'Mail Server not found.'
       ) {
         this.error(`Mail Server not found.`);
       }
@@ -234,19 +234,21 @@ export default class SendMail extends Command {
   getFlagFiles(flagFiles: string[]): Files[] {
     const files: Files[] = [];
 
-    flagFiles.forEach((flagFile) => {
-      const resultFile: Files = {
-        content_type: mime.getType(flagFile),
-        data: `data:${mime.getType(flagFile)};base64,${fs.readFileSync(
-          flagFile,
-          {
+    for (const flagFile of flagFiles) {
+      const file = path.join(process.cwd(), flagFile);
+
+      if (!fs.statSync(file).isDirectory()) {
+        const resultFile: Files = {
+          content_type: mime.getType(file) || '',
+          data: `data:${mime.getType(file)};base64,${fs.readFileSync(file, {
             encoding: 'base64',
-          }
-        )}`,
-        name: flagFile,
-      };
-      files.push(resultFile);
-    });
+          })}`,
+          name: file.split('/').pop() || '',
+        };
+
+        files.push(resultFile);
+      }
+    }
 
     return files;
   }
@@ -263,7 +265,7 @@ export default class SendMail extends Command {
           data: `data:${mime.getType(file)};base64,${fs.readFileSync(file, {
             encoding: 'base64',
           })}`,
-          name: file,
+          name: file || '',
         };
 
         files.push(resultFile);
