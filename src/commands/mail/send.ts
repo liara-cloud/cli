@@ -286,13 +286,13 @@ export default class SendMail extends Command {
     })) as { attachments: string[] };
 
     const filesResult: any[] = [];
-    attachments.map((attachment) => {
-      files.find((file) => {
+    for (const attachment of attachments) {
+      for (const file of files) {
         if (attachment === file.name) {
           filesResult.push(file);
         }
-      });
-    });
+      }
+    }
 
     return filesResult;
   }
