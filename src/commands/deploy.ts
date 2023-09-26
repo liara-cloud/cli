@@ -216,7 +216,9 @@ export default class Deploy extends Command {
         if (!domains.length || project.defaultSubdomain)
           this.log(urlLogMessage);
 
-        for (const domain of domains) {
+        const firstFiveDomains = domains.reverse().slice(0, 5);
+
+        for (const domain of firstFiveDomains) {
           const protocol: string =
             domain.certificatesStatus === 'ACTIVE' ? 'https' : 'http';
 
