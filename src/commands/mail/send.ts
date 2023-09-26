@@ -301,7 +301,7 @@ export default class SendMail extends Command {
     const { confirmation } = (await inquirer.prompt({
       name: 'confirmation',
       type: 'confirm',
-      message: `Are you sure send mail to "${dest}"?`,
+      message: `Are you sure to send an e-mail to "${dest}"?`,
       default: false,
     })) as { confirmation: boolean };
 
