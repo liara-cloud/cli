@@ -1,10 +1,11 @@
 import ora from 'ora';
 import inquirer from 'inquirer';
 import Command from '../../../base.js';
-import { Args, Flags, ux } from '@oclif/core';
+import { Flags } from '@oclif/core';
 import { createDebugLogger } from '../../../utils/output.js';
 import IGetDatabasesResponse from '../../../types/get-dbs-response.js';
-import * as shamsi from 'shamsi-date-converter';
+import { createWriteStream } from 'node:fs';
+import got from 'got';
 
 export interface IBackUp {
   name: string;
@@ -34,12 +35,17 @@ export default class BackUp extends Command {
       char: 'b',
       description: 'select which backup to download',
     }),
+    output: Flags.string({
+      char: 'o',
+      description:
+        'download the backup file and save it as the given name in the current working directory',
+    }),
   };
 
   async run(): Promise<void> {
     this.spinner = ora();
 
-    const { flags, args } = await this.parse(BackUp);
+    const { flags } = await this.parse(BackUp);
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
@@ -64,7 +70,17 @@ export default class BackUp extends Command {
             `/${backupName}/download`
         )
         .json<any>();
+
       this.log(`download link: ${downloadLink.link}`);
+
+      const _ = backupName.split('/');
+      const outputDefault = _[_.length - 1];
+      const output =
+        flags.output || (await this.promptOutput('./' + outputDefault));
+      if (output.length > 0) {
+        // Our got is costumized. So we use the main got.
+        await got.stream(downloadLink.link).pipe(createWriteStream(output));
+      }
     } catch (error) {
       debug(error.message);
 
@@ -111,5 +127,25 @@ Please open up https://console.liara.ir/databases and create the database, first
     })) as { backup: string };
 
     return backup;
+  }
+
+  async promptOutput(defaultName: string) {
+    const { yes } = (await inquirer.prompt({
+      name: 'yes',
+      type: 'input',
+      message: 'download backup file? (y/n):',
+      validate: (input) => input === 'y' || input === 'n',
+    })) as { yes: string };
+
+    if (yes === 'y') {
+      const { output } = (await inquirer.prompt({
+        name: 'output',
+        type: 'input',
+        default: defaultName,
+        message: 'Enter output name:',
+      })) as { output: string };
+      return output;
+    }
+    return '';
   }
 }

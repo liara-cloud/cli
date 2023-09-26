@@ -1,10 +1,11 @@
 import ora from 'ora';
 import inquirer from 'inquirer';
 import Command from '../../../base.js';
-import { Args, Flags, ux } from '@oclif/core';
+import { Flags, ux } from '@oclif/core';
 import { createDebugLogger } from '../../../utils/output.js';
 import IGetDatabasesResponse from '../../../types/get-dbs-response.js';
 import * as shamsi from 'shamsi-date-converter';
+import bytes from 'bytes';
 
 export interface IBackUp {
   name: string;
@@ -30,12 +31,13 @@ export default class BackUp extends Command {
       char: 'n',
       description: 'name of your database',
     }),
+    ...ux.table.flags(),
   };
 
   async run(): Promise<void> {
     this.spinner = ora();
 
-    const { flags, args } = await this.parse(BackUp);
+    const { flags } = await this.parse(BackUp);
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
@@ -68,11 +70,12 @@ export default class BackUp extends Command {
       });
       const tableConfig = {
         'last modified': { get: (row: any) => row.lastModified },
-        size: { get: (row: any) => row.size + ' bytes' }, // TODO: output a better format for big size backups
+        size: { get: (row: any) => bytes.format(row.size) },
         name: { get: (row: any) => row.name },
       };
       ux.table(tableData, tableConfig, {
         title: 'Backups',
+        ...flags,
       });
     } catch (error) {
       debug(error.message);
