@@ -217,7 +217,6 @@ export default class Deploy extends Command {
           this.log(urlLogMessage);
 
         const firstFiveDomains = domains.reverse().slice(0, 5);
-        console.log(firstFiveDomains);
 
         for (const domain of firstFiveDomains) {
           const protocol: string =
