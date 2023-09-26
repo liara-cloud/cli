@@ -217,17 +217,13 @@ export default class Deploy extends Command {
           this.log(urlLogMessage);
 
         const firstFiveDomains = domains.reverse().slice(0, 5);
+        console.log(firstFiveDomains);
 
         for (const domain of firstFiveDomains) {
-          let totalLog = 0;
-
           const protocol: string =
             domain.certificatesStatus === 'ACTIVE' ? 'https' : 'http';
 
           this.log(chalk.white(`    ${protocol}://${domain.name}`));
-
-          totalLog++;
-          if (totalLog === 5) break;
         }
 
         this.log();
