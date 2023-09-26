@@ -209,7 +209,7 @@ export default class Deploy extends Command {
             `    ${`http://${config.app}.liara.localhost`}`
           : `    ${`https://${config.app}${defaultSubdomain}`}`;
 
-        let { domains } = await this.got(
+        const { domains } = await this.got(
           `v1/domains?project=${config.app}`
         ).json<IGetDomainsResponse>();
 
