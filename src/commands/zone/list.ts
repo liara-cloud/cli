@@ -1,15 +1,16 @@
+import chalk from 'chalk';
 import Command, { IConfig } from '../../base.js';
 import { createDebugLogger } from '../../utils/output.js';
 import { ux } from '@oclif/core';
 import * as shamsi from 'shamsi-date-converter';
 
 export interface IZone {
-  name: 'string';
-  status: 'string';
-  nameServers: ['string'];
-  currentNameServers: ['string'];
-  lastCheckAt: 'string';
-  createdAt: 'string';
+  name: string;
+  status: string;
+  nameServers: [string];
+  currentNameServers: [string];
+  lastCheckAt: string;
+  createdAt: string;
 }
 
 export interface IZones {
@@ -55,11 +56,14 @@ export default class List extends Command {
 
         return {
           Name: zone.name,
-          status: zone.status,
-          lastCheckAt: `${lastCheckAtshamsiData[0]}-${lastCheckAtshamsiData[1]}-${lastCheckAtshamsiData[2]}`,
-          createdAt: `${createdAtshamsiData[0]}-${createdAtshamsiData[1]}-${createdAtshamsiData[2]}`,
-          currentNameServers: zone.currentNameServers.join(',\n'),
-          nameServers: zone.nameServers.join(',\n'),
+          status:
+            zone.status === 'ACTIVE'
+              ? chalk.green('ACTIVE')
+              : chalk.gray('PENDING'),
+          'lastCheck At': `${lastCheckAtshamsiData[0]}-${lastCheckAtshamsiData[1]}-${lastCheckAtshamsiData[2]}`,
+          'created At': `${createdAtshamsiData[0]}-${createdAtshamsiData[1]}-${createdAtshamsiData[2]}`,
+          'current Name Servers': zone.currentNameServers.join(', '),
+          'name Servers': zone.nameServers.join(', '),
         };
       });
 
@@ -68,10 +72,10 @@ export default class List extends Command {
         {
           Name: {},
           status: {},
-          lastCheckAt: {},
-          createdAt: {},
-          currentNameServers: {},
-          nameServers: {},
+          'lastCheck At': {},
+          'created At': {},
+          'current Name Servers': {},
+          'name Servers': {},
         },
         flags
       );
