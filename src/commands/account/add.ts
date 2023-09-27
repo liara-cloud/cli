@@ -47,11 +47,15 @@ export default class AccountAdd extends Command {
 
     this.got = got.extend({ prefixUrl: REGIONS_API_URL[region], hooks });
 
-    let api_token;
-    let fullname;
-    let avatar;
+    let api_token = flags['api-token'];
+    let fullname = flags['fullname'];
+    let avatar = flags['avatar'];
 
-    const user = flags['api-token'] ? await this.getMe(flags) : null;
+    const user =
+      flags['api-token'] && !flags['from-login-by-browser']
+        ? await this.getMe(flags)
+        : null;
+
     if (user) {
       flags.email = user.email;
       api_token = flags['api-token'];
@@ -78,6 +82,7 @@ export default class AccountAdd extends Command {
         flags.password ||
         (!flags['api-token'] && (await this.promptPassword())),
     };
+
     if (flags['from-login']) {
       flags.account = `${flags.email.split('@')[0]}_${region}`;
     }
@@ -125,6 +130,7 @@ export default class AccountAdd extends Command {
       GLOBAL_CONF_PATH,
       JSON.stringify({ accounts, version: GLOBAL_CONF_VERSION })
     );
+
     flags['from-login'] && (await AccountUse.run(['--account', name]));
 
     const { accountName } = await this.getCurrentAccount();

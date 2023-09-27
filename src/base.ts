@@ -1,17 +1,22 @@
 import os from 'node:os';
+import { createServer } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ChildProcess } from 'node:child_process';
 
 import fs from 'fs-extra';
 import WebSocket from 'ws';
 import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
+import open, { apps } from 'open';
 import got, { Options } from 'got';
-import { Command, Flags } from '@oclif/core';
+import { Command, Flags, ux } from '@oclif/core';
 import updateNotifier from 'update-notifier';
+import getPort, { portNumbers } from 'get-port';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
 import './interceptors.js';
+
 import {
   DEV_MODE,
   REGIONS_API_URL,
@@ -19,6 +24,7 @@ import {
   GLOBAL_CONF_PATH,
   GLOBAL_CONF_VERSION,
 } from './constants.js';
+import Login from './commands/login.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -26,6 +32,12 @@ const packageJson = fs.readJSONSync(path.join(__dirname, '..', 'package.json'));
 updateNotifier({ pkg: packageJson }).notify({ isGlobal: true });
 
 const isWin = os.platform() === 'win32';
+
+const headers = {
+  'Access-Control-Allow-Origin': 'https://console.liara.ir',
+  'Access-Control-Allow-Methods': '*',
+  'Access-Control-Allow-Headers': '*',
+};
 
 export interface IAccount {
   email: string;
@@ -300,5 +312,58 @@ Please check your network connection.`);
       (account) => accounts[account].current
     );
     return { ...accounts[accName || ''], accountName: accName };
+  }
+
+  async browser(browser = apps.browser) {
+    this.spinner = ora();
+
+    this.spinner.start('Opening browser...');
+
+    const port = await getPort({ port: portNumbers(3001, 3100) });
+
+    const buffers: Uint8Array[] = [];
+
+    return new Promise<void>(async (resolve) => {
+      createServer(async (req, res) => {
+        if (req.method === 'OPTIONS') {
+          res.writeHead(204, headers);
+          res.end();
+          return;
+        }
+
+        if (req.url === '/callback' && req.method === 'POST') {
+          for await (const chunk of req) {
+            buffers.push(chunk);
+          }
+
+          const { data } = JSON.parse(
+            Buffer.concat(buffers).toString() || '[]'
+          );
+
+          resolve();
+          // await Login.run();
+
+          // const updatedUserAccounts = await updateLiaraJson(data);
+          // event.sender.send('open-console', updatedUserAccounts);
+
+          res.writeHead(200, headers);
+          res.end();
+        }
+      }).listen(port);
+
+      const query = `desktop=v1&callbackURL=localhost:${port}/callback`;
+
+      const cp = await open(`https://console.liara.ir/login?${query}`, {
+        app: { name: browser },
+      });
+
+      cp.on('error', (err) => {
+        console.log(err);
+        this.spinner.stop();
+
+        this.log('\nCannot open browser.');
+        this.error(`\n${err.message}`);
+      });
+    });
   }
 }
