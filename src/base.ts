@@ -135,6 +135,46 @@ export interface IGetBucketsResponse {
   status: string;
   buckets: IBucket[];
 }
+export interface IMailboxes {
+  plan: {
+    name: string;
+  };
+  domain: string;
+  recordsStatus: string;
+  mode: string;
+  status: string;
+  createdAt: string;
+  id: string;
+  smtp_server: string;
+  smtp_port: number;
+}
+
+export interface IGetMailboxesResponse {
+  status: string;
+  data: {
+    mailServers: IMailboxes[];
+  };
+}
+
+export interface IGetMailsAccounts {
+  name: string;
+  createdAt: string;
+  id: string;
+}
+
+export interface IGetMailsAccountsResponse {
+  status: string;
+  data: {
+    accounts: IGetMailsAccounts[];
+    domain: string;
+  };
+}
+
+export interface Files {
+  content_type: string | null;
+  data: string;
+  name: string;
+}
 
 export default abstract class extends Command {
   static flags = {
