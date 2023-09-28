@@ -1,16 +1,15 @@
 import os from 'node:os';
-import { createServer } from 'node:http';
 import path from 'node:path';
+import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
-import { ChildProcess } from 'node:child_process';
 
+import open from 'open';
 import fs from 'fs-extra';
 import WebSocket from 'ws';
 import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
-import open, { apps } from 'open';
 import got, { Options } from 'got';
-import { Command, Flags, ux } from '@oclif/core';
+import { Command, Flags } from '@oclif/core';
 import updateNotifier from 'update-notifier';
 import getPort, { portNumbers } from 'get-port';
 import { HttpsProxyAgent } from 'https-proxy-agent';
@@ -24,7 +23,6 @@ import {
   GLOBAL_CONF_PATH,
   GLOBAL_CONF_VERSION,
 } from './constants.js';
-import Login from './commands/login.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -314,17 +312,47 @@ Please check your network connection.`);
     return { ...accounts[accName || ''], accountName: accName };
   }
 
-  async browser(browser = apps.browser) {
+  async browser(browser: string) {
     this.spinner = ora();
 
     this.spinner.start('Opening browser...');
 
     const port = await getPort({ port: portNumbers(3001, 3100) });
 
-    const buffers: Uint8Array[] = [];
+    const query = `desktop=v1&callbackURL=localhost:${port}/callback`;
 
-    return new Promise<void>(async (resolve) => {
-      createServer(async (req, res) => {
+    const cp = await open(
+      `https://console.liara.ir/login?${Buffer.from(query).toString('base64')}`,
+      {
+        app: { name: browser },
+      }
+    );
+
+    cp.on('error', (err) => {
+      this.spinner.stop();
+
+      this.log('\nCannot open browser.');
+
+      this.error(`\n${err.message}`);
+    });
+
+    this.spinner.succeed('Browser opened.');
+
+    return new Promise<
+      [
+        {
+          email: string;
+          token: string;
+          avatar: string;
+          region: string;
+          fullname: string;
+          current: boolean;
+        }
+      ]
+    >(async (resolve) => {
+      const buffers: Uint8Array[] = [];
+
+      const server = createServer(async (req, res) => {
         if (req.method === 'OPTIONS') {
           res.writeHead(204, headers);
           res.end();
@@ -340,29 +368,17 @@ Please check your network connection.`);
             Buffer.concat(buffers).toString() || '[]'
           );
 
-          resolve();
-          // await Login.run();
-
-          // const updatedUserAccounts = await updateLiaraJson(data);
-          // event.sender.send('open-console', updatedUserAccounts);
-
           res.writeHead(200, headers);
           res.end();
+
+          this.spinner.stop();
+
+          server.close();
+
+          resolve(data);
         }
-      }).listen(port);
-
-      const query = `desktop=v1&callbackURL=localhost:${port}/callback`;
-
-      const cp = await open(`https://console.liara.ir/login?${query}`, {
-        app: { name: browser },
-      });
-
-      cp.on('error', (err) => {
-        console.log(err);
-        this.spinner.stop();
-
-        this.log('\nCannot open browser.');
-        this.error(`\n${err.message}`);
+      }).listen(port, () => {
+        this.spinner.start('Waiting for login');
       });
     });
   }

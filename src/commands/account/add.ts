@@ -1,16 +1,18 @@
 import got from 'got';
 import chalk from 'chalk';
 import fs from 'fs-extra';
-import AccountUse from './use.js';
 import retry from 'async-retry';
-import Command, { IAccount } from '../../base.js';
 import inquirer from 'inquirer';
 import { Flags } from '@oclif/core';
-import hooks from '../../interceptors.js';
 import promptEmail from 'email-prompt-ts';
+import { validate as validateEmail } from 'email-validator';
+
+import AccountUse from './use.js';
+import hooks from '../../interceptors.js';
+import Command, { IAccount } from '../../base.js';
 import eraseLines from '../../utils/erase-lines.js';
 import { createDebugLogger } from '../../utils/output.js';
-import { validate as validateEmail } from 'email-validator';
+
 import {
   FALLBACK_REGION,
   REGIONS_API_URL,
@@ -47,14 +49,11 @@ export default class AccountAdd extends Command {
 
     this.got = got.extend({ prefixUrl: REGIONS_API_URL[region], hooks });
 
-    let api_token = flags['api-token'];
-    let fullname = flags['fullname'];
-    let avatar = flags['avatar'];
+    let api_token;
+    let fullname;
+    let avatar;
 
-    const user =
-      flags['api-token'] && !flags['from-login-by-browser']
-        ? await this.getMe(flags)
-        : null;
+    const user = flags['api-token'] ? await this.getMe(flags) : null;
 
     if (user) {
       flags.email = user.email;
