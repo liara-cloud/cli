@@ -327,7 +327,9 @@ Please check your network connection.`);
     cp.on('error', (err) => {
       this.spinner.fail('Cannot open browser.');
 
-      this.error(`\n${err.message}`);
+      this.debug(`\n${err.message}`);
+
+      this.error(`\nBrowser unavailable or lacks permissions.`);
     });
 
     return new Promise<IBrowserLogin[]>(async (resolve) => {
