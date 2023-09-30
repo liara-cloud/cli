@@ -315,21 +315,21 @@ Please check your network connection.`);
 
     const port = await getPort({ port: portNumbers(3001, 3100) });
 
-    const query = `desktop=v1&callbackURL=localhost:${port}/callback`;
+    const query = `cli=v1&callbackURL=localhost:${port}/callback&client=cli`;
 
-    const cp = await open(
-      `https://console.liara.ir/login?${Buffer.from(query).toString('base64')}`,
-      {
-        app: { name: browser },
-      }
-    );
+    const url = `https://console.liara.ir/login?${Buffer.from(query).toString(
+      'base64'
+    )}`;
+
+    const cp = await open(url, { app: { name: browser } });
 
     cp.on('error', (err) => {
       this.spinner.fail('Cannot open browser.');
 
       this.debug(`\n${err.message}`);
 
-      this.error(`\nBrowser unavailable or lacks permissions.`);
+      this.error(`\nBrowser unavailable or lacks permissions.
+Please open the following URL in your browser to log in: \n${url}`);
     });
 
     return new Promise<IBrowserLogin[]>(async (resolve) => {
