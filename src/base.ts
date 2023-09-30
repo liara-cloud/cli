@@ -13,6 +13,8 @@ import { Command, Flags } from '@oclif/core';
 import updateNotifier from 'update-notifier';
 import getPort, { portNumbers } from 'get-port';
 import { HttpsProxyAgent } from 'https-proxy-agent';
+import IBrowserLogin from './types/browser-login.js';
+import browserLoginHeader from './utils/browser-login-header.js';
 
 import './interceptors.js';
 
@@ -30,12 +32,6 @@ const packageJson = fs.readJSONSync(path.join(__dirname, '..', 'package.json'));
 updateNotifier({ pkg: packageJson }).notify({ isGlobal: true });
 
 const isWin = os.platform() === 'win32';
-
-const headers = {
-  'Access-Control-Allow-Origin': 'https://console.liara.ir',
-  'Access-Control-Allow-Methods': '*',
-  'Access-Control-Allow-Headers': '*',
-};
 
 export interface IAccount {
   email: string;
@@ -329,32 +325,17 @@ Please check your network connection.`);
     );
 
     cp.on('error', (err) => {
-      this.spinner.stop();
-
-      this.log('\nCannot open browser.');
+      this.spinner.fail('Cannot open browser.');
 
       this.error(`\n${err.message}`);
     });
 
-    this.spinner.succeed('Browser opened.');
-
-    return new Promise<
-      [
-        {
-          email: string;
-          token: string;
-          avatar: string;
-          region: string;
-          fullname: string;
-          current: boolean;
-        }
-      ]
-    >(async (resolve) => {
+    return new Promise<IBrowserLogin[]>(async (resolve) => {
       const buffers: Uint8Array[] = [];
 
       const server = createServer(async (req, res) => {
         if (req.method === 'OPTIONS') {
-          res.writeHead(204, headers);
+          res.writeHead(204, browserLoginHeader);
           res.end();
           return;
         }
@@ -368,16 +349,19 @@ Please check your network connection.`);
             Buffer.concat(buffers).toString() || '[]'
           );
 
-          res.writeHead(200, headers);
+          res.writeHead(200, browserLoginHeader);
           res.end();
 
           this.spinner.stop();
 
+          server.closeAllConnections();
           server.close();
 
           resolve(data);
         }
       }).listen(port, () => {
+        this.spinner.succeed('Browser opened.');
+
         this.spinner.start('Waiting for login');
       });
     });
