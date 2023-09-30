@@ -44,49 +44,55 @@ export default class Login extends Command {
     }
 
     if (!flags.interactive) {
-      const accounts = await this.browser(flags.browser);
+      try {
+        const accounts = await this.browser(flags.browser);
 
-      this.spinner.start('Logging in.');
-      const currentAccounts = (await this.readGlobalConfig()).accounts;
+        this.spinner.start('Logging in.');
+        const currentAccounts = (await this.readGlobalConfig()).accounts;
 
-      let currentAccount;
+        let currentAccount;
 
-      for (const account of accounts) {
-        const name = `${account.email.split('@')[0]}_${account.region}`;
+        for (const account of accounts) {
+          const name = `${account.email.split('@')[0]}_${account.region}`;
 
-        if (account.current) {
-          currentAccount = name;
+          if (account.current) {
+            currentAccount = name;
+          }
+
+          currentAccounts[name] = {
+            email: account.email,
+            region: account.region,
+            avatar: account.avatar,
+            api_token: account.token,
+            fullname: account.fullname,
+            current: false,
+          };
         }
 
-        currentAccounts[name] = {
-          email: account.email,
-          region: account.region,
-          avatar: account.avatar,
-          api_token: account.token,
-          fullname: account.fullname,
-          current: false,
-        };
+        fs.writeFileSync(
+          GLOBAL_CONF_PATH,
+          JSON.stringify({
+            accounts: currentAccounts,
+            version: GLOBAL_CONF_VERSION,
+          })
+        );
+
+        this.spinner.succeed('You have logged in successfully.');
+
+        currentAccount && (await AccountUse.run(['--account', currentAccount]));
+
+        const { accountName } = await this.getCurrentAccount();
+
+        this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`);
+
+        accountName && this.log(`> Current account is: ${accountName}`);
+
+        return;
+      } catch (error) {
+        this.spinner.fail(
+          'Cannot open browser. Browser unavailable or lacks permissions.'
+        );
       }
-
-      fs.writeFileSync(
-        GLOBAL_CONF_PATH,
-        JSON.stringify({
-          accounts: currentAccounts,
-          version: GLOBAL_CONF_VERSION,
-        })
-      );
-
-      this.spinner.succeed('You have logged in successfully.');
-
-      currentAccount && (await AccountUse.run(['--account', currentAccount]));
-
-      const { accountName } = await this.getCurrentAccount();
-
-      this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`);
-
-      accountName && this.log(`> Current account is: ${accountName}`);
-
-      return;
     }
 
     await AccountAdd.run(sendFlag);

@@ -13,6 +13,7 @@ import { Command, Flags } from '@oclif/core';
 import updateNotifier from 'update-notifier';
 import getPort, { portNumbers } from 'get-port';
 import { HttpsProxyAgent } from 'https-proxy-agent';
+
 import IBrowserLogin from './types/browser-login.js';
 import browserLoginHeader from './utils/browser-login-header.js';
 
@@ -323,16 +324,21 @@ Please check your network connection.`);
 
     const cp = await open(url, { app: { name: browser } });
 
-    cp.on('error', (err) => {
-      this.spinner.fail('Cannot open browser.');
+    return new Promise<IBrowserLogin[]>(async (resolve, reject) => {
+      cp.on('error', async (err) => {
+        this.debug(`\n${err.message}`);
 
-      this.debug(`\n${err.message}`);
+        reject(err);
+      });
 
-      this.error(`\nBrowser unavailable or lacks permissions.
-Please open the following URL in your browser to log in: \n${url}`);
-    });
+      cp.on('exit', (code) => {
+        if (code === 0) {
+          this.spinner.succeed('Browser opened.');
 
-    return new Promise<IBrowserLogin[]>(async (resolve) => {
+          this.spinner.start('Waiting for login');
+        }
+      });
+
       const buffers: Uint8Array[] = [];
 
       const server = createServer(async (req, res) => {
@@ -361,11 +367,7 @@ Please open the following URL in your browser to log in: \n${url}`);
 
           resolve(data);
         }
-      }).listen(port, () => {
-        this.spinner.succeed('Browser opened.');
-
-        this.spinner.start('Waiting for login');
-      });
+      }).listen(port);
     });
   }
 }
