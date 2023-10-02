@@ -24,6 +24,7 @@ export default class Create extends Command {
     }),
     network: Flags.string({
       description: 'use public network or not',
+      options: ['public', 'private'],
     }),
     type: Flags.string({
       char: 't',
@@ -76,7 +77,7 @@ export default class Create extends Command {
         Hostname: { get: (row: any) => row.hostname },
         Type: { get: (row: any) => row.type },
         Version: { get: (row: any) => row.version },
-        Network: { get: (row: any) => row.network },
+        'Public Network': { get: (row: any) => row.network },
       };
       ux.table(tableData, tableConfig, {
         title: 'Database Specification',
