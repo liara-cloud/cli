@@ -1,0 +1,46 @@
+name: Publish to npm
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check tag is beta
+        id: is_tag_beta
+        run: |
+          if [[ "${{ github.ref }}" == "refs/tags/"* ]]; then
+            tags_name="${{ github.ref }}"
+            tags_name="${tags_name#refs/tags/}"  # Remove the "refs/tags/" prefix
+            if [[ $tags_name == *"beta"* ]]; then
+              echo "is_beta=true" >> $GITHUB_OUTPUT
+            else
+              echo "is_beta=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Publish to npm (beta)
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_ACCESS_KEY }}
+        if: steps.is_tag_beta.outputs.is_beta == 'true'
+        run: npm publish --tag beta
+
+      - name: Publish to npm
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_ACCESS_KEY }}
+        if: steps.is_tag_beta.outputs.is_beta == 'false'
+        run: npm publish
