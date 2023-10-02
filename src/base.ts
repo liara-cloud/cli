@@ -1,7 +1,9 @@
 import os from 'node:os';
 import path from 'node:path';
+import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 
+import open from 'open';
 import fs from 'fs-extra';
 import WebSocket from 'ws';
 import ora, { Ora } from 'ora';
@@ -9,9 +11,14 @@ import inquirer from 'inquirer';
 import got, { Options } from 'got';
 import { Command, Flags } from '@oclif/core';
 import updateNotifier from 'update-notifier';
+import getPort, { portNumbers } from 'get-port';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
+import IBrowserLogin from './types/browser-login.js';
+import browserLoginHeader from './utils/browser-login-header.js';
+
 import './interceptors.js';
+
 import {
   DEV_MODE,
   REGIONS_API_URL,
@@ -300,5 +307,67 @@ Please check your network connection.`);
       (account) => accounts[account].current
     );
     return { ...accounts[accName || ''], accountName: accName };
+  }
+
+  async browser(browser: string) {
+    this.spinner = ora();
+
+    this.spinner.start('Opening browser...');
+
+    const port = await getPort({ port: portNumbers(3001, 3100) });
+
+    const query = `cli=v1&callbackURL=localhost:${port}/callback&client=cli`;
+
+    const url = `https://console.liara.ir/login?${Buffer.from(query).toString(
+      'base64'
+    )}`;
+
+    const cp = await open(url, { app: { name: browser } });
+
+    return new Promise<IBrowserLogin[]>(async (resolve, reject) => {
+      cp.on('error', async (err) => {
+        this.debug(`\n${err.message}`);
+
+        reject(err);
+      });
+
+      cp.on('exit', (code) => {
+        if (code === 0) {
+          this.spinner.succeed('Browser opened.');
+
+          this.spinner.start('Waiting for login');
+        }
+      });
+
+      const buffers: Uint8Array[] = [];
+
+      const server = createServer(async (req, res) => {
+        if (req.method === 'OPTIONS') {
+          res.writeHead(204, browserLoginHeader);
+          res.end();
+          return;
+        }
+
+        if (req.url === '/callback' && req.method === 'POST') {
+          for await (const chunk of req) {
+            buffers.push(chunk);
+          }
+
+          const { data } = JSON.parse(
+            Buffer.concat(buffers).toString() || '[]'
+          );
+
+          res.writeHead(200, browserLoginHeader);
+          res.end();
+
+          this.spinner.stop();
+
+          server.closeAllConnections();
+          server.close();
+
+          resolve(data);
+        }
+      }).listen(port);
+    });
   }
 }

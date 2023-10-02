@@ -1,16 +1,18 @@
 import got from 'got';
 import chalk from 'chalk';
 import fs from 'fs-extra';
-import AccountUse from './use.js';
 import retry from 'async-retry';
-import Command, { IAccount } from '../../base.js';
 import inquirer from 'inquirer';
 import { Flags } from '@oclif/core';
-import hooks from '../../interceptors.js';
 import promptEmail from 'email-prompt-ts';
+import { validate as validateEmail } from 'email-validator';
+
+import AccountUse from './use.js';
+import hooks from '../../interceptors.js';
+import Command, { IAccount } from '../../base.js';
 import eraseLines from '../../utils/erase-lines.js';
 import { createDebugLogger } from '../../utils/output.js';
-import { validate as validateEmail } from 'email-validator';
+
 import {
   FALLBACK_REGION,
   REGIONS_API_URL,
@@ -52,6 +54,7 @@ export default class AccountAdd extends Command {
     let avatar;
 
     const user = flags['api-token'] ? await this.getMe(flags) : null;
+
     if (user) {
       flags.email = user.email;
       api_token = flags['api-token'];
@@ -78,6 +81,7 @@ export default class AccountAdd extends Command {
         flags.password ||
         (!flags['api-token'] && (await this.promptPassword())),
     };
+
     if (flags['from-login']) {
       flags.account = `${flags.email.split('@')[0]}_${region}`;
     }
@@ -125,6 +129,7 @@ export default class AccountAdd extends Command {
       GLOBAL_CONF_PATH,
       JSON.stringify({ accounts, version: GLOBAL_CONF_VERSION })
     );
+
     flags['from-login'] && (await AccountUse.run(['--account', name]));
 
     const { accountName } = await this.getCurrentAccount();
