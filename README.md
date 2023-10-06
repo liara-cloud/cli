@@ -21,7 +21,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/5.1.0-beta.0 linux-x64 node-v18.17.1
+@liara/cli/5.1.0-beta.1 linux-x64 node-v18.17.1
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -58,7 +58,7 @@ USAGE
 * [`liara env ls`](#liara-env-ls)
 * [`liara env set [ENV]`](#liara-env-set-env)
 * [`liara env unset [ENV]`](#liara-env-unset-env)
-* [`liara help [COMMANDS]`](#liara-help-commands)
+* [`liara help [COMMAND]`](#liara-help-command)
 * [`liara login`](#liara-login)
 * [`liara logs`](#liara-logs)
 * [`liara plan list`](#liara-plan-list)
@@ -309,16 +309,12 @@ fetch the logs of an app
 
 ```
 USAGE
-  $ liara app logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>] [-t]
-    [-f] [-c]
+  $ liara app logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>]
 
 FLAGS
   -a, --app=<value>    app id
-  -c, --colorize       colorize log output
-  -f, --follow         follow log output
   -h, --help           Show CLI help.
   -s, --since=<value>  show logs since timestamp
-  -t, --timestamps     show timestamps
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -465,7 +461,7 @@ USAGE
   $ liara autocomplete [SHELL] [-r]
 
 ARGUMENTS
-  SHELL  (zsh|bash|powershell) Shell type
+  SHELL  shell type
 
 FLAGS
   -r, --refresh-cache  Refresh cache (ignores displaying instructions)
@@ -480,12 +476,10 @@ EXAMPLES
 
   $ liara autocomplete zsh
 
-  $ liara autocomplete powershell
-
   $ liara autocomplete --refresh-cache
 ```
 
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v2.3.3/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v2.1.8/src/commands/autocomplete/index.ts)_
 
 ## `liara create`
 
@@ -607,36 +601,33 @@ deploy an app
 ```
 USAGE
   $ liara deploy [-h] [--debug] [--api-token <value>] [--region iran|germany] [--path <value>] [--platform
-    <value>] [-a <value>] [-p <value>] [-i <value>] [--detach] [--no-app-logs] [--args <value>] [--build-arg <value>]
-    [-m <value>] [-d <value>] [--no-cache] [-f <value>] [-b iran|germany]
+    <value>] [-a <value>] [-p <value>] [-i <value>] [--detach] [--args <value>] [--build-arg <value>] [-m <value>] [-d
+    <value>] [--no-cache] [-f <value>]
 
 FLAGS
-  -a, --app=<value>              app id
-  -b, --build-location=<option>  name of the build's location
-                                 <options: iran|germany>
-  -d, --disks=<value>...         mount a disk
-  -f, --dockerfile=<value>       name of the Dockerfile (default is "PATH/Dockerfile")
-  -h, --help                     Show CLI help.
-  -i, --image=<value>            docker image to deploy
-  -m, --message=<value>          the release message
-  -p, --port=<value>             the port that your app listens to
-  --api-token=<value>            your api token to use for authentication
-  --args=<value>                 docker image entrypoint args
-  --build-arg=<value>...         docker image build args
-  --debug                        show debug logs
-  --detach                       run build in background
-  --no-app-logs                  do not stream app logs after deployment
-  --no-cache                     do not use cache when building the image
-  --path=<value>                 app path in your computer
-  --platform=<value>             the platform your app needs to run
-  --region=<option>              the region you want to deploy your app to
-                                 <options: iran|germany>
+  -a, --app=<value>         app id
+  -d, --disks=<value>...    mount a disk
+  -f, --dockerfile=<value>  name of the Dockerfile (default is "PATH/Dockerfile")
+  -h, --help                Show CLI help.
+  -i, --image=<value>       docker image to deploy
+  -m, --message=<value>     the release message
+  -p, --port=<value>        the port that your app listens to
+  --api-token=<value>       your api token to use for authentication
+  --args=<value>...         docker image entrypoint args
+  --build-arg=<value>...    docker image build args
+  --debug                   show debug logs
+  --detach                  do not stream app logs after deployment
+  --no-cache                do not use cache when building the image
+  --path=<value>            app path in your computer
+  --platform=<value>        the platform your app needs to run
+  --region=<option>         the region you want to deploy your app to
+                            <options: iran|germany>
 
 DESCRIPTION
   deploy an app
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v5.1.0-beta.0/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v5.1.0-beta.1/src/commands/deploy.ts)_
 
 ## `liara disk create`
 
@@ -777,16 +768,16 @@ DESCRIPTION
   remove environment variables from an app
 ```
 
-## `liara help [COMMANDS]`
+## `liara help [COMMAND]`
 
 Display help for liara.
 
 ```
 USAGE
-  $ liara help [COMMANDS] [-n]
+  $ liara help [COMMAND] [-n]
 
 ARGUMENTS
-  COMMANDS  Command to show help for.
+  COMMAND  Command to show help for.
 
 FLAGS
   -n, --nested-commands  Include all nested commands in the output.
@@ -795,7 +786,7 @@ DESCRIPTION
   Display help for liara.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.15/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.1.23/src/commands/help.ts)_
 
 ## `liara login`
 
@@ -818,7 +809,7 @@ DESCRIPTION
   login to your account
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v5.1.0-beta.0/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v5.1.0-beta.1/src/commands/login.ts)_
 
 ## `liara logs`
 
@@ -826,16 +817,12 @@ fetch the logs of an app
 
 ```
 USAGE
-  $ liara logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>] [-t]
-    [-f] [-c]
+  $ liara logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>]
 
 FLAGS
   -a, --app=<value>    app id
-  -c, --colorize       colorize log output
-  -f, --follow         follow log output
   -h, --help           Show CLI help.
   -s, --since=<value>  show logs since timestamp
-  -t, --timestamps     show timestamps
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -1023,5 +1010,5 @@ FLAG DESCRIPTIONS
     Additionally shows the architecture, node version, operating system, and versions of plugins that the CLI is using.
 ```
 
-_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.3.8/src/commands/version.ts)_
+_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.1.4/src/commands/version.ts)_
 <!-- commandsstop -->
