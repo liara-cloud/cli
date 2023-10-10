@@ -5,6 +5,7 @@ import { Flags } from '@oclif/core';
 import Command from '../base.js';
 import AccountAdd from './account/add.js';
 import AccountUse from './account/use.js';
+import { createDebugLogger } from '../utils/output.js';
 import { GLOBAL_CONF_PATH, GLOBAL_CONF_VERSION } from '../constants.js';
 
 export default class Login extends Command {
@@ -27,6 +28,7 @@ export default class Login extends Command {
 
   async run() {
     const { flags } = await this.parse(Login);
+    const debug = createDebugLogger(flags.debug);
 
     const sendFlag = [
       '--api-token',
@@ -89,6 +91,8 @@ export default class Login extends Command {
 
         return;
       } catch (error) {
+        debug(`${error.message}\n`);
+
         this.spinner.fail(
           'Cannot open browser. Browser unavailable or lacks permissions.'
         );
