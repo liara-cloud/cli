@@ -326,8 +326,6 @@ Please check your network connection.`);
 
     return new Promise<IBrowserLogin[]>(async (resolve, reject) => {
       cp.on('error', async (err) => {
-        this.debug(`\n${err.message}`);
-
         reject(err);
       });
 
