@@ -309,7 +309,7 @@ Please check your network connection.`);
     return { ...accounts[accName || ''], accountName: accName };
   }
 
-  async browser(browser: string) {
+  async browser(browser?: string) {
     this.spinner = ora();
 
     this.spinner.start('Opening browser...');
@@ -322,7 +322,9 @@ Please check your network connection.`);
       'base64'
     )}`;
 
-    const cp = await open(url, { app: { name: browser } });
+    const app = browser ? { app: { name: browser } } : {};
+
+    const cp = await open(url, app);
 
     return new Promise<IBrowserLogin[]>(async (resolve, reject) => {
       cp.on('error', async (err) => {

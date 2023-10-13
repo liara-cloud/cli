@@ -22,7 +22,6 @@ export default class Login extends Command {
     browser: Flags.string({
       description: 'browser to open',
       options: ['chrome', 'firefox', 'edge'],
-      default: 'browser', // default browser
     }),
   };
 
