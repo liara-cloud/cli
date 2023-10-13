@@ -40,7 +40,7 @@
     "ws": "^8.14.2"
   },
   "devDependencies": {
-    "@types/async-retry": "^1.4.5",
+    "@types/async-retry": "^1.4.6",
     "@types/bytes": "^3.1.2",
     "@types/fs-extra": "^11.0.1",
     "@types/inquirer": "^9.0.4",
