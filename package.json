@@ -35,7 +35,7 @@
     "semver": "^7.5.4",
     "shamsi-date-converter": "^1.0.5",
     "tar": "^6.1.15",
-    "ua-parser-js": "^1.0.35",
+    "ua-parser-js": "^1.0.36",
     "update-notifier": "^6.0.2",
     "ws": "^8.14.2"
   },
