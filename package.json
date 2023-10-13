@@ -43,7 +43,7 @@
     "@types/async-retry": "^1.4.5",
     "@types/bytes": "^3.0.0",
     "@types/fs-extra": "^11.0.1",
-    "@types/inquirer": "^9.0.3",
+    "@types/inquirer": "^9.0.4",
     "@types/jest": "^29.5.3",
     "@types/mime": "^3.0.1",
     "@types/node": "18.15.11",
