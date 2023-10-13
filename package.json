@@ -45,7 +45,7 @@
     "@types/fs-extra": "^11.0.1",
     "@types/inquirer": "^9.0.4",
     "@types/jest": "^29.5.3",
-    "@types/mime": "^3.0.1",
+    "@types/mime": "^3.0.2",
     "@types/node": "18.15.11",
     "@types/progress": "^2.0.3",
     "@types/semver": "^7.5.0",
