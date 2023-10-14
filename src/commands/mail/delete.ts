@@ -10,13 +10,13 @@ import {
 } from '../../constants.js';
 
 export default class MailDelete extends Command {
-  static description = 'delete an MailServer';
+  static description = 'delete an mail server';
 
   static flags = {
     ...Command.flags,
     mail: Flags.string({
       char: 'm',
-      description: 'MailServer id',
+      description: 'mail server id',
     }),
     force: Flags.boolean({
       char: 'f',
@@ -52,11 +52,11 @@ export default class MailDelete extends Command {
       if (!flags.force) {
         if (await this.confirm(mailDomain)) {
           await this.got.delete(`api/v1/mails/${mailId}`);
-          this.log(`MailServer ${mailDomain} deleted.`);
+          this.log(`Mail server ${mailDomain} deleted.`);
         }
       } else {
         await this.got.delete(`api/v1/mails/${mailId}`);
-        this.log(`MailServer ${mailDomain} deleted.`);
+        this.log(`Mail server ${mailDomain} deleted.`);
       }
     } catch (error) {
       debug(error.message);
@@ -66,14 +66,14 @@ export default class MailDelete extends Command {
       }
 
       if (error.response && error.response.status === 404) {
-        this.error(`Could not find the MailServer.`);
+        this.error(`Could not find the mail server.`);
       }
 
       if (error.response && error.response.status === 409) {
         this.error(`Another operation is already running. Please wait.`);
       }
 
-      this.error(`Could not delete the MailServer. Please try again.`);
+      this.error(`Could not delete the mail server. Please try again.`);
     }
   }
 
@@ -89,7 +89,7 @@ export default class MailDelete extends Command {
 
       if (!data.mailServers.length) {
         this.warn(
-          'Please go to https://console.liara.ir/mail and create an MailServer, first.'
+          'Please go to https://console.liara.ir/mail and create a mail server, first.'
         );
         this.exit(1);
       }
@@ -97,7 +97,7 @@ export default class MailDelete extends Command {
       const { mailDomain } = (await inquirer.prompt({
         name: 'mailDomain',
         type: 'list',
-        message: 'Please select a MailServer:',
+        message: 'Please select a mail server:',
         choices: [...data.mailServers.map((mail) => mail.domain)],
       })) as { mailDomain: string };
 
@@ -112,7 +112,7 @@ export default class MailDelete extends Command {
     const { confirmation } = (await inquirer.prompt({
       name: 'confirmation',
       type: 'confirm',
-      message: `Are you sure you want to delete MailServer "${mail}"?`,
+      message: `Are you sure you want to delete mail server "${mail}"?`,
       default: false,
     })) as { confirmation: boolean };
 

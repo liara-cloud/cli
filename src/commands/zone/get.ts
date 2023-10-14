@@ -22,7 +22,7 @@ export interface IZones {
 }
 
 export default class Get extends Command {
-  static description = 'get a zone.';
+  static description = 'inspect zone details';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
 

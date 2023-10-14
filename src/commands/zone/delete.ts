@@ -5,7 +5,7 @@ import { createDebugLogger } from '../../utils/output.js';
 import { ux } from '@oclif/core';
 
 export default class Delete extends Command {
-  static description = 'delete a zone.';
+  static description = 'delete a zone';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
 

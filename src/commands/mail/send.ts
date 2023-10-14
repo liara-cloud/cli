@@ -18,12 +18,12 @@ import {
 } from '../../constants.js';
 
 export default class SendMail extends Command {
-  static description = 'send a mail';
+  static description = 'send an email';
 
   static flags = {
     ...Command.flags,
     mail: Flags.string({
-      description: 'MailServer id',
+      description: 'mail server id',
     }),
     from: Flags.string({
       description: 'from',
@@ -104,10 +104,6 @@ export default class SendMail extends Command {
         debug(JSON.stringify(error.response.body));
       }
 
-      if (error.response && error.response.statusCode === 404) {
-        this.error(`Could not send the MailServer.`);
-      }
-
       if (error.response && error.response.statusCode === 401) {
         this.error(`Missing authentication.`);
       }
@@ -123,10 +119,10 @@ export default class SendMail extends Command {
         error.response?.statusCode === 404 &&
         error.response?.body.message === 'Mail Server not found.'
       ) {
-        this.error(`Mail Server not found.`);
+        this.error(`Mail server not found.`);
       }
       this.log(error.response.body);
-      this.error(`Could not send the mail. Please try again.`);
+      this.error(`Could not send the email. Please try again.`);
     }
   }
 
@@ -143,7 +139,7 @@ export default class SendMail extends Command {
 
       if (!data.mailServers.length) {
         this.warn(
-          'Please go to https://console.liara.ir/mail and create an MailServer, first.'
+          'Please go to https://console.liara.ir/mail and create a mail server, first.'
         );
         this.exit(1);
       }
@@ -176,7 +172,7 @@ export default class SendMail extends Command {
 
       if (!data.accounts.length) {
         this.warn(
-          'Please go to https://console.liara.ir/mail and create an MailServer account, first.'
+          'Please go to https://console.liara.ir/mail and create a mail server account, first.'
         );
         this.exit(1);
       }

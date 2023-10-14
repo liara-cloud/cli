@@ -106,6 +106,15 @@
       "db": {
         "description": "display commands for working with databases"
       },
+      "bucket": {
+        "description": "display commands for working with buckets"
+      },
+      "mail": {
+        "description": "display commands for working with mail servers"
+      },
+      "zone": {
+        "description": "display commands for working with dns zones"
+      },
       "account": {
         "description": "display commands for working with accounts"
       },
@@ -116,7 +125,13 @@
         "description": "display commands for configuring app environment variables"
       },
       "plan": {
-        "description": "list available plans"
+        "description": "display commands for working with plans"
+      },
+      "db:backup": {
+        "description": "display commands for working with database backups"
+      },
+      "zone:record": {
+        "description": "display commands for working with dns records"
       }
     }
   },

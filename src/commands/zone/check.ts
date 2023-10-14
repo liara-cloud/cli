@@ -5,7 +5,7 @@ import { createDebugLogger } from '../../utils/output.js';
 import { ux } from '@oclif/core';
 
 export default class Check extends Command {
-  static description = 'Check a zone.';
+  static description = 'check zone status';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
 

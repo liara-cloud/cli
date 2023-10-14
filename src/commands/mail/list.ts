@@ -8,7 +8,7 @@ import {
 } from '../../constants.js';
 
 export default class MailList extends Command {
-  static description = 'list available MailServer';
+  static description = 'list available mail servers';
 
   static flags = {
     ...Command.flags,
@@ -34,7 +34,7 @@ export default class MailList extends Command {
     ).json<IGetMailboxesResponse>();
     if (data.mailServers.length === 0) {
       this.error(
-        "Please create an MailServer via 'liara mail:create' command, first."
+        "Please create a mail server via 'liara mail:create' command, first."
       );
     }
 

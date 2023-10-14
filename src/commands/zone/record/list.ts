@@ -56,7 +56,7 @@ interface IDNSRecords {
 }
 
 export default class List extends Command {
-  static description = 'list all DNS records for a zone.';
+  static description = 'list all DNS records';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
 

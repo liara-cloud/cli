@@ -19,7 +19,7 @@ export interface IZones {
 }
 
 export default class List extends Command {
-  static description = 'list all zones.';
+  static description = 'list all zones';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
 

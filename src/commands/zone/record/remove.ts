@@ -56,7 +56,7 @@ interface IDNSRecords {
 }
 
 export default class Remove extends Command {
-  static description = 'remove a DNS record for a zone.';
+  static description = 'remove a DNS record';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
 

@@ -290,7 +290,7 @@ const promptRecordContent = {
 };
 
 export default class Update extends Command {
-  static description = 'update a DNS record for a zone.';
+  static description = 'update a DNS record';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
 

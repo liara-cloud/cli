@@ -12,7 +12,7 @@ import {
 import { createDebugLogger } from '../../utils/output.js';
 
 export default class MailCreate extends Command {
-  static description = 'create a MailServer';
+  static description = 'create a mail server';
 
   static flags = {
     ...Command.flags,
@@ -68,7 +68,7 @@ export default class MailCreate extends Command {
 
     try {
       await this.got.post('api/v1/mails', { json: { domain, plan, mode } });
-      this.log(`MailServer ${domain} created.`);
+      this.log(`Mail server ${domain} created.`);
     } catch (error) {
       debug(error.message);
 
@@ -77,12 +77,12 @@ export default class MailCreate extends Command {
       }
 
       if (error.response && error.response.statusCode === 404) {
-        this.error(`Could not create the MailServer.`);
+        this.error(`Could not create the mail server.`);
       }
 
       if (error.response && error.response.statusCode === 409) {
         this.error(
-          `The MailServer already exists. Please use a unique name for your MailServer.`
+          `The mail server already exists. Please use a unique name for your mail server.`
         );
       }
 
@@ -96,7 +96,7 @@ export default class MailCreate extends Command {
         );
       }
 
-      this.error(`Could not create the MailServer. Please try again.`);
+      this.error(`Could not create the mail server. Please try again.`);
     }
   }
 

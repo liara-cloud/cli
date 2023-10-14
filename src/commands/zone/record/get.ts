@@ -61,7 +61,7 @@ interface ISingleDNSRecord {
 }
 
 export default class Get extends Command {
-  static description = 'get a DNS record for a zone.';
+  static description = 'get a DNS record';
 
   static baseURL = 'https://dns-service.iran.liara.ir';
 
