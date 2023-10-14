@@ -21,7 +21,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/5.1.0-beta.3 linux-x64 node-v18.17.1
+@liara/cli/5.1.0 linux-x64 node-v18.17.1
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -775,7 +775,7 @@ DESCRIPTION
   deploy an app
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v5.1.0-beta.3/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v5.1.0/src/commands/deploy.ts)_
 
 ## `liara disk create`
 
@@ -957,7 +957,7 @@ DESCRIPTION
   login to your account
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v5.1.0-beta.3/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v5.1.0/src/commands/login.ts)_
 
 ## `liara logs`
 
