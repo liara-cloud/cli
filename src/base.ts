@@ -3,12 +3,12 @@ import path from 'node:path';
 import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 
-import open from 'open';
 import fs from 'fs-extra';
 import WebSocket from 'ws';
 import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
 import got, { Options } from 'got';
+import open, { apps, AppName } from 'open';
 import { Command, Flags } from '@oclif/core';
 import updateNotifier from 'update-notifier';
 import getPort, { portNumbers } from 'get-port';
@@ -322,7 +322,7 @@ Please check your network connection.`);
       'base64'
     )}`;
 
-    const app = browser ? { app: { name: browser } } : {};
+    const app = browser ? { app: { name: apps[browser as AppName] } } : {};
 
     const cp = await open(url, app);
 
