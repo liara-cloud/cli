@@ -362,9 +362,6 @@ Please check your network connection.`);
 
           this.spinner.stop();
 
-          server.closeAllConnections();
-          server.close();
-
           resolve(data);
         }
       }).listen(port);
