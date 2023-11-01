@@ -341,7 +341,7 @@ Please check your network connection.`);
 
       const buffers: Uint8Array[] = [];
 
-      const server = createServer(async (req, res) => {
+      createServer(async (req, res) => {
         if (req.method === 'OPTIONS') {
           res.writeHead(204, browserLoginHeader);
           res.end();
