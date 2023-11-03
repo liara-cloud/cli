@@ -6,17 +6,6 @@ import { createDebugLogger } from '../../../utils/output.js';
 import IGetDatabasesResponse from '../../../types/get-dbs-response.js';
 import * as shamsi from 'shamsi-date-converter';
 
-export interface IBackUp {
-  name: string;
-  lastModified: string;
-  etag: string;
-  size: number;
-}
-
-export interface IBackups {
-  backups: IBackUp[];
-}
-
 export default class BackUp extends Command {
   static description = 'create a database backup';
 
