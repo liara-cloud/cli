@@ -3,16 +3,15 @@ import inquirer from 'inquirer';
 import Command, { IConfig } from '../../../base.js';
 import { Flags, Args } from '@oclif/core';
 import { createDebugLogger } from '../../../utils/output.js';
-
-enum RecordType {
-  'A',
-  'AAAA',
-  'ALIAS',
-  'CNAME',
-  'MX',
-  'SRV',
-  'TXT',
-}
+import {
+  IAContent,
+  IALIASContent,
+  IDNSRecord,
+  IMXContent,
+  ISRVContent,
+  ITXTContent,
+  RecordType,
+} from '../../../types/dns-records.js';
 
 const promptRecordContent = {
   A: async (flags: any): Promise<[IAContent]> => {
@@ -233,41 +232,6 @@ const promptRecordContent = {
     return result;
   },
 };
-
-interface IAContent {
-  // AAAA content is also like this.
-  ip: string;
-}
-
-interface IALIASContent {
-  // CNAME content is also like this.
-  host: string;
-}
-
-interface IMXContent {
-  host: string;
-  priority: string;
-}
-
-interface ISRVContent {
-  host: string;
-  port: string;
-  priority: string;
-  weight: string;
-}
-
-interface ITXTContent {
-  text: string;
-}
-
-export interface IDNSRecord {
-  name: string;
-  type: RecordType;
-  ttl: number;
-  contents: [
-    IAContent | IALIASContent | IMXContent | ISRVContent | ITXTContent
-  ];
-}
 
 export default class Create extends Command {
   static description = 'create a new dns record';

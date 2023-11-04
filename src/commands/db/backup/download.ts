@@ -7,17 +7,6 @@ import IGetDatabasesResponse from '../../../types/get-dbs-response.js';
 import { createWriteStream } from 'node:fs';
 import got from 'got';
 
-export interface IBackUp {
-  name: string;
-  lastModified: string;
-  etag: string;
-  size: number;
-}
-
-export interface IBackups {
-  backups: IBackUp[];
-}
-
 export default class BackUp extends Command {
   static description = 'download a database backup';
 

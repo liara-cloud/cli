@@ -5,18 +5,8 @@ import { Flags, ux } from '@oclif/core';
 import { createDebugLogger } from '../../../utils/output.js';
 import IGetDatabasesResponse from '../../../types/get-dbs-response.js';
 import * as shamsi from 'shamsi-date-converter';
+import IBackups from '../../../types/backup.js';
 import bytes from 'bytes';
-
-export interface IBackUp {
-  name: string;
-  lastModified: string;
-  etag: string;
-  size: number;
-}
-
-export interface IBackups {
-  backups: IBackUp[];
-}
 
 export default class BackUp extends Command {
   static description = 'list backups for a database';

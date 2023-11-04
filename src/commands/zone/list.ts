@@ -4,19 +4,7 @@ import { createDebugLogger } from '../../utils/output.js';
 import { ux } from '@oclif/core';
 import * as shamsi from 'shamsi-date-converter';
 import moment from 'moment';
-
-export interface IZone {
-  name: string;
-  status: string;
-  nameServers: [string];
-  currentNameServers: [string];
-  lastCheckAt: string;
-  createdAt: string;
-}
-
-export interface IZones {
-  data: IZone[];
-}
+import { IZones } from '../../types/zone.js';
 
 export default class List extends Command {
   static description = 'list all zones';
@@ -66,8 +54,8 @@ export default class List extends Command {
               : chalk.gray('PENDING'),
           'created At': `${createdAtshamsiData[0]}-${createdAtshamsiData[1]}-${createdAtshamsiData[2]}`,
           'lastCheck At': lastCheckDuration,
-          'current Name Servers': zone.currentNameServers.join(', '),
-          'name Servers': zone.nameServers.join(', '),
+          'current Name Servers': zone.currentNameServers.join(',\n'),
+          'name Servers': zone.nameServers.join(',\n'),
         };
       });
 

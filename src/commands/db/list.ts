@@ -4,8 +4,9 @@ import * as shamsi from 'shamsi-date-converter';
 
 import Command from '../../base.js';
 import IGetDatabasesResponse from '../../types/get-dbs-response.js';
+
 export default class DatabaseList extends Command {
-  static description: string | undefined = 'list available databases';
+  static description = 'list available databases';
 
   static flags = {
     ...Command.flags,

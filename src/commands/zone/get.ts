@@ -4,22 +4,9 @@ import { Flags } from '@oclif/core';
 import { createDebugLogger } from '../../utils/output.js';
 import { ux } from '@oclif/core';
 import * as shamsi from 'shamsi-date-converter';
-
-export interface IZone {
-  status: string;
-  data: {
-    name: 'string';
-    status: 'string';
-    nameServers: ['string'];
-    currentNameServers: ['string'];
-    lastCheckAt: 'string';
-    createdAt: 'string';
-  };
-}
-
-export interface IZones {
-  data: IZone[];
-}
+import moment from 'moment';
+import chalk from 'chalk';
+import { IZoneGet } from '../../types/zone.js';
 
 export default class Get extends Command {
   static description = 'inspect zone details';
@@ -55,20 +42,26 @@ export default class Get extends Command {
     try {
       const { data } = await this.got(
         Get.PATH.replace('{zone}', zone)
-      ).json<IZone>();
+      ).json<IZoneGet>();
       const createdAtshamsiData = shamsi.gregorianToJalali(
         new Date(data.createdAt)
       );
-      const lastCheckAtshamsiData = shamsi.gregorianToJalali(
-        new Date(data.lastCheckAt)
-      );
+
+      const lastCheckAt = new Date(data.lastCheckAt);
+      const lastCheckDuration = moment
+        .duration(moment(lastCheckAt).diff(moment(Date.now())))
+        .humanize(true);
+
       const output_data = {
         Name: data.name,
-        status: data.status,
-        lastCheckAt: `${lastCheckAtshamsiData[0]}-${lastCheckAtshamsiData[1]}-${lastCheckAtshamsiData[2]}`,
-        createdAt: `${createdAtshamsiData[0]}-${createdAtshamsiData[1]}-${createdAtshamsiData[2]}`,
-        currentNameServers: data.currentNameServers.join(',\n'),
-        nameServers: data.nameServers.join(',\n'),
+        status:
+          data.status === 'ACTIVE'
+            ? chalk.green('ACTIVE')
+            : chalk.gray('PENDING'),
+        'created at': `${createdAtshamsiData[0]}-${createdAtshamsiData[1]}-${createdAtshamsiData[2]}`,
+        'lastCheck at': lastCheckDuration,
+        'current name servers': data.currentNameServers.join(',\n'),
+        'name servers': data.nameServers.join(',\n'),
       };
 
       ux.table(
@@ -76,10 +69,10 @@ export default class Get extends Command {
         {
           Name: {},
           status: {},
-          lastCheckAt: {},
-          createdAt: {},
-          currentNameServers: {},
-          nameServers: {},
+          'created at': {},
+          'lastCheck at': {},
+          'current name servers': {},
+          'name servers': {},
         },
         flags
       );

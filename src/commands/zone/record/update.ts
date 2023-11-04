@@ -3,71 +3,17 @@ import Command, { IConfig } from '../../../base.js';
 import { Flags } from '@oclif/core';
 import { createDebugLogger } from '../../../utils/output.js';
 import { ux } from '@oclif/core';
-
-enum RecordType {
-  'A' = 'A',
-  'AAAA' = 'AAAA',
-  'ALIAS' = 'ALIAS',
-  'CNAME' = 'CNAME',
-  'MX' = 'MX',
-  'SRV' = 'SRV',
-  'TXT' = 'TXT',
-}
-
-interface IAContent {
-  // AAAA content is also like this.
-  ip: string;
-}
-
-interface IALIASContent {
-  // CNAME content is also like this.
-  host: string;
-}
-
-interface IMXContent {
-  host: string;
-  priority: string;
-}
-
-interface ISRVContent {
-  host: string;
-  port: string;
-  priority: string;
-  weight: string;
-}
-
-interface ITXTContent {
-  text: string;
-}
-
-export interface IDNSRecord {
-  id?: string;
-  name: string;
-  type: RecordType;
-  ttl: number;
-  contents: [
-    IAContent | IALIASContent | IMXContent | ISRVContent | ITXTContent
-  ];
-}
-
-export interface IUpdateDNSRecord {
-  name: string;
-  type: RecordType;
-  ttl: number;
-  contents: [
-    IAContent | IALIASContent | IMXContent | ISRVContent | ITXTContent
-  ];
-}
-
-interface IDNSRecords {
-  status: string;
-  data: [IDNSRecord];
-}
-
-interface ISingleDNSRecord {
-  status: string;
-  data: IDNSRecord;
-}
+import {
+  IAContent,
+  IALIASContent,
+  IDNSRecord,
+  IMXContent,
+  ISRVContent,
+  ITXTContent,
+  RecordType,
+  ISingleDNSRecord,
+  IDNSRecords,
+} from '../../../types/dns-records.js';
 
 const promptRecordContent = {
   A: async (flags: any): Promise<[IAContent]> => {

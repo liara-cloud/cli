@@ -3,62 +3,11 @@ import Command, { IConfig } from '../../../base.js';
 import { Flags } from '@oclif/core';
 import { createDebugLogger } from '../../../utils/output.js';
 import { ux } from '@oclif/core';
-
-enum RecordType {
-  'A' = 'A',
-  'AAAA' = 'AAAA',
-  'ALIAS' = 'ALIAS',
-  'CNAME' = 'CNAME',
-  'MX' = 'MX',
-  'SRV' = 'SRV',
-  'TXT' = 'TXT',
-}
-
-interface IAContent {
-  // AAAA content is also like this.
-  ip: string;
-}
-
-interface IALIASContent {
-  // CNAME content is also like this.
-  host: string;
-}
-
-interface IMXContent {
-  host: string;
-  priority: string;
-}
-
-interface ISRVContent {
-  host: string;
-  port: string;
-  priority: string;
-  weight: string;
-}
-
-interface ITXTContent {
-  text: string;
-}
-
-export interface IDNSRecord {
-  id?: string;
-  name: string;
-  type: RecordType;
-  ttl: number;
-  contents: [
-    IAContent | IALIASContent | IMXContent | ISRVContent | ITXTContent
-  ];
-}
-
-interface IDNSRecords {
-  status: string;
-  data: [IDNSRecord];
-}
-
-interface ISingleDNSRecord {
-  status: string;
-  data: IDNSRecord;
-}
+import {
+  RecordType,
+  ISingleDNSRecord,
+  IDNSRecords,
+} from '../../../types/dns-records.js';
 
 export default class Get extends Command {
   static description = 'get a DNS record';
@@ -133,7 +82,7 @@ export default class Get extends Command {
           });
           break;
         default:
-          this.error('Unknown error in showing records');
+          this.error(`DNS record is: ${data.type} which is unknown.`);
       }
 
       const tableData = {
