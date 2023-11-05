@@ -341,7 +341,7 @@ Please check your network connection.`);
 
       const buffers: Uint8Array[] = [];
 
-      createServer(async (req, res) => {
+      const server = createServer(async (req, res) => {
         if (req.method === 'OPTIONS') {
           res.writeHead(204, browserLoginHeader);
           res.end();
@@ -362,6 +362,7 @@ Please check your network connection.`);
 
           this.spinner.stop();
 
+          server.close();
           resolve(data);
         }
       }).listen(port);

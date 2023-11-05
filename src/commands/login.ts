@@ -88,7 +88,7 @@ export default class Login extends Command {
 
         accountName && this.log(`> Current account is: ${accountName}`);
 
-        process.exit(0);
+        return;
       } catch (error) {
         debug(`${error.message}\n`);
 
