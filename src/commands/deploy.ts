@@ -419,6 +419,7 @@ Additionally, you can also retry the build with the debug flag:
     this.spinner.start('Building...');
 
     let isCanceled = false;
+    let isPushingStart = false;
 
     const removeInterupListener = onInterupt(async () => {
       // Force close
@@ -451,9 +452,13 @@ Additionally, you can also retry the build with the debug flag:
           process.stdout.write(output.line);
         }
 
-        if (output.state === 'PUSHING') {
-          this.spinner.succeed('Build finished.');
-          this.spinner.start('Pushing the image...');
+        if (output.state === 'PUSHING' && output.line) {
+          if (!isPushingStart) {
+            this.spinner.succeed('Build finished.');
+            isPushingStart = !isPushingStart;
+          }
+          this.spinner.clear().frame();
+          this.spinner.start('pushing ' + output.line);
           removeInterupListener();
         }
       });

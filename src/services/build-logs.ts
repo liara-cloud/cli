@@ -28,7 +28,11 @@ export default async (
 
         for (const output of buildOutput) {
           if (output.stream === 'STDOUT') {
-            cb({ state: 'BUILDING', line: output.line });
+            const state =
+              output.line.endsWith('B') && output.line.startsWith('[')
+                ? 'PUSHING'
+                : 'BUILDING';
+            cb({ state: state, line: output.line });
           } else {
             return reject(new BuildFailed('Build failed', output));
           }
