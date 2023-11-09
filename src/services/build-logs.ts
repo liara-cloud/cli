@@ -28,8 +28,9 @@ export default async (
 
         for (const output of buildOutput) {
           if (output.stream === 'STDOUT') {
+            const _ = output.line.split('-'); // progressbar, layers count and id separated by '-'
             const state =
-              output.line.endsWith('B') && output.line.startsWith('[')
+              _[0].endsWith('B') && _[0].startsWith('[')
                 ? 'PUSHING'
                 : 'BUILDING';
             cb({ state: state, line: output.line });

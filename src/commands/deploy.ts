@@ -420,6 +420,10 @@ Additionally, you can also retry the build with the debug flag:
 
     let isCanceled = false;
     let isPushingStart = false;
+    let imageLayers: {
+      [key: string]: number;
+    } = {};
+    let layerCounter = 0;
 
     const removeInterupListener = onInterupt(async () => {
       // Force close
@@ -452,14 +456,24 @@ Additionally, you can also retry the build with the debug flag:
           process.stdout.write(output.line);
         }
 
-        if (output.state === 'PUSHING' && output.line) {
+        if (output.state === 'PUSHING') {
           if (!isPushingStart) {
+            removeInterupListener();
             this.spinner.succeed('Build finished.');
             isPushingStart = !isPushingStart;
           }
-          this.spinner.clear().frame();
-          this.spinner.start('pushing ' + output.line);
-          removeInterupListener();
+          if (output.line) {
+            let outputString = '';
+            const _ = output.line.split('-'); // progressbar, layers count and id separated by '-'
+            const layersCount = _[1];
+            const layerId = _[2];
+            if (!imageLayers[layerId]) {
+              imageLayers[layerId] = ++layerCounter;
+            }
+            outputString = `Pushing ${imageLayers[layerId]}/${layersCount} ${_[0]}`;
+            this.spinner.clear().frame();
+            this.spinner.start(outputString);
+          }
         }
       });
       this.spinner.succeed('Release created.');
