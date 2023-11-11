@@ -56,6 +56,7 @@ export interface IGlobalLiaraConfig {
 
 export interface IConfig {
   'api-token'?: string;
+  account?: string;
   region?: string;
   image?: string;
 }
@@ -195,6 +196,9 @@ export default abstract class extends Command {
       description: 'the region you want to deploy your app to',
       options: ['iran', 'germany'],
     }),
+    account: Flags.string({
+      description: 'temporarily switch to a different account',
+    }),
   };
 
   got = got.extend();
@@ -239,7 +243,10 @@ Please check your network connection.`);
     }
 
     if (!config['api-token'] || !config.region) {
-      const { api_token, region } = await this.getCurrentAccount();
+      const { api_token, region } = config.account
+        ? await this.getAccount(config.account)
+        : await this.getCurrentAccount();
+
       config['api-token'] = config['api-token'] || api_token;
       config.region = config.region || region;
     }
@@ -307,6 +314,17 @@ Please check your network connection.`);
       (account) => accounts[account].current
     );
     return { ...accounts[accName || ''], accountName: accName };
+  }
+
+  async getAccount(accountName: string): Promise<IAccount> {
+    const accounts = (await this.readGlobalConfig()).accounts;
+
+    if (!accounts[accountName]) {
+      this.error(`Account ${accountName} not found.
+Please use 'liara account add' to add this account, first.`);
+    }
+
+    return accounts[accountName];
   }
 
   async browser(browser?: string) {
