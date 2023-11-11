@@ -197,7 +197,7 @@ export default abstract class extends Command {
       options: ['iran', 'germany'],
     }),
     account: Flags.string({
-      description: 'your account name',
+      description: 'temporarily switch to a different account',
     }),
   };
 
@@ -320,7 +320,8 @@ Please check your network connection.`);
     const accounts = (await this.readGlobalConfig()).accounts;
 
     if (!accounts[accountName]) {
-      this.error(`Account ${accountName} not found.`);
+      this.error(`Account ${accountName} not found.
+Please use 'liara account add' to add this account, first.`);
     }
 
     return accounts[accountName];
