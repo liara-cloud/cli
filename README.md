@@ -21,7 +21,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/5.2.0-beta.1 linux-x64 node-v18.17.1
+@liara/cli/5.2.0-beta.2 linux-x64 node-v18.17.1
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -43,7 +43,9 @@ USAGE
 * [`liara app list`](#liara-app-list)
 * [`liara app logs`](#liara-app-logs)
 * [`liara app ls`](#liara-app-ls)
+* [`liara app remove`](#liara-app-remove)
 * [`liara app restart`](#liara-app-restart)
+* [`liara app rm`](#liara-app-rm)
 * [`liara app shell`](#liara-app-shell)
 * [`liara app start`](#liara-app-start)
 * [`liara app stop`](#liara-app-stop)
@@ -53,8 +55,19 @@ USAGE
 * [`liara bucket list`](#liara-bucket-list)
 * [`liara bucket ls`](#liara-bucket-ls)
 * [`liara create`](#liara-create)
+* [`liara db backup create`](#liara-db-backup-create)
+* [`liara db backup dl`](#liara-db-backup-dl)
+* [`liara db backup download`](#liara-db-backup-download)
+* [`liara db backup list`](#liara-db-backup-list)
+* [`liara db backup ls`](#liara-db-backup-ls)
+* [`liara db create`](#liara-db-create)
 * [`liara db list`](#liara-db-list)
 * [`liara db ls`](#liara-db-ls)
+* [`liara db remove`](#liara-db-remove)
+* [`liara db resize`](#liara-db-resize)
+* [`liara db rm`](#liara-db-rm)
+* [`liara db start`](#liara-db-start)
+* [`liara db stop`](#liara-db-stop)
 * [`liara delete`](#liara-delete)
 * [`liara deploy`](#liara-deploy)
 * [`liara disk create`](#liara-disk-create)
@@ -100,7 +113,7 @@ add an account
 
 ```
 USAGE
-  $ liara account add [-h] [--debug] [--api-token <value>] [--region iran|germany] [-e <value>] [-p <value>] [-a
+  $ liara account add [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-e <value>] [-p
     <value>]
 
 FLAGS
@@ -123,12 +136,14 @@ list available accounts
 
 ```
 USAGE
-  $ liara account list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara account list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -155,12 +170,14 @@ list available accounts
 
 ```
 USAGE
-  $ liara account ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara account ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -253,12 +270,13 @@ create an app
 
 ```
 USAGE
-  $ liara app create [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [--platform
-    <value>] [--plan <value>]
+  $ liara app create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>] [--platform <value>] [--plan <value>]
 
 FLAGS
   -a, --app=<value>    app id
   -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --plan=<value>       plan
@@ -279,11 +297,13 @@ delete an app
 
 ```
 USAGE
-  $ liara app delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+  $ liara app delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>]
 
 FLAGS
   -a, --app=<value>    app id
   -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -294,6 +314,8 @@ DESCRIPTION
 
 ALIASES
   $ liara delete
+  $ liara app remove
+  $ liara app rm
 ```
 
 ## `liara app list`
@@ -302,12 +324,14 @@ list available apps
 
 ```
 USAGE
-  $ liara app list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara app list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -334,8 +358,8 @@ fetch the logs of an app
 
 ```
 USAGE
-  $ liara app logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>] [-t]
-    [-f] [-c]
+  $ liara app logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>] [-s <value>] [-t] [-f] [-c]
 
 FLAGS
   -a, --app=<value>    app id
@@ -344,6 +368,7 @@ FLAGS
   -h, --help           Show CLI help.
   -s, --since=<value>  show logs since timestamp
   -t, --timestamps     show timestamps
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -362,12 +387,14 @@ list available apps
 
 ```
 USAGE
-  $ liara app ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara app ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -388,17 +415,46 @@ ALIASES
   $ liara app ls
 ```
 
+## `liara app remove`
+
+delete an app
+
+```
+USAGE
+  $ liara app remove [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>]
+
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  delete an app
+
+ALIASES
+  $ liara delete
+  $ liara app remove
+  $ liara app rm
+```
+
 ## `liara app restart`
 
 restart an app
 
 ```
 USAGE
-  $ liara app restart [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+  $ liara app restart [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>]
 
 FLAGS
   -a, --app=<value>    app id
   -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -411,18 +467,47 @@ ALIASES
   $ liara restart
 ```
 
+## `liara app rm`
+
+delete an app
+
+```
+USAGE
+  $ liara app rm [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>]
+
+FLAGS
+  -a, --app=<value>    app id
+  -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  delete an app
+
+ALIASES
+  $ liara delete
+  $ liara app remove
+  $ liara app rm
+```
+
 ## `liara app shell`
 
 run a command in a running applet
 
 ```
 USAGE
-  $ liara app shell [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-c <value>]
+  $ liara app shell [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>] [-c <value>]
 
 FLAGS
   -a, --app=<value>      app id
   -c, --command=<value>  [default: /bin/bash] the command to execute
   -h, --help             Show CLI help.
+  --account=<value>      temporarily switch to a different account
   --api-token=<value>    your api token to use for authentication
   --debug                show debug logs
   --region=<option>      the region you want to deploy your app to
@@ -441,11 +526,13 @@ start an app
 
 ```
 USAGE
-  $ liara app start [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+  $ liara app start [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>]
 
 FLAGS
   -a, --app=<value>    app id
   -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -464,11 +551,13 @@ stop an app
 
 ```
 USAGE
-  $ liara app stop [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+  $ liara app stop [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>]
 
 FLAGS
   -a, --app=<value>    app id
   -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -518,11 +607,12 @@ create a bucket
 
 ```
 USAGE
-  $ liara bucket create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--name <value>] [--permission
-    <value>] [--plan <value>]
+  $ liara bucket create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--name
+    <value>] [--permission <value>] [--plan <value>]
 
 FLAGS
   -h, --help            Show CLI help.
+  --account=<value>     temporarily switch to a different account
   --api-token=<value>   your api token to use for authentication
   --debug               show debug logs
   --name=<value>        name
@@ -544,12 +634,14 @@ delete a bucket
 
 ```
 USAGE
-  $ liara bucket delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [-b <value>] [-f]
+  $ liara bucket delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-b
+    <value>] [-f]
 
 FLAGS
   -b, --bucket=<value>  bucket name
   -f, --force           force the deletion
   -h, --help            Show CLI help.
+  --account=<value>     temporarily switch to a different account
   --api-token=<value>   your api token to use for authentication
   --debug               show debug logs
   --region=<option>     the region you want to deploy your app to
@@ -568,12 +660,14 @@ list available buckets
 
 ```
 USAGE
-  $ liara bucket list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara bucket list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -600,12 +694,14 @@ list available buckets
 
 ```
 USAGE
-  $ liara bucket ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara bucket ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -632,12 +728,13 @@ create an app
 
 ```
 USAGE
-  $ liara create [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [--platform
-    <value>] [--plan <value>]
+  $ liara create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>] [--platform <value>] [--plan <value>]
 
 FLAGS
   -a, --app=<value>    app id
   -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --plan=<value>       plan
@@ -652,18 +749,194 @@ ALIASES
   $ liara create
 ```
 
+## `liara db backup create`
+
+create a database backup
+
+```
+USAGE
+  $ liara db backup create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
+    <value>]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -n, --name=<value>   name of your database
+  --account=<value>    temporarily switch to a different account
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  create a database backup
+```
+
+## `liara db backup dl`
+
+download a database backup
+
+```
+USAGE
+  $ liara db backup dl [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
+    <value>] [-b <value>] [-o <value>]
+
+FLAGS
+  -b, --backup=<value>  select which backup to download
+  -h, --help            Show CLI help.
+  -n, --name=<value>    name of your database
+  -o, --output=<value>  download the backup file and save it as the given name in the current working directory
+  --account=<value>     temporarily switch to a different account
+  --api-token=<value>   your api token to use for authentication
+  --debug               show debug logs
+  --region=<option>     the region you want to deploy your app to
+                        <options: iran|germany>
+
+DESCRIPTION
+  download a database backup
+
+ALIASES
+  $ liara db backup dl
+```
+
+## `liara db backup download`
+
+download a database backup
+
+```
+USAGE
+  $ liara db backup download [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
+    <value>] [-b <value>] [-o <value>]
+
+FLAGS
+  -b, --backup=<value>  select which backup to download
+  -h, --help            Show CLI help.
+  -n, --name=<value>    name of your database
+  -o, --output=<value>  download the backup file and save it as the given name in the current working directory
+  --account=<value>     temporarily switch to a different account
+  --api-token=<value>   your api token to use for authentication
+  --debug               show debug logs
+  --region=<option>     the region you want to deploy your app to
+                        <options: iran|germany>
+
+DESCRIPTION
+  download a database backup
+
+ALIASES
+  $ liara db backup dl
+```
+
+## `liara db backup list`
+
+list backups for a database
+
+```
+USAGE
+  $ liara db backup list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
+    <value>] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv |
+    --no-truncate]] [--no-header | ]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -n, --name=<value>   name of your database
+  -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
+  --api-token=<value>  your api token to use for authentication
+  --columns=<value>    only show provided columns (comma-separated)
+  --csv                output is csv format [alias: --output=csv]
+  --debug              show debug logs
+  --filter=<value>     filter property by partial string matching, ex: name=foo
+  --no-header          hide table header from output
+  --no-truncate        do not truncate output to fit screen
+  --output=<option>    output in a more machine friendly format
+                       <options: csv|json|yaml>
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+  --sort=<value>       property to sort by (prepend '-' for descending)
+
+DESCRIPTION
+  list backups for a database
+
+ALIASES
+  $ liara db backup ls
+```
+
+## `liara db backup ls`
+
+list backups for a database
+
+```
+USAGE
+  $ liara db backup ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
+    <value>] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv |
+    --no-truncate]] [--no-header | ]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -n, --name=<value>   name of your database
+  -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
+  --api-token=<value>  your api token to use for authentication
+  --columns=<value>    only show provided columns (comma-separated)
+  --csv                output is csv format [alias: --output=csv]
+  --debug              show debug logs
+  --filter=<value>     filter property by partial string matching, ex: name=foo
+  --no-header          hide table header from output
+  --no-truncate        do not truncate output to fit screen
+  --output=<option>    output in a more machine friendly format
+                       <options: csv|json|yaml>
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+  --sort=<value>       property to sort by (prepend '-' for descending)
+
+DESCRIPTION
+  list backups for a database
+
+ALIASES
+  $ liara db backup ls
+```
+
+## `liara db create`
+
+create a new database
+
+```
+USAGE
+  $ liara db create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
+    <value>] [--plan <value>] [--network public|private] [-t <value>] [-v <value>] [-y]
+
+FLAGS
+  -h, --help             Show CLI help.
+  -n, --name=<value>     name of your database
+  -t, --type=<value>     choose which database to use
+  -v, --version=<value>  version of the database
+  -y, --yes              say yes to continue prompt
+  --account=<value>      temporarily switch to a different account
+  --api-token=<value>    your api token to use for authentication
+  --debug                show debug logs
+  --network=<option>     use public network or not
+                         <options: public|private>
+  --plan=<value>         plan
+  --region=<option>      the region you want to deploy your app to
+                         <options: iran|germany>
+
+DESCRIPTION
+  create a new database
+```
+
 ## `liara db list`
 
 list available databases
 
 ```
 USAGE
-  $ liara db list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara db list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -690,12 +963,14 @@ list available databases
 
 ```
 USAGE
-  $ liara db ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara db ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -716,17 +991,139 @@ ALIASES
   $ liara db ls
 ```
 
+## `liara db remove`
+
+remove a database
+
+```
+USAGE
+  $ liara db remove [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
+    <value>] [-y]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -n, --name=<value>   name of your database
+  -y, --yes            say yes to continue prompt
+  --account=<value>    temporarily switch to a different account
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  remove a database
+
+ALIASES
+  $ liara db rm
+```
+
+## `liara db resize`
+
+resize a database
+
+```
+USAGE
+  $ liara db resize [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
+    <value>] [--plan <value>] [-d <value>]
+
+FLAGS
+  -d, --disk=<value>   extend disk size or not
+  -h, --help           Show CLI help.
+  -n, --name=<value>   name of your database
+  --account=<value>    temporarily switch to a different account
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --plan=<value>       new plan name
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  resize a database
+```
+
+## `liara db rm`
+
+remove a database
+
+```
+USAGE
+  $ liara db rm [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
+    <value>] [-y]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -n, --name=<value>   name of your database
+  -y, --yes            say yes to continue prompt
+  --account=<value>    temporarily switch to a different account
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  remove a database
+
+ALIASES
+  $ liara db rm
+```
+
+## `liara db start`
+
+start a database
+
+```
+USAGE
+  $ liara db start [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
+    <value>]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -n, --name=<value>   name of your database
+  --account=<value>    temporarily switch to a different account
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  start a database
+```
+
+## `liara db stop`
+
+stop a database
+
+```
+USAGE
+  $ liara db stop [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
+    <value>]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -n, --name=<value>   name of your database
+  --account=<value>    temporarily switch to a different account
+  --api-token=<value>  your api token to use for authentication
+  --debug              show debug logs
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+
+DESCRIPTION
+  stop a database
+```
+
 ## `liara delete`
 
 delete an app
 
 ```
 USAGE
-  $ liara delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+  $ liara delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>]
 
 FLAGS
   -a, --app=<value>    app id
   -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -737,6 +1134,8 @@ DESCRIPTION
 
 ALIASES
   $ liara delete
+  $ liara app remove
+  $ liara app rm
 ```
 
 ## `liara deploy`
@@ -745,9 +1144,9 @@ deploy an app
 
 ```
 USAGE
-  $ liara deploy [-h] [--debug] [--api-token <value>] [--region iran|germany] [--path <value>] [--platform
-    <value>] [-a <value>] [-p <value>] [-i <value>] [--detach] [--no-app-logs] [--args <value>] [--build-arg <value>]
-    [-m <value>] [-d <value>] [--no-cache] [-f <value>] [-b iran|germany]
+  $ liara deploy [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--path
+    <value>] [--platform <value>] [-a <value>] [-p <value>] [-i <value>] [--detach] [--no-app-logs] [--args <value>]
+    [--build-arg <value>] [-m <value>] [-d <value>] [--no-cache] [-f <value>] [-b iran|germany]
 
 FLAGS
   -a, --app=<value>              app id
@@ -759,6 +1158,7 @@ FLAGS
   -i, --image=<value>            docker image to deploy
   -m, --message=<value>          the release message
   -p, --port=<value>             the port that your app listens to
+  --account=<value>              temporarily switch to a different account
   --api-token=<value>            your api token to use for authentication
   --args=<value>                 docker image entrypoint args
   --build-arg=<value>...         docker image build args
@@ -775,7 +1175,7 @@ DESCRIPTION
   deploy an app
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v5.2.0-beta.1/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v5.2.0-beta.2/src/commands/deploy.ts)_
 
 ## `liara disk create`
 
@@ -783,14 +1183,15 @@ create a disk
 
 ```
 USAGE
-  $ liara disk create [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-n <value>] [-s
-    <value>]
+  $ liara disk create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>] [-n <value>] [-s <value>]
 
 FLAGS
   -a, --app=<value>    app id
   -h, --help           Show CLI help.
   -n, --name=<value>   disk name
   -s, --size=<value>   disk size
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -806,14 +1207,15 @@ list environment variables of an app
 
 ```
 USAGE
-  $ liara env list [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [--columns
-    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
-    | ]
+  $ liara env list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv |
+    --no-truncate]] [--no-header | ]
 
 FLAGS
   -a, --app=<value>    app id
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -840,14 +1242,15 @@ list environment variables of an app
 
 ```
 USAGE
-  $ liara env ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [--columns
-    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
-    | ]
+  $ liara env ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv |
+    --no-truncate]] [--no-header | ]
 
 FLAGS
   -a, --app=<value>    app id
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -874,7 +1277,8 @@ specifying environment variables to an app
 
 ```
 USAGE
-  $ liara env set [ENV] [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-f]
+  $ liara env set [ENV] [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>] [-f]
 
 ARGUMENTS
   ENV  key=value pair
@@ -883,6 +1287,7 @@ FLAGS
   -a, --app=<value>    app id
   -f, --force          force update
   -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -898,7 +1303,8 @@ remove environment variables from an app
 
 ```
 USAGE
-  $ liara env unset [ENV] [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-f]
+  $ liara env unset [ENV] [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>] [-f]
 
 ARGUMENTS
   ENV  key
@@ -907,6 +1313,7 @@ FLAGS
   -a, --app=<value>    app id
   -f, --force          force update
   -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -942,13 +1349,18 @@ login to your account
 
 ```
 USAGE
-  $ liara login [-h] [--debug] [--api-token <value>] [--region iran|germany] [-e <value>] [-p <value>]
+  $ liara login [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-e
+    <value>] [-p <value>] [-i] [--browser chrome|firefox|edge]
 
 FLAGS
   -e, --email=<value>     your email
   -h, --help              Show CLI help.
+  -i, --interactive       login with username/password
   -p, --password=<value>  your password
+  --account=<value>       temporarily switch to a different account
   --api-token=<value>     your api token to use for authentication
+  --browser=<option>      browser to open
+                          <options: chrome|firefox|edge>
   --debug                 show debug logs
   --region=<option>       the region you want to deploy your app to
                           <options: iran|germany>
@@ -957,7 +1369,7 @@ DESCRIPTION
   login to your account
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v5.2.0-beta.1/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v5.2.0-beta.2/src/commands/login.ts)_
 
 ## `liara logs`
 
@@ -965,8 +1377,8 @@ fetch the logs of an app
 
 ```
 USAGE
-  $ liara logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-s <value>] [-t]
-    [-f] [-c]
+  $ liara logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>] [-s <value>] [-t] [-f] [-c]
 
 FLAGS
   -a, --app=<value>    app id
@@ -975,6 +1387,7 @@ FLAGS
   -h, --help           Show CLI help.
   -s, --since=<value>  show logs since timestamp
   -t, --timestamps     show timestamps
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -989,15 +1402,16 @@ ALIASES
 
 ## `liara mail create`
 
-create a MailServer
+create a mail server
 
 ```
 USAGE
-  $ liara mail create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--domain <value>] [--plan
-    <value>] [--mode <value>]
+  $ liara mail create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--domain
+    <value>] [--plan <value>] [--mode <value>]
 
 FLAGS
   -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --domain=<value>     domain
@@ -1007,7 +1421,7 @@ FLAGS
                        <options: iran|germany>
 
 DESCRIPTION
-  create a MailServer
+  create a mail server
 
 ALIASES
   $ liara mail create
@@ -1015,23 +1429,25 @@ ALIASES
 
 ## `liara mail delete`
 
-delete an MailServer
+delete an mail server
 
 ```
 USAGE
-  $ liara mail delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [-m <value>] [-f]
+  $ liara mail delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-m
+    <value>] [-f]
 
 FLAGS
   -f, --force          force the deletion
   -h, --help           Show CLI help.
-  -m, --mail=<value>   MailServer id
+  -m, --mail=<value>   mail server id
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
                        <options: iran|germany>
 
 DESCRIPTION
-  delete an MailServer
+  delete an mail server
 
 ALIASES
   $ liara mail delete
@@ -1039,16 +1455,18 @@ ALIASES
 
 ## `liara mail list`
 
-list available MailServer
+list available mail servers
 
 ```
 USAGE
-  $ liara mail list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara mail list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1063,7 +1481,7 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  list available MailServer
+  list available mail servers
 
 ALIASES
   $ liara mail ls
@@ -1071,16 +1489,18 @@ ALIASES
 
 ## `liara mail ls`
 
-list available MailServer
+list available mail servers
 
 ```
 USAGE
-  $ liara mail ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara mail ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1095,7 +1515,7 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  list available MailServer
+  list available mail servers
 
 ALIASES
   $ liara mail ls
@@ -1103,20 +1523,21 @@ ALIASES
 
 ## `liara mail send`
 
-send a mail
+send an email
 
 ```
 USAGE
-  $ liara mail send [-h] [--debug] [--api-token <value>] [--region iran|germany] [--mail <value>] [--from
-    <value>] [--to <value>] [--subject <value>] [--text <value>] [--attachments <value>]
+  $ liara mail send [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--mail
+    <value>] [--from <value>] [--to <value>] [--subject <value>] [--text <value>] [--attachments <value>]
 
 FLAGS
   -h, --help                Show CLI help.
+  --account=<value>         temporarily switch to a different account
   --api-token=<value>       your api token to use for authentication
   --attachments=<value>...  path of your attachments
   --debug                   show debug logs
   --from=<value>            from
-  --mail=<value>            MailServer id
+  --mail=<value>            mail server id
   --region=<option>         the region you want to deploy your app to
                             <options: iran|germany>
   --subject=<value>         subject
@@ -1124,7 +1545,7 @@ FLAGS
   --to=<value>              to
 
 DESCRIPTION
-  send a mail
+  send an email
 
 ALIASES
   $ liara mail send
@@ -1136,12 +1557,14 @@ list available plans
 
 ```
 USAGE
-  $ liara plan list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara plan list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1168,12 +1591,14 @@ list available plans
 
 ```
 USAGE
-  $ liara plan ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara plan ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1200,11 +1625,13 @@ restart an app
 
 ```
 USAGE
-  $ liara restart [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+  $ liara restart [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>]
 
 FLAGS
   -a, --app=<value>    app id
   -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -1223,12 +1650,14 @@ run a command in a running applet
 
 ```
 USAGE
-  $ liara shell [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-c <value>]
+  $ liara shell [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>] [-c <value>]
 
 FLAGS
   -a, --app=<value>      app id
   -c, --command=<value>  [default: /bin/bash] the command to execute
   -h, --help             Show CLI help.
+  --account=<value>      temporarily switch to a different account
   --api-token=<value>    your api token to use for authentication
   --debug                show debug logs
   --region=<option>      the region you want to deploy your app to
@@ -1247,11 +1676,13 @@ start an app
 
 ```
 USAGE
-  $ liara start [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+  $ liara start [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>]
 
 FLAGS
   -a, --app=<value>    app id
   -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -1270,11 +1701,13 @@ stop an app
 
 ```
 USAGE
-  $ liara stop [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+  $ liara stop [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
+    <value>]
 
 FLAGS
   -a, --app=<value>    app id
   -h, --help           Show CLI help.
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -1309,18 +1742,19 @@ _See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/
 
 ## `liara zone ch`
 
-Check a zone.
+check zone status
 
 ```
 USAGE
-  $ liara zone ch [-h] [--debug] [--api-token <value>] [--region iran|germany] [-z <value>] [--columns
-    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
-    | ]
+  $ liara zone ch [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
+    <value>] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv |
+    --no-truncate]] [--no-header | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
   -z, --zone=<value>   name of the zone (domain)
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1335,7 +1769,7 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  Check a zone.
+  check zone status
 
 ALIASES
   $ liara zone ch
@@ -1343,18 +1777,19 @@ ALIASES
 
 ## `liara zone check`
 
-Check a zone.
+check zone status
 
 ```
 USAGE
-  $ liara zone check [-h] [--debug] [--api-token <value>] [--region iran|germany] [-z <value>] [--columns
-    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
-    | ]
+  $ liara zone check [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
+    <value>] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv |
+    --no-truncate]] [--no-header | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
   -z, --zone=<value>   name of the zone (domain)
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1369,7 +1804,7 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  Check a zone.
+  check zone status
 
 ALIASES
   $ liara zone ch
@@ -1381,11 +1816,13 @@ create a new zone
 
 ```
 USAGE
-  $ liara zone create [-h] [--debug] [--api-token <value>] [--region iran|germany] [-z <value>]
+  $ liara zone create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
+    <value>]
 
 FLAGS
   -h, --help           Show CLI help.
   -z, --zone=<value>   zone name (domain)
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --debug              show debug logs
   --region=<option>    the region you want to deploy your app to
@@ -1397,19 +1834,20 @@ DESCRIPTION
 
 ## `liara zone del`
 
-delete a zone.
+delete a zone
 
 ```
 USAGE
-  $ liara zone del [-h] [--debug] [--api-token <value>] [--region iran|germany] [-z <value>] [-y] [--columns
-    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
-    | ]
+  $ liara zone del [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
+    <value>] [-y] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv |
+    --no-truncate]] [--no-header | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
   -y, --yes            say yes to continue prompt
   -z, --zone=<value>   name of the zone (domain)
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1424,7 +1862,7 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  delete a zone.
+  delete a zone
 
 ALIASES
   $ liara zone del
@@ -1433,19 +1871,20 @@ ALIASES
 
 ## `liara zone delete`
 
-delete a zone.
+delete a zone
 
 ```
 USAGE
-  $ liara zone delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [-z <value>] [-y] [--columns
-    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
-    | ]
+  $ liara zone delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
+    <value>] [-y] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv |
+    --no-truncate]] [--no-header | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
   -y, --yes            say yes to continue prompt
   -z, --zone=<value>   name of the zone (domain)
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1460,7 +1899,7 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  delete a zone.
+  delete a zone
 
 ALIASES
   $ liara zone del
@@ -1469,18 +1908,50 @@ ALIASES
 
 ## `liara zone get`
 
-get a zone.
+inspect zone details
 
 ```
 USAGE
-  $ liara zone get [-h] [--debug] [--api-token <value>] [--region iran|germany] [-z <value>] [--columns
+  $ liara zone get [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
+    <value>] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv |
+    --no-truncate]] [--no-header | ]
+
+FLAGS
+  -h, --help           Show CLI help.
+  -x, --extended       show extra columns
+  -z, --zone=<value>   name of the zone (domain)
+  --account=<value>    temporarily switch to a different account
+  --api-token=<value>  your api token to use for authentication
+  --columns=<value>    only show provided columns (comma-separated)
+  --csv                output is csv format [alias: --output=csv]
+  --debug              show debug logs
+  --filter=<value>     filter property by partial string matching, ex: name=foo
+  --no-header          hide table header from output
+  --no-truncate        do not truncate output to fit screen
+  --output=<option>    output in a more machine friendly format
+                       <options: csv|json|yaml>
+  --region=<option>    the region you want to deploy your app to
+                       <options: iran|germany>
+  --sort=<value>       property to sort by (prepend '-' for descending)
+
+DESCRIPTION
+  inspect zone details
+```
+
+## `liara zone list`
+
+list all zones
+
+```
+USAGE
+  $ liara zone list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
     <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
     | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
-  -z, --zone=<value>   name of the zone (domain)
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1495,36 +1966,7 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  get a zone.
-```
-
-## `liara zone list`
-
-list all zones.
-
-```
-USAGE
-  $ liara zone list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
-
-FLAGS
-  -h, --help           Show CLI help.
-  -x, --extended       show extra columns
-  --api-token=<value>  your api token to use for authentication
-  --columns=<value>    only show provided columns (comma-separated)
-  --csv                output is csv format [alias: --output=csv]
-  --debug              show debug logs
-  --filter=<value>     filter property by partial string matching, ex: name=foo
-  --no-header          hide table header from output
-  --no-truncate        do not truncate output to fit screen
-  --output=<option>    output in a more machine friendly format
-                       <options: csv|json|yaml>
-  --region=<option>    the region you want to deploy your app to
-                       <options: iran|germany>
-  --sort=<value>       property to sort by (prepend '-' for descending)
-
-DESCRIPTION
-  list all zones.
+  list all zones
 
 ALIASES
   $ liara zone ls
@@ -1532,16 +1974,18 @@ ALIASES
 
 ## `liara zone ls`
 
-list all zones.
+list all zones
 
 ```
 USAGE
-  $ liara zone ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--columns <value> | -x]
-    [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara zone ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1556,7 +2000,7 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  list all zones.
+  list all zones
 
 ALIASES
   $ liara zone ls
@@ -1568,8 +2012,8 @@ create a new dns record
 
 ```
 USAGE
-  $ liara zone record create ZONE [-h] [--debug] [--api-token <value>] [--region iran|germany] [-n <value>] [-t <value>]
-    [-l <value>] [-i <value>] [-s <value>] [-m <value>] [-r <value>] [-x <value>]
+  $ liara zone record create ZONE [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
+    <value>] [-t <value>] [-l <value>] [-i <value>] [-s <value>] [-m <value>] [-r <value>] [-x <value>]
 
 ARGUMENTS
   ZONE  zone name (domain)
@@ -1585,6 +2029,7 @@ FLAGS
   -s, --host=<value>    host value for record ALIAS and CNAME
   -t, --type=<value>    record type
   -x, --txt=<value>...  text value for record TXT
+  --account=<value>     temporarily switch to a different account
   --api-token=<value>   your api token to use for authentication
   --debug               show debug logs
   --region=<option>     the region you want to deploy your app to
@@ -1596,19 +2041,20 @@ DESCRIPTION
 
 ## `liara zone record get`
 
-get a DNS record for a zone.
+get a DNS record
 
 ```
 USAGE
-  $ liara zone record get [-h] [--debug] [--api-token <value>] [--region iran|germany] [-z <value>] [-n <value>]
-    [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]]
-    [--no-header | ]
+  $ liara zone record get [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
+    <value>] [-n <value>] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  |
+    [--csv | --no-truncate]] [--no-header | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -n, --name=<value>   Name of the record
   -x, --extended       show extra columns
   -z, --zone=<value>   name of the zone (domain)
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1623,23 +2069,24 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  get a DNS record for a zone.
+  get a DNS record
 ```
 
 ## `liara zone record list`
 
-list all DNS records for a zone.
+list all DNS records
 
 ```
 USAGE
-  $ liara zone record list [-h] [--debug] [--api-token <value>] [--region iran|germany] [-z <value>] [--columns
-    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
-    | ]
+  $ liara zone record list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
+    <value>] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv |
+    --no-truncate]] [--no-header | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
   -z, --zone=<value>   name of the zone (domain)
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1654,7 +2101,7 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  list all DNS records for a zone.
+  list all DNS records
 
 ALIASES
   $ liara zone record ls
@@ -1662,18 +2109,19 @@ ALIASES
 
 ## `liara zone record ls`
 
-list all DNS records for a zone.
+list all DNS records
 
 ```
 USAGE
-  $ liara zone record ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [-z <value>] [--columns
-    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
-    | ]
+  $ liara zone record ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
+    <value>] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv |
+    --no-truncate]] [--no-header | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
   -z, --zone=<value>   name of the zone (domain)
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1688,7 +2136,7 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  list all DNS records for a zone.
+  list all DNS records
 
 ALIASES
   $ liara zone record ls
@@ -1696,19 +2144,20 @@ ALIASES
 
 ## `liara zone record remove`
 
-remove a DNS record for a zone.
+remove a DNS record
 
 ```
 USAGE
-  $ liara zone record remove [-h] [--debug] [--api-token <value>] [--region iran|germany] [-z <value>] [-n <value>]
-    [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]]
-    [--no-header | ]
+  $ liara zone record remove [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
+    <value>] [-n <value>] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  |
+    [--csv | --no-truncate]] [--no-header | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -n, --name=<value>   Name of the record
   -x, --extended       show extra columns
   -z, --zone=<value>   name of the zone (domain)
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1723,7 +2172,7 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  remove a DNS record for a zone.
+  remove a DNS record
 
 ALIASES
   $ liara zone record rm
@@ -1731,19 +2180,20 @@ ALIASES
 
 ## `liara zone record rm`
 
-remove a DNS record for a zone.
+remove a DNS record
 
 ```
 USAGE
-  $ liara zone record rm [-h] [--debug] [--api-token <value>] [--region iran|germany] [-z <value>] [-n <value>]
-    [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]]
-    [--no-header | ]
+  $ liara zone record rm [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
+    <value>] [-n <value>] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  |
+    [--csv | --no-truncate]] [--no-header | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -n, --name=<value>   Name of the record
   -x, --extended       show extra columns
   -z, --zone=<value>   name of the zone (domain)
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1758,7 +2208,7 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  remove a DNS record for a zone.
+  remove a DNS record
 
 ALIASES
   $ liara zone record rm
@@ -1766,13 +2216,14 @@ ALIASES
 
 ## `liara zone record update`
 
-update a DNS record for a zone.
+update a DNS record
 
 ```
 USAGE
-  $ liara zone record update [-h] [--debug] [--api-token <value>] [--region iran|germany] [-z <value>] [-n <value>] [-l
-    <value>] [-i <value>] [-s <value>] [-m <value>] [-r <value>] [-x <value>] [--columns <value> | -x] [--sort <value>]
-    [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header | ]
+  $ liara zone record update [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
+    <value>] [-n <value>] [-l <value>] [-i <value>] [-s <value>] [-m <value>] [-r <value>] [-x <value>] [--columns
+    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
+    | ]
 
 FLAGS
   -h, --help            Show CLI help.
@@ -1786,6 +2237,7 @@ FLAGS
   -x, --extended        show extra columns
   -x, --txt=<value>...  text value for record TXT
   -z, --zone=<value>    name of the zone (domain)
+  --account=<value>     temporarily switch to a different account
   --api-token=<value>   your api token to use for authentication
   --columns=<value>     only show provided columns (comma-separated)
   --csv                 output is csv format [alias: --output=csv]
@@ -1800,24 +2252,25 @@ FLAGS
   --sort=<value>        property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  update a DNS record for a zone.
+  update a DNS record
 ```
 
 ## `liara zone rm`
 
-delete a zone.
+delete a zone
 
 ```
 USAGE
-  $ liara zone rm [-h] [--debug] [--api-token <value>] [--region iran|germany] [-z <value>] [-y] [--columns
-    <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv | --no-truncate]] [--no-header
-    | ]
+  $ liara zone rm [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
+    <value>] [-y] [--columns <value> | -x] [--sort <value>] [--filter <value>] [--output csv|json|yaml |  | [--csv |
+    --no-truncate]] [--no-header | ]
 
 FLAGS
   -h, --help           Show CLI help.
   -x, --extended       show extra columns
   -y, --yes            say yes to continue prompt
   -z, --zone=<value>   name of the zone (domain)
+  --account=<value>    temporarily switch to a different account
   --api-token=<value>  your api token to use for authentication
   --columns=<value>    only show provided columns (comma-separated)
   --csv                output is csv format [alias: --output=csv]
@@ -1832,7 +2285,7 @@ FLAGS
   --sort=<value>       property to sort by (prepend '-' for descending)
 
 DESCRIPTION
-  delete a zone.
+  delete a zone
 
 ALIASES
   $ liara zone del
