@@ -28,7 +28,7 @@ export default async (
 
         for (const output of buildOutput) {
           if (output.stream === 'STDOUT') {
-            const _ = output.line.split('-'); // progressbar, layers count and id separated by '-'
+            const _ = output.line.split('-'); // progressbar, layers counter and image size separated by '-'
             const state =
               _[0].endsWith('B') && _[0].startsWith('[')
                 ? 'PUSHING'
