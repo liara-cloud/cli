@@ -2,6 +2,7 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import Command from '../../base.js';
 import { Flags, Errors } from '@oclif/core';
+import ILiaraJSON from '../../types/liara-json.js';
 import { REGIONS_API_URL, FALLBACK_REGION } from '../../constants.js';
 import { createWebSocketStream } from 'ws';
 
@@ -36,7 +37,7 @@ export default class AppShell extends Command {
 
   async run() {
     const { flags } = await this.parse(AppShell);
-    const config: IFlags = this.getMergedConfig(flags);
+    const config = this.getMergedConfig(flags);
     const CTRL_Q = '\u0011';
 
     await this.setGotConfig(config);
@@ -112,7 +113,7 @@ export default class AppShell extends Command {
     };
   }
 
-  readProjectConfig(projectPath: string) {
+  readProjectConfig(projectPath: string): ILiaraJSON {
     let content;
     const liaraJSONPath = path.join(projectPath, 'liara.json');
     const hasLiaraJSONFile = fs.existsSync(liaraJSONPath);
