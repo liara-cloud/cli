@@ -1,9 +1,13 @@
+import path from 'path';
+import fs from 'fs-extra';
+
 import chalk from 'chalk';
 import moment from 'moment';
 import UAParser from 'ua-parser-js';
 import { Flags, Errors } from '@oclif/core';
 
 import Command from '../../base.js';
+import ILiaraJSON from '../../types/liara-json.js';
 import { createDebugLogger } from '../../utils/output.js';
 
 interface ILog {
@@ -56,7 +60,10 @@ export default class AppLogs extends Command {
 
     await this.setGotConfig(flags);
 
-    const project = flags.app || (await this.promptProject());
+    const projectConfig = this.readProjectConfig(process.cwd());
+
+    const project =
+      flags.app || projectConfig.app || (await this.promptProject());
 
     let pendingFetch = false;
     const fetchLogs = async () => {
@@ -130,6 +137,21 @@ Sorry for inconvenience. Please contact us.`).render()
 
     const socket = log.type === 'stderr' ? process.stderr : process.stdout;
     socket.write(message + '\n');
+  }
+
+  readProjectConfig(projectPath: string): ILiaraJSON {
+    let content;
+    const liaraJSONPath = path.join(projectPath, 'liara.json');
+    const hasLiaraJSONFile = fs.existsSync(liaraJSONPath);
+    if (hasLiaraJSONFile) {
+      try {
+        content = fs.readJSONSync(liaraJSONPath) || {};
+      } catch {
+        this.error('Syntax error in `liara.json`!');
+      }
+    }
+
+    return content || {};
   }
 }
 
