@@ -419,6 +419,7 @@ Additionally, you can also retry the build with the debug flag:
     this.spinner.start('Building...');
 
     let isCanceled = false;
+    let isPushingStart = false;
 
     const removeInterupListener = onInterupt(async () => {
       // Force close
@@ -452,9 +453,21 @@ Additionally, you can also retry the build with the debug flag:
         }
 
         if (output.state === 'PUSHING') {
-          this.spinner.succeed('Build finished.');
-          this.spinner.start('Pushing the image...');
-          removeInterupListener();
+          if (!isPushingStart) {
+            removeInterupListener();
+            this.spinner.succeed('Build finished.');
+            isPushingStart = !isPushingStart;
+          }
+          if (output.line) {
+            let outputString = '';
+            const [progressbar, layersCounter, imageSize] =
+              output.line.split('-'); // progressbar, layers counter and image size separated by '-'
+            outputString = `(layer ${layersCounter}) Pushing: total size ${bytes(
+              parseInt(imageSize)
+            )} ${progressbar}`;
+            this.spinner.clear().frame();
+            this.spinner.start(outputString);
+          }
         }
       });
       this.spinner.succeed('Release created.');

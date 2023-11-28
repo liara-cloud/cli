@@ -28,7 +28,12 @@ export default async (
 
         for (const output of buildOutput) {
           if (output.stream === 'STDOUT') {
-            cb({ state: 'BUILDING', line: output.line });
+            const _ = output.line.split('-'); // progressbar, layers counter and image size separated by '-'
+            const state =
+              _[0].endsWith('B') && _[0].startsWith('[')
+                ? 'PUSHING'
+                : 'BUILDING';
+            cb({ state: state, line: output.line });
           } else {
             return reject(new BuildFailed('Build failed', output));
           }
