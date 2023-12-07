@@ -80,7 +80,6 @@ export default class AppLogs extends Command {
       let logs: [string, string][] = [];
 
       try {
-        console.log('-------------', since);
         const data = await this.got(
           `v2/projects/${project}/logs?start=${since}`
         ).json<ILog>();
@@ -111,8 +110,7 @@ Sorry for inconvenience. Please contact us.`).render()
         since = parseInt(unixTime) + 1;
       }
 
-      for (let i = logs.length - 1; i >= 0; i--) {
-        const log = logs[i];
+      for (const log of logs.reverse()) {
         this.#printLogLine(log);
       }
 
