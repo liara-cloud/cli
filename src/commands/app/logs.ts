@@ -10,10 +10,15 @@ import Command from '../../base.js';
 import ILiaraJSON from '../../types/liara-json.js';
 import { createDebugLogger } from '../../utils/output.js';
 
+interface Entry {
+  metaData: {
+    releaseId: string;
+  };
+  values: [string, string][];
+}
+
 interface ILog {
-  type: string;
-  datetime: string;
-  message: string;
+  data: Entry[];
 }
 
 export default class AppLogs extends Command {
@@ -72,13 +77,14 @@ export default class AppLogs extends Command {
 
       this.debug('Polling...');
 
-      let logs: ILog[] = [];
+      let logs: [string, string][] = [];
 
       try {
+        console.log('-------------', since);
         const data = await this.got(
-          `v1/projects/${project}/logs?since=${since}`
-        ).json<ILog[]>();
-        logs = data;
+          `v2/projects/${project}/logs?start=${since}`
+        ).json<ILog>();
+        logs = data.data[0].values;
       } catch (error) {
         if (error.response && error.response.status === 404) {
           // tslint:disable-next-line: no-console
@@ -89,22 +95,24 @@ export default class AppLogs extends Command {
         this.debug(error.stack);
       }
 
-      const lastLog = logs[logs.length - 1];
+      const lastLog = logs[0];
 
-      if (lastLog && lastLog.datetime === 'Error') {
+      if (lastLog && lastLog[0] === 'Error') {
         // tslint:disable-next-line: no-console
         console.error(
-          new Errors.CLIError(`${lastLog.message}
+          new Errors.CLIError(`${lastLog[1]}
 Sorry for inconvenience. Please contact us.`).render()
         );
         process.exit(1);
       }
 
       if (lastLog) {
-        since = moment(lastLog.datetime).unix() + 1;
+        const unixTime = lastLog[0].slice(0, 10);
+        since = parseInt(unixTime) + 1;
       }
 
-      for (const log of logs) {
+      for (let i = logs.length - 1; i >= 0; i--) {
+        const log = logs[i];
         this.#printLogLine(log);
       }
 
@@ -124,18 +132,19 @@ Sorry for inconvenience. Please contact us.`).render()
     return chalk.gray(message);
   }
 
-  #printLogLine(log: ILog) {
-    let message = log.message;
+  #printLogLine(log: [string, string]) {
+    let message = JSON.parse(log[1])._entry;
     if (this.#colorize) {
       message = colorfulAccessLog(message);
     }
 
     if (this.#timestamps) {
       // iso string is docker's log format when using --timestamps
-      message = `${this.#gray(moment(log.datetime).toISOString())} ${message}`;
+      message = `${this.#gray(moment(log[0]).toISOString())} ${message}`;
     }
 
-    const socket = log.type === 'stderr' ? process.stderr : process.stdout;
+    const socket =
+      JSON.parse(log[1]).type === 'stderr' ? process.stderr : process.stdout;
     socket.write(message + '\n');
   }
 
