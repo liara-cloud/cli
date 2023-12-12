@@ -203,7 +203,9 @@ export default class Deploy extends Command {
         ).json<IProjectDetailsResponse>();
 
         const defaultSubdomain: string =
-          config.region === 'iran' ? '.iran.liara.run' : '.liara.run';
+          config.region === 'iran' && !Boolean(project.network)
+            ? '.iran.liara.run'
+            : '.liara.run';
         const urlLogMessage = DEV_MODE
           ? // tslint:disable-next-line: no-http-string
             `    ${`http://${config.app}.liara.localhost`}`
