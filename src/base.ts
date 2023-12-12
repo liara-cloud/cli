@@ -122,6 +122,7 @@ export interface IProjectDetails {
   hourlyPrice: number;
   isDeployed: boolean;
   reservedDiskSpace: number;
+  network: string;
 }
 
 export interface IProjectDetailsResponse {
