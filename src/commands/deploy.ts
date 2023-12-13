@@ -258,7 +258,7 @@ export default class Deploy extends Command {
         error.response &&
         error.response.statusCode >= 400 &&
         error.response.statusCode < 500
-          ? JSON.parse(error.response.body)
+          ? JSON.parse(error.response.body || '{}')
           : {};
 
       if (error.message === 'TIMEOUT') {
@@ -282,6 +282,13 @@ Please open up https://console.liara.ir/apps and create the app, first.`;
       ) {
         const message = `App is frozen (not enough balance).
 Please open up https://console.liara.ir/apps and unfreeze the app.`;
+        return this.error(message);
+      }
+
+      if (error.response && error.response.statusCode === 408) {
+        const message =
+          "Oops! It seems like there's a disruption, and the request has timed out (Error 408). Please check your internet connection and try again.";
+
         return this.error(message);
       }
 
