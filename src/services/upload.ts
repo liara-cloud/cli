@@ -7,9 +7,6 @@ function upload(project: string, httpClient: Got, sourcePath: string) {
   body.append('file', fs.createReadStream(sourcePath));
   return httpClient.post(`v2/projects/${project}/sources`, {
     body,
-    timeout: {
-      request: undefined,
-    },
   });
 }
 
