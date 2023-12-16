@@ -54,7 +54,11 @@ export default class Deploy extends Command {
     platform: Flags.string({
       description: 'the platform your app needs to run',
     }),
-    app: Flags.string({ char: 'a', description: 'app id' }),
+    app: Flags.string({
+      char: 'a',
+      description: 'app id',
+      parse: async (app) => app.toLowerCase(),
+    }),
     port: Flags.integer({
       char: 'p',
       description: 'the port that your app listens to',
@@ -666,6 +670,10 @@ Additionally, you can also retry the build with the debug flag:
       } catch {
         this.error('Syntax error in `liara.json`!');
       }
+    }
+
+    if (content.app) {
+      content.app = content.app.toLowerCase();
     }
 
     return content || {};
