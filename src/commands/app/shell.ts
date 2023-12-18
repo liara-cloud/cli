@@ -25,6 +25,7 @@ export default class AppShell extends Command {
     app: Flags.string({
       char: 'a',
       description: 'app id',
+      parse: async (app) => app.toLowerCase(),
     }),
     command: Flags.string({
       char: 'c',
@@ -123,6 +124,10 @@ export default class AppShell extends Command {
       } catch {
         this.error('Syntax error in `liara.json`!');
       }
+    }
+
+    if (content.app) {
+      content.app = content.app.toLowerCase();
     }
 
     return content || {};

@@ -26,7 +26,11 @@ export default class AppLogs extends Command {
 
   static flags = {
     ...Command.flags,
-    app: Flags.string({ char: 'a', description: 'app id' }),
+    app: Flags.string({
+      char: 'a',
+      description: 'app id',
+      parse: async (app) => app.toLowerCase(),
+    }),
     since: Flags.integer({
       char: 's',
       description: 'show logs since timestamp',
@@ -156,6 +160,10 @@ Sorry for inconvenience. Please contact us.`).render()
       } catch {
         this.error('Syntax error in `liara.json`!');
       }
+    }
+
+    if (content.app) {
+      content.app = content.app.toLowerCase();
     }
 
     return content || {};
