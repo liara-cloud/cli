@@ -1,10 +1,11 @@
 import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
-import Command from '../../base.js';
 import { Flags } from '@oclif/core';
+
+import Command from '../../base.js';
 import { AVAILABLE_PLATFORMS } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
-import spacing from '../../utils/spacing.js';
+import IGetNetworkResponse from '../../types/get-network-response.js';
 
 export default class AppCreate extends Command {
   static description = 'create an app';
@@ -20,6 +21,10 @@ export default class AppCreate extends Command {
     }),
     plan: Flags.string({
       description: 'plan',
+    }),
+    network: Flags.string({
+      char: 'n',
+      description: 'network',
     }),
   };
 
@@ -49,10 +54,16 @@ export default class AppCreate extends Command {
       this.error(`Unknown platform: ${platform}`);
     }
 
+    const network = flags.network
+      ? await this.getNetworkId(flags.network)
+      : await this.promptNetwork();
+
     const planID = flags.plan || (await this.promptPlan());
 
     try {
-      await this.got.post('v1/projects/', { json: { name, planID, platform } });
+      await this.got.post('v1/projects/', {
+        json: { name, planID, platform, network },
+      });
       this.log(`App ${name} created.`);
     } catch (error) {
       debug(error.message);
@@ -93,12 +104,68 @@ export default class AppCreate extends Command {
     }
   }
 
+  async getNetworkId(name: string) {
+    const { networks } = await this.got(
+      'v1/networks'
+    ).json<IGetNetworkResponse>();
+
+    const network = networks.find((network) => network.name === name);
+
+    if (!network) {
+      this.error(`Network ${name} not found.`);
+    }
+
+    return network._id;
+  }
+
+  async promptNetwork() {
+    this.spinner.start('Loading...');
+
+    try {
+      const { networks } = await this.got(
+        'v1/networks'
+      ).json<IGetNetworkResponse>();
+
+      this.spinner.stop();
+
+      if (networks.length === 0) {
+        this.warn(
+          "Please create network via 'liara network:create' command, first."
+        );
+        this.exit(1);
+      }
+
+      const { networkName } = (await inquirer.prompt({
+        name: 'networkName',
+        type: 'list',
+        message: 'Please select a network:',
+        choices: [
+          ...networks.map((network) => {
+            return {
+              name: network.name,
+            };
+          }),
+        ],
+      })) as { networkName: string };
+
+      const networkId = networks.find(
+        (network) => network.name === networkName
+      )?._id;
+
+      return networkId;
+    } catch (error) {
+      this.spinner.stop();
+      throw error;
+    }
+  }
+
   async promptPlan() {
     this.spinner.start('Loading...');
 
     try {
       // TODO: Use proper type for plans
       const { plans } = await this.got('v1/me').json<{ plans: any }>();
+
       this.spinner.stop();
 
       const { plan } = (await inquirer.prompt({
@@ -109,6 +176,7 @@ export default class AppCreate extends Command {
           ...Object.keys(plans.projects)
             .filter((plan) => {
               if (
+                (plan === 'free' || plan.includes('g2')) &&
                 plans.projects[plan].available &&
                 plans.projects[plan].region === 'iran'
               ) {
@@ -124,13 +192,17 @@ export default class AppCreate extends Command {
               const storageClass = availablePlan.storageClass;
               return {
                 value: plan,
-                name: `RAM: ${ram}${spacing(5, ram)}GB,  CPU: ${cpu}${spacing(
-                  5,
-                  cpu
-                )}Core,  Disk: ${disk}${spacing(3, disk) + 'GB'}${
-                  storageClass || 'SSD'
-                },  Price: ${price.toLocaleString()}${
-                  price ? spacing(7, price) + 'Tomans/Month' : ''
+                name: `RAM: ${ram}${' '.repeat(
+                  5 - ram.toString().length
+                )} GB,  CPU: ${cpu}${' '.repeat(
+                  6 - cpu.toString().length
+                )}Core,  Disk: ${disk}${
+                  ' '.repeat(5 - disk.toString().length) + 'GB'
+                }${storageClass || 'SSD'},  Price: ${price.toLocaleString()}${
+                  price
+                    ? ' '.repeat(7 - Math.floor(price).toString().length) +
+                      'Tomans/Month'
+                    : ''
                 }`,
               };
             }),
