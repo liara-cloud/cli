@@ -16,6 +16,7 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 
 import IBrowserLogin from './types/browser-login.js';
 import browserLoginHeader from './utils/browser-login-header.js';
+import IGetNetworkResponse from './types/get-network-response.js';
 
 import './interceptors.js';
 
@@ -386,5 +387,57 @@ Please use 'liara account add' to add this account, first.`);
         }
       }).listen(port);
     });
+  }
+
+  async promptNetwork() {
+    this.spinner = ora();
+    this.spinner.start('Loading...');
+
+    try {
+      const { networks } = await this.got(
+        'v1/networks'
+      ).json<IGetNetworkResponse>();
+
+      this.spinner.stop();
+
+      if (networks.length === 0) {
+        this.warn(
+          "Please create network via 'liara network:create' command, first."
+        );
+        this.exit(1);
+      }
+
+      const { networkName } = (await inquirer.prompt({
+        name: 'networkName',
+        type: 'list',
+        message: 'Please select a network:',
+        choices: [
+          ...networks.map((network) => {
+            return {
+              name: network.name,
+            };
+          }),
+        ],
+      })) as { networkName: string };
+
+      return networks.find((network) => network.name === networkName);
+    } catch (error) {
+      this.spinner.stop();
+      throw error;
+    }
+  }
+
+  async getNetwork(name: string) {
+    const { networks } = await this.got(
+      'v1/networks'
+    ).json<IGetNetworkResponse>();
+
+    const network = networks.find((network) => network.name === name);
+
+    if (!network) {
+      this.error(`Network ${name} not found.`);
+    }
+
+    return network;
   }
 }

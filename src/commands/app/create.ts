@@ -5,7 +5,6 @@ import { Flags } from '@oclif/core';
 import Command from '../../base.js';
 import { AVAILABLE_PLATFORMS } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
-import IGetNetworkResponse from '../../types/get-network-response.js';
 
 export default class AppCreate extends Command {
   static description = 'create an app';
@@ -55,14 +54,14 @@ export default class AppCreate extends Command {
     }
 
     const network = flags.network
-      ? await this.getNetworkId(flags.network)
+      ? await this.getNetwork(flags.network)
       : await this.promptNetwork();
 
     const planID = flags.plan || (await this.promptPlan());
 
     try {
       await this.got.post('v1/projects/', {
-        json: { name, planID, platform, network },
+        json: { name, planID, platform, network: network?._id },
       });
       this.log(`App ${name} created.`);
     } catch (error) {
@@ -101,61 +100,6 @@ export default class AppCreate extends Command {
       }
 
       this.error(`Could not create the app. Please try again.`);
-    }
-  }
-
-  async getNetworkId(name: string) {
-    const { networks } = await this.got(
-      'v1/networks'
-    ).json<IGetNetworkResponse>();
-
-    const network = networks.find((network) => network.name === name);
-
-    if (!network) {
-      this.error(`Network ${name} not found.`);
-    }
-
-    return network._id;
-  }
-
-  async promptNetwork() {
-    this.spinner.start('Loading...');
-
-    try {
-      const { networks } = await this.got(
-        'v1/networks'
-      ).json<IGetNetworkResponse>();
-
-      this.spinner.stop();
-
-      if (networks.length === 0) {
-        this.warn(
-          "Please create network via 'liara network:create' command, first."
-        );
-        this.exit(1);
-      }
-
-      const { networkName } = (await inquirer.prompt({
-        name: 'networkName',
-        type: 'list',
-        message: 'Please select a network:',
-        choices: [
-          ...networks.map((network) => {
-            return {
-              name: network.name,
-            };
-          }),
-        ],
-      })) as { networkName: string };
-
-      const networkId = networks.find(
-        (network) => network.name === networkName
-      )?._id;
-
-      return networkId;
-    } catch (error) {
-      this.spinner.stop();
-      throw error;
     }
   }
 

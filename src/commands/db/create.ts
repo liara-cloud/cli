@@ -1,12 +1,10 @@
 import ora from 'ora';
 import inquirer from 'inquirer';
-import Command from '../../base.js';
-import { Flags } from '@oclif/core';
-import { createDebugLogger } from '../../utils/output.js';
-import spacing from '../../utils/spacing.js';
 import { ux } from '@oclif/core';
-import { string } from '@oclif/core/lib/flags.js';
-import { relativeTimeThreshold } from 'moment';
+import { Flags } from '@oclif/core';
+
+import Command from '../../base.js';
+import { createDebugLogger } from '../../utils/output.js';
 
 export default class Create extends Command {
   static description = 'create a new database';
@@ -22,9 +20,8 @@ export default class Create extends Command {
     plan: Flags.string({
       description: 'plan',
     }),
-    network: Flags.string({
+    'public-network': Flags.boolean({
       description: 'use public network or not',
-      options: ['public', 'private'],
     }),
     type: Flags.string({
       char: 't',
@@ -37,6 +34,9 @@ export default class Create extends Command {
     yes: Flags.boolean({
       char: 'y',
       description: 'say yes to continue prompt',
+    }),
+    network: Flags.string({
+      description: 'network',
     }),
   };
 
@@ -55,40 +55,56 @@ export default class Create extends Command {
     const hostname = flags.name || (await this.promptHostname());
     const type = flags.type || (await this.promptType());
     const version = flags.version || (await this.promptVersion(type));
+
+    const network = flags.network
+      ? await this.getNetwork(flags.network)
+      : await this.promptNetwork();
+
     const publicNetwork =
-      flags.network === 'public'
-        ? true
-        : flags.network === 'private'
-        ? false
-        : (await this.promptPublicNetwork()) === 'y';
+      flags['public-network'] || (await this.promptPublicNetwork()) === 'y';
+
     const planID = flags.plan || (await this.promptPlan(type));
     const sayYes = flags.yes;
 
     try {
       const tableData = [
         {
-          type: type,
-          version: version,
-          hostname: hostname,
-          network: publicNetwork.toString(),
+          type,
+          version,
+          hostname,
+          network: network?.name,
+          publicNetwork: publicNetwork.toString(),
         },
       ];
+
       const tableConfig = {
         Hostname: { get: (row: any) => row.hostname },
         Type: { get: (row: any) => row.type },
         Version: { get: (row: any) => row.version },
-        'Public Network': { get: (row: any) => row.network },
+        Network: { get: (row: any) => row.network },
+        'Public Network': { get: (row: any) => row.publicNetwork },
       };
+
       ux.table(tableData, tableConfig, {
         title: 'Database Specification',
       });
+
       if (!sayYes && (await this.promptContinue()) === 'n') {
         this.log('Operation cancelled');
         return;
       }
+
       await this.got.post(Create.PATH, {
-        json: { hostname, planID, publicNetwork, type, version },
+        json: {
+          hostname,
+          planID,
+          publicNetwork,
+          type,
+          version,
+          network: network?._id,
+        },
       });
+
       this.log(`Database ${hostname} created.`);
     } catch (error) {
       debug(error.message);
@@ -154,6 +170,7 @@ export default class Create extends Command {
           ...Object.keys(plans.databases)
             .filter((plan) => {
               if (
+                (plan === 'free' || plan.includes('g2')) &&
                 plans.databases[plan].available &&
                 plans.databases[plan].supports.includes(databaseType)
               ) {
@@ -169,13 +186,17 @@ export default class Create extends Command {
               const storageClass = availablePlan.storageClass;
               return {
                 value: plan,
-                name: `RAM: ${ram}${spacing(5, ram)}GB,  CPU: ${cpu}${spacing(
-                  5,
-                  cpu
-                )}Core,  Disk: ${disk}${spacing(3, disk) + 'GB'}${
-                  storageClass || 'SSD'
-                },  Price: ${price.toLocaleString()}${
-                  price ? spacing(7, price) + 'Tomans/Month' : ''
+                name: `RAM: ${ram}${' '.repeat(
+                  5 - ram.toString().length
+                )} GB,  CPU: ${cpu}${' '.repeat(
+                  6 - cpu.toString().length
+                )}Core,  Disk: ${disk}${
+                  ' '.repeat(5 - disk.toString().length) + 'GB'
+                }${storageClass || 'SSD'},  Price: ${price.toLocaleString()}${
+                  price
+                    ? ' '.repeat(7 - Math.floor(price).toString().length) +
+                      'Tomans/Month'
+                    : ''
                 }`,
               };
             }),
