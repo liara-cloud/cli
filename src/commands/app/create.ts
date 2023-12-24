@@ -1,10 +1,10 @@
 import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
-import Command from '../../base.js';
 import { Flags } from '@oclif/core';
+
+import Command from '../../base.js';
 import { AVAILABLE_PLATFORMS } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
-import spacing from '../../utils/spacing.js';
 
 export default class AppCreate extends Command {
   static description = 'create an app';
@@ -20,6 +20,10 @@ export default class AppCreate extends Command {
     }),
     plan: Flags.string({
       description: 'plan',
+    }),
+    network: Flags.string({
+      char: 'n',
+      description: 'network',
     }),
   };
 
@@ -49,10 +53,16 @@ export default class AppCreate extends Command {
       this.error(`Unknown platform: ${platform}`);
     }
 
+    const network = flags.network
+      ? await this.getNetwork(flags.network)
+      : await this.promptNetwork();
+
     const planID = flags.plan || (await this.promptPlan());
 
     try {
-      await this.got.post('v1/projects/', { json: { name, planID, platform } });
+      await this.got.post('v1/projects/', {
+        json: { name, planID, platform, network: network?._id },
+      });
       this.log(`App ${name} created.`);
     } catch (error) {
       debug(error.message);
@@ -99,6 +109,7 @@ export default class AppCreate extends Command {
     try {
       // TODO: Use proper type for plans
       const { plans } = await this.got('v1/me').json<{ plans: any }>();
+
       this.spinner.stop();
 
       const { plan } = (await inquirer.prompt({
@@ -109,6 +120,7 @@ export default class AppCreate extends Command {
           ...Object.keys(plans.projects)
             .filter((plan) => {
               if (
+                (plan === 'free' || plan.includes('g2')) &&
                 plans.projects[plan].available &&
                 plans.projects[plan].region === 'iran'
               ) {
@@ -124,13 +136,17 @@ export default class AppCreate extends Command {
               const storageClass = availablePlan.storageClass;
               return {
                 value: plan,
-                name: `RAM: ${ram}${spacing(5, ram)}GB,  CPU: ${cpu}${spacing(
-                  5,
-                  cpu
-                )}Core,  Disk: ${disk}${spacing(3, disk) + 'GB'}${
-                  storageClass || 'SSD'
-                },  Price: ${price.toLocaleString()}${
-                  price ? spacing(7, price) + 'Tomans/Month' : ''
+                name: `RAM: ${ram}${' '.repeat(
+                  5 - ram.toString().length
+                )} GB,  CPU: ${cpu}${' '.repeat(
+                  6 - cpu.toString().length
+                )}Core,  Disk: ${disk}${
+                  ' '.repeat(5 - disk.toString().length) + 'GB'
+                }${storageClass || 'SSD'},  Price: ${price.toLocaleString()}${
+                  price
+                    ? ' '.repeat(7 - Math.floor(price).toString().length) +
+                      'Tomans/Month'
+                    : ''
                 }`,
               };
             }),
