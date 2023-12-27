@@ -87,6 +87,7 @@ export default class AppLogs extends Command {
         const data = await this.got(
           `v2/projects/${project}/logs?start=${since}`
         ).json<ILog>();
+
         logs = data.data[0].values;
       } catch (error) {
         if (error.response && error.response.status === 404) {
@@ -142,7 +143,11 @@ Sorry for inconvenience. Please contact us.`).render()
 
     if (this.#timestamps) {
       // iso string is docker's log format when using --timestamps
-      message = `${this.#gray(moment(log[0]).toISOString())} ${message}`;
+      message = `${this.#gray(
+        moment
+          .unix(parseInt(log[0].substring(0, 10)))
+          .format('YYYY-MM-DDTHH:mm:ss')
+      )} ${message}`;
     }
 
     const socket =
