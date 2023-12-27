@@ -103,7 +103,9 @@ export default class Deploy extends Command {
 
   async run() {
     const { flags } = await this.parse(Deploy);
+
     const config: IDeploymentConfig = this.getMergedConfig(flags);
+
     const debug = createDebugLogger(flags.debug);
     this.debug = debug;
     this.spinner = ora();
@@ -662,18 +664,20 @@ Additionally, you can also retry the build with the debug flag:
 
   readProjectConfig(projectPath: string): ILiaraJSON {
     let content;
+
     const liaraJSONPath = path.join(projectPath, 'liara.json');
+
     const hasLiaraJSONFile = fs.existsSync(liaraJSONPath);
+
     if (hasLiaraJSONFile) {
       try {
         content = fs.readJSONSync(liaraJSONPath) || {};
-      } catch {
-        this.error('Syntax error in `liara.json`!');
-      }
-    }
 
-    if (content.app) {
-      content.app = content.app.toLowerCase();
+        content.app && (content.app = content.app.toLowerCase());
+      } catch (error) {
+        content = {};
+        this.error('Syntax error in `liara.json`!', error);
+      }
     }
 
     return content || {};

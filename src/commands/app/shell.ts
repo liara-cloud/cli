@@ -116,18 +116,20 @@ export default class AppShell extends Command {
 
   readProjectConfig(projectPath: string): ILiaraJSON {
     let content;
+
     const liaraJSONPath = path.join(projectPath, 'liara.json');
+
     const hasLiaraJSONFile = fs.existsSync(liaraJSONPath);
+
     if (hasLiaraJSONFile) {
       try {
         content = fs.readJSONSync(liaraJSONPath) || {};
-      } catch {
-        this.error('Syntax error in `liara.json`!');
-      }
-    }
 
-    if (content.app) {
-      content.app = content.app.toLowerCase();
+        content.app && (content.app = content.app.toLowerCase());
+      } catch (error) {
+        content = {};
+        this.error('Syntax error in `liara.json`!', error);
+      }
     }
 
     return content || {};
