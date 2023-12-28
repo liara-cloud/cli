@@ -21,7 +21,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/5.6.0-beta.1 linux-x64 node-v18.17.1
+@liara/cli/5.6.0-beta.2 linux-x64 node-v18.12.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -599,7 +599,7 @@ EXAMPLES
   $ liara autocomplete --refresh-cache
 ```
 
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v2.3.3/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v2.3.9/src/commands/autocomplete/index.ts)_
 
 ## `liara bucket create`
 
@@ -1175,7 +1175,7 @@ DESCRIPTION
   deploy an app
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v5.6.0-beta.1/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v5.6.0-beta.2/src/commands/deploy.ts)_
 
 ## `liara disk create`
 
@@ -1369,7 +1369,7 @@ DESCRIPTION
   login to your account
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v5.6.0-beta.1/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v5.6.0-beta.2/src/commands/login.ts)_
 
 ## `liara logs`
 
