@@ -103,14 +103,14 @@ async function getRequiredNetCoreVersion(
 }
 
 function getDefaultLaravelPlatformConfig(
-  parojectPath: string,
+  projectPath: string,
   userProvidedConfig: IPlatformConfig,
   debug: DebugLogger
 ): IPlatformConfig {
   const newConfig = { ...userProvidedConfig };
 
   if (!userProvidedConfig.phpVersion) {
-    const detectedPHPVersion = getRequiredPHPVersion(parojectPath, debug);
+    const detectedPHPVersion = getRequiredPHPVersion(projectPath, debug);
     if (detectedPHPVersion) {
       newConfig.phpVersion = detectedPHPVersion;
     }
@@ -120,7 +120,7 @@ function getDefaultLaravelPlatformConfig(
 }
 
 function getRequiredPHPVersion(
-  parojectPath: string,
+  projectPath: string,
   debug: DebugLogger
 ): string | null {
   // semver forces us to use the full semver syntax,
@@ -129,7 +129,7 @@ function getRequiredPHPVersion(
 
   try {
     const composerJson = fs.readJSONSync(
-      path.join(parojectPath, 'composer.json')
+      path.join(projectPath, 'composer.json')
     );
 
     if (composerJson?.config?.platform?.php) {
