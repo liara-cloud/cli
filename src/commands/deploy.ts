@@ -44,6 +44,7 @@ import CreateArchiveException from '../errors/create-archive.js';
 import IGetProjectsResponse from '../types/get-project-response.js';
 import ReachedMaxSourceSizeError from '../errors/max-source-size.js';
 import mergePlatformConfigWithDefaults from '../utils/merge-platform-config.js';
+import getPlatformVersion from '../services/get-platform-version.js';
 
 export default class Deploy extends Command {
   static description = 'deploy an app';
@@ -374,6 +375,68 @@ Additionally, you can also retry the build with the debug flag:
       config[config.platform] || {},
       this.debug
     );
+
+    if (body.platformConfig.pythonVersion) {
+      // django and flask
+      this.logKeyValue('Python version', body.platformConfig.pythonVersion);
+    } else if (body.platformConfig.version) {
+      // node, netcore, php
+      this.logKeyValue(
+        `${config.platform} version`,
+        body.platformConfig.version
+      );
+    } else if (body.platformConfig.phpVersion) {
+      // laravel
+      this.logKeyValue('PHP version', body.platformConfig.phpVersion);
+    } else {
+      this.log('No version specified in liara.json');
+      this.log('Auto-detecting version...');
+      let platformVersion: string | null = null;
+      switch (config.platform) {
+        case 'django':
+        case 'flask':
+          platformVersion = getPlatformVersion('python', this.debug);
+          if (platformVersion) {
+            this.logKeyValue('Auto-detected Python version', platformVersion);
+          }
+          break;
+        case 'php':
+        case 'laravel':
+          platformVersion = getPlatformVersion('php', this.debug);
+          if (platformVersion) {
+            this.logKeyValue('Auto-detected php version', platformVersion);
+          }
+          break;
+        case 'node':
+          platformVersion = getPlatformVersion('node', this.debug);
+          if (platformVersion) {
+            this.logKeyValue(
+              `Auto-detected ${config.platform} version`,
+              platformVersion
+            );
+          }
+          break;
+        case 'netcore':
+          platformVersion = getPlatformVersion('netcode', this.debug);
+          if (platformVersion) {
+            this.logKeyValue(
+              `Auto-detected ${config.platform} version`,
+              platformVersion
+            );
+          }
+          break;
+
+        default:
+          this.debug(
+            `Can not auto-detect version for ${config.platform} platform`
+          );
+          break;
+      }
+      if (!platformVersion) {
+        this.log('No version for this platform found. Using default version');
+      }
+    }
+    return;
 
     if (config.healthCheck) {
       body.healthCheck = config.healthCheck;

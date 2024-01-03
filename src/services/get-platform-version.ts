@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
+import { DebugLogger } from '../utils/output.js';
 
-function getPlatformVersion(platform: string, debugging: boolean = false) {
+function getPlatformVersion(platform: string, debug: DebugLogger = () => {}) {
   const platformsVersionCommand: { [key: string]: string } = {
     python: 'python --version || python3 --version || py --version',
     php: 'php --version',
@@ -22,29 +23,29 @@ function getPlatformVersion(platform: string, debugging: boolean = false) {
   let dirtyVersion: string;
 
   try {
-    debugging && console.log('executing:', command);
+    debug(`executing: ${command}`);
 
     dirtyVersion = execSync(command, {
       windowsHide: true,
       timeout: 1_000,
       stdio: ['ignore', 'pipe', 'pipe'], // ignore stdin and gets stdout and stderr
     }).toString();
-    console.log(`Found a version of ${platform}`);
+    debug(`Found a version of ${platform}`);
 
-    debugging && console.log(dirtyVersion);
+    debug(dirtyVersion);
   } catch {
-    console.log(`Could not determine ${platform} version`);
-    return -1;
+    debug(`Could not determine ${platform} version`);
+    return null;
   }
 
   try {
     const pureVersion = platformsVersionTrim[platform](dirtyVersion);
-    console.log('The version is:', pureVersion);
+    debug(`The version is: ${pureVersion}`);
     return pureVersion;
   } catch (error) {
-    console.log('Could not trim founded version');
+    debug('Could not trim founded version');
   }
-  return -1;
+  return null;
 }
 
 export default getPlatformVersion;

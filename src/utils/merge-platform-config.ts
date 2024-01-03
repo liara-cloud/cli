@@ -16,21 +16,21 @@ export default async function mergePlatformConfigWithDefaults(
   userProvidedConfig: IPlatformConfig,
   debug: DebugLogger
 ): Promise<IPlatformConfig> {
-  if (platform === 'laravel') {
-    return getDefaultLaravelPlatformConfig(
-      projectPath,
-      userProvidedConfig,
-      debug
-    );
-  }
+  // if (platform === 'laravel') {
+  //   return getDefaultLaravelPlatformConfig(
+  //     projectPath,
+  //     userProvidedConfig,
+  //     debug
+  //   );
+  // }
 
-  if (platform === 'netcore') {
-    return await detectNetCorePlatformVersion(
-      projectPath,
-      userProvidedConfig,
-      debug
-    );
-  }
+  // if (platform === 'netcore') {
+  //   return await detectNetCorePlatformVersion(
+  //     projectPath,
+  //     userProvidedConfig,
+  //     debug
+  //   );
+  // }
 
   return userProvidedConfig;
 }
