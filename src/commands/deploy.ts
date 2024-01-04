@@ -367,14 +367,7 @@ Additionally, you can also retry the build with the debug flag:
     body.gitInfo = await collectGitInfo(config.path, this.debug);
 
     // @ts-ignore
-    body.platformConfig = await mergePlatformConfigWithDefaults(
-      config.path,
-      // @ts-ignore
-      config.platform,
-      // @ts-ignore
-      config[config.platform] || {},
-      this.debug
-    );
+    body.platformConfig = config[config.platform] || {};
 
     if (body.platformConfig.pythonVersion) {
       // django and flask
@@ -395,29 +388,33 @@ Additionally, you can also retry the build with the debug flag:
       switch (config.platform) {
         case 'django':
         case 'flask':
-          platformVersion = getPlatformVersion('python', this.debug);
+          platformVersion = await getPlatformVersion(
+            config.platform,
+            config.path,
+            this.debug
+          );
           if (platformVersion) {
             this.logKeyValue('Auto-detected Python version', platformVersion);
           }
           break;
         case 'php':
         case 'laravel':
-          platformVersion = getPlatformVersion('php', this.debug);
+          platformVersion = await getPlatformVersion(
+            config.platform,
+            config.path,
+            this.debug
+          );
           if (platformVersion) {
             this.logKeyValue('Auto-detected php version', platformVersion);
           }
           break;
         case 'node':
-          platformVersion = getPlatformVersion('node', this.debug);
-          if (platformVersion) {
-            this.logKeyValue(
-              `Auto-detected ${config.platform} version`,
-              platformVersion
-            );
-          }
-          break;
         case 'netcore':
-          platformVersion = getPlatformVersion('netcode', this.debug);
+          platformVersion = await getPlatformVersion(
+            config.platform,
+            config.path,
+            this.debug
+          );
           if (platformVersion) {
             this.logKeyValue(
               `Auto-detected ${config.platform} version`,
