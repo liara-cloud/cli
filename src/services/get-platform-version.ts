@@ -49,7 +49,6 @@ async function getPlatformVersion(
   switch (platform) {
     case 'django':
     case 'flask':
-      // needs implementation
       pureVersion = getPythonVersion(projectPath, debug);
       break;
     case 'php':
