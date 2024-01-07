@@ -109,7 +109,14 @@ async function getPlatformVersion(
 }
 
 function getPythonVersion(projectPath: string, debug: DebugLogger) {
-  const commonVenvNames = ['.venv', 'venv', 'env', '.env'];
+  const commonVenvNames = [
+    '.venv',
+    'venv',
+    'env',
+    '.env',
+    'virtualenv',
+    '.virtualenv',
+  ];
   const supportedPythonVersion = ['3.7', '3.8', '3.9', '3.10', '3.11'];
 
   for (const name of commonVenvNames) {
