@@ -4,6 +4,7 @@ import path from 'node:path';
 import findFile from '../utils/find-file.js';
 import { execSync } from 'node:child_process';
 import { DebugLogger } from '../utils/output.js';
+import { platform } from 'node:os';
 
 interface IPlatformConfig {
   [key: string]: string | null;
@@ -47,14 +48,11 @@ async function getPlatformVersion(
 
   switch (platform) {
     case 'django':
-      // needs implementation
-      break;
     case 'flask':
       // needs implementation
+      pureVersion = getPythonVersion(projectPath, debug);
       break;
     case 'php':
-      // needs implementation
-      break;
     case 'laravel':
       pureVersion = getDefaultLaravelPlatformConfig(projectPath, debug);
       break;
@@ -92,7 +90,7 @@ async function getPlatformVersion(
       timeout: 1_000,
       stdio: ['ignore', 'pipe', 'pipe'], // ignore stdin and gets stdout and stderr
     }).toString();
-    debug(`Found a version of ${platform}`);
+    debug(`Found a version ${platform}`);
 
     debug(dirtyVersion);
   } catch {
@@ -106,6 +104,58 @@ async function getPlatformVersion(
     return pureVersion;
   } catch (error) {
     debug('Could not trim founded version');
+  }
+  return null;
+}
+
+function getPythonVersion(projectPath: string, debug: DebugLogger) {
+  const commonVenvNames = ['.venv', 'venv', 'env', '.env'];
+  const supportedPythonVersion = ['3.7', '3.8', '3.9', '3.10', '3.11'];
+
+  for (const name of commonVenvNames) {
+    const venvDir = path.join(projectPath, name);
+
+    try {
+      if (fs.lstatSync(venvDir).isDirectory()) {
+        let command: string;
+        debug(`OS is: ${platform()}`);
+        if (platform() == 'win32') {
+          command = `${name}\\Scripts\\activate.bat && python --version`;
+        } else {
+          command = `source ${name}/bin/activate && python --version`;
+        }
+        debug(`Found virtual env: ${name}`);
+        debug(`executing command in virtual env: ${command}`);
+
+        const dirtyVersion = execSync(command, {
+          windowsHide: true,
+          timeout: 1_000,
+          cwd: projectPath,
+          stdio: ['ignore', 'pipe', 'pipe'], // ignore stdin and gets stdout and stderr
+        }).toString();
+
+        debug(dirtyVersion);
+
+        const pureVersion = dirtyVersion
+          .trim()
+          .split(' ')[1]
+          .split('.')
+          .slice(0, 2)
+          .join('.');
+
+        if (supportedPythonVersion.includes(pureVersion)) {
+          return pureVersion;
+        } else {
+          debug(`This python version is not suppurted: ${pureVersion}`);
+          return -1;
+        }
+      }
+    } catch (error) {
+      if (error.code !== 'ENOENT') {
+        debug(`Error in executing command in virtual env`);
+        debug(`${error}`);
+      }
+    }
   }
   return null;
 }
