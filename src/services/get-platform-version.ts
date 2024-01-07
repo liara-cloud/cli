@@ -26,11 +26,11 @@ async function getPlatformVersion(
     [key: string]: (rawVersion: string) => string;
   } = {
     python: (rawVersion: string) =>
-      rawVersion.trim().split(' ')[1].split('.').slice(0, 2).join('.'), // 3.11
+      rawVersion.trim().split(' ')[1].split('.').slice(0, 2).join('.'), // ex: 3.11
     php: (rawVersion: string) =>
-      rawVersion.trim().split(' ')[1].split('.').slice(0, 2).join('.'), // 8.2
-    node: (rawVersion: string) => rawVersion.trim().slice(1).split('.')[0], // 18
-    netcore: (rawVersion: string) => rawVersion.trim()[0] + '.0', // 5.0
+      rawVersion.trim().split(' ')[1].split('.').slice(0, 2).join('.'), // ex: 8.2
+    node: (rawVersion: string) => rawVersion.trim().slice(1).split('.')[0], // ex: 18
+    netcore: (rawVersion: string) => rawVersion.trim()[0] + '.0', // ex: 5.0
   };
 
   // Below codes are for derived platforms
@@ -43,7 +43,7 @@ async function getPlatformVersion(
   platformsVersionTrim['laravel'] = platformsVersionTrim['php'];
 
   // Here is the first part
-  let pureVersion: string | null = null;
+  let pureVersion: string | null | -1 = null;
 
   switch (platform) {
     case 'django':
@@ -59,7 +59,7 @@ async function getPlatformVersion(
       pureVersion = getDefaultLaravelPlatformConfig(projectPath, debug);
       break;
     case 'node':
-      // needs implementation
+      pureVersion = getNodeVersion(projectPath, debug);
       break;
     case 'netcore':
       pureVersion = await detectNetCorePlatformVersion(projectPath, debug);
@@ -73,7 +73,11 @@ async function getPlatformVersion(
 
   debug(`pureVersion: ${pureVersion}`);
   if (pureVersion) {
-    return pureVersion;
+    if (pureVersion != -1) {
+      // -1 means we don't support this version.
+      return pureVersion;
+    }
+    return null;
   }
 
   // second part starts from here
@@ -102,6 +106,26 @@ async function getPlatformVersion(
     return pureVersion;
   } catch (error) {
     debug('Could not trim founded version');
+  }
+  return null;
+}
+
+function getNodeVersion(projectPath: string, debug: DebugLogger) {
+  const supportedNodeVersion = ['14', '16', '18', '20'];
+
+  const packageJson = path.join(projectPath, 'package.json');
+  const packageJsonData = fs.readJsonSync(packageJson);
+  const requiredNode = packageJsonData.engines?.node;
+
+  if (requiredNode) {
+    const pureVersion = semver
+      .coerce(requiredNode, { loose: true })
+      ?.version.split('.')[0]; // ex: extracts 18 from 18.0.0
+    if (pureVersion && supportedNodeVersion.find((v) => v === pureVersion)) {
+      return pureVersion;
+    }
+    debug(`This node version is not suppurted: ${pureVersion}`);
+    return -1;
   }
   return null;
 }

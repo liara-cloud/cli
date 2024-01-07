@@ -383,6 +383,7 @@ Additionally, you can also retry the build with the debug flag:
       this.logKeyValue('PHP version', body.platformConfig.phpVersion);
     } else {
       this.log('No version specified in liara.json');
+
       this.log('Auto-detecting version...');
       let platformVersion: string | null = null;
       switch (config.platform) {

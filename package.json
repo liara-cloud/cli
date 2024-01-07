@@ -172,7 +172,8 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "version": "oclif readme && git add README.md",
     "readme": "oclif readme",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "start": "nn"
   },
   "husky": {
     "hooks": {
