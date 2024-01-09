@@ -434,7 +434,6 @@ Additionally, you can also retry the build with the debug flag:
         this.log('No version for this platform found. Using default version');
       }
     }
-    return;
 
     if (config.healthCheck) {
       body.healthCheck = config.healthCheck;
