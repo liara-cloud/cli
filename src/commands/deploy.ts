@@ -43,7 +43,6 @@ import cancelDeployment from '../services/cancel-deployment.js';
 import CreateArchiveException from '../errors/create-archive.js';
 import IGetProjectsResponse from '../types/get-project-response.js';
 import ReachedMaxSourceSizeError from '../errors/max-source-size.js';
-import mergePlatformConfigWithDefaults from '../utils/merge-platform-config.js';
 import getPlatformVersion from '../services/get-platform-version.js';
 
 export default class Deploy extends Command {
@@ -396,6 +395,7 @@ Additionally, you can also retry the build with the debug flag:
           );
           if (platformVersion) {
             this.logKeyValue('Auto-detected Python version', platformVersion);
+            body.platformConfig.pythonVersion = platformVersion;
           }
           break;
         case 'php':
@@ -407,6 +407,11 @@ Additionally, you can also retry the build with the debug flag:
           );
           if (platformVersion) {
             this.logKeyValue('Auto-detected php version', platformVersion);
+            if (config.platform === 'php') {
+              body.platformConfig.version = platformVersion;
+            } else {
+              body.platformConfig.phpVersion = platformVersion;
+            }
           }
           break;
         case 'node':
@@ -421,6 +426,7 @@ Additionally, you can also retry the build with the debug flag:
               `Auto-detected ${config.platform} version`,
               platformVersion
             );
+            body.platformConfig.version = platformVersion;
           }
           break;
 
