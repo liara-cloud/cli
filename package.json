@@ -1,7 +1,7 @@
 {
   "name": "@liara/cli",
   "description": "The command line interface for Liara",
-  "version": "5.7.1-beta.1",
+  "version": "5.7.2-beta.1",
   "author": "Mhe <mhemrg120@gmail.com> (http://liara.ir/) @mhemrg",
   "type": "module",
   "bin": {
@@ -172,8 +172,7 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "version": "oclif readme && git add README.md",
     "readme": "oclif readme",
-    "prepare": "husky install",
-    "start": "nn"
+    "prepare": "husky install"
   },
   "husky": {
     "hooks": {
