@@ -25,6 +25,11 @@ export default class AppCreate extends Command {
       char: 'n',
       description: 'network',
     }),
+    'read-only': Flags.string({
+      char: 'r',
+      description: 'read-only filesystem',
+      options: ['true', 'false'],
+    }),
   };
 
   static aliases = ['create'];
@@ -59,9 +64,24 @@ export default class AppCreate extends Command {
 
     const planID = flags.plan || (await this.promptPlan());
 
+    const defaultReadOnly =
+      platform === 'next' || platform === 'docker' ? false : true;
+    const readOnly =
+      flags['read-only'] === 'true'
+        ? true
+        : flags['read-only'] === 'false'
+        ? false
+        : defaultReadOnly;
+
     try {
       await this.got.post('v1/projects/', {
-        json: { name, planID, platform, network: network?._id },
+        json: {
+          name,
+          planID,
+          platform,
+          network: network?._id,
+          readOnlyRootFilesystem: readOnly,
+        },
       });
       this.log(`App ${name} created.`);
     } catch (error) {
