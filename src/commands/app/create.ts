@@ -64,14 +64,12 @@ export default class AppCreate extends Command {
 
     const planID = flags.plan || (await this.promptPlan());
 
-    const defaultReadOnly =
-      platform === 'next' || platform === 'docker' ? false : true;
     const readOnly =
       flags['read-only'] === 'true'
         ? true
         : flags['read-only'] === 'false'
         ? false
-        : defaultReadOnly;
+        : undefined;
 
     try {
       await this.got.post('v1/projects/', {
