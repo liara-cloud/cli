@@ -268,7 +268,7 @@ export default class Deploy extends Command {
           : {};
 
       if (error.message === 'TIMEOUT') {
-        this.error('Build timed out. It took about 10 minutes.');
+        this.error('Build timed out. It took about 20 minutes.');
       }
 
       if (
