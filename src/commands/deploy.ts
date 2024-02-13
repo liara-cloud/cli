@@ -497,6 +497,28 @@ Additionally, you can also retry the build with the debug flag:
   }
 
   async showBuildLogs(releaseID: string) {
+    while (true) {
+      try {
+        const { release } = await this.got(`v1/releases/${releaseID}`).json<{
+          release: IRelease;
+        }>();
+
+        if (!release.queue) {
+          break;
+        }
+
+        this.spinner.start(
+          `Waiting for the build, ${release.queue} people(s) ahead...`
+        );
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      } catch (error) {
+        // tslint:disable-next-line: no-console
+        console.error(error.output.line);
+        throw new Error('Build failed.');
+      }
+    }
+
     this.spinner.start('Building...');
 
     let isCanceled = false;
