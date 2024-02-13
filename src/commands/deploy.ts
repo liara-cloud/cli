@@ -445,7 +445,7 @@ Additionally, you can also retry the build with the debug flag:
           `Waiting for the build, ${release.queue} people(s) ahead...`
         );
 
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 3000));
       } catch (error) {
         // tslint:disable-next-line: no-console
         console.error(error.output.line);
