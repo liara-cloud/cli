@@ -343,7 +343,7 @@ Additionally, you can also retry the build with the debug flag:
   }
 
   async deploy(config: IDeploymentConfig) {
-    const body: { [k: string]: any } = {
+    let body: { [k: string]: any } = {
       build: {
         cache: config.buildCache,
         args: config['build-arg'],
@@ -367,79 +367,7 @@ Additionally, you can also retry the build with the debug flag:
 
     // @ts-ignore
     body.platformConfig = config[config.platform] || {};
-
-    if (body.platformConfig.pythonVersion) {
-      // django and flask
-      this.logKeyValue('Python version', body.platformConfig.pythonVersion);
-    } else if (body.platformConfig.version) {
-      // node, netcore, php
-      this.logKeyValue(
-        `${config.platform} version`,
-        body.platformConfig.version
-      );
-    } else if (body.platformConfig.phpVersion) {
-      // laravel
-      this.logKeyValue('PHP version', body.platformConfig.phpVersion);
-    } else {
-      this.log('No version specified in liara.json');
-
-      this.log('Auto-detecting version...');
-      let platformVersion: string | null = null;
-      switch (config.platform) {
-        case 'django':
-        case 'flask':
-          platformVersion = await getPlatformVersion(
-            config.platform,
-            config.path,
-            this.debug
-          );
-          if (platformVersion) {
-            this.logKeyValue('Auto-detected Python version', platformVersion);
-            body.platformConfig.pythonVersion = platformVersion;
-          }
-          break;
-        case 'php':
-        case 'laravel':
-          platformVersion = await getPlatformVersion(
-            config.platform,
-            config.path,
-            this.debug
-          );
-          if (platformVersion) {
-            this.logKeyValue('Auto-detected php version', platformVersion);
-            if (config.platform === 'php') {
-              body.platformConfig.version = platformVersion;
-            } else {
-              body.platformConfig.phpVersion = platformVersion;
-            }
-          }
-          break;
-        case 'node':
-        case 'netcore':
-          platformVersion = await getPlatformVersion(
-            config.platform,
-            config.path,
-            this.debug
-          );
-          if (platformVersion) {
-            this.logKeyValue(
-              `Auto-detected ${config.platform} version`,
-              platformVersion
-            );
-            body.platformConfig.version = platformVersion;
-          }
-          break;
-
-        default:
-          this.debug(
-            `Can not auto-detect version for ${config.platform} platform`
-          );
-          break;
-      }
-      if (!platformVersion) {
-        this.log('No version for this platform found. Using default version');
-      }
-    }
+    body = this.__detectPlatformVersion(config, body);
 
     if (config.healthCheck) {
       body.healthCheck = config.healthCheck;
@@ -603,6 +531,83 @@ Additionally, you can also retry the build with the debug flag:
 
       this.debug(error.stack);
     }
+  }
+
+  async __detectPlatformVersion(config: any, body: any) {
+    if (body.platformConfig.pythonVersion) {
+      // django and flask
+      this.logKeyValue('Python version', body.platformConfig.pythonVersion);
+    } else if (body.platformConfig.version) {
+      // node, netcore, php
+      this.logKeyValue(
+        `${config.platform} version`,
+        body.platformConfig.version
+      );
+    } else if (body.platformConfig.phpVersion) {
+      // laravel
+      this.logKeyValue('PHP version', body.platformConfig.phpVersion);
+    } else {
+      this.log('No version specified in liara.json');
+
+      this.log('Auto-detecting version...');
+      let platformVersion: string | null = null;
+      switch (config.platform) {
+        case 'django':
+        case 'flask':
+          platformVersion = await getPlatformVersion(
+            config.platform,
+            config.path,
+            this.debug
+          );
+          if (platformVersion) {
+            this.logKeyValue('Auto-detected Python version', platformVersion);
+            body.platformConfig.pythonVersion = platformVersion;
+          }
+          break;
+        case 'php':
+        case 'laravel':
+          platformVersion = await getPlatformVersion(
+            config.platform,
+            config.path,
+            this.debug
+          );
+          if (platformVersion) {
+            this.logKeyValue('Auto-detected php version', platformVersion);
+            if (config.platform === 'php') {
+              body.platformConfig.version = platformVersion;
+            } else {
+              body.platformConfig.phpVersion = platformVersion;
+            }
+          }
+          break;
+        case 'node':
+        case 'netcore':
+          platformVersion = await getPlatformVersion(
+            config.platform,
+            config.path,
+            this.debug
+          );
+          if (platformVersion) {
+            this.logKeyValue(
+              `Auto-detected ${config.platform} version`,
+              platformVersion
+            );
+            body.platformConfig.version = platformVersion;
+          }
+          break;
+
+        default:
+          this.debug(
+            `Can not auto-detect version for ${config.platform} platform`
+          );
+          break;
+      }
+      if (!platformVersion) {
+        this.log('No version for this platform found. Using default version');
+      }
+    }
+
+    return body;
   }
 
   async showReleaseLogs(releaseID: string) {
