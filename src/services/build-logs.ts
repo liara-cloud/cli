@@ -28,11 +28,18 @@ export default async (
 
         for (const output of buildOutput) {
           if (output.stream === 'STDOUT') {
-            const _ = output.line.split('-'); // progressbar, layers counter and image size separated by '-'
-            const state =
-              _[0].endsWith('B') && _[0].startsWith('[')
-                ? 'PUSHING'
-                : 'BUILDING';
+            let state;
+            if (output.line.startsWith('Successfully tagged')) {
+              state = 'PUSHING';
+            } else if (output.line.startsWith('Pushing...')) {
+              if (output.line.startsWith('Pushing... 100%')) {
+                state = 'DEPLOYING';
+              } else {
+                state = 'PUSHING';
+              }
+            } else {
+              state = 'BUILDING';
+            }
             cb({ state: state, line: output.line });
           } else {
             return reject(new BuildFailed('Build failed', output));
@@ -69,10 +76,6 @@ export default async (
         if (buildOutput.length) {
           const lastLine = buildOutput[buildOutput.length - 1];
           since = lastLine.createdAt;
-
-          if (lastLine.line.startsWith('Successfully tagged')) {
-            cb({ state: 'PUSHING' });
-          }
         }
       } catch {}
 

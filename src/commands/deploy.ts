@@ -496,14 +496,8 @@ Additionally, you can also retry the build with the debug flag:
             isPushingStart = !isPushingStart;
           }
           if (output.line) {
-            let outputString = '';
-            const [progressbar, layersCounter, imageSize] =
-              output.line.split('-'); // progressbar, layers counter and image size separated by '-'
-            outputString = `(layer ${layersCounter}) Pushing: total size ${bytes(
-              parseInt(imageSize)
-            )} ${progressbar}`;
             this.spinner.clear().frame();
-            this.spinner.start(outputString);
+            this.spinner.start(output.line);
           }
         }
       });
