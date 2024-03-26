@@ -43,7 +43,7 @@ import cancelDeployment from '../services/cancel-deployment.js';
 import CreateArchiveException from '../errors/create-archive.js';
 import IGetProjectsResponse from '../types/get-project-response.js';
 import ReachedMaxSourceSizeError from '../errors/max-source-size.js';
-import mergePlatformConfigWithDefaults from '../utils/merge-platform-config.js';
+import getPlatformVersion from '../services/get-platform-version.js';
 
 export default class Deploy extends Command {
   static description = 'deploy an app';
@@ -343,7 +343,7 @@ Additionally, you can also retry the build with the debug flag:
   }
 
   async deploy(config: IDeploymentConfig) {
-    const body: { [k: string]: any } = {
+    let body: { [k: string]: any } = {
       build: {
         cache: config.buildCache,
         args: config['build-arg'],
@@ -366,14 +366,8 @@ Additionally, you can also retry the build with the debug flag:
     body.gitInfo = await collectGitInfo(config.path, this.debug);
 
     // @ts-ignore
-    body.platformConfig = await mergePlatformConfigWithDefaults(
-      config.path,
-      // @ts-ignore
-      config.platform,
-      // @ts-ignore
-      config[config.platform] || {},
-      this.debug
-    );
+    body.platformConfig = config[config.platform] || {};
+    body = this.__detectPlatformVersion(config, body);
 
     if (config.healthCheck) {
       body.healthCheck = config.healthCheck;
@@ -531,6 +525,88 @@ Additionally, you can also retry the build with the debug flag:
 
       this.debug(error.stack);
     }
+  }
+
+  async __detectPlatformVersion(config: any, body: any) {
+    if (body.platformConfig.pythonVersion) {
+      // django and flask
+      this.logKeyValue('Python version', body.platformConfig.pythonVersion);
+      return body;
+    }
+    if (body.platformConfig.version) {
+      // node, netcore, php
+      this.logKeyValue(
+        `${config.platform} version`,
+        body.platformConfig.version
+      );
+      return body;
+    }
+    if (body.platformConfig.phpVersion) {
+      // laravel
+      this.logKeyValue('PHP version', body.platformConfig.phpVersion);
+      return body;
+    } else {
+      this.log('No version specified in liara.json');
+
+      this.log('Auto-detecting version...');
+      let platformVersion: string | null = null;
+      switch (config.platform) {
+        case 'django':
+        case 'flask':
+          platformVersion = await getPlatformVersion(
+            config.platform,
+            config.path,
+            this.debug
+          );
+          if (platformVersion) {
+            this.logKeyValue('Auto-detected Python version', platformVersion);
+            body.platformConfig.pythonVersion = platformVersion;
+          }
+          break;
+        case 'php':
+        case 'laravel':
+          platformVersion = await getPlatformVersion(
+            config.platform,
+            config.path,
+            this.debug
+          );
+          if (platformVersion) {
+            this.logKeyValue('Auto-detected php version', platformVersion);
+            if (config.platform === 'php') {
+              body.platformConfig.version = platformVersion;
+            } else {
+              body.platformConfig.phpVersion = platformVersion;
+            }
+          }
+          break;
+        case 'node':
+        case 'netcore':
+          platformVersion = await getPlatformVersion(
+            config.platform,
+            config.path,
+            this.debug
+          );
+          if (platformVersion) {
+            this.logKeyValue(
+              `Auto-detected ${config.platform} version`,
+              platformVersion
+            );
+            body.platformConfig.version = platformVersion;
+          }
+          break;
+
+        default:
+          this.debug(
+            `Can not auto-detect version for ${config.platform} platform`
+          );
+          break;
+      }
+      if (!platformVersion) {
+        this.log('No version for this platform found. Using default version');
+      }
+    }
+
+    return body;
   }
 
   async showReleaseLogs(releaseID: string) {
