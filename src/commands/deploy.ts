@@ -367,7 +367,7 @@ Additionally, you can also retry the build with the debug flag:
 
     // @ts-ignore
     body.platformConfig = config[config.platform] || {};
-    body = this.__detectPlatformVersion(config, body);
+    body = await this.__detectPlatformVersion(config, body);
 
     if (config.healthCheck) {
       body.healthCheck = config.healthCheck;
