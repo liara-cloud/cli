@@ -537,15 +537,20 @@ Additionally, you can also retry the build with the debug flag:
     if (body.platformConfig.pythonVersion) {
       // django and flask
       this.logKeyValue('Python version', body.platformConfig.pythonVersion);
-    } else if (body.platformConfig.version) {
+      return body;
+    }
+    if (body.platformConfig.version) {
       // node, netcore, php
       this.logKeyValue(
         `${config.platform} version`,
         body.platformConfig.version
       );
-    } else if (body.platformConfig.phpVersion) {
+      return body;
+    }
+    if (body.platformConfig.phpVersion) {
       // laravel
       this.logKeyValue('PHP version', body.platformConfig.phpVersion);
+      return body;
     } else {
       this.log('No version specified in liara.json');
 

@@ -61,11 +61,6 @@ async function getPlatformVersion(
     case 'netcore':
       pureVersion = await detectNetCorePlatformVersion(projectPath, debug);
       break;
-
-    default:
-      debug(`Can not auto-detect version for ${platform} platform`);
-      debug('How TF did we get here?'); // This should not get printed.
-      break;
   }
 
   debug(`pureVersion: ${pureVersion}`);
