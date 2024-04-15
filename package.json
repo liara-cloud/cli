@@ -52,7 +52,7 @@
     "@types/tar": "^6.1.9",
     "@types/ua-parser-js": "^0.7.39",
     "@types/update-notifier": "^6.0.7",
-    "@types/ws": "^8.5.9",
+    "@types/ws": "^8.5.10",
     "eslint": "^8.53.0",
     "eslint-config-oclif": "^4.0.0",
     "eslint-config-oclif-typescript": "^1.0.2",
