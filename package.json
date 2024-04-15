@@ -24,7 +24,7 @@
     "get-port": "^7.0.0",
     "globby": "^13.2.2",
     "got": "^13.0.0",
-    "https-proxy-agent": "^7.0.2",
+    "https-proxy-agent": "^7.0.4",
     "ignore": "^5.3.1",
     "inquirer": "^9.2.18",
     "mime": "^3.0.0",
