@@ -36,7 +36,7 @@
     "shamsi-date-converter": "^1.0.5",
     "tar": "^6.2.0",
     "ua-parser-js": "^1.0.37",
-    "update-notifier": "^6.0.2",
+    "update-notifier": "^7.0.0",
     "ws": "^8.16.0"
   },
   "devDependencies": {
