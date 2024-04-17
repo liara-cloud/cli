@@ -11,7 +11,7 @@
   "dependencies": {
     "@oclif/core": "^2.8.11",
     "@oclif/plugin-autocomplete": "^2.3.9",
-    "@oclif/plugin-help": "^5.2.11",
+    "@oclif/plugin-help": "^6.0.21",
     "@oclif/plugin-version": "^2.0.17",
     "ansi-escapes": "^6.2.1",
     "async-retry": "^1.3.3",
