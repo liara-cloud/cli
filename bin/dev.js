@@ -1,6 +1,5 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env -S node --loader ts-node/esm --no-warnings=ExperimentalWarning
 
-(async () => {
-  const oclif = await import('@oclif/core');
-  await oclif.execute({ type: 'esm', development: true, dir: import.meta.url });
-})();
+import { execute } from '@oclif/core';
+
+await execute({ development: true, dir: import.meta.url });
