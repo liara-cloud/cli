@@ -1,7 +1,7 @@
 import { relative, join, dirname } from 'node:path';
 
-import tar from 'tar';
 import fs from 'fs-extra';
+import { create } from 'tar';
 import ignore, { Ignore } from 'ignore';
 
 import { DebugLogger } from './output.js';
@@ -162,7 +162,7 @@ export default async function createArchive(
 > Read more: https://docs.liara.ir/app-features/ignore`);
   }
 
-  return await tar.create(
+  return await create(
     {
       gzip: {
         level: 9,
