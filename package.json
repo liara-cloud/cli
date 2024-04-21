@@ -55,7 +55,7 @@
     "eslint-config-oclif": "^4.0.0",
     "eslint-config-oclif-typescript": "^1.0.2",
     "husky": "^9.0.11",
-    "oclif": "^4.8.5",
+    "oclif": "^4.8.6",
     "prettier": "^3.2.5",
     "pretty-quick": "^4.0.0",
     "ts-jest": "^29.1.2",
