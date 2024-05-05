@@ -210,8 +210,6 @@ export default class AccountAdd extends Command {
       .post('v1/login/check-if-exists', { json: { email } })
       .json<{ exists: boolean; socialCompleted: boolean }>();
 
-    console.log('here');
-    console.log(exists, socialCompleted);
     if (!exists) {
       this.error(
         `Email has never signed up before.
