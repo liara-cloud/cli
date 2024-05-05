@@ -166,7 +166,7 @@ export default class Deploy extends Command {
     config.buildCache = !(config['no-cache'] || config.build?.cache === false);
 
     this.debug(
-      `Using Build Cache: ${config.buildCache ? 'Enabled' : 'Disabled'}`
+      `Using Build Cache: ${config.buildCache ? 'Enabled' : 'Disabled'}`,
     );
 
     config.dockerfile = config.dockerfile || config.build?.dockerfile;
@@ -205,7 +205,7 @@ export default class Deploy extends Command {
         this.log();
 
         const { project } = await this.got(
-          `v1/projects/${config.app}`
+          `v1/projects/${config.app}`,
         ).json<IProjectDetailsResponse>();
 
         const defaultSubdomain: string =
@@ -218,7 +218,7 @@ export default class Deploy extends Command {
           : `    ${`https://${config.app}${defaultSubdomain}`}`;
 
         const { domains } = await this.got(
-          `v1/domains?project=${config.app}`
+          `v1/domains?project=${config.app}`,
         ).json<IGetDomainsResponse>();
 
         if (!domains.length || project.defaultSubdomain)
@@ -300,6 +300,26 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`;
 
       if (
         error.response &&
+        error.response.statusCode === 428 &&
+        error.data.code === 'max_deployment_count_in_day'
+      ) {
+        return this.error(
+          `You have reached the maximum number of deployments for today. Please try again tomorrow.`,
+        );
+      }
+
+      if (
+        error.response &&
+        error.response.statusCode === 428 &&
+        error.data.code === 'germany_builder_not_allowed'
+      ) {
+        return this.error(
+          `You are not allowed to deploy in Germany builder region. Please try another region.`,
+        );
+      }
+
+      if (
+        error.response &&
         error.response.statusCode >= 400 &&
         error.response.statusCode < 500 &&
         responseBody.message
@@ -316,8 +336,8 @@ Please login via 'liara login' command.
 
 If you are using API token for authentication, please consider updating your API token.
 You may also want to switch to another region. Your current region is: ${chalk.cyan(
-            config.region!
-          )}`).render()
+            config.region!,
+          )}`).render(),
         );
         process.exit(2);
       }
@@ -326,10 +346,11 @@ You may also want to switch to another region. Your current region is: ${chalk.c
         return this.error(error.message);
       }
 
-      if (error instanceof ReachedMaxSourceSizeError) {
-        this.error(
-          `Source is too large. ${chalk.yellowBright('(max: 256MB)')}`
-        );
+      if (
+        error instanceof ReachedMaxSourceSizeError ||
+        error.response.statusCode === 413
+      ) {
+        this.error(error.message);
       }
 
       this.log(chalk.gray(this.config.userAgent));
@@ -391,8 +412,8 @@ Additionally, you can also retry the build with the debug flag:
     this.logKeyValue(
       'Compressed size',
       `${bytes(sourceSize)} ${chalk.cyanBright(
-        '(use .gitignore to reduce the size)'
-      )}`
+        '(use .gitignore to reduce the size)',
+      )}`,
     );
 
     if (sourceSize > MAX_SOURCE_SIZE) {
@@ -409,7 +430,7 @@ Additionally, you can also retry the build with the debug flag:
     const sourceID = await this.upload(
       config.app as string,
       sourcePath,
-      sourceSize
+      sourceSize,
     );
 
     this.debug(`sourceID: ${sourceID}`);
@@ -436,7 +457,7 @@ Additionally, you can also retry the build with the debug flag:
         }
 
         this.spinner.start(
-          `Waiting for the build, ${release.queue} people(s) ahead...`
+          `Waiting for the build, ${release.queue} people(s) ahead...`,
         );
 
         await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -537,7 +558,7 @@ Additionally, you can also retry the build with the debug flag:
       // node, netcore, php
       this.logKeyValue(
         `${config.platform} version`,
-        body.platformConfig.version
+        body.platformConfig.version,
       );
       return body;
     }
@@ -556,7 +577,7 @@ Additionally, you can also retry the build with the debug flag:
           platformVersion = await getPlatformVersion(
             config.platform,
             config.path,
-            this.debug
+            this.debug,
           );
           if (platformVersion) {
             this.logKeyValue('Auto-detected Python version', platformVersion);
@@ -568,7 +589,7 @@ Additionally, you can also retry the build with the debug flag:
           platformVersion = await getPlatformVersion(
             config.platform,
             config.path,
-            this.debug
+            this.debug,
           );
           if (platformVersion) {
             this.logKeyValue('Auto-detected php version', platformVersion);
@@ -584,12 +605,12 @@ Additionally, you can also retry the build with the debug flag:
           platformVersion = await getPlatformVersion(
             config.platform,
             config.path,
-            this.debug
+            this.debug,
           );
           if (platformVersion) {
             this.logKeyValue(
               `Auto-detected ${config.platform} version`,
-              platformVersion
+              platformVersion,
             );
             body.platformConfig.version = platformVersion;
           }
@@ -597,7 +618,7 @@ Additionally, you can also retry the build with the debug flag:
 
         default:
           this.debug(
-            `Can not auto-detect version for ${config.platform} platform`
+            `Can not auto-detect version for ${config.platform} platform`,
           );
           break;
       }
@@ -625,7 +646,7 @@ Additionally, you can also retry the build with the debug flag:
             this.spinner.fail();
             if (release.failReason) {
               return reject(
-                new DeployException(this.parseFailReason(release.failReason))
+                new DeployException(this.parseFailReason(release.failReason)),
               );
             }
 
@@ -679,7 +700,7 @@ Additionally, you can also retry the build with the debug flag:
       !Array.isArray(config.healthCheck.command)
     ) {
       this.error(
-        '`command` field in healthCheck must be either an array or a string.'
+        '`command` field in healthCheck must be either an array or a string.',
       );
     }
 
@@ -692,14 +713,13 @@ Additionally, you can also retry the build with the debug flag:
     this.spinner.start('Loading...\n');
 
     try {
-      const { projects } = await this.got(
-        'v1/projects'
-      ).json<IGetProjectsResponse>();
+      const { projects } =
+        await this.got('v1/projects').json<IGetProjectsResponse>();
       this.spinner.stop();
 
       if (!projects.length) {
         this.warn(
-          'Please go to https://console.liara.ir/apps and create an app, first.'
+          'Please go to https://console.liara.ir/apps and create an app, first.',
         );
         this.exit(1);
       }
@@ -778,7 +798,7 @@ Additionally, you can also retry the build with the debug flag:
   validatePlatform(platform: string, projectPath: string): void {
     if (platform === 'node') {
       const packageJSON = fs.readJSONSync(
-        path.join(projectPath, 'package.json')
+        path.join(projectPath, 'package.json'),
       );
 
       if (!packageJSON.scripts || !packageJSON.scripts.start) {
@@ -791,7 +811,7 @@ You must add a 'start' command to your package.json scripts.`);
   async upload(
     project: string,
     sourcePath: string,
-    sourceSize: number
+    sourceSize: number,
   ): Promise<string> {
     const bar = new ProgressBar('Uploading [:bar] :percent :etas', {
       total: sourceSize,
