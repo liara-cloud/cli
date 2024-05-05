@@ -301,8 +301,21 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`;
       if (
         error.response &&
         error.response.statusCode === 428 &&
-        error.data.code === 'source_size_limit'
+        error.data.code === 'max_deployment_count_in_day'
       ) {
+        return this.error(
+          `You have reached the maximum number of deployments for today. Please try again tomorrow.`,
+        );
+      }
+
+      if (
+        error.response &&
+        error.response.statusCode === 428 &&
+        error.data.code === 'germany_builder_not_allowed'
+      ) {
+        return this.error(
+          `You are not allowed to deploy in Germany builder region. Please try another region.`,
+        );
       }
 
       if (
