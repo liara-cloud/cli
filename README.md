@@ -21,7 +21,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/6.0.0 linux-x64 node-v20.11.1
+@liara/cli/6.0.1 linux-x64 node-v18.18.2
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -33,12 +33,12 @@ USAGE
 
 <!-- commands -->
 * [`liara autocomplete [SHELL]`](#liara-autocomplete-shell)
-* [`liara help [COMMAND]`](#liara-help-command)
+* [`liara help [COMMANDS]`](#liara-help-commands)
 * [`liara version`](#liara-version)
 
 ## `liara autocomplete [SHELL]`
 
-Display autocomplete installation instructions.
+display autocomplete installation instructions
 
 ```
 USAGE
@@ -51,7 +51,7 @@ FLAGS
   -r, --refresh-cache  Refresh cache (ignores displaying instructions)
 
 DESCRIPTION
-  Display autocomplete installation instructions.
+  display autocomplete installation instructions
 
 EXAMPLES
   $ liara autocomplete
@@ -65,18 +65,18 @@ EXAMPLES
   $ liara autocomplete --refresh-cache
 ```
 
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v3.0.15/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v2.3.9/src/commands/autocomplete/index.ts)_
 
-## `liara help [COMMAND]`
+## `liara help [COMMANDS]`
 
 Display help for liara.
 
 ```
 USAGE
-  $ liara help [COMMAND...] [-n]
+  $ liara help [COMMANDS] [-n]
 
 ARGUMENTS
-  COMMAND...  Command to show help for.
+  COMMANDS  Command to show help for.
 
 FLAGS
   -n, --nested-commands  Include all nested commands in the output.
@@ -85,7 +85,7 @@ DESCRIPTION
   Display help for liara.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.0.21/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v5.2.15/src/commands/help.ts)_
 
 ## `liara version`
 
@@ -105,5 +105,5 @@ FLAG DESCRIPTIONS
     Additionally shows the architecture, node version, operating system, and versions of plugins that the CLI is using.
 ```
 
-_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v2.0.17/src/commands/version.ts)_
+_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v1.3.8/src/commands/version.ts)_
 <!-- commandsstop -->
