@@ -206,23 +206,29 @@ export default class AccountAdd extends Command {
   }
 
   async checkPasswordSet(email: string): Promise<string> {
-    const { exists, socialCompleted } = await this.got
-      .post('v1/login/check-if-exists', { json: { email } })
-      .json<{ exists: boolean; socialCompleted: boolean }>();
+    try {
+      const { exists, socialCompleted } = await this.got
+        .post('v1/login/check-if-exists', { json: { email } })
+        .json<{ exists: boolean; socialCompleted: boolean }>();
 
-    if (!exists) {
-      this.error(
-        `Email has never signed up before.
-Before proceeding, sign up using the following link: https://console.liara.ir`,
-      );
-    }
+      if (!exists) {
+        this.error(
+          `This email has not been registered before.
+Before proceeding, please sign up using the following link: https://console.liara.ir`,
+        );
+      }
 
-    if (!socialCompleted) {
-      this.error(`This email has not yet set a password for the account.
+      if (!socialCompleted) {
+        this.error(`This email has not yet set a password for the account.
 Before proceeding, please set a password using the following link: https://console.liara.ir/settings/security
 After setting your password, please run 'liara login' or 'liara account:add' again.`);
-    }
+      }
 
-    return email;
+      return email;
+    } catch {
+      this
+        .error(`Checking email address failed. Please check your internet connection and try again.
+If the issue persists, please submit a ticket at https://console.liara.ir/tickets for further assistance.`);
+    }
   }
 }
