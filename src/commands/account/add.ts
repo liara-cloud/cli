@@ -76,7 +76,7 @@ export default class AccountAdd extends Command {
     }
 
     const body = {
-      email: flags.email,
+      email: await this.checkPasswordSet(flags.email),
       password:
         flags.password ||
         (!flags['api-token'] && (await this.promptPassword())),
@@ -105,7 +105,7 @@ export default class AccountAdd extends Command {
           throw error;
         }
       },
-      { retries: 3 }
+      { retries: 3 },
     )) as {
       api_token: string;
       avatar: string;
@@ -127,7 +127,7 @@ export default class AccountAdd extends Command {
 
     fs.writeFileSync(
       GLOBAL_CONF_PATH,
-      JSON.stringify({ accounts, version: GLOBAL_CONF_VERSION })
+      JSON.stringify({ accounts, version: GLOBAL_CONF_VERSION }),
     );
 
     flags['from-login'] && (await AccountUse.run(['--account', name]));
@@ -149,7 +149,7 @@ export default class AccountAdd extends Command {
     const currentAccountsName = currentAccounts && Object.keys(currentAccounts);
     return currentAccountsName?.includes(name)
       ? this.error(
-          'This name has already been used for another account. Please use a different name.'
+          'This name has already been used for another account. Please use a different name.',
         )
       : name;
   }
@@ -171,8 +171,8 @@ export default class AccountAdd extends Command {
       if (error.message === 'stdin lacks setRawMode support') {
         this.error(
           `Interactive mode not supported – please run ${chalk.green(
-            'liara login --email you@domain.com --password your_password'
-          )}`
+            'liara login --email you@domain.com --password your_password',
+          )}`,
         );
       }
 
@@ -203,5 +203,32 @@ export default class AccountAdd extends Command {
     }).json<{ user: IAccount }>();
 
     return user;
+  }
+
+  async checkPasswordSet(email: string): Promise<string> {
+    try {
+      const { exists, socialCompleted } = await this.got
+        .post('v1/login/check-if-exists', { json: { email } })
+        .json<{ exists: boolean; socialCompleted: boolean }>();
+
+      if (!exists) {
+        this.error(
+          `This email has not been registered before.
+Before proceeding, please sign up using the following link: https://console.liara.ir`,
+        );
+      }
+
+      if (!socialCompleted) {
+        this.error(`This email has not yet set a password for the account.
+Before proceeding, please set a password using the following link: https://console.liara.ir/settings/security
+After setting your password, please run 'liara login' or 'liara account:add' again.`);
+      }
+
+      return email;
+    } catch {
+      this
+        .error(`Checking email address failed. Please check your internet connection and try again.
+If the issue persists, please submit a ticket at https://console.liara.ir/tickets for further assistance.`);
+    }
   }
 }

@@ -11,6 +11,7 @@
     "no-process-exit": "off",
     "no-return-await": "off",
     "no-await-in-loop": "off",
+    "n/no-process-exit": "off",
     "operator-linebreak": "off",
     "no-negated-condition": "off",
     "unicorn/import-style": "off",
@@ -20,12 +21,18 @@
     "unicorn/no-array-reduce": "off",
     "unicorn/prefer-array-some": "off",
     "unicorn/no-nested-ternary": "off",
+    "perfectionist/sort-imports": "off",
+    "perfectionist/sort-classes": "off",
+    "perfectionist/sort-objects": "off",
     "unicorn/prefer-node-protocol": "off",
     "unicorn/explicit-length-check": "off",
+    "perfectionist/sort-object-types": "off",
+    "perfectionist/sort-named-imports": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "unicorn/no-array-callback-reference": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
     "@typescript-eslint/no-empty-function": "off",
-    "@typescript-eslint/explicit-module-boundary-types": "off"
+    "@typescript-eslint/explicit-module-boundary-types": "off",
   },
-  "ignorePatterns": ["test"]
+  "ignorePatterns": ["test"],
 }
