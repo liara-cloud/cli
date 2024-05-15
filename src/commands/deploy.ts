@@ -348,7 +348,7 @@ You may also want to switch to another region. Your current region is: ${chalk.c
 
       if (
         error instanceof ReachedMaxSourceSizeError ||
-        error.response.statusCode === 413
+        (error.response && error.response.statusCode === 413)
       ) {
         this.error(error.message);
       }
