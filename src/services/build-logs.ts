@@ -12,7 +12,7 @@ export default async (
   httpClient: Got,
   releaseID: string,
   isCanceled: boolean,
-  cb: ({ state, line }: { state: string; line?: string }) => void
+  cb: ({ state, line }: { state: string; line?: string }) => void,
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     const poller = new Poller();
@@ -33,7 +33,7 @@ export default async (
               state = 'PUSHING';
             } else if (output.line.startsWith('Pushing...')) {
               if (output.line.startsWith('Pushing... 100%')) {
-                state = 'DEPLOYING';
+                state = 'PUSHED';
               } else {
                 state = 'PUSHING';
               }

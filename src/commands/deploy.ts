@@ -259,7 +259,6 @@ export default class Deploy extends Command {
       this.spinner.stop();
       error.response && debug(error.response.body);
       !error.response && debug(error);
-
       const responseBody =
         error.response &&
         error.response.statusCode >= 400 &&
@@ -355,9 +354,7 @@ You may also want to switch to another region. Your current region is: ${chalk.c
 
       this.log(chalk.gray(this.config.userAgent));
       this.log();
-      this.error(`Deployment failed.
-To get help, visit our documentation at: https://docs.liara.ir
-
+      return this.error(`Deployment failed.
 Additionally, you can also retry the build with the debug flag:
     $ ${chalk.cyan('liara deploy --debug')}`);
     }
@@ -494,8 +491,11 @@ Additionally, you can also retry the build with the debug flag:
 
     try {
       await buildLogs(this.got, releaseID, isCanceled, (output) => {
-        if (output.state === 'DEPLOYING') {
+        if (output.state === 'PUSHED') {
           this.spinner.succeed('Image pushed.');
+        }
+
+        if (output.state === 'DEPLOYING') {
           this.spinner.start('Creating a new release...');
         }
 
@@ -541,7 +541,7 @@ Additionally, you can also retry the build with the debug flag:
 
       if (error instanceof ReleaseFailed) {
         this.spinner.fail();
-        throw new Error('Release failed.');
+        this.error('Release failed.');
       }
 
       this.debug(error.stack);
