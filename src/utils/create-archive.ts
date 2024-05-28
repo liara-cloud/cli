@@ -50,7 +50,7 @@ const platformIgnores: { [platform: string]: string[] } = {
   flask: [...pythonPlatformsIgnores, 'instance', '.webassets-cache'],
   laravel: [...phpPlatformsIgnores],
   php: [...phpPlatformsIgnores],
-  netcore: [
+  dotnet: [
     // Source: https://gist.github.com/vmandic/ac2ecc9c24f6899ee0ec46e4ce444a0e
     'Debug',
     'debug',
@@ -82,10 +82,10 @@ function trimLines(lines: string[]): string[] {
 const loadIgnoreFile = (
   ignoreInstance: Ignore,
   ignoreFilePath: string,
-  projectPath: string
+  projectPath: string,
 ) => {
   const patterns: string[] = trimLines(
-    fs.readFileSync(ignoreFilePath).toString().split('\n')
+    fs.readFileSync(ignoreFilePath).toString().split('\n'),
   );
 
   const relativeToProjectPath = patterns.map((pattern: string) => {
@@ -111,7 +111,7 @@ const loadIgnoreFile = (
 function addIgnorePatterns(
   ignoreInstance: Ignore,
   projectPath: string,
-  dir: string
+  dir: string,
 ) {
   const liaraignorePath = join(projectPath, dir, '.liaraignore');
   const dockerignorePath = join(projectPath, dir, '.dockerignore');
@@ -130,7 +130,7 @@ export default async function createArchive(
   archivePath: string,
   projectPath: string,
   platform?: string,
-  debug: DebugLogger = () => {}
+  debug: DebugLogger = () => {},
 ) {
   const ignoreInstance = ignore.default({ ignorecase: false });
   ignoreInstance.add(defaultIgnores);
@@ -171,6 +171,6 @@ export default async function createArchive(
       filter: ignoreFN,
       file: archivePath,
     },
-    fileList
+    fileList,
   );
 }
