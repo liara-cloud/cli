@@ -15,13 +15,13 @@ async function getPlatformVersion(
   If we don't get any result, then we determine the platform version simply by executing platform runtime command. */
   platform: string,
   projectPath: string,
-  debug: DebugLogger = () => {}
+  debug: DebugLogger = () => {},
 ) {
   const platformsVersionCommand: { [key: string]: string } = {
     python: 'python --version || python3 --version || py --version',
     php: 'php --version',
     node: 'node --version',
-    netcore: 'dotnet --version',
+    dotnet: 'dotnet --version',
   };
   const platformsVersionTrim: {
     [key: string]: (rawVersion: string) => string;
@@ -31,7 +31,7 @@ async function getPlatformVersion(
     php: (rawVersion: string) =>
       rawVersion.trim().split(' ')[1].split('.').slice(0, 2).join('.'), // ex: 8.2
     node: (rawVersion: string) => rawVersion.trim().slice(1).split('.')[0], // ex: 18
-    netcore: (rawVersion: string) => rawVersion.trim()[0] + '.0', // ex: 5.0
+    dotnet: (rawVersion: string) => rawVersion.trim()[0] + '.0', // ex: 5.0
   };
 
   // Below codes are for derived platforms
@@ -58,8 +58,8 @@ async function getPlatformVersion(
     case 'node':
       pureVersion = getNodeVersion(projectPath, debug);
       break;
-    case 'netcore':
-      pureVersion = await detectNetCorePlatformVersion(projectPath, debug);
+    case 'dotnet':
+      pureVersion = await detectDotNetPlatformVersion(projectPath, debug);
       break;
   }
 
@@ -182,7 +182,7 @@ function getNodeVersion(projectPath: string, debug: DebugLogger) {
 
 function getRequiredPHPVersion(
   projectPath: string,
-  debug: DebugLogger
+  debug: DebugLogger,
 ): string | null {
   // semver forces us to use the full semver syntax,
   // but before returning the final result, we remove the last .0 part
@@ -197,20 +197,20 @@ function getRequiredPHPVersion(
 
   try {
     const composerJson = fs.readJSONSync(
-      path.join(projectPath, 'composer.json')
+      path.join(projectPath, 'composer.json'),
     );
 
     if (composerJson?.config?.platform?.php) {
       const range = convertSinglePipeToDouble(composerJson.config.platform.php);
       return normalizeVersion(
-        semver.maxSatisfying(supportedPHPVersions, range)
+        semver.maxSatisfying(supportedPHPVersions, range),
       );
     }
 
     if (composerJson?.require?.php) {
       const range = convertSinglePipeToDouble(composerJson.require.php);
       return normalizeVersion(
-        semver.maxSatisfying(supportedPHPVersions, range)
+        semver.maxSatisfying(supportedPHPVersions, range),
       );
     }
 
@@ -218,7 +218,7 @@ function getRequiredPHPVersion(
   } catch (error) {
     if (error.syscall === 'open') {
       debug(
-        `Could not open composer.json to detect the php version. Skipping... message=${error.message}`
+        `Could not open composer.json to detect the php version. Skipping... message=${error.message}`,
       );
       return null;
     }
@@ -229,7 +229,7 @@ function getRequiredPHPVersion(
 
 function getDefaultLaravelPlatformConfig(
   projectPath: string,
-  debug: DebugLogger
+  debug: DebugLogger,
 ) {
   const detectedPHPVersion = getRequiredPHPVersion(projectPath, debug);
   if (detectedPHPVersion) {
@@ -251,25 +251,25 @@ function normalizeVersion(version?: string | null): string | null {
   return version.replace(/.0$/, '');
 }
 
-async function detectNetCorePlatformVersion(
+async function detectDotNetPlatformVersion(
   projectPath: string,
-  debug: DebugLogger
+  debug: DebugLogger,
 ) {
-  const detectedNetCoreVersion = await getRequiredNetCoreVersion(
+  const detectedDotNetVersion = await getRequiredDotNetVersion(
     projectPath,
-    debug
+    debug,
   );
-  if (detectedNetCoreVersion) {
-    return detectedNetCoreVersion;
+  if (detectedDotNetVersion) {
+    return detectedDotNetVersion;
   }
   return null;
 }
 
-async function getRequiredNetCoreVersion(
+async function getRequiredDotNetVersion(
   projectPath: string,
-  debug: DebugLogger
+  debug: DebugLogger,
 ): Promise<string | null> {
-  const supportedNetCoreVersions = [
+  const supportedDotNetVersions = [
     '2.1',
     '2.2',
     '3.0',
@@ -291,11 +291,11 @@ async function getRequiredNetCoreVersion(
     const csprojXml = fs.readFileSync(csproj, 'utf8');
 
     const dotNetVersion = normalizeVersion(
-      semver.coerce(csprojXml, { loose: true })?.version
+      semver.coerce(csprojXml, { loose: true })?.version,
     );
 
-    if (!supportedNetCoreVersions.find((v) => dotNetVersion === v)) {
-      debug(`${dotNetVersion} is not a supported netcore version.`);
+    if (!supportedDotNetVersions.find((v) => dotNetVersion === v)) {
+      debug(`${dotNetVersion} is not a supported dotnet version.`);
       return null;
     }
 
@@ -303,7 +303,7 @@ async function getRequiredNetCoreVersion(
   } catch (error) {
     if (error.syscall === 'open') {
       debug(
-        `Could not open csproj to detect the netcore version. Skipping... message=${error.message}`
+        `Could not open csproj to detect the dotnet version. Skipping... message=${error.message}`,
       );
       return null;
     }

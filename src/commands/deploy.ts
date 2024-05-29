@@ -555,7 +555,7 @@ Additionally, you can also retry the build with the debug flag:
       return body;
     }
     if (body.platformConfig.version) {
-      // node, netcore, php
+      // node, dotnet, php
       this.logKeyValue(
         `${config.platform} version`,
         body.platformConfig.version,
@@ -601,7 +601,7 @@ Additionally, you can also retry the build with the debug flag:
           }
           break;
         case 'node':
-        case 'netcore':
+        case 'dotnet':
           platformVersion = await getPlatformVersion(
             config.platform,
             config.path,

@@ -30,7 +30,7 @@ export const AVAILABLE_PLATFORMS = [
   'php',
   'django',
   'flask',
-  'netcore',
+  'dotnet',
   'react',
   'angular',
   'vue',

@@ -20,7 +20,7 @@ export function getPort(platform: string): number {
 
 export function getDefaultPort(platform: string): number {
   const ports: IPorts = {
-    netcore: 80,
+    dotnet: 80,
   };
   return ports[platform] || 3000;
 }
