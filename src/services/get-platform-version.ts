@@ -59,7 +59,7 @@ async function getPlatformVersion(
       pureVersion = getNodeVersion(projectPath, debug);
       break;
     case 'dotnet':
-      pureVersion = await detectNetCorePlatformVersion(projectPath, debug);
+      pureVersion = await detectDotNetPlatformVersion(projectPath, debug);
       break;
   }
 
@@ -252,25 +252,25 @@ function normalizeVersion(version?: string | null): string | null {
   return version.replace(/.0$/, '');
 }
 
-async function detectNetCorePlatformVersion(
+async function detectDotNetPlatformVersion(
   projectPath: string,
   debug: DebugLogger,
 ) {
-  const detectedNetCoreVersion = await getRequiredNetCoreVersion(
+  const detectedDotNetVersion = await getRequiredDotNetVersion(
     projectPath,
     debug,
   );
-  if (detectedNetCoreVersion) {
-    return detectedNetCoreVersion;
+  if (detectedDotNetVersion) {
+    return detectedDotNetVersion;
   }
   return null;
 }
 
-async function getRequiredNetCoreVersion(
+async function getRequiredDotNetVersion(
   projectPath: string,
   debug: DebugLogger,
 ): Promise<string | null> {
-  const supportedNetCoreVersions = [
+  const supportedDotNetVersions = [
     '2.1',
     '2.2',
     '3.0',
@@ -295,7 +295,7 @@ async function getRequiredNetCoreVersion(
       semver.coerce(csprojXml, { loose: true })?.version,
     );
 
-    if (!supportedNetCoreVersions.find((v) => dotNetVersion === v)) {
+    if (!supportedDotNetVersions.find((v) => dotNetVersion === v)) {
       debug(`${dotNetVersion} is not a supported dotnet version.`);
       return null;
     }

@@ -6,12 +6,12 @@ import validatePort from '../src/utils/validate-port';
 import detectPlatform from '../src/utils/detect-platform';
 
 describe('utils', () => {
-  it('should detect DotNetCore platform', () => {
-    expect(detectPlatform(fixture('dotnetcore-apps/app1'))).to.not.eq('dotnet'); // Too deep
-    expect(detectPlatform(fixture('dotnetcore-apps/app3'))).to.not.eq('dotnet'); // No .csproj file
+  it('should detect DotNet platform', () => {
+    expect(detectPlatform(fixture('dotnet-apps/app1'))).to.not.eq('dotnet'); // Too deep
+    expect(detectPlatform(fixture('dotnet-apps/app3'))).to.not.eq('dotnet'); // No .csproj file
 
-    expect(detectPlatform(fixture('dotnetcore-apps/app2'))).to.eq('dotnet'); // Max deep
-    expect(detectPlatform(fixture('dotnetcore-apps/app4'))).to.eq('dotnet');
+    expect(detectPlatform(fixture('dotnet-apps/app2'))).to.eq('dotnet'); // Max deep
+    expect(detectPlatform(fixture('dotnet-apps/app4'))).to.eq('dotnet');
   });
 
   it('should throw an error for invalid liara.json file', async () => {
