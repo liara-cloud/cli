@@ -64,6 +64,9 @@ export default class Create extends Command {
       flags['public-network'] || (await this.promptPublicNetwork()) === 'y';
 
     const planID = flags.plan || (await this.promptPlan(type));
+    //TODO Add bundle plan flag
+    const bundlePlanID =
+      flags.bundlePlan || (await this.promptBundlePlan(planID));
     const sayYes = flags.yes;
 
     try {
@@ -98,6 +101,7 @@ export default class Create extends Command {
         json: {
           hostname,
           planID,
+          bundlePlanID,
           publicNetwork,
           type,
           version,
@@ -119,7 +123,7 @@ export default class Create extends Command {
 
       if (error.response && error.response.statusCode === 409) {
         this.error(
-          `The database already exists. Please use a unique name for your database.`
+          `The database already exists. Please use a unique name for your database.`,
         );
       }
 
@@ -136,12 +140,56 @@ export default class Create extends Command {
 
         if (body.data.code === 'free_plan_count') {
           this.error(
-            `You are allowed to create only one database on the free plan`
+            `You are allowed to create only one database on the free plan`,
           );
         }
       }
 
-      this.error(`Could not create the database. Please try again.`);
+      //TODO Change the 2nd one (either 2. Make sure your plan is compatible. or 2. Make sure your plan is upgraded. )
+      this.error(`Error: Unable to Create Database
+        Please try the following steps:\n
+
+        1. Check your internet connection.
+        2. Make sure your plan is up to date. 
+        3. Ensure you have enough balance.
+        4. Verify the database name is correct.\n
+        If you still have problems, please contact support by submitting a ticket at https://console.liara.ir/tickets.`);
+    }
+  }
+  async promptBundlePlan(plan: string) {
+    this.spinner.start('Loading...');
+    try {
+      const { plans } = await this.got('v1/me').json<{ plans: any }>();
+      this.spinner.stop();
+
+      const { bundlePlan } = (await inquirer.prompt({
+        name: 'bundlePlan',
+        type: 'list',
+        message: 'Please select a plan:',
+        choices: [
+          ...Object.keys(plans.projectBundlePlans)
+            .filter((bundlePlan) => {
+              return bundlePlan === plan;
+            })
+            .map((bundlePlan) => {
+              const planDetails = plans.projectBundlePlans[bundlePlan];
+
+              return Object.keys(planDetails).map((key) => {
+                const { displayPrice } = planDetails[key];
+                return {
+                  name: `Plan: ${key}, Price: ${displayPrice.toLocaleString()} Tomans/Month`,
+                  value: key,
+                };
+              });
+            })
+            .flat(),
+        ],
+      })) as { bundlePlan: string };
+
+      return bundlePlan;
+    } catch (error) {
+      this.spinner.stop();
+      throw error;
     }
   }
 
@@ -187,9 +235,9 @@ export default class Create extends Command {
               return {
                 value: plan,
                 name: `RAM: ${ram}${' '.repeat(
-                  5 - ram.toString().length
+                  5 - ram.toString().length,
                 )} GB,  CPU: ${cpu}${' '.repeat(
-                  6 - cpu.toString().length
+                  6 - cpu.toString().length,
                 )}Core,  Disk: ${disk}${
                   ' '.repeat(5 - disk.toString().length) + 'GB'
                 }${storageClass || 'SSD'},  Price: ${price.toLocaleString()}${
@@ -256,7 +304,7 @@ export default class Create extends Command {
         message: 'Please select a version:',
         choices: [
           ...databaseVersions[type].map(
-            (obj: { label: string; value: string }) => obj.value
+            (obj: { label: string; value: string }) => obj.value,
           ),
         ],
       })) as { databaseVersion: string };

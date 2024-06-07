@@ -64,18 +64,22 @@ export default class AppCreate extends Command {
 
     const planID = flags.plan || (await this.promptPlan());
 
+    //TODO Add bundle plan flag
+    const bundlePlanID =
+      flags.bundlePlan || (await this.promptBundlePlan(planID));
     const readOnly =
       flags['read-only'] === 'true'
         ? true
         : flags['read-only'] === 'false'
-        ? false
-        : undefined;
+          ? false
+          : undefined;
 
     try {
       await this.got.post('v1/projects/', {
         json: {
           name,
           planID,
+          bundlePlanID,
           platform,
           network: network?._id,
           readOnlyRootFilesystem: readOnly,
@@ -95,7 +99,7 @@ export default class AppCreate extends Command {
 
       if (error.response && error.response.statusCode === 409) {
         this.error(
-          `The app already exists. Please use a unique name for your app.`
+          `The app already exists. Please use a unique name for your app.`,
         );
       }
 
@@ -108,7 +112,7 @@ export default class AppCreate extends Command {
 
         if (body.data.code === 'free_plan_platform') {
           this.error(
-            `The free plan is not available for ${platform} platform.`
+            `The free plan is not available for ${platform} platform.`,
           );
         }
 
@@ -116,8 +120,53 @@ export default class AppCreate extends Command {
           this.error(`You are allowed to create only one app on the free plan`);
         }
       }
+      //TODO Change the 2nd one (either 2. Make sure your plan is compatible. or 2. Make sure your plan is upgraded. )
+      this.error(`Error: Unable to Create Database
+        Please try the following steps:\n
+        1. Check your internet connection.
+        2. Make sure your plan is up to date. 
+        3. Ensure you have enough balance.
+        4. Verify the database name is correct.\n
+        If you still have problems, please contact support by submitting a ticket at https://console.liara.ir/tickets.`);
+    }
+  }
 
-      this.error(`Could not create the app. Please try again.`);
+  async promptBundlePlan(plan: string) {
+    this.spinner.start('Loading...');
+
+    try {
+      const { plans } = await this.got('v1/me').json<{ plans: any }>();
+
+      this.spinner.stop();
+
+      const { bundlePlan } = (await inquirer.prompt({
+        name: 'bundlePlan',
+        type: 'list',
+        message: 'Please select a plan:',
+        choices: [
+          ...Object.keys(plans.projectBundlePlans)
+            .filter((bundlePlan) => {
+              return bundlePlan === plan;
+            })
+            .map((bundlePlan) => {
+              const planDetails = plans.projectBundlePlans[bundlePlan];
+
+              return Object.keys(planDetails).map((key) => {
+                const { displayPrice } = planDetails[key];
+                return {
+                  name: `Plan: ${key}, Price: ${displayPrice.toLocaleString()} Tomans/Month`,
+                  value: key,
+                };
+              });
+            })
+            .flat(),
+        ],
+      })) as { bundlePlan: string };
+
+      return bundlePlan;
+    } catch (error) {
+      this.spinner.stop();
+      throw error;
     }
   }
 
@@ -155,9 +204,9 @@ export default class AppCreate extends Command {
               return {
                 value: plan,
                 name: `RAM: ${ram}${' '.repeat(
-                  5 - ram.toString().length
+                  5 - ram.toString().length,
                 )} GB,  CPU: ${cpu}${' '.repeat(
-                  6 - cpu.toString().length
+                  6 - cpu.toString().length,
                 )}Core,  Disk: ${disk}${
                   ' '.repeat(5 - disk.toString().length) + 'GB'
                 }${storageClass || 'SSD'},  Price: ${price.toLocaleString()}${
