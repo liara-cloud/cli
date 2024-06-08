@@ -145,17 +145,14 @@ export default class Create extends Command {
         }
       }
 
-      //TODO Change the 2nd one (either 2. Make sure your plan is compatible. or 2. Make sure your plan is upgraded. )
-      this.error(`Error: Unable to Create Database
+      this.error(`Unable to Create Database
         Please try the following steps:\n
-
         1. Check your internet connection.
-        2. Make sure your plan is up to date. 
-        3. Ensure you have enough balance.
-        4. Verify the database name is correct.\n
-        If you still have problems, please contact support by submitting a ticket at https://console.liara.ir/tickets.`);
+        2. Try again later.
+        3. If you still have problems, please contact support by submitting a ticket at https://console.liara.ir/tickets.`);
     }
   }
+
   async promptBundlePlan(plan: string) {
     this.spinner.start('Loading...');
     try {
@@ -165,7 +162,7 @@ export default class Create extends Command {
       const { bundlePlan } = (await inquirer.prompt({
         name: 'bundlePlan',
         type: 'list',
-        message: 'Please select a plan:',
+        message: 'Please select a bundle plan:',
         choices: [
           ...Object.keys(plans.projectBundlePlans)
             .filter((bundlePlan) => {
@@ -177,7 +174,7 @@ export default class Create extends Command {
               return Object.keys(planDetails).map((key) => {
                 const { displayPrice } = planDetails[key];
                 return {
-                  name: `Plan: ${key}, Price: ${displayPrice.toLocaleString()} Tomans/Month`,
+                  name: `Plan type: ${key}, Price: ${displayPrice.toLocaleString()} Tomans/Month`,
                   value: key,
                 };
               });
