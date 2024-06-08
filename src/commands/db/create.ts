@@ -164,12 +164,12 @@ export default class Create extends Command {
         type: 'list',
         message: 'Please select a bundle plan:',
         choices: [
-          ...Object.keys(plans.projectBundlePlans)
+          ...Object.keys(plans.databaseBundlePlans)
             .filter((bundlePlan) => {
               return bundlePlan === plan;
             })
             .map((bundlePlan) => {
-              const planDetails = plans.projectBundlePlans[bundlePlan];
+              const planDetails = plans.databaseBundlePlans[bundlePlan];
 
               return Object.keys(planDetails).map((key) => {
                 const { displayPrice } = planDetails[key];
