@@ -60,7 +60,8 @@
     "pretty-quick": "^4.0.0",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "typescript-json-schema": "^0.63.0"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -170,7 +171,8 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "version": "oclif readme && git add README.md",
     "readme": "oclif readme",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "schema": "typescript-json-schema ./src/types/liara-json.ts ILiaraJSON -o ./schemas/json/liara.json"
   },
   "husky": {
     "hooks": {
