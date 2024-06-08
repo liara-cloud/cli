@@ -300,7 +300,7 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`;
       if (
         error.response &&
         error.response.statusCode === 428 &&
-        error.data.code === 'max_deployment_count_in_day'
+        responseBody?.data?.code === 'max_deployment_count_in_day'
       ) {
         return this.error(
           `You have reached the maximum number of deployments for today. Please try again tomorrow.`,
@@ -310,11 +310,13 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`;
       if (
         error.response &&
         error.response.statusCode === 428 &&
-        error.data.code === 'germany_builder_not_allowed'
+        responseBody?.data?.code === 'germany_builder_not_allowed'
       ) {
-        return this.error(
-          `You are not allowed to deploy in Germany builder region. Please try another region.`,
-        );
+        const message = `To use builder locations, upgrade your bundle plan, first. 
+Then try again.
+https://console.liara.ir/apps/${config.app}/resize`;
+
+        return this.error(message);
       }
 
       if (
