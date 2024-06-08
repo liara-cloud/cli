@@ -85,14 +85,24 @@ export default class AppLogs extends Command {
 
       try {
         const data = await this.got(
-          `v2/projects/${project}/logs?start=${since}`
+          `v2/projects/${project}/logs?start=${since}`,
         ).json<ILog>();
 
         logs = data.data[0].values;
       } catch (error) {
-        if (error.response && error.response.status === 404) {
+        if (error.response && error.response.statusCode === 404) {
           // tslint:disable-next-line: no-console
           console.error(new Errors.CLIError('App not found.').render());
+          process.exit(2);
+        }
+
+        if (error.response && error.response.statusCode === 428) {
+          const message = `To view more logs, upgrade your bundle plan, first. 
+Then try again.
+https://console.liara.ir/apps/${project}/resize`;
+
+          // tslint:disable-next-line: no-console
+          console.error(new Errors.CLIError(message).render());
           process.exit(2);
         }
 
@@ -105,7 +115,7 @@ export default class AppLogs extends Command {
         // tslint:disable-next-line: no-console
         console.error(
           new Errors.CLIError(`${lastLog[1]}
-Sorry for inconvenience. Please contact us.`).render()
+Sorry for inconvenience. Please contact us.`).render(),
         );
         process.exit(1);
       }
@@ -146,7 +156,7 @@ Sorry for inconvenience. Please contact us.`).render()
       message = `${this.#gray(
         moment
           .unix(parseInt(log[0].substring(0, 10)))
-          .format('YYYY-MM-DDTHH:mm:ss')
+          .format('YYYY-MM-DDTHH:mm:ss'),
       )} ${message}`;
     }
 
@@ -189,23 +199,23 @@ function colorfulAccessLog(message: string): string {
   return message
     .replace(
       /(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4})/,
-      `${CYAN}$1${COLOR_END}`
+      `${CYAN}$1${COLOR_END}`,
     )
     .replace(
       /(GET|POST|PUT|DELETE|OPTIONS|HEAD) (401|402|403|404|409)/,
-      `$1 ${MAGENTO}$2${COLOR_END}`
+      `$1 ${MAGENTO}$2${COLOR_END}`,
     )
     .replace(
       /(GET|POST|PUT|DELETE|OPTIONS|HEAD) (301|302|304)/,
-      `$1 ${GRAY}$2${COLOR_END}`
+      `$1 ${GRAY}$2${COLOR_END}`,
     )
     .replace(
       /(GET|POST|PUT|DELETE|OPTIONS|HEAD) (200|201|204)/,
-      `$1 ${GREEN}$2${COLOR_END}`
+      `$1 ${GREEN}$2${COLOR_END}`,
     )
     .replace(
       /(GET|POST|PUT|DELETE|OPTIONS|HEAD) (500|502|503|504)/,
-      `$1 ${RED}$2${COLOR_END}`
+      `$1 ${RED}$2${COLOR_END}`,
     )
     .replace('GET', `${BLUE}GET${COLOR_END}`)
     .replace('POST', `${GREEN}POST${COLOR_END}`)
@@ -217,7 +227,7 @@ function colorfulAccessLog(message: string): string {
     .replace(/("Mozilla.+")/, (match) => {
       var matchWithoutColors = match.replace(
         /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g,
-        ''
+        '',
       );
 
       const { browser, os } = new UAParser(matchWithoutColors).getResult();
