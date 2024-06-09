@@ -59,7 +59,11 @@ export default class AppLogs extends Command {
 
   async run() {
     const { flags } = await this.parse(AppLogs);
-    let since: string | number = flags.since || 1;
+    const unixTimeTenSecondsAgo = Math.floor(Date.now() / 1000) - 60;
+    const end = Date.now() / 1000;
+    let since: string | number = flags.since || unixTimeTenSecondsAgo;
+    console.log('original since', since);
+
     const { follow, colorize, timestamps } = flags;
 
     this.#timestamps = timestamps;
@@ -85,7 +89,7 @@ export default class AppLogs extends Command {
 
       try {
         const data = await this.got(
-          `v2/projects/${project}/logs?start=${since}`,
+          `v2/projects/${project}/logs?start=${since}&end=${end}`,
         ).json<ILog>();
 
         logs = data.data[0].values;
