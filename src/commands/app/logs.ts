@@ -4,11 +4,13 @@ import fs from 'fs-extra';
 import chalk from 'chalk';
 import moment from 'moment';
 import UAParser from 'ua-parser-js';
+import * as chrono from 'chrono-node';
 import { Flags, Errors } from '@oclif/core';
 
-import Command from '../../base.js';
+import Command, { IProjectDetailsResponse } from '../../base.js';
 import ILiaraJSON from '../../types/liara-json.js';
 import { createDebugLogger } from '../../utils/output.js';
+import { BundlePlanError } from '../../errors/bundle-plan.js';
 
 interface Entry {
   metaData: {
@@ -31,7 +33,7 @@ export default class AppLogs extends Command {
       description: 'app id',
       parse: async (app) => app.toLowerCase(),
     }),
-    since: Flags.integer({
+    since: Flags.string({
       char: 's',
       description: 'show logs since timestamp',
     }),
@@ -59,8 +61,8 @@ export default class AppLogs extends Command {
 
   async run() {
     const { flags } = await this.parse(AppLogs);
-    let since: string | number = flags.since || 1;
     const { follow, colorize, timestamps } = flags;
+    const now = Math.floor(Date.now() / 1000); // current timestamp
 
     this.#timestamps = timestamps;
     this.#colorize = colorize;
@@ -74,70 +76,113 @@ export default class AppLogs extends Command {
     const project =
       flags.app || projectConfig.app || (await this.promptProject());
 
-    let pendingFetch = false;
-    const fetchLogs = async () => {
-      if (pendingFetch) return;
-      pendingFetch = true;
+    const {
+      project: { bundlePlanID },
+    } = await this.got(
+      `v1/projects/${project}`,
+    ).json<IProjectDetailsResponse>();
 
-      this.debug('Polling...');
+    let maxSince: number;
+    switch (bundlePlanID) {
+      case 'free':
+        maxSince = now - 3600; // 1 hour
+        break;
+      case 'standard':
+        maxSince = now - 2592000; // 30 days
+        break;
+      case 'pro':
+        maxSince = now - 5184000; // 60 days
+        break;
+      default:
+        throw new Error('Unknown bundle plan type');
+    }
 
-      let logs: [string, string][] = [];
+    const start: number = flags.since
+      ? this.getStart(`${flags.since}`)
+      : maxSince;
 
-      try {
-        const data = await this.got(
-          `v2/projects/${project}/logs?start=${since}`,
-        ).json<ILog>();
+    if (start < maxSince) {
+      console.error(
+        new Errors.CLIError(
+          BundlePlanError.max_logs_period(bundlePlanID),
+        ).render(),
+      );
+      process.exit(2);
+    }
 
-        logs = data.data[0].values;
-      } catch (error) {
-        if (error.response && error.response.statusCode === 404) {
-          // tslint:disable-next-line: no-console
-          console.error(new Errors.CLIError('App not found.').render());
-          process.exit(2);
-        }
+    let lastLogUnix: number | null = null;
 
-        if (error.response && error.response.statusCode === 428) {
-          const message = `To view more logs, upgrade your bundle plan, first. 
-Then try again.
-https://console.liara.ir/apps/${project}/resize`;
+    while (true) {
+      // Maybe find a better way of handling "lastLogUnix ?? 0"
+      const logs = await this.fetchLogs(
+        Math.max(start, lastLogUnix ?? 0),
+        project,
+      );
 
-          // tslint:disable-next-line: no-console
-          console.error(new Errors.CLIError(message).render());
-          process.exit(2);
-        }
-
-        this.debug(error.stack);
+      if (!logs?.length && !follow) {
+        break;
       }
 
-      const lastLog = logs[0];
-
-      if (lastLog && lastLog[0] === 'Error') {
-        // tslint:disable-next-line: no-console
-        console.error(
-          new Errors.CLIError(`${lastLog[1]}
-Sorry for inconvenience. Please contact us.`).render(),
-        );
-        process.exit(1);
-      }
-
-      if (lastLog) {
-        const unixTime = lastLog[0].slice(0, 10);
-        since = parseInt(unixTime) + 1;
-      }
-
-      for (const log of logs.reverse()) {
+      for (const log of logs) {
         this.#printLogLine(log);
       }
 
-      pendingFetch = false;
-    };
+      const lastLog = logs[logs.length - 1];
 
-    if (follow) {
-      fetchLogs();
-      setInterval(fetchLogs, 1000);
-    } else {
-      await fetchLogs();
+      if (lastLog) {
+        const unixTime = lastLog[0].slice(0, 10);
+        lastLogUnix = parseInt(unixTime) + 1;
+      }
+      await this.sleep(1000);
     }
+  }
+
+  fetchLogs = async (since: number, appName: string) => {
+    this.debug('Polling...');
+
+    try {
+      const url = `v2/projects/${appName}/logs`;
+      const data = await this.got(url, {
+        searchParams: {
+          start: since,
+          direction: 'forward',
+        },
+        timeout: {
+          request: 5000,
+        },
+      }).json<ILog>();
+
+      return data?.data[0]?.values || [];
+    } catch (error) {
+      if (error.response && error.response.statusCode === 404) {
+        // tslint:disable-next-line: no-console
+        console.error(new Errors.CLIError('App not found.').render());
+        process.exit(2);
+      }
+
+      if (error.response && error.response.statusCode === 428) {
+        console.log(error.response.body);
+        const message = `To view more logs, upgrade your bundle plan, first.
+                            Then try again.
+                            https://console.liara.ir/apps/${appName}/resize`;
+        // tslint:disable-next-line: no-console
+        console.error(new Errors.CLIError(message).render());
+        process.exit(2);
+      }
+
+      this.debug(error);
+
+      console.error(
+        new Errors.CLIError(
+          ' Invalid time format for --since. Please check the format and try again. Enable --debug for more details.',
+        ).render(),
+      );
+      process.exit(2);
+    }
+  };
+
+  async sleep(miliseconds: number) {
+    return new Promise((resolve) => setTimeout(resolve, miliseconds));
   }
 
   #gray(message: string) {
@@ -184,6 +229,12 @@ Sorry for inconvenience. Please contact us.`).render(),
     }
 
     return content || {};
+  }
+
+  getStart(since: string) {
+    const parsedDate = chrono.parseDate(`${since}`);
+    const sinceUnix = moment(parsedDate).unix();
+    return sinceUnix;
   }
 }
 
