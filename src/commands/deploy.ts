@@ -34,6 +34,7 @@ import prepareTmpDirectory from '../services/tmp-dir.js';
 import detectPlatform from '../utils/detect-platform.js';
 import collectGitInfo from '../utils/collect-git-info.js';
 import ICreatedRelease from '../types/created-release.js';
+import { BundlePlanError } from '../errors/bundle-plan.js';
 import buildArgsParser from '../utils/build-args-parser.js';
 import { DEV_MODE, MAX_SOURCE_SIZE } from '../constants.js';
 import DeployException from '../errors/deploy-exception.js';
@@ -190,7 +191,13 @@ export default class Deploy extends Command {
       config['build-arg'] = { ...secondPriority, ...firstPriority };
     }
 
+    let bundlePlanID: string;
     try {
+      const { project } = await this.got(
+        `v1/projects/${config.app}`,
+      ).json<IProjectDetailsResponse>();
+      bundlePlanID = project.bundlePlanID;
+
       const response = await this.deploy(config);
 
       if (flags.detach) {
@@ -203,10 +210,6 @@ export default class Deploy extends Command {
         this.log(chalk.green('Deployment finished successfully.'));
         this.log(chalk.white('Open up the url below in your browser:'));
         this.log();
-
-        const { project } = await this.got(
-          `v1/projects/${config.app}`,
-        ).json<IProjectDetailsResponse>();
 
         const defaultSubdomain: string =
           config.region === 'iran' && !Boolean(project.network)
@@ -303,7 +306,8 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`;
         responseBody?.data?.code === 'max_deployment_count_in_day'
       ) {
         return this.error(
-          `You have reached the maximum number of deployments for today. Please try again tomorrow.`,
+          BundlePlanError.max_deploy_per_day(bundlePlanID!) ||
+            `You have reached the maximum number of deployments for today. Please try again tomorrow.`,
         );
       }
 
@@ -316,7 +320,9 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`;
 Then try again.
 https://console.liara.ir/apps/${config.app}/resize`;
 
-        return this.error(message);
+        return this.error(
+          BundlePlanError.germany_builder_not_allowed(bundlePlanID!) || message,
+        );
       }
 
       if (
@@ -351,7 +357,9 @@ You may also want to switch to another region. Your current region is: ${chalk.c
         error instanceof ReachedMaxSourceSizeError ||
         (error.response && error.response.statusCode === 413)
       ) {
-        this.error(error.message);
+        this.error(
+          BundlePlanError.max_source_size(bundlePlanID!) || error.message,
+        );
       }
 
       this.log(chalk.gray(this.config.userAgent));

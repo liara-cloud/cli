@@ -1,8 +1,13 @@
 import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
-import Command, { IGetProjectsResponse } from '../../base.js';
 import { Flags } from '@oclif/core';
 import { createDebugLogger } from '../../utils/output.js';
+import checkRegexPattern from '../../utils/name-regex.js';
+import { BundlePlanError } from '../../errors/bundle-plan.js';
+import Command, {
+  IGetProjectsResponse,
+  IProjectDetailsResponse,
+} from '../../base.js';
 
 export default class DiskCreate extends Command {
   static description = 'create a disk';
@@ -36,11 +41,16 @@ export default class DiskCreate extends Command {
     const name = flags.name || (await this.promptDiskName());
     const size = flags.size || (await this.promptDiskSize());
 
+    const {
+      project: { bundlePlanID },
+    } = await this.got(`v1/projects/${app}`).json<IProjectDetailsResponse>();
+
     try {
       await this.got.post(`v1/projects/${app}/disks`, { json: { name, size } });
       this.log(`Disk ${name} created.`);
     } catch (error) {
       debug(error.message);
+      const err = JSON.parse(error.response.body);
 
       if (error.response && error.response.data) {
         debug(JSON.stringify(error.response.data));
@@ -56,10 +66,18 @@ export default class DiskCreate extends Command {
 
       if (
         error.response &&
-        error.response.status === 400 &&
-        error.response.data.message.includes('["size" must be a number]')
+        err.status === 400 &&
+        err.message.includes('["size" must be a number]')
       ) {
-        this.error('Invalid disk size.');
+        this.error('Invalid disk size. Size must be a number.');
+      }
+
+      if (
+        error.response &&
+        err.statusCode === 428 &&
+        err.message === 'max_disks_reached'
+      ) {
+        this.error(BundlePlanError.max_disks_limit(bundlePlanID));
       }
 
       if (error.response && error.response.status === 400) {
@@ -74,14 +92,13 @@ export default class DiskCreate extends Command {
     this.spinner.start('Loading...');
 
     try {
-      const { projects } = await this.got(
-        'v1/projects'
-      ).json<IGetProjectsResponse>();
+      const { projects } =
+        await this.got('v1/projects').json<IGetProjectsResponse>();
       this.spinner.stop();
 
       if (projects.length === 0) {
         this.warn(
-          "Please create an app via 'liara app:create' command, first."
+          "Please create an app via 'liara app:create' command, first.",
         );
         this.exit(1);
       }
@@ -107,6 +124,10 @@ export default class DiskCreate extends Command {
       message: 'Enter a disk name:',
       validate: (input) => input.length > 2,
     })) as { name: string };
+
+    if (!checkRegexPattern(name)) {
+      this.error('Please enter a valid disk name.');
+    }
 
     return name;
   }

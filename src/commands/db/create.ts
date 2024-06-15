@@ -5,6 +5,7 @@ import { Flags } from '@oclif/core';
 
 import Command from '../../base.js';
 import { createDebugLogger } from '../../utils/output.js';
+import checkRegexPattern from '../../utils/name-regex.js';
 
 export default class Create extends Command {
   static description = 'create a new database';
@@ -64,6 +65,8 @@ export default class Create extends Command {
       flags['public-network'] || (await this.promptPublicNetwork()) === 'y';
 
     const planID = flags.plan || (await this.promptPlan(type));
+    const bundlePlanID =
+      flags.bundlePlan || (await this.promptBundlePlan(planID));
     const sayYes = flags.yes;
 
     try {
@@ -98,6 +101,7 @@ export default class Create extends Command {
         json: {
           hostname,
           planID,
+          bundlePlanID,
           publicNetwork,
           type,
           version,
@@ -119,7 +123,7 @@ export default class Create extends Command {
 
       if (error.response && error.response.statusCode === 409) {
         this.error(
-          `The database already exists. Please use a unique name for your database.`
+          `The database already exists. Please use a unique name for your database.`,
         );
       }
 
@@ -136,12 +140,54 @@ export default class Create extends Command {
 
         if (body.data.code === 'free_plan_count') {
           this.error(
-            `You are allowed to create only one database on the free plan`
+            `You are allowed to create only one database on the free plan`,
           );
         }
       }
 
-      this.error(`Could not create the database. Please try again.`);
+      this.error(`Unable to Create Database
+        Please follow these steps:
+        1. Check your internet connection.
+        2. Ensure you have enough balance.
+        2. Try again later.
+        3. If you still have problems, please contact support by submitting a ticket at https://console.liara.ir/tickets.`);
+    }
+  }
+
+  async promptBundlePlan(plan: string) {
+    this.spinner.start('Loading...');
+    try {
+      const { plans } = await this.got('v1/me').json<{ plans: any }>();
+      this.spinner.stop();
+
+      const { bundlePlan } = (await inquirer.prompt({
+        name: 'bundlePlan',
+        type: 'list',
+        message: 'Please select a bundle plan:',
+        choices: [
+          ...Object.keys(plans.databaseBundlePlans)
+            .filter((bundlePlan) => {
+              return bundlePlan === plan;
+            })
+            .map((bundlePlan) => {
+              const planDetails = plans.databaseBundlePlans[bundlePlan];
+
+              return Object.keys(planDetails).map((key) => {
+                const { displayPrice } = planDetails[key];
+                return {
+                  name: `Plan type: ${key}, Price: ${displayPrice.toLocaleString()} Tomans/Month`,
+                  value: key,
+                };
+              });
+            })
+            .flat(),
+        ],
+      })) as { bundlePlan: string };
+
+      return bundlePlan;
+    } catch (error) {
+      this.spinner.stop();
+      throw error;
     }
   }
 
@@ -152,6 +198,10 @@ export default class Create extends Command {
       message: 'Enter name:',
       validate: (input) => input.length > 2,
     })) as { name: string };
+
+    if (!checkRegexPattern(name)) {
+      this.error('Please enter a valid name for your app.');
+    }
 
     return name;
   }
@@ -187,9 +237,9 @@ export default class Create extends Command {
               return {
                 value: plan,
                 name: `RAM: ${ram}${' '.repeat(
-                  5 - ram.toString().length
+                  5 - ram.toString().length,
                 )} GB,  CPU: ${cpu}${' '.repeat(
-                  6 - cpu.toString().length
+                  6 - cpu.toString().length,
                 )}Core,  Disk: ${disk}${
                   ' '.repeat(5 - disk.toString().length) + 'GB'
                 }${storageClass || 'SSD'},  Price: ${price.toLocaleString()}${
@@ -256,7 +306,7 @@ export default class Create extends Command {
         message: 'Please select a version:',
         choices: [
           ...databaseVersions[type].map(
-            (obj: { label: string; value: string }) => obj.value
+            (obj: { label: string; value: string }) => obj.value,
           ),
         ],
       })) as { databaseVersion: string };

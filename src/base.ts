@@ -114,6 +114,7 @@ export interface IProjectDetails {
   scale: number;
   envs: IEnvs[];
   planID: string;
+  bundlePlanID: string;
   fixedIPStatus: string;
   created_at: string;
   node: {
@@ -283,15 +284,14 @@ Please check your network connection.`);
     this.spinner = ora();
     this.spinner.start('Loading...');
     try {
-      const { projects } = await this.got(
-        'v1/projects'
-      ).json<IGetProjectsResponse>();
+      const { projects } =
+        await this.got('v1/projects').json<IGetProjectsResponse>();
 
       this.spinner.stop();
 
       if (!projects.length) {
         this.warn(
-          'Please go to https://console.liara.ir/apps and create an app, first.'
+          'Please go to https://console.liara.ir/apps and create an app, first.',
         );
         this.exit(1);
       }
@@ -313,7 +313,7 @@ Please check your network connection.`);
   async getCurrentAccount(): Promise<IAccount> {
     const accounts = (await this.readGlobalConfig()).accounts;
     const accName = Object.keys(accounts).find(
-      (account) => accounts[account].current
+      (account) => accounts[account].current,
     );
     return { ...accounts[accName || ''], accountName: accName };
   }
@@ -339,7 +339,7 @@ Please use 'liara account add' to add this account, first.`);
     const query = `cli=v1&callbackURL=localhost:${port}/callback&client=cli`;
 
     const url = `https://console.liara.ir/login?${Buffer.from(query).toString(
-      'base64'
+      'base64',
     )}`;
 
     const app = browser ? { app: { name: apps[browser as AppName] } } : {};
@@ -374,7 +374,7 @@ Please use 'liara account add' to add this account, first.`);
           }
 
           const { data } = JSON.parse(
-            Buffer.concat(buffers).toString() || '[]'
+            Buffer.concat(buffers).toString() || '[]',
           );
 
           res.writeHead(200, browserLoginHeader);
@@ -394,15 +394,14 @@ Please use 'liara account add' to add this account, first.`);
     this.spinner.start('Loading...');
 
     try {
-      const { networks } = await this.got(
-        'v1/networks'
-      ).json<IGetNetworkResponse>();
+      const { networks } =
+        await this.got('v1/networks').json<IGetNetworkResponse>();
 
       this.spinner.stop();
 
       if (networks.length === 0) {
         this.warn(
-          "Please create network via 'liara network:create' command, first."
+          "Please create network via 'liara network:create' command, first.",
         );
         this.exit(1);
       }
@@ -428,9 +427,8 @@ Please use 'liara account add' to add this account, first.`);
   }
 
   async getNetwork(name: string) {
-    const { networks } = await this.got(
-      'v1/networks'
-    ).json<IGetNetworkResponse>();
+    const { networks } =
+      await this.got('v1/networks').json<IGetNetworkResponse>();
 
     const network = networks.find((network) => network.name === name);
 
