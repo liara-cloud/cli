@@ -125,7 +125,7 @@ export default class AppCreate extends Command {
         1. Check your internet connection.
         2. Ensure you have enough balance.
         3. Try again later.
-        4. If you still have problems, please contact support by submitting a ticket at https://console.liara.ir/tickets.`);
+        4. If you still have problems, please contact support by submitting a ticket at https://console.liara.ir/tickets`);
     }
   }
 
@@ -140,7 +140,7 @@ export default class AppCreate extends Command {
       const { bundlePlan } = (await inquirer.prompt({
         name: 'bundlePlan',
         type: 'list',
-        message: 'Please select a plan:',
+        message: 'Please select a feature bundle plan:',
         choices: [
           ...Object.keys(plans.projectBundlePlans)
             .filter((bundlePlan) => {

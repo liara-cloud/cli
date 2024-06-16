@@ -1,6 +1,7 @@
 import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
 import { Flags } from '@oclif/core';
+import parseJSON from '../../utils/json-parse.js';
 import { createDebugLogger } from '../../utils/output.js';
 import checkRegexPattern from '../../utils/name-regex.js';
 import { BundlePlanError } from '../../errors/bundle-plan.js';
@@ -50,7 +51,9 @@ export default class DiskCreate extends Command {
       this.log(`Disk ${name} created.`);
     } catch (error) {
       debug(error.message);
-      const err = JSON.parse(error.response.body);
+
+      const err = await parseJSON(error.response.body);
+      console.log('err', err);
 
       if (error.response && error.response.data) {
         debug(JSON.stringify(error.response.data));
@@ -58,16 +61,18 @@ export default class DiskCreate extends Command {
 
       if (
         error.response &&
-        error.response.status === 400 &&
-        error.response.data.message === 'not_enough_storage_space'
+        err.statusCode === 400 &&
+        err.message.includes('not_enough_storage_space')
       ) {
-        this.error(`Not enough storage space.`);
+        this.error(
+          `Not enough storage space. You can upgrade your plan to get more storage space.`,
+        );
       }
 
       if (
         error.response &&
-        err.status === 400 &&
-        err.message.includes('["size" must be a number]')
+        err.statusCode === 400 &&
+        err.message.includes('"size" must be a number')
       ) {
         this.error('Invalid disk size. Size must be a number.');
       }

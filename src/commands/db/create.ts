@@ -163,7 +163,7 @@ export default class Create extends Command {
       const { bundlePlan } = (await inquirer.prompt({
         name: 'bundlePlan',
         type: 'list',
-        message: 'Please select a bundle plan:',
+        message: 'Please select a feature bundle plan:',
         choices: [
           ...Object.keys(plans.databaseBundlePlans)
             .filter((bundlePlan) => {

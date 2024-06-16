@@ -94,7 +94,7 @@ export default class AppLogs extends Command {
         maxSince = now - 5184000; // 60 days
         break;
       default:
-        throw new Error('Unknown bundle plan type');
+        throw new Error('Unknown feature bundle plan type');
     }
 
     const start: number = flags.since
@@ -110,14 +110,11 @@ export default class AppLogs extends Command {
       process.exit(2);
     }
 
-    let lastLogUnix: number | null = null;
+    let lastLogUnix: number = 0;
 
     while (true) {
       // Maybe find a better way of handling "lastLogUnix ?? 0"
-      const logs = await this.fetchLogs(
-        Math.max(start, lastLogUnix ?? 0),
-        project,
-      );
+      const logs = await this.fetchLogs(Math.max(start, lastLogUnix), project);
 
       if (!logs?.length && !follow) {
         break;
@@ -148,7 +145,7 @@ export default class AppLogs extends Command {
           direction: 'forward',
         },
         timeout: {
-          request: 5000,
+          request: 10_000,
         },
       }).json<ILog>();
 
@@ -162,7 +159,7 @@ export default class AppLogs extends Command {
 
       if (error.response && error.response.statusCode === 428) {
         console.log(error.response.body);
-        const message = `To view more logs, upgrade your bundle plan, first.
+        const message = `To view more logs, upgrade your feature bundle plan, first.
                             Then try again.
                             https://console.liara.ir/apps/${appName}/resize`;
         // tslint:disable-next-line: no-console

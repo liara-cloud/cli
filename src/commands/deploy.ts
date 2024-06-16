@@ -316,7 +316,7 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`;
         error.response.statusCode === 428 &&
         responseBody?.data?.code === 'germany_builder_not_allowed'
       ) {
-        const message = `To use builder locations, upgrade your bundle plan, first. 
+        const message = `To use builder locations, upgrade your feature bundle plan, first. 
 Then try again.
 https://console.liara.ir/apps/${config.app}/resize`;
 
