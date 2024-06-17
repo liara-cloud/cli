@@ -19,10 +19,14 @@ export default class Create extends Command {
       description: 'name of your database',
     }),
     plan: Flags.string({
-      description: 'plan',
+      description:
+        'plan options are: ir-small, ir-medium, standard-base, standard-pro, pro, pro-plus, small-g2, medium-g2, standard-base-g2, standard-pro-g2, pro-g2, pro-plus-g2',
     }),
     'public-network': Flags.boolean({
       description: 'use public network or not',
+    }),
+    'feature-plan': Flags.string({
+      description: 'feature bundle plan option: free, standard, pro',
     }),
     type: Flags.string({
       char: 't',
@@ -66,7 +70,8 @@ export default class Create extends Command {
 
     const planID = flags.plan || (await this.promptPlan(type));
     const bundlePlanID =
-      flags.bundlePlan || (await this.promptBundlePlan(planID));
+      flags['feature-plan'] || (await this.promptBundlePlan(planID));
+
     const sayYes = flags.yes;
 
     try {
@@ -171,7 +176,6 @@ export default class Create extends Command {
             })
             .map((bundlePlan) => {
               const planDetails = plans.databaseBundlePlans[bundlePlan];
-
               return Object.keys(planDetails).map((key) => {
                 const { displayPrice } = planDetails[key];
                 return {

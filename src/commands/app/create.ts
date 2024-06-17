@@ -20,7 +20,11 @@ export default class AppCreate extends Command {
       description: 'platform',
     }),
     plan: Flags.string({
-      description: 'plan',
+      description:
+        'plan options: free, ir-mini, ir-small, ir-medium, standard-base, standard-plus, pro, pro-plus, mini-g2, small-g2, medium-g2, standard-base-g2, standard-plus-g2, pro-g2, pro-plus-g2',
+    }),
+    'feature-plan': Flags.string({
+      description: 'feature bundle plan options: free, standard, pro',
     }),
     network: Flags.string({
       char: 'n',
@@ -65,7 +69,7 @@ export default class AppCreate extends Command {
 
     const planID = flags.plan || (await this.promptPlan());
     const bundlePlanID =
-      flags.bundlePlan || (await this.promptBundlePlan(planID));
+      flags['feature-plan'] || (await this.promptBundlePlan(planID));
     const readOnly =
       flags['read-only'] === 'true'
         ? true
