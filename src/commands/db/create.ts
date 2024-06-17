@@ -4,6 +4,7 @@ import { ux } from '@oclif/core';
 import { Flags } from '@oclif/core';
 
 import Command from '../../base.js';
+import parseJSON from '../../utils/json-parse.js';
 import { createDebugLogger } from '../../utils/output.js';
 import checkRegexPattern from '../../utils/name-regex.js';
 
@@ -118,8 +119,20 @@ export default class Create extends Command {
     } catch (error) {
       debug(error.message);
 
+      const err = parseJSON(error.response.body);
+
       if (error.response && error.response.body) {
         debug(JSON.stringify(error.response.body));
+      }
+
+      if (
+        error.response &&
+        err.statusCode === 400 &&
+        err.message.includes('bundlePlan is not available for free plan.')
+      ) {
+        this.error(
+          `The selected feature bundle plan is not available for free plan.`,
+        );
       }
 
       if (error.response && error.response.statusCode === 404) {

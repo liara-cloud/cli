@@ -52,7 +52,7 @@ export default class DiskCreate extends Command {
     } catch (error) {
       debug(error.message);
 
-      const err = await parseJSON(error.response.body);
+      const err = parseJSON(error.response.body);
       console.log('err', err);
 
       if (error.response && error.response.data) {
