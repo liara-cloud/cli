@@ -75,6 +75,10 @@ export default class Create extends Command {
 
     const sayYes = flags.yes;
 
+    if (planID === 'free' && bundlePlanID !== 'free') {
+      this.error(`Only "free" feature bundle plan is available for free plan.`);
+    }
+
     try {
       const tableData = [
         {
@@ -182,23 +186,31 @@ export default class Create extends Command {
         name: 'bundlePlan',
         type: 'list',
         message: 'Please select a feature bundle plan:',
-        choices: [
-          ...Object.keys(plans.databaseBundlePlans)
-            .filter((bundlePlan) => {
-              return bundlePlan === plan;
-            })
-            .map((bundlePlan) => {
-              const planDetails = plans.databaseBundlePlans[bundlePlan];
-              return Object.keys(planDetails).map((key) => {
-                const { displayPrice } = planDetails[key];
-                return {
-                  name: `Plan type: ${key}, Price: ${displayPrice.toLocaleString()} Tomans/Month`,
-                  value: key,
-                };
-              });
-            })
-            .flat(),
-        ],
+        choices:
+          plan === 'free'
+            ? [
+                {
+                  name: `Plan: free, Price: 0 Tomans/Month`,
+                  value: 'free',
+                },
+              ]
+            : [
+                ...Object.keys(plans.databaseBundlePlans)
+                  .filter((bundlePlan) => {
+                    return bundlePlan === plan;
+                  })
+                  .map((bundlePlan) => {
+                    const planDetails = plans.databaseBundlePlans[bundlePlan];
+                    return Object.keys(planDetails).map((key) => {
+                      const { displayPrice } = planDetails[key];
+                      return {
+                        name: `Plan type: ${key}, Price: ${displayPrice.toLocaleString()} Tomans/Month`,
+                        value: key,
+                      };
+                    });
+                  })
+                  .flat(),
+              ],
       })) as { bundlePlan: string };
 
       return bundlePlan;
