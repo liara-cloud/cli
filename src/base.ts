@@ -65,6 +65,7 @@ export interface IConfig {
 export interface IProject {
   _id: string;
   planID: string;
+  bundlePlanID: string;
   scale: number;
   type: string;
   status: string;

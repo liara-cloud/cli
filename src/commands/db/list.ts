@@ -20,9 +20,8 @@ export default class DatabaseList extends Command {
 
     await this.setGotConfig(flags);
 
-    const { databases } = await this.got(
-      'v1/databases'
-    ).json<IGetDatabasesResponse>();
+    const { databases } =
+      await this.got('v1/databases').json<IGetDatabasesResponse>();
 
     if (!databases.length) {
       this.error(`Not found any database.
@@ -38,6 +37,7 @@ Please open up https://console.liara.ir/databases and create the database, first
         Name: db.hostname,
         Type: db.type,
         Plan: db.planID,
+        'Feature plan': db.bundlePlanID,
         Status,
         Scale,
         'Created At': `${shamsiData[0]}-${shamsiData[1]}-${shamsiData[2]}`,
@@ -50,11 +50,12 @@ Please open up https://console.liara.ir/databases and create the database, first
         Name: {},
         Type: {},
         Plan: {},
+        'Feature plan': {},
         Scale: {},
         Status: {},
         'Created At': {},
       },
-      flags
+      flags,
     );
   }
 }

@@ -4,6 +4,7 @@ export default interface IDatabase {
   hostname: string;
   type: string;
   planID: string;
+  bundlePlanID: string;
   status: string;
   created_at: string;
 }
