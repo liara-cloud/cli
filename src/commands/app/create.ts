@@ -21,11 +21,10 @@ export default class AppCreate extends Command {
       description: 'platform',
     }),
     plan: Flags.string({
-      description:
-        'plan options: free, ir-mini, ir-small, ir-medium, standard-base, standard-plus, pro, pro-plus, mini-g2, small-g2, medium-g2, standard-base-g2, standard-plus-g2, pro-g2, pro-plus-g2',
+      description: 'plan',
     }),
     'feature-plan': Flags.string({
-      description: 'feature bundle plan options: free, standard, pro',
+      description: 'feature bundle plan',
     }),
     network: Flags.string({
       char: 'n',
