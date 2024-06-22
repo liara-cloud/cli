@@ -3,7 +3,9 @@ import inquirer from 'inquirer';
 import { Flags } from '@oclif/core';
 
 import Command from '../../base.js';
+import parseJSON from '../../utils/json-parse.js';
 import { AVAILABLE_PLATFORMS } from '../../constants.js';
+import checkRegexPattern from '../../utils/name-regex.js';
 import { createDebugLogger } from '../../utils/output.js';
 
 export default class AppCreate extends Command {
@@ -20,6 +22,9 @@ export default class AppCreate extends Command {
     }),
     plan: Flags.string({
       description: 'plan',
+    }),
+    'feature-plan': Flags.string({
+      description: 'feature bundle plan',
     }),
     network: Flags.string({
       char: 'n',
@@ -63,20 +68,25 @@ export default class AppCreate extends Command {
       : await this.promptNetwork();
 
     const planID = flags.plan || (await this.promptPlan());
-
+    const bundlePlanID =
+      flags['feature-plan'] || (await this.promptBundlePlan(planID));
     const readOnly =
       flags['read-only'] === 'true'
         ? true
         : flags['read-only'] === 'false'
-        ? false
-        : undefined;
+          ? false
+          : undefined;
 
+    if (planID === 'free' && bundlePlanID !== 'free') {
+      this.error(`Only "free" feature bundle plan is available for free plan.`);
+    }
     try {
       await this.got.post('v1/projects/', {
         json: {
           name,
           planID,
           platform,
+          bundlePlanID,
           network: network?._id,
           readOnlyRootFilesystem: readOnly,
         },
@@ -85,8 +95,20 @@ export default class AppCreate extends Command {
     } catch (error) {
       debug(error.message);
 
+      const err = parseJSON(error.response.body);
+
       if (error.response && error.response.body) {
         debug(JSON.stringify(error.response.body));
+      }
+
+      if (
+        error.response &&
+        err.statusCode === 400 &&
+        err.message.includes('bundlePlan is not available for free plan.')
+      ) {
+        this.error(
+          `The selected feature bundle plan is not available for free plan.`,
+        );
       }
 
       if (error.response && error.response.statusCode === 404) {
@@ -95,7 +117,7 @@ export default class AppCreate extends Command {
 
       if (error.response && error.response.statusCode === 409) {
         this.error(
-          `The app already exists. Please use a unique name for your app.`
+          `The app already exists. Please use a unique name for your app.`,
         );
       }
 
@@ -108,7 +130,7 @@ export default class AppCreate extends Command {
 
         if (body.data.code === 'free_plan_platform') {
           this.error(
-            `The free plan is not available for ${platform} platform.`
+            `The free plan is not available for ${platform} platform.`,
           );
         }
 
@@ -117,7 +139,59 @@ export default class AppCreate extends Command {
         }
       }
 
-      this.error(`Could not create the app. Please try again.`);
+      this.error(`Error: Unable to Create App
+        Please try the following steps:
+        1. Check your internet connection.
+        2. Ensure you have enough balance.
+        3. Try again later.
+        4. If you still have problems, please contact support by submitting a ticket at https://console.liara.ir/tickets`);
+    }
+  }
+
+  async promptBundlePlan(plan: string) {
+    this.spinner.start('Loading...');
+
+    try {
+      const { plans } = await this.got('v1/me').json<{ plans: any }>();
+
+      this.spinner.stop();
+
+      const { bundlePlan } = (await inquirer.prompt({
+        name: 'bundlePlan',
+        type: 'list',
+        message: 'Please select a feature bundle plan:',
+        choices:
+          plan === 'free'
+            ? [
+                {
+                  name: `Plan: free, Price: 0 Tomans/Month`,
+                  value: 'free',
+                },
+              ]
+            : [
+                ...Object.keys(plans.projectBundlePlans)
+                  .filter((bundlePlan) => {
+                    return bundlePlan === plan;
+                  })
+                  .map((bundlePlan) => {
+                    const planDetails = plans.projectBundlePlans[bundlePlan];
+
+                    return Object.keys(planDetails).map((key) => {
+                      const { displayPrice } = planDetails[key];
+                      return {
+                        name: `Plan: ${key}, Price: ${displayPrice.toLocaleString()} Tomans/Month`,
+                        value: key,
+                      };
+                    });
+                  })
+                  .flat(),
+              ],
+      })) as { bundlePlan: string };
+
+      return bundlePlan;
+    } catch (error) {
+      this.spinner.stop();
+      throw error;
     }
   }
 
@@ -155,9 +229,9 @@ export default class AppCreate extends Command {
               return {
                 value: plan,
                 name: `RAM: ${ram}${' '.repeat(
-                  5 - ram.toString().length
+                  5 - ram.toString().length,
                 )} GB,  CPU: ${cpu}${' '.repeat(
-                  6 - cpu.toString().length
+                  6 - cpu.toString().length,
                 )}Core,  Disk: ${disk}${
                   ' '.repeat(5 - disk.toString().length) + 'GB'
                 }${storageClass || 'SSD'},  Price: ${price.toLocaleString()}${
@@ -205,6 +279,10 @@ export default class AppCreate extends Command {
       message: 'Enter app name:',
       validate: (input) => input.length > 2,
     })) as { name: string };
+
+    if (!checkRegexPattern(name)) {
+      this.error('Please enter a valid name for your app.');
+    }
 
     return name;
   }

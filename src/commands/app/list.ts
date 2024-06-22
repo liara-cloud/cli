@@ -17,21 +17,21 @@ export default class AppList extends Command {
 
     await this.setGotConfig(flags);
 
-    const { projects } = await this.got(
-      'v1/projects'
-    ).json<IGetProjectsResponse>();
+    const { projects } =
+      await this.got('v1/projects').json<IGetProjectsResponse>();
     if (projects.length === 0) {
       this.error("Please create an app via 'liara app:create' command, first.");
     }
 
     const appsData = projects.map((project) => {
       const shamshiDate = shamsi.gregorianToJalali(
-        new Date(project.created_at)
+        new Date(project.created_at),
       );
       return {
         Name: project.project_id,
         Platform: project.type,
         Plan: project.planID,
+        'Feature plan': project.bundlePlanID,
         Status: project.status,
         Scale: project.scale,
         'Created At': `${shamshiDate[0]}-${shamshiDate[1]}-${shamshiDate[2]}`,
@@ -44,11 +44,12 @@ export default class AppList extends Command {
         Name: {},
         Platform: {},
         Plan: {},
+        'Feature plan': {},
         Scale: {},
         Status: {},
         'Created At': {},
       },
-      flags
+      flags,
     );
   }
 }
