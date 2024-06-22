@@ -35,7 +35,8 @@ export default class AppLogs extends Command {
     }),
     since: Flags.string({
       char: 's',
-      description: 'show logs since timestamp',
+      description:
+        'show logs since a specific time in the past (e.g. "1 hour ago")',
     }),
     timestamps: Flags.boolean({
       char: 't',
@@ -77,7 +78,7 @@ export default class AppLogs extends Command {
       flags.app || projectConfig.app || (await this.promptProject());
 
     const {
-      project: { bundlePlanID },
+      project: { bundlePlanID, network },
     } = await this.got(
       `v1/projects/${project}`,
     ).json<IProjectDetailsResponse>();
@@ -94,7 +95,11 @@ export default class AppLogs extends Command {
         maxSince = now - 5184000; // 60 days
         break;
       default:
-        throw new Error('Unknown feature bundle plan type');
+        maxSince = now - 3600; // 1 hour ago
+    }
+
+    if (!network) {
+      maxSince = now - 604800; // 7 days ago for projects on legacy infra
     }
 
     const start: number = flags.since
@@ -104,7 +109,9 @@ export default class AppLogs extends Command {
     if (start < maxSince) {
       console.error(
         new Errors.CLIError(
-          BundlePlanError.max_logs_period(bundlePlanID),
+          !network
+            ? BundlePlanError.legacy_max_logs_period()
+            : BundlePlanError.max_logs_period(bundlePlanID),
         ).render(),
       );
       process.exit(2);
