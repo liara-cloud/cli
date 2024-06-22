@@ -53,7 +53,7 @@ export default class DiskCreate extends Command {
       debug(error.message);
 
       const err = parseJSON(error.response.body);
-      console.log('err', err);
+      debug(err);
 
       if (error.response && error.response.data) {
         debug(JSON.stringify(error.response.data));
