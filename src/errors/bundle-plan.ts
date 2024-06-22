@@ -69,4 +69,8 @@ export const BundlePlanError = {
             If you still have problems, please contact support by submitting a ticket at https://console.liara.ir/tickets`;
     }
   },
+
+  legacy_max_logs_period() {
+    return 'You are currently on the old infrastructure, you can only view logs from the past 7 days.';
+  },
 };
