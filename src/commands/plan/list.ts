@@ -30,6 +30,22 @@ export default class PlanList extends Command {
         )
         .map((plan) => {
           const Plan = plan;
+          const BundlePlan = plans.projectBundlePlans[plan];
+          const BundlePlanDetails = Object.keys(BundlePlan).map((key) => {
+            const { displayPrice } = BundlePlan[key];
+            return { key, displayPrice };
+          });
+
+          const Free =
+            BundlePlanDetails[0].displayPrice.toLocaleString() +
+            ' Tomans/Month';
+          const Standard =
+            BundlePlanDetails[1].displayPrice.toLocaleString() +
+            ' Tomans/Month';
+          const Pro =
+            BundlePlanDetails[2].displayPrice.toLocaleString() +
+            ' Tomans/Month';
+
           const availablePlan = plans.projects[plan];
           const tRAM = availablePlan.RAM.amount;
           const RAM = tRAM + spacing(5, tRAM) + 'GB';
@@ -48,12 +64,24 @@ export default class PlanList extends Command {
             CPU,
             Disk,
             Price,
+            Free,
+            Standard,
+            Pro,
           };
         });
 
       ux.table(
         plansData,
-        { Plan: {}, RAM: {}, CPU: {}, Disk: {}, Price: {} },
+        {
+          Plan: {},
+          RAM: {},
+          CPU: {},
+          Disk: {},
+          Price: {},
+          Free: {},
+          Standard: {},
+          Pro: {},
+        },
         flags,
       );
     } catch (error) {
