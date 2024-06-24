@@ -1,7 +1,6 @@
 import { ux } from '@oclif/core';
 import Command from '../../base.js';
 import spacing from '../../utils/spacing.js';
-import { constants } from 'node:crypto';
 
 export default class PlanList extends Command {
   static description = 'list available plans';
@@ -36,28 +35,16 @@ export default class PlanList extends Command {
             return { key, displayPrice };
           });
 
-          const Free =
-            BundlePlanDetails[0].displayPrice.toLocaleString() +
-            ' Tomans/Month';
-          const Standard =
-            BundlePlanDetails[1].displayPrice.toLocaleString() +
-            ' Tomans/Month';
-          const Pro =
-            BundlePlanDetails[2].displayPrice.toLocaleString() +
-            ' Tomans/Month';
+          const Free = BundlePlanDetails[0].displayPrice.toLocaleString();
+          const Standard = BundlePlanDetails[1].displayPrice.toLocaleString();
+          const Pro = BundlePlanDetails[2].displayPrice.toLocaleString();
 
           const availablePlan = plans.projects[plan];
-          const tRAM = availablePlan.RAM.amount;
-          const RAM = tRAM + spacing(5, tRAM) + 'GB';
-          const tCPU = availablePlan.CPU.amount;
-          const CPU = tCPU + spacing(5, tCPU) + 'Core';
-          const StorageClass = availablePlan.storageClass;
-          const tDisk = availablePlan.volume;
-          const Disk = tDisk
-            ? tDisk + spacing(3, tDisk) + `GB ${StorageClass}`
-            : 0;
+          const RAM = availablePlan.RAM.amount;
+          const CPU = availablePlan.CPU.amount;
+          const Disk = availablePlan.volume;
           const tPrice = availablePlan.price * 720;
-          const Price = tPrice ? tPrice.toLocaleString() + ' Tomans/Month' : 0;
+          const Price = tPrice ? tPrice.toLocaleString() : 0;
           return {
             Plan,
             RAM,
@@ -74,13 +61,13 @@ export default class PlanList extends Command {
         plansData,
         {
           Plan: {},
-          RAM: {},
-          CPU: {},
-          Disk: {},
-          Price: {},
-          Free: {},
-          Standard: {},
-          Pro: {},
+          RAM: { header: 'RAM(GB)' },
+          CPU: { header: 'CPU(Core)' },
+          Disk: { header: 'Disk(GB SSD)' },
+          Price: { header: 'Price(Tomans/Month)' },
+          Free: { header: 'Bronze' },
+          Standard: { header: 'Silver(Tomans)' },
+          Pro: { header: 'Gold(Tomans)' },
         },
         flags,
       );
