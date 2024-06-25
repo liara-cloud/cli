@@ -78,29 +78,19 @@ export default class AppLogs extends Command {
       flags.app || projectConfig.app || (await this.promptProject());
 
     const {
-      project: { bundlePlanID, network },
+      project: { planID, bundlePlanID, network },
     } = await this.got(
       `v1/projects/${project}`,
     ).json<IProjectDetailsResponse>();
 
-    let maxSince: number;
-    switch (bundlePlanID) {
-      case 'free':
-        maxSince = now - 3600; // 1 hour
-        break;
-      case 'standard':
-        maxSince = now - 2592000; // 30 days
-        break;
-      case 'pro':
-        maxSince = now - 5184000; // 60 days
-        break;
-      default:
-        maxSince = now - 3600; // 1 hour ago
-    }
+    const { plans } = await this.got('v1/me').json<{ plans: any }>();
 
-    if (!network) {
-      maxSince = now - 604800; // 7 days ago for projects on legacy infra
-    }
+    const maxSince: number =
+      now -
+      (network
+        ? plans.projectBundlePlans[planID][bundlePlanID].maxLogsRetention *
+          86400
+        : plans.projectBundlePlans.g1.default.maxLogsRetention * 86400);
 
     const start: number = flags.since
       ? this.getStart(`${flags.since}`)
