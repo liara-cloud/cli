@@ -66,8 +66,8 @@ export default class PlanList extends Command {
           Disk: { header: 'Disk(GB SSD)' },
           Price: { header: 'Price(Tomans/Month)' },
           Free: { header: 'Bronze' },
-          Standard: { header: 'Silver(Tomans)' },
-          Pro: { header: 'Gold(Tomans)' },
+          Standard: { header: 'Silver(Tomans/Month)' },
+          Pro: { header: 'Gold(Tomans/Month)' },
         },
         flags,
       );
