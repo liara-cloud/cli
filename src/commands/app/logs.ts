@@ -92,7 +92,7 @@ export default class AppLogs extends Command {
           86400
         : plans.projectBundlePlans.g1.default.maxLogsRetention * 86400);
 
-    const start: number = flags.since
+    let start: number = flags.since
       ? this.getStart(`${flags.since}`)
       : maxSince;
 
@@ -110,7 +110,6 @@ export default class AppLogs extends Command {
     let lastLogUnix: number = 0;
 
     while (true) {
-      // Maybe find a better way of handling "lastLogUnix ?? 0"
       const logs = await this.fetchLogs(Math.max(start, lastLogUnix), project);
 
       if (!logs?.length && !follow) {
@@ -128,6 +127,9 @@ export default class AppLogs extends Command {
         lastLogUnix = parseInt(unixTime) + 1;
       }
       await this.sleep(1000);
+      if (start) {
+        start += 1;
+      }
     }
   }
 
