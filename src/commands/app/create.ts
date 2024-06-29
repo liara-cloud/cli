@@ -121,20 +121,14 @@ export default class AppCreate extends Command {
         );
       }
 
-      if (
-        error.response &&
-        error.response.statusCode === 403 &&
-        error.response.body
-      ) {
-        const body = JSON.parse(error.response.body);
-
-        if (body.data.code === 'free_plan_platform') {
+      if (error.response && error.response.statusCode === 403) {
+        if (err.data.code === 'free_plan_platform') {
           this.error(
             `The free plan is not available for ${platform} platform.`,
           );
         }
 
-        if (body.data.code === 'free_plan_count') {
+        if (err.data.code === 'free_plan_count') {
           this.error(`You are allowed to create only one app on the free plan`);
         }
       }
