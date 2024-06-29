@@ -129,7 +129,7 @@ export default class AppLogs extends Command {
       await this.sleep(1000);
       if (start) {
         start += 1;
-        this.debug('since timpestamp', start);
+        this.debug && this.debug('since timpestamp', start);
       }
     }
   }
