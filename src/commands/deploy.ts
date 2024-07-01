@@ -663,6 +663,13 @@ Additionally, you can also retry the build with the debug flag:
             return reject(new Error('Release failed.'));
           }
 
+          if (release.state === 'UNHEALTHY') {
+            this.spinner.warn(
+              'App deployed, but the container has a problem. Please check its logs.',
+            );
+            return resolve();
+          }
+
           if (release.state === 'READY') {
             this.spinner.succeed('Release created.');
             return resolve();
