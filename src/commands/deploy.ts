@@ -353,6 +353,10 @@ You may also want to switch to another region. Your current region is: ${chalk.c
         return this.error(error.message);
       }
 
+      if (error instanceof ReleaseFailed) {
+        return this.error(error.message);
+      }
+
       if (
         error instanceof ReachedMaxSourceSizeError ||
         (error.response && error.response.statusCode === 413)
@@ -509,6 +513,12 @@ Additionally, you can also retry the build with the debug flag:
           this.spinner.start('Creating a new release...');
         }
 
+        if (output.state === 'UNHEALTHY') {
+          this.spinner.warn(
+            'App deployed, but the container is unhealthy. Please check its logs.',
+          );
+        }
+
         if (output.state === 'BUILDING' && output.line) {
           this.spinner.clear().frame();
           process.stdout.write(output.line);
@@ -661,16 +671,16 @@ Additionally, you can also retry the build with the debug flag:
             }
 
             return reject(new Error('Release failed.'));
-          }
-
-          if (release.state === 'UNHEALTHY') {
+          } else if (release.state === 'UNHEALTHY') {
             this.spinner.warn(
-              'App deployed, but the container has a problem. Please check its logs.',
+              'App deployed, but the container is unhealthy. Please check its logs.',
             );
-            return resolve();
-          }
-
-          if (release.state === 'READY') {
+            return reject(
+              new ReleaseFailed(
+                'Release is not healthy. Check logs from web panel',
+              ),
+            );
+          } else if (release.state === 'READY') {
             this.spinner.succeed('Release created.');
             return resolve();
           }

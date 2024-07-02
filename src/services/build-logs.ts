@@ -68,6 +68,15 @@ export default async (
             cb({ state: 'DEPLOYING' });
           }
 
+          if (release.state === 'UNHEALTHY') {
+            cb({ state: 'UNHEALTHY' });
+            return reject(
+              new ReleaseFailed(
+                'Release is not healthy. Check logs from web panel',
+              ),
+            );
+          }
+
           if (release.state === 'READY') {
             return resolve();
           }
