@@ -247,7 +247,7 @@ export default class Deploy extends Command {
           '--app',
           config.app,
           '--since',
-          '5s ago',
+          '10s ago',
           '--follow',
           '--timestamps',
           '--colorize',
