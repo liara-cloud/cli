@@ -129,7 +129,7 @@ export default class AppLogs extends Command {
       await this.sleep(1000);
       if (start) {
         start += 1;
-        this.debug && this.debug('since timpestamp', start);
+        this.debug(`start timestamp: ${start}`);
       }
     }
   }
@@ -158,7 +158,7 @@ export default class AppLogs extends Command {
       }
 
       if (error.response && error.response.statusCode === 428) {
-        console.log(error.response.body);
+        this.debug(error.response.body);
         const message = `To view more logs, upgrade your feature bundle plan, first.
                             Then try again.
                             https://console.liara.ir/apps/${appName}/resize`;
@@ -167,13 +167,15 @@ export default class AppLogs extends Command {
         process.exit(2);
       }
 
-      this.debug(error);
-
-      console.error(
-        new Errors.CLIError(
-          ' Invalid time format for --since. Please check the format and try again. Enable --debug for more details.',
-        ).render(),
-      );
+      this.debug(error.response.body);
+      const genericErrorMessage: string = `'We encountered an issue and were unable to retrieve the logs.
+       Solutions:
+       1) Try ' liara logs -f --since="1 minute ago" ' command to see app logs.
+       2) Enable --debug for more details.
+       3) Check console logs from https://console.liara.ir/apps/${appName}logs 
+       4) Try again later.
+    `;
+      console.error(new Errors.CLIError(genericErrorMessage).render());
       process.exit(2);
     }
   };
