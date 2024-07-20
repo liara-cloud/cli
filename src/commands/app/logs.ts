@@ -170,9 +170,9 @@ export default class AppLogs extends Command {
       this.debug(error.response.body ? error.response.body : error.response);
       const genericErrorMessage: string = `'We encountered an issue and were unable to retrieve the logs.
        Solutions:
-       1) Try ' liara logs -f --since="1 minute ago" ' command to see app logs.
-       2) Enable --debug for more details.
-       3) Check console logs from https://console.liara.ir/apps/${appName}/logs 
+       1) Check console logs from https://console.liara.ir/apps/${appName}/logs 
+       2) Try ' liara logs -f --since="1 minute ago" ' command to see app logs.
+       3) Enable --debug for more details.
        4) Try again later.
     `;
       console.error(new Errors.CLIError(genericErrorMessage).render());
