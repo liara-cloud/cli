@@ -21,7 +21,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/7.0.4 linux-x64 node-v18.16.1
+@liara/cli/7.0.4-beta.1 linux-x64 node-v20.12.0
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
