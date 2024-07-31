@@ -680,6 +680,9 @@ Additionally, you can also retry the build with the debug flag:
                 'Release is not healthy. Check logs from web panel',
               ),
             );
+          } else if (release.state === 'DEPLOYING') {
+            this.spinner.succeed('Checking container health ...');
+            return resolve();
           } else if (release.state === 'READY') {
             this.spinner.succeed('Release is healthy.');
             return resolve();
