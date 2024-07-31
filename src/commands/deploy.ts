@@ -651,7 +651,7 @@ Additionally, you can also retry the build with the debug flag:
   }
 
   async showReleaseLogs(releaseID: string) {
-    this.spinner.start('Checking container health...');
+    this.spinner.start('Creating new release ...');
 
     return new Promise<void>((resolve, reject) => {
       const poller = new Poller();
