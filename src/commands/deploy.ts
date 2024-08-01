@@ -510,7 +510,7 @@ Additionally, you can also retry the build with the debug flag:
         }
 
         if (output.state === 'DEPLOYING') {
-          this.spinner.start('Creating a new release...');
+          this.spinner.start("Checking container's health ...");
         }
 
         if (output.state === 'UNHEALTHY') {
@@ -587,9 +587,9 @@ Additionally, you can also retry the build with the debug flag:
       this.logKeyValue('PHP version', body.platformConfig.phpVersion);
       return body;
     } else {
-      this.log('No version specified in liara.json');
+      this.debug('No version specified in liara.json');
 
-      this.log('Auto-detecting version...');
+      this.debug('Auto-detecting version...');
       let platformVersion: string | null = null;
       switch (config.platform) {
         case 'django':
@@ -643,7 +643,7 @@ Additionally, you can also retry the build with the debug flag:
           break;
       }
       if (!platformVersion) {
-        this.log('No version for this platform found. Using default version');
+        this.debug('No version for this platform found. Using default version');
       }
     }
 
@@ -681,7 +681,7 @@ Additionally, you can also retry the build with the debug flag:
               ),
             );
           } else if (release.state === 'READY') {
-            this.spinner.succeed('Release created.');
+            this.spinner.succeed('Release is healthy.');
             return resolve();
           }
         } catch (error) {
