@@ -38,7 +38,7 @@
     "tar": "^7.0.1",
     "ua-parser-js": "^1.0.37",
     "update-notifier": "^7.0.0",
-    "ws": "^8.17.1"
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/async-retry": "^1.4.8",
