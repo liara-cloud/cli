@@ -62,7 +62,7 @@
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
-    "typescript-json-schema": "^0.63.0"
+    "typescript-json-schema": "^0.64.0"
   },
   "engines": {
     "node": ">=18.20.0"
