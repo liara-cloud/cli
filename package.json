@@ -23,7 +23,7 @@
     "form-data": "^4.0.0",
     "fs-extra": "^11.2.0",
     "get-port": "^7.1.0",
-    "globby": "^14.0.1",
+    "globby": "^14.0.2",
     "got": "^13.0.0",
     "https-proxy-agent": "^7.0.4",
     "ignore": "^5.3.1",
