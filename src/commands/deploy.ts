@@ -651,7 +651,7 @@ Additionally, you can also retry the build with the debug flag:
   }
 
   async showReleaseLogs(releaseID: string) {
-    this.spinner.start('Creating a new release...');
+    this.spinner.start('Creating new release ...');
 
     return new Promise<void>((resolve, reject) => {
       const poller = new Poller();
@@ -680,6 +680,9 @@ Additionally, you can also retry the build with the debug flag:
                 'Release is not healthy. Check logs from web panel',
               ),
             );
+          } else if (release.state === 'DEPLOYING') {
+            this.spinner.succeed('Checking container health ...');
+            return resolve();
           } else if (release.state === 'READY') {
             this.spinner.succeed('Release is healthy.');
             return resolve();
