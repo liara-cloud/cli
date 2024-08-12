@@ -1,4 +1,4 @@
-#!/usr/bin/env -S  node --no-warnings
+#!/usr/bin/env
 
 import { execute } from '@oclif/core';
 
