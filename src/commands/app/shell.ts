@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'fs-extra';
-import Command from '../../base.js';
+import Command, { IProjectDetailsResponse } from '../../base.js';
 import { Flags, Errors } from '@oclif/core';
 import ILiaraJSON from '../../types/liara-json.js';
 import { REGIONS_API_URL, FALLBACK_REGION } from '../../constants.js';
@@ -43,14 +43,25 @@ export default class AppShell extends Command {
 
     await this.setGotConfig(config);
 
+    // Let's choose, either making a request or listeing on its error event (line:102)
+    const {
+      project: { status },
+    } = await this.got(
+      `v1/projects/${config.app}`,
+    ).json<IProjectDetailsResponse>();
+
+    if (status === 'SUSPENDED') {
+      console.log('Suspended apps are not allowed to connect using shell.');
+    }
+
     const app = config.app || (await this.promptProject());
     const wsURL = REGIONS_API_URL[config.region || FALLBACK_REGION].replace(
       'https://',
-      'wss://'
+      'wss://',
     );
 
     const ws = this.createProxiedWebsocket(
-      `${wsURL}/v1/exec?token=${config['api-token']}&cmd=${flags.command}&project_id=${app}`
+      `${wsURL}/v1/exec?token=${config['api-token']}&cmd=${flags.command}&project_id=${app}`,
     );
 
     const duplex = createWebSocketStream(ws, { encoding: 'utf8' });
@@ -87,15 +98,22 @@ export default class AppShell extends Command {
     ws.on('unexpected-response', (response) => {
       // @ts-ignore
       const statusCode = response.socket?._httpMessage.res.statusCode;
+
+      statusCode === 403 &&
+        console.error(
+          new Errors.CLIError(`app '${app}' is suspended.`).render(),
+        );
+
       statusCode === 404 &&
         console.error(new Errors.CLIError(`app '${app}' not found.`).render());
+
       clearStdinEffects();
       process.exit(2);
     });
 
     ws.on('error', (err) => {
       console.error(
-        new Errors.CLIError(`Unexpected Error: ${err.message}`).render()
+        new Errors.CLIError(`Unexpected Error: ${err.message}`).render(),
       );
       clearStdinEffects();
       process.exit(2);
