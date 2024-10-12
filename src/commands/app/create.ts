@@ -112,6 +112,10 @@ export default class AppCreate extends Command {
         );
       }
 
+      if (error.response && error.response.statusCode === 402) {
+        this.error(`Not enough balance. Please charge your account.`);
+      }
+
       if (error.response && error.response.statusCode === 404) {
         this.error(`Could not create the app.`);
       }
