@@ -7,6 +7,7 @@ import parseJSON from '../../utils/json-parse.js';
 import { AVAILABLE_PLATFORMS } from '../../constants.js';
 import checkRegexPattern from '../../utils/name-regex.js';
 import { createDebugLogger } from '../../utils/output.js';
+import getBundlePlanName from '../../utils/set-bundle-plan-names.js';
 
 export default class AppCreate extends Command {
   static description = 'create an app';
@@ -111,6 +112,10 @@ export default class AppCreate extends Command {
         );
       }
 
+      if (error.response && error.response.statusCode === 402) {
+        this.error(`Not enough balance. Please charge your account.`);
+      }
+
       if (error.response && error.response.statusCode === 404) {
         this.error(`Could not create the app.`);
       }
@@ -154,32 +159,26 @@ export default class AppCreate extends Command {
         name: 'bundlePlan',
         type: 'list',
         message: 'Please select a feature bundle plan:',
-        choices:
-          plan === 'free'
-            ? [
-                {
-                  name: `Plan: free, Price: 0 Tomans/Month`,
-                  value: 'free',
-                },
-              ]
-            : [
-                ...Object.keys(plans.projectBundlePlans)
-                  .filter((bundlePlan) => {
-                    return bundlePlan === plan;
-                  })
-                  .map((bundlePlan) => {
-                    const planDetails = plans.projectBundlePlans[bundlePlan];
+        choices: [
+          ...Object.keys(plans.projectBundlePlans)
+            .filter((bundlePlan) => {
+              return bundlePlan === plan;
+            })
+            .map((bundlePlan) => {
+              const planDetails = plans.projectBundlePlans[bundlePlan];
 
-                    return Object.keys(planDetails).map((key) => {
-                      const { displayPrice } = planDetails[key];
-                      return {
-                        name: `Plan: ${key}, Price: ${displayPrice.toLocaleString()} Tomans/Month`,
-                        value: key,
-                      };
-                    });
-                  })
-                  .flat(),
-              ],
+              return Object.keys(planDetails)
+                .filter((key) => planDetails[key].available)
+                .map((key) => {
+                  const { displayPrice } = planDetails[key];
+                  return {
+                    name: `Plan: ${getBundlePlanName(key)}, Price: ${displayPrice.toLocaleString()} Tomans/Month`,
+                    value: key,
+                  };
+                });
+            })
+            .flat(),
+        ],
       })) as { bundlePlan: string };
 
       return bundlePlan;
