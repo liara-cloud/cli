@@ -14,11 +14,10 @@ import updateNotifier from 'update-notifier';
 import getPort, { portNumbers } from 'get-port';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
+import hooks from './interceptors.js';
 import IBrowserLogin from './types/browser-login.js';
 import browserLoginHeader from './utils/browser-login-header.js';
 import IGetNetworkResponse from './types/get-network-response.js';
-
-import './interceptors.js';
 
 import {
   DEV_MODE,
@@ -268,7 +267,7 @@ Please check your network connection.`);
       this.log(`[dev] but in dev mode we use http://localhost:3000`);
     }
 
-    this.got = got.extend(gotConfig);
+    this.got = got.extend({ hooks, ...gotConfig });
   }
 
   createProxiedWebsocket(endpoint: string) {
