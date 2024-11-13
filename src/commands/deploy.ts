@@ -570,7 +570,7 @@ Additionally, you can also retry the build with the debug flag:
 
   async __detectPlatformVersion(config: any, body: any) {
     if (body.platformConfig.pythonVersion) {
-      // django and flask
+      // django, flask, python
       this.logKeyValue('Python version', body.platformConfig.pythonVersion);
       return body;
     }
@@ -594,6 +594,7 @@ Additionally, you can also retry the build with the debug flag:
       switch (config.platform) {
         case 'django':
         case 'flask':
+        case 'python':
           platformVersion = await getPlatformVersion(
             config.platform,
             config.path,

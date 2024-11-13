@@ -5,6 +5,7 @@ interface IPorts {
 export function getPort(platform: string): number {
   const ports: IPorts = {
     static: 80,
+    python: 80,
     react: 80,
     vue: 80,
     angular: 80,
