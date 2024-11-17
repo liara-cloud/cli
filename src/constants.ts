@@ -28,6 +28,7 @@ export const AVAILABLE_PLATFORMS = [
   'node',
   'laravel',
   'php',
+  'python',
   'django',
   'flask',
   'dotnet',

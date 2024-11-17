@@ -8,6 +8,8 @@ import addNullBetweenChars from './add-null-between-chars.js';
 
 export default function detectPlatform(projectPath: string) {
   const pipfilePath = path.join(projectPath, 'Pipfile');
+  const pyprojectFilePath = path.join(projectPath, 'pyproject.toml');
+  const poetryFilePath = path.join(projectPath, 'poetry');
   const indexPHPFilePath = path.join(projectPath, 'index.php');
   const packageJsonFilePath = path.join(projectPath, 'package.json');
   const composeJsonFilePath = path.join(projectPath, 'composer.json');
@@ -20,6 +22,8 @@ export default function detectPlatform(projectPath: string) {
   });
 
   const hasPipfilePathFile = existsSync(pipfilePath);
+  const hasPyprojectPathFile = existsSync(pyprojectFilePath);
+  const hasPoetryPathFile = existsSync(poetryFilePath);
   const hasIndexPHPFile = existsSync(indexPHPFilePath);
   const hasPackageFile = existsSync(packageJsonFilePath);
   const hasComposerJsonFile = existsSync(composeJsonFilePath);
@@ -69,6 +73,10 @@ Please specify your platform with --platform=laravel or docker.`);
     return 'php';
   }
 
+  if (hasPyprojectPathFile || hasPoetryPathFile) {
+    return 'python';
+  }
+
   if (hasRequirementsTxtFile) {
     const requirementsTxt = readFileSync(requirementsTxtFilePath);
 
@@ -89,6 +97,8 @@ Please specify your platform with --platform=laravel or docker.`);
     ) {
       return 'flask';
     }
+
+    return 'python';
   }
 
   if (hasPipfilePathFile) {
@@ -101,6 +111,8 @@ Please specify your platform with --platform=laravel or docker.`);
     if (pipfile.includes('Flask') || pipfile.includes('flask')) {
       return 'flask';
     }
+
+    return 'python';
   }
 
   if (hasPackageFile && hasDockerFile) {
