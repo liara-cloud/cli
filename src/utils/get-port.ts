@@ -22,6 +22,7 @@ export function getPort(platform: string): number {
 export function getDefaultPort(platform: string): number {
   const ports: IPorts = {
     dotnet: 80,
+    golang: 8080,
   };
   return ports[platform] || 3000;
 }

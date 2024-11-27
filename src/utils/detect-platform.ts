@@ -14,6 +14,7 @@ export default function detectPlatform(projectPath: string) {
   const packageJsonFilePath = path.join(projectPath, 'package.json');
   const composeJsonFilePath = path.join(projectPath, 'composer.json');
   const requirementsTxtFilePath = path.join(projectPath, 'requirements.txt');
+  const goModFilePath = path.join(projectPath, 'go.mod');
 
   const [programCSFilePath] = globbySync('**/{Startup.cs,Program.cs}', {
     cwd: projectPath,
@@ -30,6 +31,7 @@ export default function detectPlatform(projectPath: string) {
   const hasRequirementsTxtFile = existsSync(requirementsTxtFilePath);
   const hasDockerFile = existsSync(path.join(projectPath, 'Dockerfile'));
   const hasWPContent = existsSync(path.join(projectPath, 'wp-content'));
+  const hasGoModFile = existsSync(goModFilePath);
 
   const hasCSProjFile =
     programCSFilePath &&
@@ -157,6 +159,15 @@ Please specify your platform with --platform=wordpress or docker.`);
 
   if (hasWPContent) {
     return 'wordpress';
+  }
+
+  if (hasGoModFile && hasDockerFile) {
+    throw new Error(`The project contains both of the \`go.mod\` and \`Dockerfile\` files.
+Please specify your platform with --platform=golang or docker.`);
+  }
+
+  if (hasGoModFile) {
+    return 'golang';
   }
 
   if (hasDockerFile) {
