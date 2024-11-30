@@ -26,6 +26,8 @@ import {
   GLOBAL_CONF_PATH,
   GLOBAL_CONF_VERSION,
 } from './constants.js';
+import { getDefaultPort } from './utils/get-port.js';
+import validatePort from './utils/validate-port.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -309,7 +311,17 @@ Please check your network connection.`);
       throw error;
     }
   }
+  async promptPort(platform: string): Promise<number> {
+    const { port } = (await inquirer.prompt({
+      name: 'port',
+      type: 'input',
+      default: getDefaultPort(platform),
+      message: 'Enter the port your app listens to:',
+      validate: validatePort,
+    })) as { port: number };
 
+    return port;
+  }
   async getCurrentAccount(): Promise<IAccount> {
     const accounts = (await this.readGlobalConfig()).accounts;
     const accName = Object.keys(accounts).find(
