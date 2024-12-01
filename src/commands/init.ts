@@ -1,7 +1,7 @@
 import { Args, Config, Flags } from '@oclif/core';
 import fs from 'fs-extra';
 import validatePort from '../utils/validate-port.js';
-import ora, { Ora } from 'ora';
+import ora, { Ora, spinners } from 'ora';
 import { getPort, getDefaultPort } from '../utils/get-port.js';
 import inquirer, { Answers } from 'inquirer';
 import chalk from 'chalk';
@@ -17,21 +17,26 @@ import ILiaraJSON from '../types/liara-json.js';
 import supportedVersions from '../utils/getSupportedVersions.js';
 
 export default class Init extends Command {
-  static override description = 'describe the command here';
+  static override description =
+    'With this command, you can create a liara.json file';
 
   static override examples = ['<%= config.bin %> <%= command.id %>'];
 
   static override flags = {
     ...Command.flags,
-    force: Flags.boolean({ char: 'f' }),
-    name: Flags.string({ char: 'n', description: 'name to print' }),
+    y: Flags.boolean({
+      char: 'y',
+      description: 'create an example file',
+      aliases: [],
+    }),
   };
-
   public async run(): Promise<void> {
     const { args, flags } = await this.parse(Init);
-    await this.setGotConfig(flags);
-    this.log(
-      chalk.yellow(`This utility will guide you through creating a liara.json file.
+
+    try {
+      await this.setGotConfig(flags);
+      this.log(
+        chalk.yellow(`This utility will guide you through creating a liara.json file.
 It only covers the most common fields and tries to guess sensible defaults.
 For detailed documentation on these fields and what they do, refer to the official documentation.
 
@@ -39,29 +44,36 @@ Afterwards, use liara deploy to deploy your project.
 
 Press ^C at any time to quit.
 `),
-    );
-    const projects = await this.getPlatformsInfo();
-    const appName = await this.promptProjectName(projects);
-    const buildLocation = await this.buildLocationPrompt();
-    const platform = this.findPlatform(projects, appName);
-    const port = await this.getAppPort(platform, appName);
-    const version = await this.promptPlatformVersion(platform);
-    const disks = await this.getAppDisks(appName, projects);
-    const diskConfigs = await this.promptDiskConfig(disks);
-    const configs = this.setLiaraJsonConfigs(
-      port,
-      appName,
-      buildLocation,
-      platform,
-      version,
-      diskConfigs,
-    );
-    this.createLiaraJsonFile(configs);
+      );
+      this.spinner = ora();
+      const projects = await this.getPlatformsInfo();
+      const appName = await this.promptProjectName(projects);
+      const buildLocation = await this.buildLocationPrompt();
+      const platform = this.findPlatform(projects, appName);
+      const port = await this.getAppPort(platform, appName);
+      const version = await this.promptPlatformVersion(platform);
+      const disks = await this.getAppDisks(appName, projects);
+      const diskConfigs = await this.promptDiskConfig(disks);
+      const configs = this.setLiaraJsonConfigs(
+        port,
+        appName,
+        buildLocation,
+        platform,
+        version,
+        diskConfigs,
+      );
+      this.createLiaraJsonFile(configs);
+    } catch (error) {
+      throw error;
+    }
   }
   async getPlatformsInfo(): Promise<IProject[]> {
     try {
+      this.spinner.start();
+
       const { projects } =
         await this.got('v1/projects').json<IGetProjectsResponse>();
+      this.spinner.stop();
       return projects as IProject[];
     } catch (error) {
       throw error;
@@ -135,10 +147,12 @@ Press ^C at any time to quit.
   }
   async createLiaraJsonFile(configs: ILiaraJSON) {
     try {
+      this.spinner.start();
       await fs.writeFile(
         `${process.cwd()}/liara.json`,
         JSON.stringify(configs, null, 2),
       );
+      this.spinner.succeed('Liara.json file is successfully created!');
     } catch (error) {
       throw new Error('There was a problem while creating liara.json file!');
     }
@@ -196,12 +210,14 @@ Press ^C at any time to quit.
   }
   async getAppDisks(AppName: string, projects: IProject[]) {
     try {
+      this.spinner.start();
       const project = projects.find((project) => {
         return project.project_id === AppName;
       });
       const disks = await this.got(
         `v1/projects/${project?._id}/disks`,
       ).json<IGetDiskResponse>();
+      this.spinner.stop();
       return disks.disks;
     } catch (error) {
       throw error;
