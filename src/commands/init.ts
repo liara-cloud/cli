@@ -1,12 +1,13 @@
-import { Args, Flags } from '@oclif/core';
+import { Args, Config, Flags } from '@oclif/core';
 import fs from 'fs-extra';
 import validatePort from '../utils/validate-port.js';
 import ora, { Ora } from 'ora';
 import { getPort, getDefaultPort } from '../utils/get-port.js';
-import inquirer from 'inquirer';
+import inquirer, { Answers } from 'inquirer';
 import chalk from 'chalk';
 
 import Command, {
+  IGetDiskResponse,
   IGetDomainsResponse,
   IProject,
   IProjectDetailsResponse,
@@ -36,7 +37,8 @@ For detailed documentation on these fields and what they do, refer to the offici
 
 Afterwards, use liara deploy to deploy your project.
 
-Press ^C at any time to quit.`),
+Press ^C at any time to quit.
+`),
     );
     const projects = await this.getPlatformsInfo();
     const appName = await this.promptProjectName(projects);
@@ -44,12 +46,15 @@ Press ^C at any time to quit.`),
     const platform = this.findPlatform(projects, appName);
     const port = await this.getAppPort(platform, appName);
     const version = await this.promptPlatformVersion(platform);
+    const disks = await this.getAppDisks(appName, projects);
+    const diskConfigs = await this.promptDiskConfig(disks);
     const configs = this.setLiaraJsonConfigs(
       port,
       appName,
       buildLocation,
       platform,
       version,
+      diskConfigs,
     );
     this.createLiaraJsonFile(configs);
   }
@@ -144,7 +149,8 @@ Press ^C at any time to quit.`),
     buildLocation: string,
     platform: string,
     platformVersion: string | null,
-  ) {
+    diskConfigs: { disk: string; path: string } | null,
+  ): ILiaraJSON {
     const versionKey = this.setVersionKey(platform, platformVersion);
     const configs: ILiaraJSON = {
       platform,
@@ -159,6 +165,14 @@ Press ^C at any time to quit.`),
       (configs as Record<string, any>)[platform] = {
         [versionKey!]: platformVersion,
       };
+    }
+    if (diskConfigs !== null) {
+      configs['disks'] = [
+        {
+          name: diskConfigs.disk,
+          mountTo: diskConfigs.path,
+        },
+      ];
     }
     return configs;
   }
@@ -179,5 +193,60 @@ Press ^C at any time to quit.`),
       return 'nodeVersion';
     }
     return 'version';
+  }
+  async getAppDisks(AppName: string, projects: IProject[]) {
+    try {
+      const project = projects.find((project) => {
+        return project.project_id === AppName;
+      });
+      const disks = await this.got(
+        `v1/projects/${project?._id}/disks`,
+      ).json<IGetDiskResponse>();
+      return disks.disks;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async setDiskConfigAnswer(): Promise<boolean> {
+    const { setDisk } = (await inquirer.prompt({
+      message: 'Set disk configs? ',
+      type: 'confirm',
+      name: 'setDisk',
+      default: false,
+    })) as { setDisk: boolean };
+    return setDisk;
+  }
+  async promptDiskConfig(
+    disks: object[],
+  ): Promise<{ disk: string; path: string } | null> {
+    try {
+      if (disks.length > 0) {
+        const { setDisk } = (await inquirer.prompt({
+          message: 'Set disk configs? ',
+          type: 'confirm',
+          name: 'setDisk',
+          default: false,
+        })) as { setDisk: boolean };
+        if (setDisk) {
+          const diskConfigs = (await inquirer.prompt([
+            {
+              message: 'Disk name: ',
+              choices: disks,
+              name: 'disk',
+              type: 'list',
+            },
+            {
+              message: 'MountTO: ',
+              name: 'path',
+              type: 'input',
+            },
+          ])) as { disk: string; path: string };
+          return diskConfigs;
+        }
+      }
+      return null;
+    } catch (error) {
+      throw error;
+    }
   }
 }
