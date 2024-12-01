@@ -74,6 +74,21 @@ export interface IProject {
   created_at: string;
   isDeployed: boolean;
 }
+interface IDisk {
+  name: string;
+  size: number;
+  updatedAt: string;
+  createdAt: string;
+  filebrowserUrl: string;
+}
+interface IMount {
+  name: string;
+  mountedTo: string;
+}
+export interface IGetDiskResponse {
+  disks: IDisk[];
+  mounts: IMount[];
+}
 
 export interface IGetProjectsResponse {
   projects: IProject[];
