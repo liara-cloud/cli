@@ -14,4 +14,3 @@ type Platform = keyof typeof versions;
 export default function supportedVersions(platform: Platform) {
   return versions[platform];
 }
-supportedVersions('django');
