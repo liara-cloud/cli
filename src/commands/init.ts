@@ -1,20 +1,16 @@
 import { Args, Config, Flags } from '@oclif/core';
 import fs from 'fs-extra';
-import validatePort from '../utils/validate-port.js';
-import ora, { Ora, spinners } from 'ora';
-import { getPort, getDefaultPort } from '../utils/get-port.js';
-import inquirer, { Answers } from 'inquirer';
+import ora from 'ora';
+import inquirer from 'inquirer';
 import chalk from 'chalk';
+import path from 'path';
 
-import Command, {
-  IGetDiskResponse,
-  IGetDomainsResponse,
-  IProject,
-  IProjectDetailsResponse,
-} from '../base.js';
+import Command, { IGetDiskResponse, IProject } from '../base.js';
+import { getPort } from '../utils/get-port.js';
 import IGetProjectsResponse from '../types/get-project-response.js';
 import ILiaraJSON from '../types/liara-json.js';
 import supportedVersions from '../utils/getSupportedVersions.js';
+import detectPlatform from '../utils/detect-platform.js';
 
 export default class Init extends Command {
   static override description =
@@ -26,8 +22,41 @@ export default class Init extends Command {
     ...Command.flags,
     y: Flags.boolean({
       char: 'y',
-      description: 'create an example file',
+      description: 'Create an example file',
       aliases: [],
+    }),
+    name: Flags.string({
+      char: 'n',
+      description: 'Your app name',
+    }),
+    port: Flags.integer({
+      char: 'p',
+      description: 'Port your app listens to',
+    }),
+    platform: Flags.string({
+      char: 'P',
+      description: 'App platform',
+    }),
+    version: Flags.string({
+      char: 'v',
+      description: 'Platform Version',
+    }),
+    'build-location': Flags.string({
+      description: 'Build location',
+      aliases: ['location'],
+    }),
+    'no-disk': Flags.boolean({
+      description: 'No disk config',
+      exclusive: ['disk', 'path'],
+    }),
+    disk: Flags.string({
+      description: 'Disk name',
+      char: 'd',
+      dependsOn: ['path'],
+    }),
+    path: Flags.string({
+      description: 'The path where you want to mount the disk',
+      dependsOn: ['disk'],
     }),
   };
   public async run(): Promise<void> {
@@ -36,24 +65,53 @@ export default class Init extends Command {
     try {
       await this.setGotConfig(flags);
       this.log(
-        chalk.yellow(`This utility will guide you through creating a liara.json file.
-It only covers the most common fields and tries to guess sensible defaults.
-For detailed documentation on these fields and what they do, refer to the official documentation.
+        chalk.yellow(`This command interactively creates a basic liara.json configuration file.
+It includes only the essential settings; additional configurations must be added manually.
+📚 For more details on each field and its usage, visit: https://docs.liara.ir/paas/liarajson/.
 
 Afterwards, use liara deploy to deploy your project.
 
-Press ^C at any time to quit.
+🔑 Press ^C at any time to quit.
 `),
       );
       this.spinner = ora();
+      if (flags.y) {
+        const dirName = path.basename(process.cwd());
+        const platform = detectPlatform(process.cwd());
+        const diskConfig = {
+          disk: 'media',
+          path: '/uploads/media',
+        };
+        const configs = this.setLiaraJsonConfigs(
+          getPort(platform) || 3000,
+          dirName,
+          'iran',
+          platform,
+          supportedVersions(platform)?.defaultVersion,
+          diskConfig,
+        );
+        await this.createLiaraJsonFile(configs);
+        this.log(
+          chalk.yellow(
+            "🚫 This file is just a sample file, don't use it for deployment.",
+          ),
+        );
+        this.exit(0);
+      }
       const projects = await this.getPlatformsInfo();
-      const appName = await this.promptProjectName(projects);
-      const buildLocation = await this.buildLocationPrompt();
-      const platform = this.findPlatform(projects, appName);
-      const port = await this.getAppPort(platform, appName);
-      const version = await this.promptPlatformVersion(platform);
-      const disks = await this.getAppDisks(appName, projects);
-      const diskConfigs = await this.promptDiskConfig(disks);
+      const appName = await this.promptProjectName(projects, flags.name);
+      const buildLocation = await this.buildLocationPrompt(
+        flags['build-location'],
+      );
+      const platform = this.findPlatform(projects, appName, flags.platform);
+      const port = await this.getAppPort(platform, appName, flags.port);
+      const version = await this.promptPlatformVersion(platform, flags.version);
+      const disks = await this.getAppDisks(appName, projects, flags['no-disk']);
+      const diskConfigs = await this.promptDiskConfig(
+        disks,
+        flags.disk,
+        flags.path,
+      );
       const configs = this.setLiaraJsonConfigs(
         port,
         appName,
@@ -79,8 +137,14 @@ Press ^C at any time to quit.
       throw error;
     }
   }
-  async promptProjectName(projects: IProject[]): Promise<string> {
+  async promptProjectName(
+    projects: IProject[],
+    flagValue: string | undefined,
+  ): Promise<string> {
     try {
+      if (flagValue) {
+        return flagValue;
+      }
       if (!projects.length) {
         this.warn(
           'Please go to https://console.liara.ir/apps and create an app, first.',
@@ -99,22 +163,46 @@ Press ^C at any time to quit.
       throw error;
     }
   }
-  findPlatform(projects: IProject[], appName: string): string {
+  findPlatform(
+    projects: IProject[],
+    appName: string,
+    flagsValue: string | undefined,
+  ): string {
+    if (flagsValue) {
+      return flagsValue;
+    }
     const project = projects.find((project) => {
       return project.project_id === appName;
     });
+    if (!project) {
+      return 'static';
+    }
     return project!.type;
   }
-  async getAppPort(platform: string, appName: string): Promise<number> {
-    const defaultPort = getPort(platform);
-    if (!defaultPort) {
-      const port = await this.promptPort(appName);
-      return port;
-    }
-    return defaultPort;
-  }
-  async buildLocationPrompt(): Promise<string> {
+  async getAppPort(
+    platform: string,
+    appName: string,
+    flagValue: number | undefined,
+  ): Promise<number> {
     try {
+      if (flagValue) {
+        return flagValue;
+      }
+      const defaultPort = getPort(platform);
+      if (!defaultPort) {
+        const port = await this.promptPort(appName);
+        return port;
+      }
+      return defaultPort;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async buildLocationPrompt(flagValue: string | undefined): Promise<string> {
+    try {
+      if (flagValue) {
+        return flagValue;
+      }
       const { location } = (await inquirer.prompt({
         message: 'Build location',
         name: 'location',
@@ -127,8 +215,14 @@ Press ^C at any time to quit.
       throw error;
     }
   }
-  async promptPlatformVersion(platform: string): Promise<string | null> {
+  async promptPlatformVersion(
+    platform: string,
+    flagValue: string | undefined,
+  ): Promise<string | null> {
     try {
+      if (flagValue) {
+        return flagValue;
+      }
       const versions = supportedVersions(platform);
       if (versions !== null) {
         const { version } = (await inquirer.prompt({
@@ -162,7 +256,7 @@ Press ^C at any time to quit.
     appName: string,
     buildLocation: string,
     platform: string,
-    platformVersion: string | null,
+    platformVersion: string | null | undefined,
     diskConfigs: { disk: string; path: string } | null,
   ): ILiaraJSON {
     const versionKey = this.setVersionKey(platform, platformVersion);
@@ -175,7 +269,7 @@ Press ^C at any time to quit.
       },
     };
 
-    if (platformVersion !== null) {
+    if (platformVersion != null) {
       (configs as Record<string, any>)[platform] = {
         [versionKey!]: platformVersion,
       };
@@ -192,7 +286,7 @@ Press ^C at any time to quit.
   }
   setVersionKey(
     platform: string,
-    platformVersion: string | null,
+    platformVersion: string | null | undefined,
   ): string | null {
     if (platformVersion == null) {
       return null;
@@ -208,8 +302,15 @@ Press ^C at any time to quit.
     }
     return 'version';
   }
-  async getAppDisks(AppName: string, projects: IProject[]) {
+  async getAppDisks(
+    AppName: string,
+    projects: IProject[],
+    flagsValue: boolean,
+  ) {
     try {
+      if (flagsValue) {
+        return [];
+      }
       this.spinner.start();
       const project = projects.find((project) => {
         return project.project_id === AppName;
@@ -234,8 +335,16 @@ Press ^C at any time to quit.
   }
   async promptDiskConfig(
     disks: object[],
+    diskNameFlag: string | undefined,
+    diskPathFlage: string | undefined,
   ): Promise<{ disk: string; path: string } | null> {
     try {
+      if (diskNameFlag && diskPathFlage) {
+        return {
+          disk: diskNameFlag,
+          path: diskPathFlage,
+        };
+      }
       if (disks.length > 0) {
         const { setDisk } = (await inquirer.prompt({
           message: 'Set disk configs? ',
