@@ -52,10 +52,6 @@ export default class Create extends Command {
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
-    const account = await this.getCurrentAccount();
-
-    ((account && account.region === 'germany') || flags.region === 'germany') &&
-      this.error('We do not support germany any more.');
 
     const hostname = flags.name || (await this.promptHostname());
     const type = flags.type || (await this.promptType());
@@ -200,13 +196,15 @@ export default class Create extends Command {
                   })
                   .map((bundlePlan) => {
                     const planDetails = plans.databaseBundlePlans[bundlePlan];
-                    return Object.keys(planDetails).map((key) => {
-                      const { displayPrice } = planDetails[key];
-                      return {
-                        name: `Plan type: ${key}, Price: ${displayPrice.toLocaleString()} Tomans/Month`,
-                        value: key,
-                      };
-                    });
+                    return Object.keys(planDetails)
+                      .filter((key) => planDetails[key].available)
+                      .map((key) => {
+                        const { displayPrice } = planDetails[key];
+                        return {
+                          name: `Plan: ${key}, Price: ${displayPrice.toLocaleString()} Tomans/Month`,
+                          value: key,
+                        };
+                      });
                   })
                   .flat(),
               ],
