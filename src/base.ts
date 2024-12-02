@@ -259,12 +259,12 @@ Please check your network connection.`);
     }
 
     if (!config['api-token'] || !config.region) {
-      const { api_token } = config.account
+      const { api_token, region } = config.account
         ? await this.getAccount(config.account)
         : await this.getCurrentAccount();
 
       config['api-token'] = config['api-token'] || api_token;
-      // config.region = config.region || region;
+      config.region = config.region || region;
     }
 
     // @ts-ignore
