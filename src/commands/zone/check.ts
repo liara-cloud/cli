@@ -30,10 +30,6 @@ export default class Check extends Command {
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
-    const account = await this.getCurrentAccount();
-
-    ((account && account.region === 'germany') || flags.region === 'germany') &&
-      this.error('We do not support germany any more.');
 
     const zone = flags.zone || (await this.promptZone());
 
@@ -54,7 +50,7 @@ export default class Check extends Command {
       }
 
       if (error.response && error.response.statusCode === 404) {
-        this.error(`The zone does not exist.`);
+        this.error(`Zone does not exists or its status is not pending.`);
       }
 
       if (error.response && error.response.statusCode === 406) {

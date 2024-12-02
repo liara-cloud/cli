@@ -38,7 +38,7 @@ export interface IAccount {
   email: string;
   api_token?: string;
   'api-token'?: string;
-  // region: string;
+  region: string;
   fullname: string;
   avatar: string;
   current: boolean;
