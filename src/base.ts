@@ -38,7 +38,7 @@ export interface IAccount {
   email: string;
   api_token?: string;
   'api-token'?: string;
-  region: string;
+  // region: string;
   fullname: string;
   avatar: string;
   current: boolean;
@@ -167,6 +167,19 @@ export interface IGetMailboxesResponse {
   };
 }
 
+export interface IMailPlan {
+  available: boolean;
+  maxAccount: number;
+  maxForwarder: number;
+  maxInbound: string;
+  maxInboundMailRetention: number;
+  maxOutboundMailRetention: number;
+  maxOutboundPerDay: number;
+  maxOutboundPerMonth: number;
+  name: string;
+  price: number;
+}
+
 export interface IGetMailsAccounts {
   name: string;
   createdAt: string;
@@ -195,10 +208,10 @@ export default abstract class extends Command {
     'api-token': Flags.string({
       description: 'your api token to use for authentication',
     }),
-    region: Flags.string({
-      description: 'the region you want to deploy your app to',
-      options: ['iran', 'germany'],
-    }),
+    // region: Flags.string({
+    //   description: 'the region you want to deploy your app to',
+    //   options: ['iran', 'germany'],
+    // }),
     account: Flags.string({
       description: 'temporarily switch to a different account',
     }),
@@ -246,12 +259,12 @@ Please check your network connection.`);
     }
 
     if (!config['api-token'] || !config.region) {
-      const { api_token, region } = config.account
+      const { api_token } = config.account
         ? await this.getAccount(config.account)
         : await this.getCurrentAccount();
 
       config['api-token'] = config['api-token'] || api_token;
-      config.region = config.region || region;
+      // config.region = config.region || region;
     }
 
     // @ts-ignore
