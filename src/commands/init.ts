@@ -5,12 +5,13 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import path from 'path';
 
-import Command, { IGetDiskResponse, IProject } from '../base.js';
+import Command, { IProject } from '../base.js';
 import { getPort } from '../utils/get-port.js';
 import IGetProjectsResponse from '../types/get-project-response.js';
 import ILiaraJSON from '../types/liara-json.js';
 import supportedVersions from '../utils/getSupportedVersions.js';
 import detectPlatform from '../utils/detect-platform.js';
+import { IGetDiskResponse } from '../types/getDiskResponse.js';
 
 export default class Init extends Command {
   static override description =

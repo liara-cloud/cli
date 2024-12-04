@@ -28,6 +28,7 @@ import {
 } from './constants.js';
 import { getDefaultPort } from './utils/get-port.js';
 import validatePort from './utils/validate-port.js';
+import { Interface } from 'node:readline';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -73,20 +74,6 @@ export interface IProject {
   project_id: string;
   created_at: string;
   isDeployed: boolean;
-}
-interface IMount {
-  name: string;
-  mountedTo: string;
-}
-export interface IGetDiskResponse {
-  disks: {
-    name: string;
-    size: number;
-    updatedAt: string;
-    createdAt: string;
-    filebrowserUrl: string;
-  }[];
-  mounts: IMount[];
 }
 
 export interface IGetProjectsResponse {
