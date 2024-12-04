@@ -28,7 +28,6 @@ import {
 } from './constants.js';
 import { getDefaultPort } from './utils/get-port.js';
 import validatePort from './utils/validate-port.js';
-import { Interface } from 'node:readline';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
