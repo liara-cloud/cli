@@ -58,13 +58,7 @@ const versions: IVersions = {
     allVersions: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12'],
   },
 };
-// export const defaultVersion={
-
-// }
 
 export default function supportedVersions(platform: string) {
-  if (platform in versions) {
-    return versions[platform as keyof typeof versions];
-  }
-  return null;
+  return versions[platform as keyof typeof versions];
 }

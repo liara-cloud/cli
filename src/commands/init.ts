@@ -5,6 +5,7 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import path from 'path';
 
+import { promptPort } from '../utils/promptPort.js';
 import Command, { IProject } from '../base.js';
 import { getPort } from '../utils/get-port.js';
 import IGetProjectsResponse from '../types/get-project-response.js';
@@ -191,7 +192,7 @@ Afterwards, use liara deploy to deploy your project.
       }
       const defaultPort = getPort(platform);
       if (!defaultPort) {
-        const port = await this.promptPort(appName);
+        const port = await promptPort(appName);
         return port;
       }
       return defaultPort;
@@ -219,13 +220,13 @@ Afterwards, use liara deploy to deploy your project.
   async promptPlatformVersion(
     platform: string,
     flagValue: string | undefined,
-  ): Promise<string | null> {
+  ): Promise<string | undefined> {
     try {
       if (flagValue) {
         return flagValue;
       }
       const versions = supportedVersions(platform);
-      if (versions !== null) {
+      if (versions) {
         const { version } = (await inquirer.prompt({
           message: `${platform} version: `,
           name: 'version',
@@ -235,7 +236,6 @@ Afterwards, use liara deploy to deploy your project.
         })) as { version: string };
         return version;
       }
-      return null;
     } catch (error) {
       throw error;
     }
@@ -257,8 +257,8 @@ Afterwards, use liara deploy to deploy your project.
     appName: string,
     buildLocation: string,
     platform: string,
-    platformVersion: string | null | undefined,
-    diskConfigs: { disk: string; path: string } | null,
+    platformVersion: string | undefined,
+    diskConfigs: { disk: string; path: string } | undefined,
   ): ILiaraJSON {
     const versionKey = this.setVersionKey(platform, platformVersion);
     const configs: ILiaraJSON = {
@@ -270,12 +270,12 @@ Afterwards, use liara deploy to deploy your project.
       },
     };
 
-    if (platformVersion != null) {
+    if (platformVersion) {
       (configs as Record<string, any>)[platform] = {
         [versionKey!]: platformVersion,
       };
     }
-    if (diskConfigs !== null) {
+    if (diskConfigs) {
       configs['disks'] = [
         {
           name: diskConfigs.disk,
@@ -287,21 +287,20 @@ Afterwards, use liara deploy to deploy your project.
   }
   setVersionKey(
     platform: string,
-    platformVersion: string | null | undefined,
-  ): string | null {
-    if (platformVersion == null) {
-      return null;
+    platformVersion: string | undefined,
+  ): string | undefined {
+    if (platformVersion) {
+      if (platform in ['flask', 'django']) {
+        return 'pythonVersion';
+      }
+      if (platform == 'laravel') {
+        return 'phpVersion';
+      }
+      if (platform == 'next') {
+        return 'nodeVersion';
+      }
+      return 'version';
     }
-    if (platform in ['flask', 'django']) {
-      return 'pythonVersion';
-    }
-    if (platform == 'laravel') {
-      return 'phpVersion';
-    }
-    if (platform == 'next') {
-      return 'nodeVersion';
-    }
-    return 'version';
   }
   async getAppDisks(
     AppName: string,
@@ -338,7 +337,7 @@ Afterwards, use liara deploy to deploy your project.
     disks: object[],
     diskNameFlag: string | undefined,
     diskPathFlage: string | undefined,
-  ): Promise<{ disk: string; path: string } | null> {
+  ): Promise<{ disk: string; path: string } | undefined> {
     try {
       if (diskNameFlag && diskPathFlage) {
         return {
@@ -370,7 +369,6 @@ Afterwards, use liara deploy to deploy your project.
           return diskConfigs;
         }
       }
-      return null;
     } catch (error) {
       throw error;
     }
