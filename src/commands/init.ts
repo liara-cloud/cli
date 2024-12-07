@@ -12,7 +12,8 @@ import IGetProjectsResponse from '../types/get-project-response.js';
 import ILiaraJSON from '../types/liara-json.js';
 import supportedVersions from '../utils/getSupportedVersions.js';
 import detectPlatform from '../utils/detect-platform.js';
-import { IGetDiskResponse } from '../types/getDiskResponse.js';
+import { IDisk, IGetDiskResponse } from '../types/getDiskResponse.js';
+import { AVAILABLE_PLATFORMS } from '../constants.js';
 
 export default class Init extends Command {
   static override description =
@@ -105,8 +106,12 @@ Afterwards, use liara deploy to deploy your project.
       const buildLocation = await this.buildLocationPrompt(
         flags['build-location'],
       );
-      const platform = this.findPlatform(projects, appName, flags.platform);
-      const port = await this.getAppPort(platform, appName, flags.port);
+      const platform = await this.findPlatform(
+        projects,
+        appName,
+        flags.platform,
+      );
+      const port = await this.getAppPort(platform, flags.port, projects);
       const version = await this.promptPlatformVersion(platform, flags.version);
       const disks = await this.getAppDisks(appName, projects, flags['no-disk']);
       const diskConfigs = await this.promptDiskConfig(
@@ -147,11 +152,13 @@ Afterwards, use liara deploy to deploy your project.
       if (flagValue) {
         return flagValue;
       }
-      if (!projects.length) {
-        this.warn(
-          'Please go to https://console.liara.ir/apps and create an app, first.',
-        );
-        this.exit(1);
+      if (projects.length == 0) {
+        const { project } = (await inquirer.prompt({
+          name: 'project',
+          type: 'input',
+          message: 'Enter app name:',
+        })) as { project: string };
+        return project;
       }
 
       const { project } = (await inquirer.prompt({
@@ -165,11 +172,15 @@ Afterwards, use liara deploy to deploy your project.
       throw error;
     }
   }
-  findPlatform(
+  async findPlatform(
     projects: IProject[],
     appName: string,
     flagsValue: string | undefined,
-  ): string {
+  ): Promise<string> {
+    if (projects.length == 0) {
+      const platform = await this.promptPlatform();
+      return platform;
+    }
     if (flagsValue) {
       return flagsValue;
     }
@@ -183,8 +194,8 @@ Afterwards, use liara deploy to deploy your project.
   }
   async getAppPort(
     platform: string,
-    appName: string,
     flagValue: number | undefined,
+    projects: IProject[],
   ): Promise<number> {
     try {
       if (flagValue) {
@@ -192,7 +203,7 @@ Afterwards, use liara deploy to deploy your project.
       }
       const defaultPort = getPort(platform);
       if (!defaultPort) {
-        const port = await promptPort(appName);
+        const port = await promptPort(platform);
         return port;
       }
       return defaultPort;
@@ -260,7 +271,7 @@ Afterwards, use liara deploy to deploy your project.
         `${process.cwd()}/liara.json`,
         JSON.stringify(configs, null, 2),
       );
-      this.spinner.succeed('Liara.json file is successfully created!');
+      this.spinner.succeed('Liara.json is successfully created!');
     } catch (error) {
       throw new Error('There was a problem while creating liara.json file!');
     }
@@ -319,22 +330,26 @@ Afterwards, use liara deploy to deploy your project.
     AppName: string,
     projects: IProject[],
     flagsValue: boolean,
-  ) {
+  ): Promise<IDisk[] | undefined> {
     try {
       if (flagsValue) {
         return [];
       }
-      this.spinner.start();
-      const project = projects.find((project) => {
-        return project.project_id === AppName;
-      });
-      const disks = await this.got(
-        `v1/projects/${project?._id}/disks`,
-      ).json<IGetDiskResponse>();
-      this.spinner.stop();
-      return disks.disks;
+      if (projects.length != 0) {
+        this.spinner.start();
+        const project = projects.find((project) => {
+          return project.project_id === AppName;
+        });
+        const disks = await this.got(
+          `v1/projects/${project?._id}/disks`,
+        ).json<IGetDiskResponse>();
+        this.spinner.stop();
+        return disks.disks;
+      }
     } catch (error) {
-      throw error;
+      throw new Error(
+        'There was a problem while getting your app disks, Please try again later.',
+      );
     }
   }
   async setDiskConfigAnswer(): Promise<boolean> {
@@ -346,8 +361,27 @@ Afterwards, use liara deploy to deploy your project.
     })) as { setDisk: boolean };
     return setDisk;
   }
+  async promptPlatform() {
+    this.spinner.start('Loading...');
+
+    try {
+      this.spinner.stop();
+
+      const { platform } = (await inquirer.prompt({
+        name: 'platform',
+        type: 'list',
+        message: 'Please select a platform:',
+        choices: [...AVAILABLE_PLATFORMS.map((platform) => platform)],
+      })) as { platform: string };
+
+      return platform;
+    } catch (error) {
+      this.spinner.stop();
+      throw error;
+    }
+  }
   async promptDiskConfig(
-    disks: object[],
+    disks: IDisk[] | undefined,
     diskNameFlag: string | undefined,
     diskPathFlage: string | undefined,
   ): Promise<{ disk: string; path: string } | undefined> {
@@ -358,29 +392,35 @@ Afterwards, use liara deploy to deploy your project.
           path: diskPathFlage,
         };
       }
-      if (disks.length > 0) {
-        const { setDisk } = (await inquirer.prompt({
-          message: 'Set disk configs? ',
-          type: 'confirm',
-          name: 'setDisk',
-          default: false,
-        })) as { setDisk: boolean };
-        if (setDisk) {
-          const diskConfigs = (await inquirer.prompt([
-            {
-              message: 'Disk name: ',
-              choices: disks,
-              name: 'disk',
-              type: 'list',
-            },
-            {
-              message: 'MountTO: ',
-              name: 'path',
-              type: 'input',
-            },
-          ])) as { disk: string; path: string };
-          return diskConfigs;
+      const { setDisk } = (await inquirer.prompt({
+        message: 'Set disk configs? ',
+        type: 'confirm',
+        name: 'setDisk',
+        default: false,
+      })) as { setDisk: boolean };
+      if (setDisk) {
+        let disk: { disk: string };
+        if (disks && disks.length > 0) {
+          disk = await inquirer.prompt({
+            message: 'Disk name: ',
+            name: 'disk',
+            choices: disks,
+            type: 'list',
+          });
         }
+        if (!disks || disks.length == 0) {
+          disk = await inquirer.prompt({
+            message: 'Disk name: ',
+            name: 'disk',
+            type: 'input',
+          });
+        }
+        const path = await inquirer.prompt({
+          message: 'MountTo: ',
+          name: 'path',
+          type: 'input',
+        });
+        return { disk: disk!.disk, path: path.path };
       }
     } catch (error) {
       throw error;
