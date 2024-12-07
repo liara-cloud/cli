@@ -22,28 +22,12 @@ const versions: IVersions = {
   node: { defaultVersion: '20', allVersions: ['14', '16', '18', '20', '22'] },
   next: { defaultVersion: '20', allVersions: ['20', '22'] },
   laravel: {
-    defaultVersion: '8.0',
-    allVersions: [
-      '8.3.0',
-      '8.2.0',
-      '8.1.0',
-      '8.0.0',
-      '7.4.0',
-      '7.3.0',
-      '7.2.0',
-    ],
+    defaultVersion: '7.4',
+    allVersions: ['8.3', '8.2', '8.1', '8.0', '7.4', '7.3', '7.2'],
   },
   php: {
     defaultVersion: '8.0',
-    allVersions: [
-      '8.3.0',
-      '8.2.0',
-      '8.1.0',
-      '8.0.0',
-      '7.4.0',
-      '7.3.0',
-      '7.2.0',
-    ],
+    allVersions: ['8.3', '8.2', '8.1', '8.0', '7.4', '7.3', '7.2'],
   },
   python: {
     defaultVersion: '3.11',

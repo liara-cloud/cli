@@ -227,8 +227,21 @@ Afterwards, use liara deploy to deploy your project.
       }
       const versions = supportedVersions(platform);
       if (versions) {
+        let message: string | undefined;
+        if (['flask', 'django'].includes(platform)) {
+          message = 'Python version';
+        }
+        if (platform === 'laravel') {
+          message = 'Php version';
+        }
+        if (platform === 'next') {
+          message = 'Node version';
+        }
+        if (!message) {
+          message = `${platform} version: `;
+        }
         const { version } = (await inquirer.prompt({
-          message: `${platform} version: `,
+          message: message || 'Platform version',
           name: 'version',
           type: 'list',
           default: versions.defaultVersion,
@@ -290,7 +303,7 @@ Afterwards, use liara deploy to deploy your project.
     platformVersion: string | undefined,
   ): string | undefined {
     if (platformVersion) {
-      if (platform in ['flask', 'django']) {
+      if (['flask', 'django'].includes(platform)) {
         return 'pythonVersion';
       }
       if (platform == 'laravel') {
