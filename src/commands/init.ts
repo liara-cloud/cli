@@ -14,6 +14,7 @@ import supportedVersions from '../utils/getSupportedVersions.js';
 import detectPlatform from '../utils/detect-platform.js';
 import { IDisk, IGetDiskResponse } from '../types/getDiskResponse.js';
 import { AVAILABLE_PLATFORMS } from '../constants.js';
+import IHealthConfig from '../types/health-config.js';
 
 export default class Init extends Command {
   static override description =
@@ -121,6 +122,8 @@ Afterwards, use liara deploy to deploy your project.
         flags.disk,
         flags.path,
       );
+      const cron = await this.promptCron(platform);
+      const healthCheck = await this.promptHealthCheck();
       const configs = this.setLiaraJsonConfigs(
         port,
         appName,
@@ -128,6 +131,8 @@ Afterwards, use liara deploy to deploy your project.
         platform,
         version,
         diskConfigs,
+        healthCheck,
+        cron,
       );
       this.createLiaraJsonFile(configs);
     } catch (error) {
@@ -294,6 +299,8 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
     platform: string,
     platformVersion: string | undefined,
     diskConfigs: { disk: string; path: string }[] | undefined,
+    healthCheck?: IHealthConfig | undefined,
+    cron?: string[] | undefined,
   ): ILiaraJSON {
     const versionKey = this.setVersionKey(platform, platformVersion);
     const configs: ILiaraJSON = {
@@ -304,7 +311,12 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
         location: buildLocation,
       },
     };
-
+    if (cron) {
+      configs['cron'] = cron;
+    }
+    if (healthCheck) {
+      configs['healthCheck'] = healthCheck;
+    }
     if (platformVersion) {
       (configs as Record<string, any>)[platform] = {
         [versionKey!]: platformVersion,
@@ -402,7 +414,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
         ];
       }
       const { setDisk } = (await inquirer.prompt({
-        message: 'Configure disks now? ',
+        message: 'Configure disks? (Default: No)',
         type: 'confirm',
         name: 'setDisk',
         default: false,
@@ -440,7 +452,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
           diskConfig.push({ disk: diskName, path });
           if (disks.length != 0) {
             const continueAnswer = (await inquirer.prompt({
-              message: 'Add another disk?',
+              message: 'Add another disk? (Default: No)',
               type: 'confirm',
               default: false,
               name: 'shouldContinue',
@@ -449,6 +461,74 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
           }
         }
         return diskConfig;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+  async promptCron(platform: string) {
+    try {
+      if (
+        ['next', 'laravel', 'django', 'php', 'python', 'flask'].includes(
+          platform,
+        )
+      ) {
+        const { setCronAnswer } = (await inquirer.prompt({
+          message: 'Configure cron? (Default: No)',
+          type: 'confirm',
+          name: 'setCronAnswer',
+          default: false,
+        })) as { setCronAnswer: boolean };
+        if (setCronAnswer) {
+          const { cron } = (await inquirer.prompt({
+            message: 'cron: ',
+            type: 'input',
+            name: 'cron',
+          })) as { cron: string };
+          return cron.split(',').map((value) => value.trim());
+        }
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+  async promptHealthCheck(): Promise<IHealthConfig | undefined> {
+    try {
+      const { setHealtCheckAnswer } = (await inquirer.prompt({
+        message: 'Configure healthcheck? (Default: No)',
+        type: 'confirm',
+        name: 'setHealtCheckAnswer',
+        default: false,
+      })) as { setHealtCheckAnswer: boolean };
+      if (setHealtCheckAnswer) {
+        const healthcheckConfigs = (await inquirer.prompt([
+          {
+            message: 'command: ',
+            type: 'input',
+            name: 'command',
+          },
+          {
+            message: 'interval(ms): ',
+            type: 'input',
+            name: 'interval',
+          },
+          {
+            message: 'timeout(ms): ',
+            type: 'input',
+            name: 'timeout',
+          },
+          {
+            message: 'retries: ',
+            type: 'input',
+            name: 'retries',
+          },
+          {
+            message: 'startPeriod(ms): ',
+            type: 'input',
+            name: 'startPeriod',
+          },
+        ])) as IHealthConfig;
+        return healthcheckConfigs;
       }
     } catch (error) {
       throw error;
