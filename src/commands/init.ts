@@ -141,7 +141,16 @@ Afterwards, use liara deploy to deploy your project.
       this.spinner.stop();
       return projects as IProject[];
     } catch (error) {
-      throw error;
+      if (error.response && error.response.statusCode === 401) {
+        throw new Error(`Authentication failed.  
+Please log in using the 'liara login' command.
+
+If you are using an API token for authentication, please consider updating your API token.  
+You can still create a sample 'liara.json' file using the 'liara init -y' command.
+`);
+      }
+      throw new Error(`There was something wrong while fetching your app info,
+        You can still use 'liara init' with it's flags. Use 'liara init --help' for command details.`);
     }
   }
   async promptProjectName(
@@ -347,9 +356,16 @@ Afterwards, use liara deploy to deploy your project.
         return disks.disks;
       }
     } catch (error) {
-      throw new Error(
-        'There was a problem while getting your app disks, Please try again later.',
-      );
+      if (error.response && error.response.statusCode === 401) {
+        throw new Error(`Authentication failed.  
+Please log in using the 'liara login' command.
+
+If you are using an API token for authentication, please consider updating your API token.  
+You can still create a sample 'liara.json' file using the 'liara init -y' command.
+`);
+      }
+      throw new Error(`There was something wrong while fetching your app info,
+         You can still use 'liara init' with it's flags. Use 'liara init --help' for command details.`);
     }
   }
   async setDiskConfigAnswer(): Promise<boolean> {
