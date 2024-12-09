@@ -45,6 +45,7 @@ import CreateArchiveException from '../errors/create-archive.js';
 import IGetProjectsResponse from '../types/get-project-response.js';
 import ReachedMaxSourceSizeError from '../errors/max-source-size.js';
 import getPlatformVersion from '../services/get-platform-version.js';
+import { promptPort } from '../utils/promptPort.js';
 
 export default class Deploy extends Command {
   static description = 'deploy an app';
@@ -147,7 +148,7 @@ export default class Deploy extends Command {
 
     if (!config.port) {
       config.port =
-        getPort(config.platform) || (await this.promptPort(config.platform));
+        getPort(config.platform) || (await promptPort(config.platform));
     }
 
     this.logKeyValue('App', config.app);
@@ -766,19 +767,6 @@ Additionally, you can also retry the build with the debug flag:
       throw error;
     }
   }
-
-  async promptPort(platform: string): Promise<number> {
-    const { port } = (await inquirer.prompt({
-      name: 'port',
-      type: 'input',
-      default: getDefaultPort(platform),
-      message: 'Enter the port your app listens to:',
-      validate: validatePort,
-    })) as { port: number };
-
-    return port;
-  }
-
   getMergedConfig(flags: IFlags): IDeploymentConfig {
     const defaults = {
       path: flags.path ? flags.path : process.cwd(),
