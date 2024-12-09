@@ -163,11 +163,11 @@ Please specify your platform with --platform=wordpress or docker.`);
 
   if (hasGoModFile && hasDockerFile) {
     throw new Error(`The project contains both of the \`go.mod\` and \`Dockerfile\` files.
-Please specify your platform with --platform=golang or docker.`);
+Please specify your platform with --platform=go or docker.`);
   }
 
   if (hasGoModFile) {
-    return 'golang';
+    return 'go';
   }
 
   if (hasDockerFile) {

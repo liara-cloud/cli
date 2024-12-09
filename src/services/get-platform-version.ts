@@ -22,7 +22,7 @@ async function getPlatformVersion(
     php: 'php --version',
     node: 'node --version',
     dotnet: 'dotnet --version',
-    golang: 'go version',
+    go: 'go version',
   };
   const platformsVersionTrim: {
     [key: string]: (rawVersion: string) => string;
@@ -33,7 +33,7 @@ async function getPlatformVersion(
       rawVersion.trim().split(' ')[1].split('.').slice(0, 2).join('.'), // ex: 8.2
     node: (rawVersion: string) => rawVersion.trim().slice(1).split('.')[0], // ex: 18
     dotnet: (rawVersion: string) => rawVersion.trim()[0] + '.0', // ex: 5.0
-    golang: (rawVersion: string) =>
+    go: (rawVersion: string) =>
       rawVersion.trim().split(' ')[2].slice(2).split('.').slice(0, 2).join('.'), // ex: 1.22
   };
 
@@ -65,8 +65,8 @@ async function getPlatformVersion(
     case 'dotnet':
       pureVersion = await detectDotNetPlatformVersion(projectPath, debug);
       break;
-    case 'golang':
-      pureVersion = await detectGolangPlatformVersion(projectPath, debug);
+    case 'go':
+      pureVersion = await detectGoPlatformVersion(projectPath, debug);
       break;
   }
 
@@ -318,7 +318,7 @@ async function getRequiredDotNetVersion(
     throw error;
   }
 }
-function getGolangPlatformVersion(goModData: string): string | null {
+function getGoPlatformVersion(goModData: string): string | null {
   const goVersionRegex = /^go\s+([\d.]+)$/;
 
   const match = goModData
@@ -329,11 +329,11 @@ function getGolangPlatformVersion(goModData: string): string | null {
   return match ? match[1].replace(/\.\d+$/, '').toString() : null;
 }
 
-async function detectGolangPlatformVersion(
+async function detectGoPlatformVersion(
   projectPath: string,
   debug: DebugLogger,
 ) {
-  const supportedGolangVersions = ['1.21', '1.22', '1.23'];
+  const supportedGoVersions = ['1.21', '1.22', '1.23'];
 
   try {
     const goModFile = await findFile(projectPath, 'go.mod');
@@ -345,23 +345,23 @@ async function detectGolangPlatformVersion(
 
     const goModData = fs.readFileSync(goModFile, 'utf8');
 
-    const golangVersion = getGolangPlatformVersion(goModData);
+    const goVersion = getGoPlatformVersion(goModData);
 
-    if (!golangVersion) {
+    if (!goVersion) {
       debug('Could not find go version in go.mod file');
       return null;
     }
 
-    if (!supportedGolangVersions.find((v) => golangVersion === v)) {
-      debug(`${golangVersion} is not a supported golang version.`);
+    if (!supportedGoVersions.find((v) => goVersion === v)) {
+      debug(`${goVersion} is not a supported go version.`);
       return -1;
     }
 
-    return golangVersion;
+    return goVersion;
   } catch (error) {
     if (error.syscall === 'open') {
       debug(
-        `Could not open go.mod to detect the golang version. Skipping... message=${error.message}`,
+        `Could not open go.mod to detect the go version. Skipping... message=${error.message}`,
       );
       return null;
     }
