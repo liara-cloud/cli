@@ -575,7 +575,7 @@ Additionally, you can also retry the build with the debug flag:
       return body;
     }
     if (body.platformConfig.version) {
-      // node, dotnet, php, python, golang
+      // node, dotnet, php, python, go
       this.logKeyValue(
         `${config.platform} version`,
         body.platformConfig.version,
@@ -623,7 +623,7 @@ Additionally, you can also retry the build with the debug flag:
         case 'python':
         case 'node':
         case 'dotnet':
-        case 'golang':
+        case 'go':
           platformVersion = await getPlatformVersion(
             config.platform,
             config.path,

@@ -38,7 +38,7 @@ export const AVAILABLE_PLATFORMS = [
   'static',
   'docker',
   'next',
-  'golang',
+  'go',
 ];
 
 export const OBJ_PERMISSION = ['public', 'private'];
