@@ -51,12 +51,7 @@ export default class AppCreate extends Command {
 
     const name = flags.app || (await this.promptAppName());
 
-    const account = await this.getCurrentAccount();
-
     await this.setGotConfig(flags);
-
-    ((account && account.region === 'germany') || flags.region === 'germany') &&
-      this.error('We do not support germany any more.');
 
     const platform = flags.platform || (await this.promptPlatform());
 

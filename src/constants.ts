@@ -14,7 +14,7 @@ export const REGIONS_API_URL: { [key: string]: string } = {
 
 export const MAIL_SERVICE_URL = 'https://mail-service.iran.liara.ir';
 
-export const MAIL_SERVICE_URL_DEV = 'http://localhost:3002';
+export const MAIL_SERVICE_URL_DEV = 'http://localhost:6336';
 
 export const OBJECT_STORAGE_API_URL = 'https://storage-service.iran.liara.ir';
 
@@ -42,6 +42,15 @@ export const AVAILABLE_PLATFORMS = [
 ];
 
 export const OBJ_PERMISSION = ['public', 'private'];
-export const MAIL_SERVICE_PLANS = ['free-included', 'premium'];
+export const MAIL_SERVICE_PLANS = [
+  'm1',
+  'm2',
+  'm3',
+  'm4',
+  'm5',
+  'm6',
+  'm7',
+  'm8',
+];
 
 export const MAIL_SERVICE_MODES = ['DEV', 'LIVE'];

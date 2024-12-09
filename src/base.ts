@@ -167,6 +167,19 @@ export interface IGetMailboxesResponse {
   };
 }
 
+export interface IMailPlan {
+  available: boolean;
+  maxAccount: number;
+  maxForwarder: number;
+  maxInbound: string;
+  maxInboundMailRetention: number;
+  maxOutboundMailRetention: number;
+  maxOutboundPerDay: number;
+  maxOutboundPerMonth: number;
+  name: string;
+  price: number;
+}
+
 export interface IGetMailsAccounts {
   name: string;
   createdAt: string;
@@ -195,10 +208,10 @@ export default abstract class extends Command {
     'api-token': Flags.string({
       description: 'your api token to use for authentication',
     }),
-    region: Flags.string({
-      description: 'the region you want to deploy your app to',
-      options: ['iran', 'germany'],
-    }),
+    // region: Flags.string({
+    //   description: 'the region you want to deploy your app to',
+    //   options: ['iran', 'germany'],
+    // }),
     account: Flags.string({
       description: 'temporarily switch to a different account',
     }),
