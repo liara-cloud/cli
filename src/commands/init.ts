@@ -17,8 +17,7 @@ import { AVAILABLE_PLATFORMS } from '../constants.js';
 import IHealthConfig from '../types/health-config.js';
 
 export default class Init extends Command {
-  static override description =
-    'With this command, you can create a liara.json file';
+  static override description = 'create a liara.json file';
 
   static override examples = ['<%= config.bin %> <%= command.id %>'];
 
@@ -26,61 +25,62 @@ export default class Init extends Command {
     ...Command.flags,
     y: Flags.boolean({
       char: 'y',
-      description: 'Create an example file',
+      description: 'create an example file',
       aliases: [],
     }),
     name: Flags.string({
       char: 'n',
-      description: 'Your app name',
+      description: 'the name of the app',
     }),
     port: Flags.integer({
       char: 'p',
-      description: 'Port your app listens to',
+      description: 'the port your app listens to',
     }),
     platform: Flags.string({
       char: 'P',
-      description: 'App platform',
+      description: 'the platform your app needs to run on',
     }),
     version: Flags.string({
       char: 'v',
-      description: 'Platform Version',
+      description: 'the version of the platform',
     }),
     'build-location': Flags.string({
-      description: 'Build location',
+      description: "name of the build's location",
       aliases: ['location'],
     }),
-    'no-disk': Flags.boolean({
-      description: 'No disk config',
-      exclusive: ['disk', 'path'],
-    }),
     disk: Flags.string({
-      description: 'Disk name',
+      description: 'the name of the disk',
       char: 'd',
       dependsOn: ['path'],
     }),
     path: Flags.string({
-      description: 'The path where you want to mount the disk',
+      description: 'the path where the disk should be mounted',
       dependsOn: ['disk'],
     }),
   };
+
   public async run(): Promise<void> {
     const { args, flags } = await this.parse(Init);
 
     try {
       await this.setGotConfig(flags);
+
       this.log(
         chalk.yellow(`This command interactively creates a basic liara.json configuration file.
 It includes only the essential settings; additional configurations must be added manually.
 📚 For more details on each field and its usage, visit: https://docs.liara.ir/paas/liarajson/.
 
-Afterwards, use liara deploy to deploy your project.
+Afterwards, use liara deploy to deploy your app.
 
 🔑 Press ^C at any time to quit.
 `),
       );
+
       this.spinner = ora();
+
       if (flags.y) {
         const dirName = path.basename(process.cwd());
+
         const platform = detectPlatform(process.cwd());
         const diskConfig = [
           {
@@ -102,8 +102,10 @@ Afterwards, use liara deploy to deploy your project.
             "🚫 This file is just a sample file, don't use it for deployment.",
           ),
         );
+
         this.exit(0);
       }
+
       const projects = await this.getPlatformsInfo();
       const appName = await this.promptProjectName(projects, flags.name);
       const buildLocation = await this.buildLocationPrompt(
@@ -116,7 +118,7 @@ Afterwards, use liara deploy to deploy your project.
       );
       const port = await this.getAppPort(platform, flags.port, projects);
       const version = await this.promptPlatformVersion(platform, flags.version);
-      const disks = await this.getAppDisks(appName, projects, flags['no-disk']);
+      const disks = await this.getAppDisks(appName, projects);
       const diskConfigs = await this.promptDiskConfig(
         disks,
         flags.disk,
@@ -134,17 +136,20 @@ Afterwards, use liara deploy to deploy your project.
         healthCheck,
         cron,
       );
+
       this.createLiaraJsonFile(configs);
     } catch (error) {
       throw error;
     }
   }
+
   async getPlatformsInfo(): Promise<IProject[]> {
     try {
       this.spinner.start();
 
       const { projects } =
         await this.got('v1/projects').json<IGetProjectsResponse>();
+
       this.spinner.stop();
       return projects as IProject[];
     } catch (error) {
@@ -156,6 +161,7 @@ If you are using an API token for authentication, please consider updating your 
 You can still create a sample 'liara.json' file using the 'liara init -y' command.
 `);
       }
+
       throw new Error(`There was something wrong while fetching your app info,
         You can still use 'liara init' with it's flags. Use 'liara init --help' for command details.`);
     }
@@ -168,6 +174,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       if (flagValue) {
         return flagValue;
       }
+
       if (projects.length == 0) {
         const { project } = (await inquirer.prompt({
           name: 'project',
@@ -188,6 +195,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       throw error;
     }
   }
+
   async findPlatform(
     projects: IProject[],
     appName: string,
@@ -197,17 +205,21 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       const platform = await this.promptPlatform();
       return platform;
     }
+
     if (flagsValue) {
       return flagsValue;
     }
+
     const project = projects.find((project) => {
       return project.project_id === appName;
     });
+
     if (!project) {
       return 'static';
     }
     return project!.type;
   }
+
   async getAppPort(
     platform: string,
     flagValue: number | undefined,
@@ -217,7 +229,9 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       if (flagValue) {
         return flagValue;
       }
+
       const defaultPort = getPort(platform);
+
       if (!defaultPort) {
         const port = await promptPort(platform);
         return port;
@@ -227,11 +241,13 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       throw error;
     }
   }
+
   async buildLocationPrompt(flagValue: string | undefined): Promise<string> {
     try {
       if (flagValue) {
         return flagValue;
       }
+
       const { location } = (await inquirer.prompt({
         message: 'Specify the build location: ',
         name: 'location',
@@ -244,6 +260,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       throw error;
     }
   }
+
   async promptPlatformVersion(
     platform: string,
     flagValue: string | undefined,
@@ -252,21 +269,27 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       if (flagValue) {
         return flagValue;
       }
+
       const versions = supportedVersions(platform);
+
       if (versions) {
         let message: string | undefined;
         if (['flask', 'django'].includes(platform)) {
           message = 'Select python version';
         }
+
         if (platform === 'laravel') {
           message = 'Select php version';
         }
+
         if (platform === 'next') {
           message = 'Select node version';
         }
+
         if (!message) {
           message = `Selcet ${platform} version: `;
         }
+
         const { version } = (await inquirer.prompt({
           message: message || 'Select platform version',
           name: 'version',
@@ -280,9 +303,11 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       throw error;
     }
   }
+
   async createLiaraJsonFile(configs: ILiaraJSON) {
     try {
       this.spinner.start();
+
       await fs.writeFile(
         `${process.cwd()}/liara.json`,
         JSON.stringify(configs, null, 2),
@@ -292,6 +317,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       throw new Error('There was a problem while creating liara.json file!');
     }
   }
+
   setLiaraJsonConfigs(
     port: number,
     appName: string,
@@ -303,8 +329,8 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
     cron?: string[] | undefined,
   ): ILiaraJSON {
     const versionKey = this.setVersionKey(platform, platformVersion);
+
     const configs: ILiaraJSON = {
-      platform,
       port,
       app: appName,
       build: {
@@ -322,6 +348,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
         [versionKey!]: platformVersion,
       };
     }
+
     if (diskConfigs) {
       configs['disks'] = diskConfigs.map((config) => {
         return { name: config.disk, mountTo: config.path };
@@ -329,6 +356,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
     }
     return configs;
   }
+
   setVersionKey(
     platform: string,
     platformVersion: string | undefined,
@@ -337,32 +365,34 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       if (['flask', 'django'].includes(platform)) {
         return 'pythonVersion';
       }
+
       if (platform == 'laravel') {
         return 'phpVersion';
       }
+
       if (platform == 'next') {
         return 'nodeVersion';
       }
       return 'version';
     }
   }
+
   async getAppDisks(
     AppName: string,
     projects: IProject[],
-    flagsValue: boolean,
   ): Promise<IDisk[] | undefined> {
     try {
-      if (flagsValue) {
-        return [];
-      }
       if (projects.length != 0) {
         this.spinner.start();
+
         const project = projects.find((project) => {
           return project.project_id === AppName;
         });
+
         const disks = await this.got(
           `v1/projects/${project?._id}/disks`,
         ).json<IGetDiskResponse>();
+
         this.spinner.stop();
         return disks.disks;
       }
@@ -375,10 +405,12 @@ If you are using an API token for authentication, please consider updating your 
 You can still create a sample 'liara.json' file using the 'liara init -y' command.
 `);
       }
+
       throw new Error(`There was something wrong while fetching your app info,
          You can still use 'liara init' with it's flags. Use 'liara init --help' for command details.`);
     }
   }
+
   async promptPlatform() {
     this.spinner.start('Loading...');
 
@@ -398,6 +430,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       throw error;
     }
   }
+
   async promptDiskConfig(
     disks: IDisk[] | undefined,
     diskNameFlag: string | undefined,
@@ -405,6 +438,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
   ): Promise<{ disk: string; path: string }[] | undefined> {
     try {
       let diskConfig = [];
+
       if (diskNameFlag && diskPathFlage) {
         return [
           {
@@ -413,12 +447,14 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
           },
         ];
       }
+
       const { setDisk } = (await inquirer.prompt({
         message: 'Configure disks? (Default: No)',
         type: 'confirm',
         name: 'setDisk',
         default: false,
       })) as { setDisk: boolean };
+
       if (setDisk) {
         if (!disks || disks.length == 0) {
           const { diskName } = (await inquirer.prompt({
@@ -426,15 +462,19 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
             name: 'diskName',
             type: 'input',
           })) as { diskName: string };
+
           const { path } = (await inquirer.prompt({
             message: 'Specify the mount location: ',
             name: 'path',
             type: 'input',
           })) as { path: string };
+
           diskConfig = [{ disk: diskName, path: path }];
           return diskConfig;
         }
+
         let shouldContinue = true;
+
         while (shouldContinue && disks.length != 0) {
           const { diskName } = (await inquirer.prompt({
             message: 'Select a Disk: ',
@@ -442,14 +482,18 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
             choices: disks,
             type: 'list',
           })) as { diskName: string };
+
           const index = disks.findIndex((disk) => disk.name === diskName);
           disks.splice(index, 1);
+
           const { path } = (await inquirer.prompt({
             message: `Mount path for ${diskName}: `,
             name: 'path',
             type: 'input',
           })) as { path: string };
+
           diskConfig.push({ disk: diskName, path });
+
           if (disks.length != 0) {
             const continueAnswer = (await inquirer.prompt({
               message: 'Add another disk? (Default: No)',
@@ -479,6 +523,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
           name: 'setCronAnswer',
           default: false,
         })) as { setCronAnswer: boolean };
+
         if (setCronAnswer) {
           const { cron } = (await inquirer.prompt({
             message: 'cron: ',
@@ -500,6 +545,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
         name: 'setHealtCheckAnswer',
         default: false,
       })) as { setHealtCheckAnswer: boolean };
+
       if (setHealtCheckAnswer) {
         const healthcheckConfigs = (await inquirer.prompt([
           {

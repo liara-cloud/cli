@@ -26,8 +26,6 @@ import {
   GLOBAL_CONF_PATH,
   GLOBAL_CONF_VERSION,
 } from './constants.js';
-import { getDefaultPort } from './utils/get-port.js';
-import validatePort from './utils/validate-port.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
