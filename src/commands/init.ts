@@ -79,31 +79,36 @@ Afterwards, use liara deploy to deploy your app.
       this.spinner = ora();
 
       if (flags.y) {
-        const dirName = path.basename(process.cwd());
+        try {
+          const dirName = path.basename(process.cwd());
 
-        const platform = detectPlatform(process.cwd());
-        const diskConfig = [
-          {
-            disk: 'media',
-            path: '/uploads/media',
-          },
-        ];
-        const configs = this.setLiaraJsonConfigs(
-          getPort(platform) || 3000,
-          dirName,
-          'iran',
-          platform,
-          supportedVersions(platform)?.defaultVersion,
-          diskConfig,
-        );
-        await this.createLiaraJsonFile(configs);
-        this.log(
-          chalk.yellow(
-            "🚫 This file is just a sample file, don't use it for deployment.",
-          ),
-        );
+          const platform = detectPlatform(process.cwd());
+          const diskConfig = [
+            {
+              disk: 'media',
+              path: '/uploads/media',
+            },
+          ];
+          const configs = this.setLiaraJsonConfigs(
+            getPort(platform) || 3000,
+            dirName,
+            'iran',
+            platform,
+            supportedVersions(platform)?.defaultVersion,
+            diskConfig,
+          );
+          await this.createLiaraJsonFile(configs);
+          this.log(
+            chalk.yellow(
+              "🚫 This file is just a sample file, don't use it for deployment.",
+            ),
+          );
 
-        this.exit(0);
+          this.exit(0);
+        } catch (error) {
+          this.spinner.stop();
+          throw error;
+        }
       }
 
       const projects = await this.getPlatformsInfo();
@@ -139,6 +144,7 @@ Afterwards, use liara deploy to deploy your app.
 
       this.createLiaraJsonFile(configs);
     } catch (error) {
+      this.spinner.stop();
       throw error;
     }
   }
@@ -170,30 +176,26 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
     projects: IProject[],
     flagValue: string | undefined,
   ): Promise<string> {
-    try {
-      if (flagValue) {
-        return flagValue;
-      }
+    if (flagValue) {
+      return flagValue;
+    }
 
-      if (projects.length == 0) {
-        const { project } = (await inquirer.prompt({
-          name: 'project',
-          type: 'input',
-          message: 'Enter app name:',
-        })) as { project: string };
-        return project;
-      }
-
+    if (projects.length == 0) {
       const { project } = (await inquirer.prompt({
         name: 'project',
-        type: 'list',
-        message: 'Select an app:',
-        choices: [...projects.map((project) => project.project_id)],
+        type: 'input',
+        message: 'Enter app name:',
       })) as { project: string };
       return project;
-    } catch (error) {
-      throw error;
     }
+
+    const { project } = (await inquirer.prompt({
+      name: 'project',
+      type: 'list',
+      message: 'Select an app:',
+      choices: [...projects.map((project) => project.project_id)],
+    })) as { project: string };
+    return project;
   }
 
   async findPlatform(
@@ -225,82 +227,70 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
     flagValue: number | undefined,
     projects: IProject[],
   ): Promise<number> {
-    try {
-      if (flagValue) {
-        return flagValue;
-      }
-
-      const defaultPort = getPort(platform);
-
-      if (!defaultPort) {
-        const port = await promptPort(platform);
-        return port;
-      }
-      return defaultPort;
-    } catch (error) {
-      throw error;
+    if (flagValue) {
+      return flagValue;
     }
+
+    const defaultPort = getPort(platform);
+
+    if (!defaultPort) {
+      const port = await promptPort(platform);
+      return port;
+    }
+    return defaultPort;
   }
 
   async buildLocationPrompt(flagValue: string | undefined): Promise<string> {
-    try {
-      if (flagValue) {
-        return flagValue;
-      }
-
-      const { location } = (await inquirer.prompt({
-        message: 'Specify the build location: ',
-        name: 'location',
-        type: 'list',
-        default: 'iran',
-        choices: ['iran', 'germany'],
-      })) as { location: string };
-      return location;
-    } catch (error) {
-      throw error;
+    if (flagValue) {
+      return flagValue;
     }
+
+    const { location } = (await inquirer.prompt({
+      message: 'Specify the build location: ',
+      name: 'location',
+      type: 'list',
+      default: 'iran',
+      choices: ['iran', 'germany'],
+    })) as { location: string };
+    return location;
   }
 
   async promptPlatformVersion(
     platform: string,
     flagValue: string | undefined,
   ): Promise<string | undefined> {
-    try {
-      if (flagValue) {
-        return flagValue;
+    if (flagValue) {
+      return flagValue;
+    }
+
+    const versions = supportedVersions(platform);
+
+    if (versions) {
+      let message: string | undefined;
+      if (['flask', 'django'].includes(platform)) {
+        message = 'Select python version';
       }
 
-      const versions = supportedVersions(platform);
-
-      if (versions) {
-        let message: string | undefined;
-        if (['flask', 'django'].includes(platform)) {
-          message = 'Select python version';
-        }
-
-        if (platform === 'laravel') {
-          message = 'Select php version';
-        }
-
-        if (platform === 'next') {
-          message = 'Select node version';
-        }
-
-        if (!message) {
-          message = `Selcet ${platform} version: `;
-        }
-
-        const { version } = (await inquirer.prompt({
-          message: message || 'Select platform version',
-          name: 'version',
-          type: 'list',
-          default: versions.defaultVersion,
-          choices: versions.allVersions,
-        })) as { version: string };
-        return version;
+      if (platform === 'laravel') {
+        message = 'Select php version';
       }
-    } catch (error) {
-      throw error;
+
+      if (platform === 'next') {
+        message = 'Select node version';
+      }
+
+      if (!message) {
+        message = `Selcet ${platform} version: `;
+      }
+
+      const { version } = (await inquirer.prompt({
+        message: message || 'Select platform version',
+        name: 'version',
+        type: 'list',
+        default: versions.defaultVersion,
+        choices: versions.allVersions,
+      })) as { version: string };
+      return version;
     }
   }
 
@@ -412,23 +402,13 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
   }
 
   async promptPlatform() {
-    this.spinner.start('Loading...');
-
-    try {
-      this.spinner.stop();
-
-      const { platform } = (await inquirer.prompt({
-        name: 'platform',
-        type: 'list',
-        message: 'Select a platform:',
-        choices: [...AVAILABLE_PLATFORMS.map((platform) => platform)],
-      })) as { platform: string };
-
-      return platform;
-    } catch (error) {
-      this.spinner.stop();
-      throw error;
-    }
+    const { platform } = (await inquirer.prompt({
+      name: 'platform',
+      type: 'list',
+      message: 'Select a platform:',
+      choices: [...AVAILABLE_PLATFORMS.map((platform) => platform)],
+    })) as { platform: string };
+    return platform;
   }
 
   async promptDiskConfig(
@@ -436,148 +416,134 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
     diskNameFlag: string | undefined,
     diskPathFlage: string | undefined,
   ): Promise<{ disk: string; path: string }[] | undefined> {
-    try {
-      let diskConfig = [];
+    let diskConfig = [];
 
-      if (diskNameFlag && diskPathFlage) {
-        return [
-          {
-            disk: diskNameFlag,
-            path: diskPathFlage,
-          },
-        ];
-      }
+    if (diskNameFlag && diskPathFlage) {
+      return [
+        {
+          disk: diskNameFlag,
+          path: diskPathFlage,
+        },
+      ];
+    }
 
-      const { setDisk } = (await inquirer.prompt({
-        message: 'Configure disks? (Default: No)',
-        type: 'confirm',
-        name: 'setDisk',
-        default: false,
-      })) as { setDisk: boolean };
+    const { setDisk } = (await inquirer.prompt({
+      message: 'Configure disks? (Default: No)',
+      type: 'confirm',
+      name: 'setDisk',
+      default: false,
+    })) as { setDisk: boolean };
 
-      if (setDisk) {
-        if (!disks || disks.length == 0) {
-          const { diskName } = (await inquirer.prompt({
-            message: 'Enter Disk name: ',
-            name: 'diskName',
-            type: 'input',
-          })) as { diskName: string };
+    if (setDisk) {
+      if (!disks || disks.length == 0) {
+        const { diskName } = (await inquirer.prompt({
+          message: 'Enter Disk name: ',
+          name: 'diskName',
+          type: 'input',
+        })) as { diskName: string };
 
-          const { path } = (await inquirer.prompt({
-            message: 'Specify the mount location: ',
-            name: 'path',
-            type: 'input',
-          })) as { path: string };
+        const { path } = (await inquirer.prompt({
+          message: 'Specify the mount location: ',
+          name: 'path',
+          type: 'input',
+        })) as { path: string };
 
-          diskConfig = [{ disk: diskName, path: path }];
-          return diskConfig;
-        }
-
-        let shouldContinue = true;
-
-        while (shouldContinue && disks.length != 0) {
-          const { diskName } = (await inquirer.prompt({
-            message: 'Select a Disk: ',
-            name: 'diskName',
-            choices: disks,
-            type: 'list',
-          })) as { diskName: string };
-
-          const index = disks.findIndex((disk) => disk.name === diskName);
-          disks.splice(index, 1);
-
-          const { path } = (await inquirer.prompt({
-            message: `Mount path for ${diskName}: `,
-            name: 'path',
-            type: 'input',
-          })) as { path: string };
-
-          diskConfig.push({ disk: diskName, path });
-
-          if (disks.length != 0) {
-            const continueAnswer = (await inquirer.prompt({
-              message: 'Add another disk? (Default: No)',
-              type: 'confirm',
-              default: false,
-              name: 'shouldContinue',
-            })) as { shouldContinue: boolean };
-            shouldContinue = continueAnswer.shouldContinue;
-          }
-        }
+        diskConfig = [{ disk: diskName, path: path }];
         return diskConfig;
       }
-    } catch (error) {
-      throw error;
+
+      let shouldContinue = true;
+
+      while (shouldContinue && disks.length != 0) {
+        const { diskName } = (await inquirer.prompt({
+          message: 'Select a Disk: ',
+          name: 'diskName',
+          choices: disks,
+          type: 'list',
+        })) as { diskName: string };
+
+        const index = disks.findIndex((disk) => disk.name === diskName);
+        disks.splice(index, 1);
+
+        const { path } = (await inquirer.prompt({
+          message: `Mount path for ${diskName}: `,
+          name: 'path',
+          type: 'input',
+        })) as { path: string };
+
+        diskConfig.push({ disk: diskName, path });
+
+        if (disks.length != 0) {
+          const continueAnswer = (await inquirer.prompt({
+            message: 'Add another disk? (Default: No)',
+            type: 'confirm',
+            default: false,
+            name: 'shouldContinue',
+          })) as { shouldContinue: boolean };
+          shouldContinue = continueAnswer.shouldContinue;
+        }
+      }
+      return diskConfig;
     }
   }
   async promptCron(platform: string) {
-    try {
-      if (
-        ['next', 'laravel', 'django', 'php', 'python', 'flask'].includes(
-          platform,
-        )
-      ) {
-        const { setCronAnswer } = (await inquirer.prompt({
-          message: 'Configure cron? (Default: No)',
-          type: 'confirm',
-          name: 'setCronAnswer',
-          default: false,
-        })) as { setCronAnswer: boolean };
+    if (
+      ['next', 'laravel', 'django', 'php', 'python', 'flask'].includes(platform)
+    ) {
+      const { setCronAnswer } = (await inquirer.prompt({
+        message: 'Configure cron? (Default: No)',
+        type: 'confirm',
+        name: 'setCronAnswer',
+        default: false,
+      })) as { setCronAnswer: boolean };
 
-        if (setCronAnswer) {
-          const { cron } = (await inquirer.prompt({
-            message: 'cron: ',
-            type: 'input',
-            name: 'cron',
-          })) as { cron: string };
-          return cron.split(',').map((value) => value.trim());
-        }
+      if (setCronAnswer) {
+        const { cron } = (await inquirer.prompt({
+          message: 'cron: ',
+          type: 'input',
+          name: 'cron',
+        })) as { cron: string };
+        return cron.split(',').map((value) => value.trim());
       }
-    } catch (error) {
-      throw error;
     }
   }
   async promptHealthCheck(): Promise<IHealthConfig | undefined> {
-    try {
-      const { setHealtCheckAnswer } = (await inquirer.prompt({
-        message: 'Configure healthcheck? (Default: No)',
-        type: 'confirm',
-        name: 'setHealtCheckAnswer',
-        default: false,
-      })) as { setHealtCheckAnswer: boolean };
+    const { setHealtCheckAnswer } = (await inquirer.prompt({
+      message: 'Configure healthcheck? (Default: No)',
+      type: 'confirm',
+      name: 'setHealtCheckAnswer',
+      default: false,
+    })) as { setHealtCheckAnswer: boolean };
 
-      if (setHealtCheckAnswer) {
-        const healthcheckConfigs = (await inquirer.prompt([
-          {
-            message: 'command: ',
-            type: 'input',
-            name: 'command',
-          },
-          {
-            message: 'interval(ms): ',
-            type: 'input',
-            name: 'interval',
-          },
-          {
-            message: 'timeout(ms): ',
-            type: 'input',
-            name: 'timeout',
-          },
-          {
-            message: 'retries: ',
-            type: 'input',
-            name: 'retries',
-          },
-          {
-            message: 'startPeriod(ms): ',
-            type: 'input',
-            name: 'startPeriod',
-          },
-        ])) as IHealthConfig;
-        return healthcheckConfigs;
-      }
-    } catch (error) {
-      throw error;
+    if (setHealtCheckAnswer) {
+      const healthcheckConfigs = (await inquirer.prompt([
+        {
+          message: 'command: ',
+          type: 'input',
+          name: 'command',
+        },
+        {
+          message: 'interval(ms): ',
+          type: 'input',
+          name: 'interval',
+        },
+        {
+          message: 'timeout(ms): ',
+          type: 'input',
+          name: 'timeout',
+        },
+        {
+          message: 'retries: ',
+          type: 'input',
+          name: 'retries',
+        },
+        {
+          message: 'startPeriod(ms): ',
+          type: 'input',
+          name: 'startPeriod',
+        },
+      ])) as IHealthConfig;
+      return healthcheckConfigs;
     }
   }
 }
