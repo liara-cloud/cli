@@ -142,7 +142,7 @@ Afterwards, use liara deploy to deploy your app.
         cron,
       );
 
-      this.createLiaraJsonFile(configs);
+      await this.createLiaraJsonFile(configs);
     } catch (error) {
       this.spinner.stop();
       throw error;
