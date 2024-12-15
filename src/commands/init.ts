@@ -83,12 +83,7 @@ Afterwards, use liara deploy to deploy your app.
           const dirName = path.basename(process.cwd());
 
           const platform = detectPlatform(process.cwd());
-          const diskConfig = [
-            {
-              disk: 'media',
-              path: '/uploads/media',
-            },
-          ];
+          const diskConfig: { disk: string; path: string }[] = [];
           const configs = this.setLiaraJsonConfigs(
             getPort(platform) || 3000,
             dirName,
@@ -98,11 +93,6 @@ Afterwards, use liara deploy to deploy your app.
             diskConfig,
           );
           await this.createLiaraJsonFile(configs);
-          this.log(
-            chalk.yellow(
-              "🚫 This file is just a sample file, don't use it for deployment.",
-            ),
-          );
 
           this.exit(0);
         } catch (error) {
@@ -168,8 +158,8 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
 `);
       }
 
-      throw new Error(`There was something wrong while fetching your app info,
-        You can still use 'liara init' with it's flags. Use 'liara init --help' for command details.`);
+      throw new Error(`There was something wrong while fetching your apps,
+        You can still use 'liara init' with its flags. Use 'liara init --help' for more details.`);
     }
   }
   async promptProjectName(
@@ -304,7 +294,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       );
       this.spinner.succeed('liara.json is successfully created!');
     } catch (error) {
-      throw new Error('There was a problem while creating liara.json file!');
+      throw new Error('There was a problem while creating liara.json!');
     }
   }
 
