@@ -10,9 +10,9 @@ import Command, { IProject } from '../base.js';
 import { getPort } from '../utils/get-port.js';
 import IGetProjectsResponse from '../types/get-project-response.js';
 import ILiaraJSON from '../types/liara-json.js';
-import supportedVersions from '../utils/getSupportedVersions.js';
+import supportedVersions from '../utils/get-supported-versions.js';
 import detectPlatform from '../utils/detect-platform.js';
-import { IDisk, IGetDiskResponse } from '../types/getDiskResponse.js';
+import { IDisk, IGetDiskResponse } from '../types/get-disk-response.js';
 import { AVAILABLE_PLATFORMS } from '../constants.js';
 import IHealthConfig from '../types/health-config.js';
 
@@ -141,7 +141,7 @@ Afterwards, use liara deploy to deploy your app.
 
   async getPlatformsInfo(): Promise<IProject[]> {
     try {
-      this.spinner.start();
+      this.spinner.start('Loading...');
 
       const { projects } =
         await this.got('v1/projects').json<IGetProjectsResponse>();
@@ -286,7 +286,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
 
   async createLiaraJsonFile(configs: ILiaraJSON) {
     try {
-      this.spinner.start();
+      this.spinner.start('Loading...');
 
       await fs.writeFile(
         `${process.cwd()}/liara.json`,
@@ -312,6 +312,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
 
     const configs: ILiaraJSON = {
       port,
+      platform,
       app: appName,
       build: {
         location: buildLocation,
@@ -363,7 +364,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
   ): Promise<IDisk[] | undefined> {
     try {
       if (projects.length != 0) {
-        this.spinner.start();
+        this.spinner.start('Loading...');
 
         const project = projects.find((project) => {
           return project.project_id === AppName;
@@ -478,7 +479,9 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
   }
   async promptCron(platform: string) {
     if (
-      ['next', 'laravel', 'django', 'php', 'python', 'flask'].includes(platform)
+      ['next', 'laravel', 'django', 'php', 'python', 'flask', 'go'].includes(
+        platform,
+      )
     ) {
       const { setCronAnswer } = (await inquirer.prompt({
         message: 'Configure cron? (Default: No)',
