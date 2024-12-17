@@ -24,6 +24,7 @@ import ILiaraJSON from '../types/liara-json.js';
 import buildLogs from '../services/build-logs.js';
 import BuildFailed from '../errors/build-failed.js';
 import validatePort from '../utils/validate-port.js';
+import { promptPort } from '../utils/prompt-port.js';
 import BuildCanceled from '../errors/build-cancel.js';
 import BuildTimeout from '../errors/build-timeout.js';
 import { createDebugLogger } from '../utils/output.js';
@@ -43,7 +44,6 @@ import CreateArchiveException from '../errors/create-archive.js';
 import IGetProjectsResponse from '../types/get-project-response.js';
 import ReachedMaxSourceSizeError from '../errors/max-source-size.js';
 import getPlatformVersion from '../services/get-platform-version.js';
-import { promptPort } from '../utils/promptPort.js';
 
 export default class Deploy extends Command {
   static description = 'deploy an app';
@@ -244,8 +244,6 @@ export default class Deploy extends Command {
           '--colorize',
           '--api-token',
           config['api-token'] || '',
-          '--region',
-          config.region || '',
         ]);
       }
     } catch (error) {

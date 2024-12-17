@@ -1,20 +1,20 @@
-import { Args, Config, Flags } from '@oclif/core';
-import fs from 'fs-extra';
 import ora from 'ora';
-import inquirer from 'inquirer';
-import chalk from 'chalk';
 import path from 'path';
+import fs from 'fs-extra';
+import chalk from 'chalk';
+import inquirer from 'inquirer';
+import { Args, Config, Flags } from '@oclif/core';
 
-import { promptPort } from '../utils/promptPort.js';
 import Command, { IProject } from '../base.js';
 import { getPort } from '../utils/get-port.js';
-import IGetProjectsResponse from '../types/get-project-response.js';
 import ILiaraJSON from '../types/liara-json.js';
-import supportedVersions from '../utils/get-supported-versions.js';
-import detectPlatform from '../utils/detect-platform.js';
-import { IDisk, IGetDiskResponse } from '../types/get-disk-response.js';
+import { promptPort } from '../utils/prompt-port.js';
 import { AVAILABLE_PLATFORMS } from '../constants.js';
 import IHealthConfig from '../types/health-config.js';
+import detectPlatform from '../utils/detect-platform.js';
+import supportedVersions from '../utils/get-supported-versions.js';
+import IGetProjectsResponse from '../types/get-project-response.js';
+import { IDisk, IGetDiskResponse } from '../types/get-disk-response.js';
 
 export default class Init extends Command {
   static override description = 'create a liara.json file';
