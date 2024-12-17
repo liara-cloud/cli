@@ -1,15 +1,16 @@
 import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
-import Command, { IConfig } from '../../base.js';
+import Command, { IConfig, IMailPlan } from '../../base.js';
 import { Flags } from '@oclif/core';
 import {
   MAIL_SERVICE_MODES,
-  MAIL_SERVICE_PLANS,
   MAIL_SERVICE_URL,
+  MAIL_SERVICE_PLANS,
   DEV_MODE,
   MAIL_SERVICE_URL_DEV,
 } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
+import { getMailPlanName } from '../../utils/get-mail-plan-names.js';
 
 export default class MailCreate extends Command {
   static description = 'create a mail server';
@@ -33,9 +34,6 @@ export default class MailCreate extends Command {
 
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
-    this.got = this.got.extend({
-      prefixUrl: DEV_MODE ? MAIL_SERVICE_URL_DEV : MAIL_SERVICE_URL,
-    });
   }
 
   async run() {
@@ -47,12 +45,7 @@ export default class MailCreate extends Command {
 
     const domain = flags.domain || (await this.promptDomain());
 
-    const account = await this.getCurrentAccount();
-
     await this.setGotConfig(flags);
-
-    ((account && account.region === 'germany') || flags.region === 'germany') &&
-      this.error('We do not support germany any more.');
 
     const plan = flags.platform || (await this.promptPlan());
 
@@ -67,7 +60,10 @@ export default class MailCreate extends Command {
     }
 
     try {
-      await this.got.post('api/v1/mails', { json: { domain, plan, mode } });
+      await this.got.post('api/v1/mails', {
+        json: { domain, plan, mode },
+        prefixUrl: MAIL_SERVICE_URL,
+      });
       this.log(`Mail server ${domain} created.`);
     } catch (error) {
       debug(error.message);
@@ -82,7 +78,7 @@ export default class MailCreate extends Command {
 
       if (error.response && error.response.statusCode === 409) {
         this.error(
-          `The mail server already exists. Please use a unique name for your mail server.`
+          `The mail server already exists. Please use a unique name for your mail server.`,
         );
       }
 
@@ -92,7 +88,7 @@ export default class MailCreate extends Command {
         error.response.body
       ) {
         this.error(
-          `You are allowed to create only one Mail Server on the free plan.`
+          `You are allowed to create only one Mail Server on the free plan.`,
         );
       }
 
@@ -115,13 +111,29 @@ export default class MailCreate extends Command {
     this.spinner.start('Loading...');
 
     try {
+      const { plans } = await this.got('v1/me').json<{ plans: any }>();
+
       this.spinner.stop();
 
       const { plan } = (await inquirer.prompt({
         name: 'plan',
         type: 'list',
-        message: 'Please select the plan you want:',
-        choices: [...MAIL_SERVICE_PLANS.map((plan) => plan)],
+        message: 'Please select a plan:',
+        choices: [
+          ...Object.keys(plans.mail)
+            .filter((plan) => plans.mail[plan].available)
+            .map((plan) => {
+              const availablePlan = plans.mail[plan];
+              const maxAccount = availablePlan.maxAccount;
+              const maxOutboundPerDay = availablePlan.maxOutboundPerDay;
+              const maxOutboundPerMonth = availablePlan.maxOutboundPerMonth;
+              const price = availablePlan.price;
+              return {
+                value: plan,
+                name: `Plan: ${getMailPlanName(plan)}, Max outbound per day: ${maxOutboundPerDay}, Max outbound per month: ${maxOutboundPerMonth}, Max account: ${maxAccount}, Price: ${price}`,
+              };
+            }),
+        ],
       })) as { plan: string };
 
       return plan;

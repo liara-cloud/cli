@@ -33,7 +33,7 @@ export default class BucketCreate extends Command {
 
   async setGotConfig(
     config: IConfig,
-    isObjMode: boolean = true
+    isObjMode: boolean = true,
   ): Promise<void> {
     if (isObjMode) {
       await super.setGotConfig(config);
@@ -60,8 +60,7 @@ export default class BucketCreate extends Command {
 
     await this.setGotConfig(flags);
 
-    ((account && account.region === 'germany') || flags.region === 'germany') &&
-      this.error('We do not support germany any more.');
+    //  (account && account.region === 'germany') || (flags.region === 'germany') && this.error('We do not support germany any more.');
 
     const plan = flags.plan || (await this.promptPlan());
 
@@ -123,8 +122,8 @@ export default class BucketCreate extends Command {
     await this.setGotConfig(flags, false);
 
     try {
-      // TODO: Use proper type for plans
       const { plans } = await this.got('v1/me').json<{ plans: any }>();
+
       this.spinner.stop();
 
       const { plan } = (await inquirer.prompt({
@@ -133,11 +132,7 @@ export default class BucketCreate extends Command {
         message: 'Please select a plan:',
         choices: [
           ...Object.keys(plans.objectStorage)
-            .filter((plan) => {
-              if (plans.objectStorage[plan].available) {
-                return true;
-              }
-            })
+            .filter((plan) => plans.objectStorage[plan].available)
             .map((plan) => {
               const availablePlan = plans.objectStorage[plan];
               const price = availablePlan.price * 720;
@@ -145,15 +140,7 @@ export default class BucketCreate extends Command {
               const storageClass = availablePlan.storageClass;
               return {
                 value: plan,
-                name: `Space: ${space}${spacing(
-                  5,
-                  space
-                )}GB,  Storage Class: ${storageClass}${spacing(
-                  5,
-                  storageClass
-                )},  Price: ${price.toLocaleString()}${
-                  price ? spacing(7, price) + 'Tomans/Month' : ''
-                }`,
+                name: `Plan: ${plan}, Space: ${space}GB, Storage class: ${storageClass}, Price: ${price.toLocaleString()} Tomans/Month`,
               };
             }),
         ],

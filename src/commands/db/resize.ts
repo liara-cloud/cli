@@ -9,8 +9,6 @@ import spacing from '../../utils/spacing.js';
 export default class Resize extends Command {
   static description = 'resize a database';
 
-  static PATH = 'v1/databases/{database-id}/resize';
-
   static flags = {
     ...Command.flags,
     name: Flags.string({
@@ -33,20 +31,16 @@ export default class Resize extends Command {
     const debug = createDebugLogger(flags.debug);
 
     await this.setGotConfig(flags);
-    const account = await this.getCurrentAccount();
-
-    ((account && account.region === 'germany') || flags.region === 'germany') &&
-      this.error('We do not support germany any more.');
 
     const hostname = flags.name || (await this.promptHostname());
     const disk =
       flags.disk === 'y'
         ? true
         : flags.disk === 'n'
-        ? false
-        : (await this.promptDisk()) === 'y'
-        ? true
-        : false;
+          ? false
+          : (await this.promptDisk()) === 'y'
+            ? true
+            : false;
 
     try {
       const database = await this.getDatabaseByHostname(hostname);
@@ -54,11 +48,15 @@ export default class Resize extends Command {
         this.log(`Database ${hostname} not found`);
         return;
       }
+
       const planID = flags.plan || (await this.promptPlan(database.type));
+
       const databaseID = database._id;
-      await this.got.post(Resize.PATH.replace('{database-id}', databaseID), {
+
+      const result = await this.got.post(`v1/databases/${databaseID}/resize`, {
         json: { planID: planID, disk: disk },
       });
+
       this.log(`Database ${hostname} changed to plan ${planID}.`);
     } catch (error) {
       debug(error.message);
@@ -82,9 +80,8 @@ export default class Resize extends Command {
   }
 
   async getDatabaseByHostname(hostname: string) {
-    const { databases } = await this.got(
-      'v1/databases'
-    ).json<IGetDatabasesResponse>();
+    const { databases } =
+      await this.got('v1/databases').json<IGetDatabasesResponse>();
 
     if (!databases.length) {
       this.error(`Not found any database.
@@ -92,13 +89,14 @@ Please open up https://console.liara.ir/databases and create the database, first
     }
 
     const database = databases.find(
-      (database) => database.hostname === hostname
+      (database) => database.hostname === hostname,
     );
     return database;
   }
 
   async promptPlan(databaseType: string) {
     this.spinner.start('Loading...');
+
     try {
       const { plans } = await this.got('v1/me').json<{ plans: any }>();
       this.spinner.stop();
@@ -111,6 +109,7 @@ Please open up https://console.liara.ir/databases and create the database, first
           ...Object.keys(plans.databases)
             .filter((plan) => {
               if (
+                (plan === 'free' || plan.includes('g2')) &&
                 plans.databases[plan].available &&
                 plans.databases[plan].supports.includes(databaseType)
               ) {
@@ -126,14 +125,9 @@ Please open up https://console.liara.ir/databases and create the database, first
               const storageClass = availablePlan.storageClass;
               return {
                 value: plan,
-                name: `RAM: ${ram}${spacing(5, ram)}GB,  CPU: ${cpu}${spacing(
-                  5,
-                  cpu
-                )}Core,  Disk: ${disk}${spacing(3, disk) + 'GB'}${
+                name: `RAM: ${ram}GB, CPU: ${cpu} Core,  Disk: ${disk}GB, ${
                   storageClass || 'SSD'
-                },  Price: ${price.toLocaleString()}${
-                  price ? spacing(7, price) + 'Tomans/Month' : ''
-                }`,
+                },  Price: ${price.toLocaleString()} Tomans/Month `,
               };
             }),
         ],
