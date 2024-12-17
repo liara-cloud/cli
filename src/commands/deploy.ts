@@ -3,7 +3,6 @@ import path from 'node:path';
 import fs from 'fs-extra';
 import chalk from 'chalk';
 import bytes from 'bytes';
-import moment from 'moment';
 import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
 import ProgressBar from 'progress';
@@ -31,7 +30,6 @@ import { createDebugLogger } from '../utils/output.js';
 import createArchive from '../utils/create-archive.js';
 import ReleaseFailed from '../errors/release-failed.js';
 import prepareTmpDirectory from '../services/tmp-dir.js';
-import detectPlatform from '../utils/detect-platform.js';
 import collectGitInfo from '../utils/collect-git-info.js';
 import ICreatedRelease from '../types/created-release.js';
 import { BundlePlanError } from '../errors/bundle-plan.js';
@@ -126,37 +124,9 @@ export default class Deploy extends Command {
 
     this.validateDeploymentConfig(config);
 
-    let isPlatformDetected = false;
-    if (!config.image) {
-      if (!config.platform) {
-        try {
-          config.platform = detectPlatform(config.path);
-          isPlatformDetected = true;
-        } catch (error) {
-          return this.error(error.message);
-        }
-      }
-
-      this.validatePlatform(config.platform, config.path);
-    } else {
-      config.platform = 'docker';
-    }
-
     if (!config.app) {
       config.app = await this.promptProject();
     }
-
-    if (!config.port) {
-      config.port =
-        getPort(config.platform) || (await promptPort(config.platform));
-    }
-
-    this.logKeyValue('App', config.app);
-    this.logKeyValue('Path', config.path);
-    isPlatformDetected
-      ? this.logKeyValue('Detected platform', config.platform)
-      : this.logKeyValue('Platform', config.platform);
-    this.logKeyValue('Port', String(config.port));
 
     if (config.disks) {
       this.logKeyValue('Disks');
@@ -198,7 +168,27 @@ export default class Deploy extends Command {
         `v1/projects/${config.app}`,
       ).json<IProjectDetailsResponse>();
       bundlePlanID = project.bundlePlanID;
+      if (!config.image) {
+        if (!config.platform) {
+          try {
+            config.platform = project.type;
+          } catch (error) {
+            return this.error(error.message);
+          }
+        }
 
+        this.validatePlatform(config.platform, config.path);
+      } else {
+        config.platform = 'docker';
+      }
+      if (!config.port) {
+        config.port =
+          getPort(config.platform) || (await promptPort(config.platform));
+      }
+      this.logKeyValue('App', config.app);
+      this.logKeyValue('Path', config.path);
+      this.logKeyValue('Platform', config.platform);
+      this.logKeyValue('Port', String(config.port));
       const response = await this.deploy(config);
 
       if (flags.detach) {
