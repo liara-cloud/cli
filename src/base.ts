@@ -309,7 +309,6 @@ Please check your network connection.`);
       throw error;
     }
   }
-
   async getCurrentAccount(): Promise<IAccount> {
     const accounts = (await this.readGlobalConfig()).accounts;
     const accName = Object.keys(accounts).find(
