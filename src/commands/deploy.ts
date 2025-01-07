@@ -274,6 +274,15 @@ Please open up https://console.liara.ir/apps and create the app, first.`;
 
       if (
         error.response &&
+        error.response.statusCode === 404 &&
+        responseBody.message === 'Not Found'
+      ) {
+        const message = `Project name has conflict with the app specified in liara.json file.`;
+        return this.error(message);
+      }
+
+      if (
+        error.response &&
         error.response.statusCode === 400 &&
         responseBody.message === 'frozen_project'
       ) {
