@@ -201,6 +201,10 @@ export interface Files {
   name: string;
 }
 
+export interface IDefaultGotParams {
+  teamID?: string;
+}
+
 export default abstract class extends Command {
   static flags = {
     help: Flags.help({ char: 'h' }),
@@ -222,6 +226,7 @@ export default abstract class extends Command {
   };
 
   got = got.extend();
+  defaultGotParams: IDefaultGotParams = {};
   spinner!: Ora;
   async readGlobalConfig(): Promise<IGlobalLiaraConfig> {
     const content = fs.readJSONSync(GLOBAL_CONF_PATH, { throws: false }) || {
@@ -244,6 +249,8 @@ Please check your network connection.`);
   }
 
   async setGotConfig(config: IConfig): Promise<void> {
+    this.defaultGotParams.teamID = config.team;
+
     const gotConfig: Partial<Options> = {
       headers: {
         'User-Agent': this.config.userAgent,
@@ -252,7 +259,7 @@ Please check your network connection.`);
         request: (config.image ? 25 : 10) * 1000,
       },
       searchParams: {
-        teamID: config.team,
+        ...this.defaultGotParams,
       },
     };
 

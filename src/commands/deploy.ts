@@ -211,9 +211,9 @@ export default class Deploy extends Command {
             `    ${`http://${config.app}.liara.localhost`}`
           : `    ${`https://${config.app}${defaultSubdomain}`}`;
 
-        const { domains } = await this.got(
-          `v1/domains?project=${config.app}`,
-        ).json<IGetDomainsResponse>();
+        const { domains } = await this.got(`v1/domains`, {
+          searchParams: { ...this.defaultGotParams, project: config.app },
+        }).json<IGetDomainsResponse>();
 
         if (!domains.length || project.defaultSubdomain)
           this.log(urlLogMessage);
@@ -502,38 +502,44 @@ Additionally, you can also retry the build with the debug flag:
     });
 
     try {
-      await buildLogs(this.got, releaseID, isCanceled, (output) => {
-        if (output.state === 'PUSHED') {
-          this.spinner.succeed('Image pushed.');
-        }
-
-        if (output.state === 'DEPLOYING') {
-          this.spinner.start("Checking container's health ...");
-        }
-
-        if (output.state === 'UNHEALTHY') {
-          this.spinner.warn(
-            'App deployed, but the container is unhealthy. Please check its logs.',
-          );
-        }
-
-        if (output.state === 'BUILDING' && output.line) {
-          this.spinner.clear().frame();
-          process.stdout.write(output.line);
-        }
-
-        if (output.state === 'PUSHING') {
-          if (!isPushingStart) {
-            removeInterupListener();
-            this.spinner.succeed('Build finished.');
-            isPushingStart = !isPushingStart;
+      await buildLogs(
+        this.got,
+        releaseID,
+        isCanceled,
+        this.defaultGotParams,
+        (output) => {
+          if (output.state === 'PUSHED') {
+            this.spinner.succeed('Image pushed.');
           }
-          if (output.line) {
+
+          if (output.state === 'DEPLOYING') {
+            this.spinner.start("Checking container's health ...");
+          }
+
+          if (output.state === 'UNHEALTHY') {
+            this.spinner.warn(
+              'App deployed, but the container is unhealthy. Please check its logs.',
+            );
+          }
+
+          if (output.state === 'BUILDING' && output.line) {
             this.spinner.clear().frame();
-            this.spinner.start(output.line);
+            process.stdout.write(output.line);
           }
-        }
-      });
+
+          if (output.state === 'PUSHING') {
+            if (!isPushingStart) {
+              removeInterupListener();
+              this.spinner.succeed('Build finished.');
+              isPushingStart = !isPushingStart;
+            }
+            if (output.line) {
+              this.spinner.clear().frame();
+              this.spinner.start(output.line);
+            }
+          }
+        },
+      );
       this.spinner.succeed('Release created.');
     } catch (error) {
       if (error instanceof BuildFailed) {

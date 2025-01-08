@@ -12,6 +12,7 @@ export default async (
   httpClient: Got,
   releaseID: string,
   isCanceled: boolean,
+  defaultGotParams: any,
   cb: ({ state, line }: { state: string; line?: string }) => void,
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
@@ -23,7 +24,9 @@ export default async (
     poller.onPoll(async () => {
       try {
         const { release, buildOutput } = await httpClient
-          .get(`v2/releases/${releaseID}/build-logs?since=${since}`)
+          .get(`v2/releases/${releaseID}/build-logs`, {
+            searchParams: { ...defaultGotParams, since: since },
+          })
           .json<IBuildLogsResponse>();
 
         for (const output of buildOutput) {
