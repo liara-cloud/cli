@@ -59,6 +59,7 @@ export interface IConfig {
   account?: string;
   region?: string;
   image?: string;
+  team?: string;
 }
 
 export interface IProject {
@@ -215,6 +216,9 @@ export default abstract class extends Command {
     account: Flags.string({
       description: 'temporarily switch to a different account',
     }),
+    team: Flags.string({
+      description: 'your team id',
+    }),
   };
 
   got = got.extend();
@@ -246,6 +250,23 @@ Please check your network connection.`);
       },
       timeout: {
         request: (config.image ? 25 : 10) * 1000,
+      },
+      hooks: {
+        init: [],
+        beforeRequest: [
+          (options) => {
+            if (options.url) {
+              (options.url as URL).searchParams.set(
+                'teamID',
+                config.team || '',
+              );
+            }
+          },
+        ],
+        beforeRedirect: [],
+        beforeError: [],
+        beforeRetry: [],
+        afterResponse: [],
       },
     };
 
