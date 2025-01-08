@@ -59,6 +59,7 @@ export interface IConfig {
   account?: string;
   region?: string;
   image?: string;
+  team?: string;
 }
 
 export interface IProject {
@@ -215,6 +216,9 @@ export default abstract class extends Command {
     account: Flags.string({
       description: 'temporarily switch to a different account',
     }),
+    team: Flags.string({
+      description: 'the team to work with', //TODO:
+    }),
   };
 
   got = got.extend();
@@ -246,6 +250,9 @@ Please check your network connection.`);
       },
       timeout: {
         request: (config.image ? 25 : 10) * 1000,
+      },
+      searchParams: {
+        teamID: config.team,
       },
     };
 
