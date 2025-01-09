@@ -7,7 +7,7 @@ import fs from 'fs-extra';
 import WebSocket from 'ws';
 import ora, { Ora } from 'ora';
 import inquirer from 'inquirer';
-import got, { Options } from 'got';
+import got, { ExtendOptions, Options } from 'got';
 import open, { apps, AppName } from 'open';
 import { Command, Flags } from '@oclif/core';
 import updateNotifier from 'update-notifier';
@@ -244,7 +244,7 @@ Please check your network connection.`);
   }
 
   async setGotConfig(config: IConfig): Promise<void> {
-    const gotConfig: Partial<Options> = {
+    const gotConfig: Partial<ExtendOptions> = {
       headers: {
         'User-Agent': this.config.userAgent,
       },
@@ -252,7 +252,6 @@ Please check your network connection.`);
         request: (config.image ? 25 : 10) * 1000,
       },
       hooks: {
-        init: [],
         beforeRequest: [
           (options) => {
             if (options.url) {
@@ -263,10 +262,6 @@ Please check your network connection.`);
             }
           },
         ],
-        beforeRedirect: [],
-        beforeError: [],
-        beforeRetry: [],
-        afterResponse: [],
       },
     };
 
