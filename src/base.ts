@@ -59,7 +59,7 @@ export interface IConfig {
   account?: string;
   region?: string;
   image?: string;
-  teamId?: string;
+  'team-id'?: string;
 }
 
 export interface IProject {
@@ -216,7 +216,7 @@ export default abstract class extends Command {
     account: Flags.string({
       description: 'temporarily switch to a different account',
     }),
-    teamId: Flags.string({
+    'team-id': Flags.string({
       description: 'your team id',
     }),
   };
@@ -257,7 +257,7 @@ Please check your network connection.`);
             if (options.url) {
               (options.url as URL).searchParams.set(
                 'teamID',
-                config.teamId || '',
+                config['team-id'] || '',
               );
             }
           },
