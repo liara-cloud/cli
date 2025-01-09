@@ -13,4 +13,5 @@ export default interface IFlags {
   disks?: string[];
   dockerfile?: string;
   'build-location'?: string;
+  'team-id'?: string;
 }

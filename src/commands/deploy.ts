@@ -244,8 +244,8 @@ export default class Deploy extends Command {
           '--colorize',
           '--api-token',
           config['api-token'] || '',
-          '--team',
-          flags.team || '',
+          '--team-id',
+          config['team-id'] || '',
         ]);
       }
     } catch (error) {
