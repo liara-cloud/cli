@@ -15,6 +15,8 @@ import detectPlatform from '../utils/detect-platform.js';
 import supportedVersions from '../utils/get-supported-versions.js';
 import IGetProjectsResponse from '../types/get-project-response.js';
 import { IDisk, IGetDiskResponse } from '../types/get-disk-response.js';
+import IGetTeamsResponse from '../types/get-teams.js';
+import ITeam from '../types/team.js';
 
 export default class Init extends Command {
   static override description = 'create a liara.json file';
@@ -100,7 +102,7 @@ Afterwards, use liara deploy to deploy your app.
           throw error;
         }
       }
-
+      const team = await this.getTeam(flags['team-id']);
       const projects = await this.getPlatformsInfo();
       const appName = await this.promptProjectName(projects, flags.name);
       const buildLocation = await this.buildLocationPrompt(
@@ -130,6 +132,7 @@ Afterwards, use liara deploy to deploy your app.
         diskConfigs,
         healthCheck,
         cron,
+        team,
       );
 
       await this.createLiaraJsonFile(configs);
@@ -307,6 +310,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
     diskConfigs: { disk: string; path: string }[] | undefined,
     healthCheck?: IHealthConfig | undefined,
     cron?: string[] | undefined,
+    team?: ITeam | undefined,
   ): ILiaraJSON {
     const versionKey = this.setVersionKey(platform, platformVersion);
 
@@ -318,6 +322,9 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
         location: buildLocation,
       },
     };
+    if (team) {
+      configs['team-id'] = team._id;
+    }
     if (cron) {
       configs['cron'] = cron;
     }
@@ -357,7 +364,16 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       return 'version';
     }
   }
-
+  async getTeam(teamId: string | undefined): Promise<ITeam | undefined> {
+    if (teamId) {
+      const teams = await this.got(`v2/teams`).json<IGetTeamsResponse>();
+      const team = teams.teams.find((team) => team._id === teamId);
+      if (!team) {
+        throw new Error(`You don't have a team with ID '${teamId}`);
+      }
+      return team;
+    }
+  }
   async getAppDisks(
     AppName: string,
     projects: IProject[],
