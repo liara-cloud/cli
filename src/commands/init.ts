@@ -369,7 +369,7 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
       const teams = await this.got(`v2/teams`).json<IGetTeamsResponse>();
       const team = teams.teams.find((team) => team._id === teamId);
       if (!team) {
-        throw new Error(`You don't have a team with ID '${teamId}`);
+        throw new Error(`You don't have a team with ID '${teamId}'`);
       }
       return team;
     }
