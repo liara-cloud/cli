@@ -17,6 +17,7 @@ import IGetProjectsResponse from '../types/get-project-response.js';
 import { IDisk, IGetDiskResponse } from '../types/get-disk-response.js';
 import IGetTeamsResponse from '../types/get-teams.js';
 import ITeam from '../types/team.js';
+import TeamNotFoundError from '../errors/team-error.js';
 
 export default class Init extends Command {
   static override description = 'create a liara.json file';
@@ -365,13 +366,31 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
     }
   }
   async getTeam(teamId: string | undefined): Promise<ITeam | undefined> {
-    if (teamId) {
+    try {
+      this.spinner.start('Loading...');
       const teams = await this.got(`v2/teams`).json<IGetTeamsResponse>();
-      const team = teams.teams.find((team) => team._id === teamId);
-      if (!team) {
-        throw new Error(`You don't have a team with ID '${teamId}'`);
+      this.spinner.stop();
+      if (teamId) {
+        const team = teams.teams.find((team) => team._id === teamId);
+        if (!team) {
+          throw new TeamNotFoundError(
+            `You don't have a team with ID '${teamId}'`,
+          );
+        }
+        return team;
       }
-      return team;
+    } catch (error) {
+      if (error instanceof TeamNotFoundError) {
+        throw new Error(error.message);
+      }
+      if (error.response && error.response.statusCode === 401) {
+        throw new Error(`Authentication failed.  
+Please log in using the 'liara login' command.
+
+If you are using an API token for authentication, please consider updating your API token.  
+You can still create a sample 'liara.json' file using the 'liara init -y' command.
+`);
+      }
     }
   }
   async getAppDisks(
