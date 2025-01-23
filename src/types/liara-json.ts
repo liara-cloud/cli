@@ -15,4 +15,5 @@ export default interface ILiaraJSON {
   node?: INodePlatformConfig;
   healthCheck?: IHealthConfig;
   laravel?: ILaravelPlatformConfig;
+  'team-id'?: string;
 }
