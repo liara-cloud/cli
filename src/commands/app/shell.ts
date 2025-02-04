@@ -46,11 +46,12 @@ export default class AppShell extends Command {
     const app = config.app || (await this.promptProject());
     const wsURL = REGIONS_API_URL[config.region || FALLBACK_REGION].replace(
       'https://',
-      'wss://'
+      'wss://',
     );
 
+    const teamID = flags['team-id'] ? flags['team-id'] : '';
     const ws = this.createProxiedWebsocket(
-      `${wsURL}/v1/exec?token=${config['api-token']}&cmd=${flags.command}&project_id=${app}`
+      `${wsURL}/v1/exec?token=${config['api-token']}&cmd=${flags.command}&project_id=${app}&teamID=${teamID}`,
     );
 
     const duplex = createWebSocketStream(ws, { encoding: 'utf8' });
@@ -95,7 +96,7 @@ export default class AppShell extends Command {
 
     ws.on('error', (err) => {
       console.error(
-        new Errors.CLIError(`Unexpected Error: ${err.message}`).render()
+        new Errors.CLIError(`Unexpected Error: ${err.message}`).render(),
       );
       clearStdinEffects();
       process.exit(2);
