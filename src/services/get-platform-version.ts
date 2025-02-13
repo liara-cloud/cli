@@ -194,6 +194,8 @@ function getRequiredPHPVersion(
   // semver forces us to use the full semver syntax,
   // but before returning the final result, we remove the last .0 part
   const supportedPHPVersions = [
+    '8.4.0',
+    '8.3.0',
     '8.2.0',
     '8.1.0',
     '8.0.0',
@@ -339,7 +341,8 @@ async function detectGoPlatformVersion(
     const goModFile = await findFile(projectPath, 'go.mod');
 
     if (!goModFile) {
-      debug(`Could not find go.mod file in ${projectPath}`);
+      debug(`Could not find go.mod file in ${projectPath}`); // semver forces us to use the full semver syntax,
+      // but before returning the final result, we remove the last .0 part
       return null;
     }
 
