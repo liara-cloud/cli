@@ -270,6 +270,14 @@ export default abstract class extends Command {
   }
 
   async catch(error: any) {
+    if (error.response && error.response.statusCode === 401) {
+      throw new Error(`Authentication failed.  
+Please log in using the 'liara login' command.
+
+If you are using an API token for authentication, please consider updating your API token.  
+`);
+    }
+
     if (error.code === 'ECONNREFUSED' || error.code === 'ECONNRESET') {
       this.error(`Could not connect to ${
         (error.config && error.config.baseURL) || 'https://api.liara.ir'

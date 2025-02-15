@@ -57,7 +57,7 @@ export default class VmDelete extends Command {
         debug(JSON.stringify(error.response.data));
       }
 
-      if (error.response && error.response.status === 404) {
+      if (error.response && error.response.statusCode === 404) {
         this.error(`Could not find the vm.`);
       }
 
@@ -67,11 +67,21 @@ export default class VmDelete extends Command {
 
   async getVm(vmFlag: string | undefined) {
     if (vmFlag) {
-      const vm = await this.got(`vm/${vmFlag}`).json<IGetVMResponse>();
-      if (vm.state === 'DELETING') {
-        this.error(`Could not find the VM.`);
+      try {
+        const vm = await this.got(`vm/${vmFlag}`).json<IGetVMResponse>();
+
+        if (vm.state === 'DELETING') {
+          this.error(`Could not find the VM.`);
+        }
+        return vm;
+      } catch (error) {
+        if (error.response && error.response.statusCode === 400) {
+          this.error(`Invalid vm ID.`);
+        }
+        if (error.response && error.response.statusCode === 404) {
+          this.error(`Could not find the vm.`);
+        }
       }
-      return vm;
     }
 
     return await this.promptVMs();
@@ -86,10 +96,9 @@ export default class VmDelete extends Command {
       this.spinner.stop();
 
       if (!vms.length) {
-        this.warn(
+        this.error(
           'Please go to https://console.liara.ir/vms and create an vm or use liara vm create command, first.',
         );
-        this.exit(1);
       }
 
       const { selectedVm } = (await inquirer.prompt({
