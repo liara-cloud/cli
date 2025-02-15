@@ -341,8 +341,7 @@ async function detectGoPlatformVersion(
     const goModFile = await findFile(projectPath, 'go.mod');
 
     if (!goModFile) {
-      debug(`Could not find go.mod file in ${projectPath}`); // semver forces us to use the full semver syntax,
-      // but before returning the final result, we remove the last .0 part
+      debug(`Could not find go.mod file in ${projectPath}`);
       return null;
     }
 
