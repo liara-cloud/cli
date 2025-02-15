@@ -12,6 +12,8 @@ export const REGIONS_API_URL: { [key: string]: string } = {
   germany: 'https://api.liara.ir',
 };
 
+export const IAAS_API_URL = 'https://iaas-api.liara.ir';
+
 export const MAIL_SERVICE_URL = 'https://mail-service.iran.liara.ir';
 
 export const MAIL_SERVICE_URL_DEV = 'http://localhost:6336';
