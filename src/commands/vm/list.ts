@@ -25,7 +25,10 @@ export default class VmList extends Command {
 
     this.spinner = ora();
 
-    const vms = await this.getVms();
+    const vms = await this.getVms(
+      'There are no active VMs.',
+      (vm) => vm.state !== 'DELETING',
+    );
 
     const vmsData = vms.map((vm) => {
       const shamshiDate = shamsi.gregorianToJalali(new Date(vm.createdAt));
@@ -52,28 +55,5 @@ export default class VmList extends Command {
       },
       flags,
     );
-  }
-  async getVms(): Promise<IVMs[]> {
-    try {
-      this.spinner.start('Loading...');
-
-      const { vms } = await this.got('vm').json<IGetVMsResponse>();
-
-      if (vms.length == 0) {
-        throw new NoVMsFoundError("You didn't create any VMs yet.");
-      }
-
-      this.spinner.stop();
-      return vms;
-    } catch (error) {
-      this.spinner.stop();
-
-      if (error instanceof NoVMsFoundError) {
-        throw new Error(error.message);
-      }
-      throw new Error(
-        'There was something wrong while fetching your VMs info.',
-      );
-    }
   }
 }

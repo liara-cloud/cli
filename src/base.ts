@@ -185,7 +185,14 @@ export interface IGetVMResponse extends IVMs {
 export interface IGetVMsResponse {
   vms: IVMs[];
 }
-
+export interface IGetVMOperationsResponse {
+  operations: IVMOperations[];
+}
+export interface IVMOperations {
+  name: string;
+  state: string;
+  createdAt: string;
+}
 export interface IMailboxes {
   plan: {
     name: string;
@@ -522,7 +529,7 @@ Please use 'liara account add' to add this account, first.`);
       const { vms } = await this.got('vm').json<IGetVMsResponse>();
       if (vms.length === 0) {
         throw new NoVMsFoundError(
-          "You didn't create any VMs yet.\ncreate a VM using liara vm create command.",
+          "You didn't create any VMs yet.\ncreate a VM using liara VM create command.",
         );
       }
 
@@ -542,7 +549,7 @@ Please use 'liara account add' to add this account, first.`);
       if (error.response && error.response.statusCode == 401) {
         throw error;
       }
-      throw new Error('There was something wrong while fetching your vms info');
+      throw new Error('There was something wrong while fetching your VMs info');
     }
   }
 }

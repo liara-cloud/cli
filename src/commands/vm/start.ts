@@ -1,5 +1,5 @@
 import { Args, Flags } from '@oclif/core';
-import Command, { IConfig, IGetVMResponse } from '../../base.js';
+import Command, { IConfig, IGetVMResponse, IVMs } from '../../base.js';
 import { IAAS_API_URL } from '../../constants.js';
 import ora from 'ora';
 import { createAction } from '../../utils/create-vm-actions.js';
@@ -37,7 +37,13 @@ export default class VmStart extends Command {
       'No VMs found in the shutdown state.',
       (vm) => vm.power === 'POWERED_OFF' && vm.state !== 'DELETING',
     );
-    const vm = await promptVMs(vms);
+
+    const vm = flags.vm
+      ? vms.find((vm) => vm.name === flags.vm) ||
+        (() => {
+          throw new Error('VM is not ruuning or does not exists.');
+        })()
+      : await promptVMs(vms);
     await createAction(vm._id, 'start', this.got);
     if (flags.detach) {
       this.spinner.succeed(`Start signal has been sent for VM "${vm.name}"`);
@@ -59,4 +65,5 @@ export default class VmStart extends Command {
       }
     }, 2000);
   }
+  async findOneVm(vms: IVMs[], vm: IVMs) {}
 }

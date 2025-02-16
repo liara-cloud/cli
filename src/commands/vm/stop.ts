@@ -102,7 +102,7 @@ export default class VmStop extends Command {
       }
 
       const vms = await this.getVms(
-        'There are no active VMs.',
+        'No running VMs were found.',
         (vm: IVMs) => vm.state !== 'DELETING' && vm.power === 'POWERED_ON',
       );
       this.spinner.stop();
