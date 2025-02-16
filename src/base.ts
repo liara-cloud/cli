@@ -513,18 +513,20 @@ Please use 'liara account add' to add this account, first.`);
 
     return network;
   }
-  async getVms(power?: 'POWERED_OFF' | 'POWERED_ON'): Promise<IVMs[]> {
+  async getVms(
+    errorMessage: string,
+    filter?: (vm: IVMs) => any,
+  ): Promise<IVMs[]> {
     this.spinner.start('Loading...');
     try {
       const { vms } = await this.got('vm').json<IGetVMsResponse>();
-
       if (vms.length === 0) {
-        throw new NoVMsFoundError("You didn't create any vms yet.");
+        throw new NoVMsFoundError("You didn't create any VMs yet.");
       }
 
-      const filteredVms = power ? vms.filter((vm) => vm.power === power) : vms;
+      const filteredVms = filter ? vms.filter(filter) : vms;
       if (filteredVms.length === 0) {
-        throw new NoVMsFoundError('No VMs found in the specified state');
+        throw new NoVMsFoundError(errorMessage);
       }
 
       this.spinner.stop();
