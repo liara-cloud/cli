@@ -9,6 +9,7 @@ import { IAAS_API_URL } from '../../constants.js';
 import inquirer from 'inquirer';
 import { createDebugLogger } from '../../utils/output.js';
 import ora from 'ora';
+import { promptVMs } from '../../utils/prompt-vms.js';
 
 export default class VmDelete extends Command {
   static description = 'delete a vm';
@@ -17,7 +18,7 @@ export default class VmDelete extends Command {
     ...Command.flags,
     vm: Flags.string({
       char: 'v',
-      description: 'vm id',
+      description: 'VM name',
     }),
     force: Flags.boolean({
       char: 'f',
@@ -37,6 +38,7 @@ export default class VmDelete extends Command {
   public async run(): Promise<void> {
     const { flags } = await this.parse(VmDelete);
     const debug = createDebugLogger(flags.debug);
+    this.spinner = ora();
 
     await this.setGotConfig(flags);
 
@@ -45,11 +47,10 @@ export default class VmDelete extends Command {
     try {
       if (flags.force) {
         await this.got.delete(`vm/${vm._id}`);
-        this.log(`Vm ${vm.name} deleted.`);
       } else if (await this.confirm(vm)) {
         await this.got.delete(`vm/${vm._id}`);
-        this.log(`Vm ${vm.name} deleted.`);
       }
+      this.log(`VM "${vm.name}" deleted.`);
     } catch (error) {
       debug(error.message);
 
@@ -57,58 +58,29 @@ export default class VmDelete extends Command {
         debug(JSON.stringify(error.response.data));
       }
 
-      if (error.response && error.response.statusCode === 404) {
-        this.error(`Could not find the vm.`);
-      }
-
-      this.error(`Could not delete the vm. Please try again.`);
+      throw error;
     }
   }
 
   async getVm(vmFlag: string | undefined) {
-    if (vmFlag) {
-      try {
-        const vm = await this.got(`vm/${vmFlag}`).json<IGetVMResponse>();
-
-        if (vm.state === 'DELETING') {
-          this.error(`Could not find the VM.`);
-        }
-        return vm;
-      } catch (error) {
-        if (error.response && error.response.statusCode === 400) {
-          this.error(`Invalid vm ID.`);
-        }
-        if (error.response && error.response.statusCode === 404) {
-          this.error(`Could not find the vm.`);
-        }
-      }
-    }
-
-    return await this.promptVMs();
-  }
-
-  async promptVMs() {
-    this.spinner = ora();
     this.spinner.start('Loading...');
     try {
-      const allVms = await this.got('vm').json<IGetVMsResponse>();
-      const vms = allVms.vms.filter((vm) => vm.state !== 'DELETING');
-      this.spinner.stop();
-
-      if (!vms.length) {
-        this.error(
-          'Please go to https://console.liara.ir/vms and create an vm or use liara vm create command, first.',
+      if (vmFlag) {
+        const vms = await this.getVms(
+          'VM does not exist.',
+          (vm: IVMs) => vm.name === vmFlag && vm.state !== 'DELETING',
         );
+        this.spinner.stop();
+        return vms[0];
       }
 
-      const { selectedVm } = (await inquirer.prompt({
-        name: 'selectedVm',
-        type: 'list',
-        message: 'Please select a vm:',
-        choices: [...vms.map((vm) => ({ name: vm.name, value: vm._id }))],
-      })) as { selectedVm: string };
-
-      return vms.filter((vm) => vm._id == selectedVm)[0];
+      const vms = await this.getVms(
+        'Please go to https://console.liara.ir/vms or use liara vm create command and create an VM, first.',
+        (vm: IVMs) => vm.state !== 'DELETING',
+      );
+      this.spinner.stop();
+      const vm = await promptVMs(vms);
+      return vm;
     } catch (error) {
       this.spinner.stop();
       throw error;

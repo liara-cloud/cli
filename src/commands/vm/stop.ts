@@ -12,7 +12,7 @@ export default class VmStop extends Command {
     ...Command.flags,
     vm: Flags.string({
       char: 'v',
-      description: 'vm name',
+      description: 'VM name',
     }),
     force: Flags.boolean({
       char: 'f',
