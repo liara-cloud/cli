@@ -10,7 +10,7 @@ export default class VmList extends Command {
     ...ux.table.flags(),
   };
 
-  static override description = 'list available vms';
+  static override description = 'list available VMs';
 
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
@@ -60,7 +60,7 @@ export default class VmList extends Command {
       const { vms } = await this.got('vm').json<IGetVMsResponse>();
 
       if (vms.length == 0) {
-        throw new NoVMsFoundError("You didn't create any vms yet.");
+        throw new NoVMsFoundError("You didn't create any VMs yet.");
       }
 
       this.spinner.stop();
@@ -71,7 +71,9 @@ export default class VmList extends Command {
       if (error instanceof NoVMsFoundError) {
         throw new Error(error.message);
       }
-      throw new Error('There was something wrong while fetching your vms info');
+      throw new Error(
+        'There was something wrong while fetching your VMs info.',
+      );
     }
   }
 }

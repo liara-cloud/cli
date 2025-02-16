@@ -6,9 +6,6 @@ import { createAction } from '../../utils/create-vm-actions.js';
 import { promptVMs } from '../../utils/prompt-vms.js';
 
 export default class VmStart extends Command {
-  static override args = {
-    file: Args.string({ description: 'file to read' }),
-  };
   static flags = {
     ...Command.flags,
     vm: Flags.string({
@@ -20,7 +17,7 @@ export default class VmStart extends Command {
       description: 'run command in detach mode',
     }),
   };
-  static override description = 'power-on the VM.';
+  static override description = 'power-on the VM';
 
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
