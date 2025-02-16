@@ -521,7 +521,9 @@ Please use 'liara account add' to add this account, first.`);
     try {
       const { vms } = await this.got('vm').json<IGetVMsResponse>();
       if (vms.length === 0) {
-        throw new NoVMsFoundError("You didn't create any VMs yet.");
+        throw new NoVMsFoundError(
+          "You didn't create any VMs yet.\ncreate a VM using liara vm create command.",
+        );
       }
 
       const filteredVms = filter ? vms.filter(filter) : vms;
@@ -536,6 +538,9 @@ Please use 'liara account add' to add this account, first.`);
 
       if (error instanceof NoVMsFoundError) {
         throw new Error(error.message);
+      }
+      if (error.response && error.response.statusCode == 401) {
+        throw error;
       }
       throw new Error('There was something wrong while fetching your vms info');
     }
