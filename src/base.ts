@@ -26,6 +26,7 @@ import {
   GLOBAL_CONF_PATH,
   GLOBAL_CONF_VERSION,
 } from './constants.js';
+import { NoVMsFoundError } from './errors/vm-error.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -511,5 +512,30 @@ Please use 'liara account add' to add this account, first.`);
     }
 
     return network;
+  }
+  async getVms(power?: 'POWERED_OFF' | 'POWERED_ON'): Promise<IVMs[]> {
+    this.spinner.start('Loading...');
+    try {
+      const { vms } = await this.got('vm').json<IGetVMsResponse>();
+
+      if (vms.length === 0) {
+        throw new NoVMsFoundError("You didn't create any vms yet.");
+      }
+
+      const filteredVms = power ? vms.filter((vm) => vm.power === power) : vms;
+      if (filteredVms.length === 0) {
+        throw new NoVMsFoundError('No VMs found in the specified state');
+      }
+
+      this.spinner.stop();
+      return filteredVms;
+    } catch (error) {
+      this.spinner.stop();
+
+      if (error instanceof NoVMsFoundError) {
+        throw new Error(error.message);
+      }
+      throw new Error('There was something wrong while fetching your vms info');
+    }
   }
 }
