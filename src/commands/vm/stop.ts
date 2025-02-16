@@ -1,14 +1,8 @@
-import { Args, Flags } from '@oclif/core';
-import Command, {
-  IConfig,
-  IGetVMResponse,
-  IGetVMsResponse,
-  IVMs,
-} from '../../base.js';
+import { Flags } from '@oclif/core';
+import Command, { IConfig, IGetVMResponse, IVMs } from '../../base.js';
 import { IAAS_API_URL } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
 import ora from 'ora';
-import inquirer from 'inquirer';
 import { promptVMs } from '../../utils/prompt-vms.js';
 import { createAction } from '../../utils/create-vm-actions.js';
 export default class VmStop extends Command {
@@ -119,5 +113,4 @@ export default class VmStop extends Command {
       throw error;
     }
   }
-  async poller(): Promise<void> {}
 }
