@@ -1,5 +1,6 @@
 import { Args, Flags } from '@oclif/core';
-import Command, { IConfig, IGetVMResponse, IVMs } from '../../base.js';
+import Command, { IConfig } from '../../base.js';
+import { IVMs } from '../../types/vm.js';
 import { IAAS_API_URL } from '../../constants.js';
 import ora from 'ora';
 import { createAction } from '../../utils/create-vm-actions.js';
@@ -49,18 +50,23 @@ export default class VmStart extends Command {
       this.spinner.succeed(`Start signal has been sent for VM "${vm.name}"`);
       return;
     }
+    this.spinner.start(`VM "${vm.name}" is starting...`);
     const intervalID = setInterval(async () => {
-      this.spinner.start(`VM "${vm.name}" is starting...`);
+      const operations = await this.getVMOperations(vm);
 
-      const stopedVm = await this.got
-        .get(`vm/${vm._id}`)
-        .json<IGetVMResponse>();
+      const latestOperation = operations.sort((a, b) =>
+        b.createdAt.localeCompare(a.createdAt),
+      )[0];
 
-      if (stopedVm.power === 'POWERED_ON') {
+      if (latestOperation.state === 'SUCCEEDED') {
         this.spinner.stop();
 
         this.spinner.succeed(`VM "${vm.name}" has been started'`);
 
+        clearInterval(intervalID);
+      }
+      if (latestOperation.state === 'FAILED') {
+        this.spinner.fail(`Failed to start the VM "${vm.name}".`);
         clearInterval(intervalID);
       }
     }, 2000);

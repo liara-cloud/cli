@@ -1,11 +1,5 @@
 import { Args, Flags } from '@oclif/core';
-import Command, {
-  IConfig,
-  IVMOperations,
-  IGetVMOperationsResponse,
-  IGetVMResponse,
-  IVMs,
-} from '../../base.js';
+import Command, { IConfig } from '../../base.js';
 import { IAAS_API_URL } from '../../constants.js';
 import ora from 'ora';
 import { createAction } from '../../utils/create-vm-actions.js';
@@ -33,7 +27,7 @@ export default class VmRestart extends Command {
   }
 
   public async run(): Promise<void> {
-    const { args, flags } = await this.parse(VmRestart);
+    const { flags } = await this.parse(VmRestart);
 
     this.spinner = ora();
 
@@ -41,7 +35,7 @@ export default class VmRestart extends Command {
 
     const vms = await this.getVms(
       'No running VMs were found.',
-      (vm) => vm.state !== 'DELETING',
+      (vm) => vm.state !== 'DELETING' && vm.power === 'POWERED_ON',
     );
 
     const vm = flags.vm
@@ -51,17 +45,18 @@ export default class VmRestart extends Command {
         })()
       : await promptVMs(vms);
     await createAction(vm._id, 'reboot', this.got);
-    await this.getVMOperations(vm);
     if (flags.detach) {
       this.spinner.succeed(`Restart signal has been sent for VM "${vm.name}"`);
       return;
     }
+    this.spinner.start(`VM "${vm.name}" is restarting...`);
     const intervalID = setInterval(async () => {
-      this.spinner.start(`VM "${vm.name}" is restarting...`);
       const operations = await this.getVMOperations(vm);
+
       const latestOperation = operations.sort((a, b) =>
         b.createdAt.localeCompare(a.createdAt),
       )[0];
+
       if (latestOperation.state === 'SUCCEEDED') {
         this.spinner.stop();
 
@@ -74,20 +69,5 @@ export default class VmRestart extends Command {
         clearInterval(intervalID);
       }
     }, 2000);
-  }
-  async getVMOperations(vm: IVMs): Promise<IVMOperations[]> {
-    try {
-      const { operations } = await this.got(
-        `vm/operation/${vm._id}`,
-      ).json<IGetVMOperationsResponse>();
-      return operations;
-    } catch (error) {
-      if (error.response && error.response.statusCode == 401) {
-        throw error;
-      }
-      throw new Error(
-        'There was something wrong while fetching your VMs operations.',
-      );
-    }
   }
 }

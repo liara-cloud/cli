@@ -1,9 +1,9 @@
-import ora from 'ora';
 import { Got } from 'got';
+import { VMActions } from '../types/vm.js';
 
 export async function createAction(
   vmId: string,
-  action: 'start' | 'shutdown' | 'reboot' | 'stop',
+  action: VMActions,
   gotClient: Got,
 ) {
   try {

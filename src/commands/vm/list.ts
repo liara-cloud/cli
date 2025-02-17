@@ -1,9 +1,9 @@
 import { ux } from '@oclif/core';
-import Command, { IConfig, IGetVMsResponse, IVMs } from '../../base.js';
+import Command, { IConfig } from '../../base.js';
 import { IAAS_API_URL } from '../../constants.js';
 import ora from 'ora';
 import * as shamsi from 'shamsi-date-converter';
-import { NoVMsFoundError } from '../../errors/vm-error.js';
+import { IGetVMResponse, IVMs } from '../../types/vm.js';
 export default class VmList extends Command {
   static flags = {
     ...Command.flags,

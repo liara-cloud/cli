@@ -1,5 +1,6 @@
 import { Flags } from '@oclif/core';
-import Command, { IConfig, IGetVMResponse, IVMs } from '../../base.js';
+import Command, { IConfig } from '../../base.js';
+import { IGetVMResponse, IVMs } from '../../types/vm.js';
 import { IAAS_API_URL } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
 import ora from 'ora';
@@ -54,20 +55,26 @@ export default class VmStop extends Command {
         );
         return;
       }
+
+      this.spinner.start(`VM "${vm.name}" is shutting down/stopping...`);
       const intervalID = setInterval(async () => {
-        this.spinner.start(`VM "${vm.name}" is shutting down/stopping...`);
+        const operations = await this.getVMOperations(vm);
 
-        const stopedVm = await this.got
-          .get(`vm/${vm._id}`)
-          .json<IGetVMResponse>();
+        const latestOperation = operations.sort((a, b) =>
+          b.createdAt.localeCompare(a.createdAt),
+        )[0];
 
-        if (stopedVm.power === 'POWERED_OFF') {
+        if (latestOperation.state === 'SUCCEEDED') {
           this.spinner.stop();
 
           this.spinner.succeed(
             `VM "${vm.name}" has been ${flags.force ? 'stopped.' : 'shut down.'}`,
           );
 
+          clearInterval(intervalID);
+        }
+        if (latestOperation.state === 'FAILED') {
+          this.spinner.fail(`Failed to shutdown/stop the VM "${vm.name}".`);
           clearInterval(intervalID);
         }
       }, 2000);

@@ -2,7 +2,6 @@ import os from 'node:os';
 import path from 'node:path';
 import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
-
 import fs from 'fs-extra';
 import WebSocket from 'ws';
 import ora, { Ora } from 'ora';
@@ -18,7 +17,12 @@ import hooks from './interceptors.js';
 import IBrowserLogin from './types/browser-login.js';
 import browserLoginHeader from './utils/browser-login-header.js';
 import IGetNetworkResponse from './types/get-network-response.js';
-
+import {
+  IVMOperations,
+  IGetVMOperationsResponse,
+  IGetVMsResponse,
+  IVMs,
+} from './types/vm.js';
 import {
   DEV_MODE,
   REGIONS_API_URL,
@@ -149,50 +153,6 @@ export interface IGetBucketsResponse {
   buckets: IBucket[];
 }
 
-export interface IVMs {
-  _id: string;
-  plan: string;
-  OS: string;
-  state: string;
-  name: string;
-  createdAt: string;
-  power: string;
-}
-
-// TODO: i don't think we need this but let it be
-export interface IGetVMResponse extends IVMs {
-  config: {
-    SSHKeys: string[];
-    rootPassword: string;
-    hostname: string;
-  };
-  IPs: { address: string; version: string }[];
-  planDetails: {
-    available: boolean;
-    region: string;
-    monthlyPrice: number;
-    hourlyPrice: number;
-    volume: number;
-    RAM: {
-      amount: number;
-    };
-    CPU: {
-      amount: number;
-    };
-  };
-}
-
-export interface IGetVMsResponse {
-  vms: IVMs[];
-}
-export interface IGetVMOperationsResponse {
-  operations: IVMOperations[];
-}
-export interface IVMOperations {
-  name: string;
-  state: string;
-  createdAt: string;
-}
 export interface IMailboxes {
   plan: {
     name: string;
@@ -550,6 +510,21 @@ Please use 'liara account add' to add this account, first.`);
         throw error;
       }
       throw new Error('There was something wrong while fetching your VMs info');
+    }
+  }
+  async getVMOperations(vm: IVMs): Promise<IVMOperations[]> {
+    try {
+      const { operations } = await this.got(
+        `vm/operation/${vm._id}`,
+      ).json<IGetVMOperationsResponse>();
+      return operations;
+    } catch (error) {
+      if (error.response && error.response.statusCode == 401) {
+        throw error;
+      }
+      throw new Error(
+        'There was something wrong while fetching your VMs operations.',
+      );
     }
   }
 }

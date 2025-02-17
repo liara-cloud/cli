@@ -1,10 +1,6 @@
-import { Args, Flags } from '@oclif/core';
-import Command, {
-  IConfig,
-  IGetVMResponse,
-  IGetVMsResponse,
-  IVMs,
-} from '../../base.js';
+import { Flags } from '@oclif/core';
+import { IVMs } from '../../types/vm.js';
+import Command, { IConfig } from '../../base.js';
 import { IAAS_API_URL } from '../../constants.js';
 import inquirer from 'inquirer';
 import { createDebugLogger } from '../../utils/output.js';
