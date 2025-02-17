@@ -42,3 +42,7 @@ export interface IVMOperations {
   state: string;
   createdAt: string;
 }
+
+export interface IGETOperatingSystems {
+  [key: string]: string[];
+}
