@@ -2,12 +2,11 @@ import { Flags, ux } from '@oclif/core';
 import Command, { IConfig } from '../../base.js';
 import { IAAS_API_URL } from '../../constants.js';
 import ora from 'ora';
-import * as shamsi from 'shamsi-date-converter';
 import { IGetVMResponse, IVMs } from '../../types/vm.js';
 import { promptVMs } from '../../utils/prompt-vms.js';
 import { createDebugLogger } from '../../utils/output.js';
 export default class Vminfo extends Command {
-  static description = 'vm info';
+  static description = 'VM info';
   static aliases = ['vm:show'];
 
   static flags = {

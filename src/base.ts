@@ -509,7 +509,7 @@ Please use 'liara account add' to add this account, first.`);
       if (error.response && error.response.statusCode == 401) {
         throw error;
       }
-      throw new Error('There was something wrong while fetching your VMs info');
+      throw error;
     }
   }
   async getVMOperations(vm: IVMs): Promise<IVMOperations[]> {

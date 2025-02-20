@@ -33,9 +33,9 @@ export default class VmCreate extends Command {
     const debug = createDebugLogger(flags.debug);
 
     this.spinner = ora();
-    try {
-      await this.setGotConfig(flags);
+    await this.setGotConfig(flags);
 
+    try {
       const oss = await this.getOperatingSystems();
 
       const vmName = await this.promptVMName();

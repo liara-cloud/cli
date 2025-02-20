@@ -13,6 +13,6 @@ export async function createAction(
       },
     });
   } catch (error) {
-    throw new Error('Action failed.');
+    throw error;
   }
 }

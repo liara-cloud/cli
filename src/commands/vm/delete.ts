@@ -8,7 +8,7 @@ import ora from 'ora';
 import { promptVMs } from '../../utils/prompt-vms.js';
 
 export default class VmDelete extends Command {
-  static description = 'delete a vm';
+  static description = 'delete a VM';
 
   static flags = {
     ...Command.flags,
@@ -38,9 +38,9 @@ export default class VmDelete extends Command {
 
     await this.setGotConfig(flags);
 
-    const vm = await this.getVm(flags.vm);
-
     try {
+      const vm = await this.getVm(flags.vm);
+
       if (flags.force) {
         await this.got.delete(`vm/${vm._id}`);
       } else if (await this.confirm(vm)) {
@@ -52,6 +52,10 @@ export default class VmDelete extends Command {
 
       if (error.response && error.response.data) {
         debug(JSON.stringify(error.response.data));
+      }
+
+      if (error.response && error.response.statusCode === 400) {
+        this.error(`Invalid VM ID.`);
       }
 
       throw error;

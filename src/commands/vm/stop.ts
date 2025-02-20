@@ -7,7 +7,7 @@ import ora from 'ora';
 import { promptVMs } from '../../utils/prompt-vms.js';
 import { createAction } from '../../utils/create-vm-actions.js';
 export default class VmStop extends Command {
-  static description = 'stop a vm';
+  static description = 'stop a VM';
 
   static flags = {
     ...Command.flags,
