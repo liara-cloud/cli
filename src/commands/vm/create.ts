@@ -65,6 +65,9 @@ export default class VmCreate extends Command {
       await this.got.post('vm', {
         json: newVM,
       });
+      this.log(
+        `VM "${vmName}" has been created. To use the VM, start it first with the command: \`liara vm start\`.`,
+      );
     } catch (error) {
       debug(error.message);
 

@@ -7,7 +7,7 @@ import { promptVMs } from '../../utils/prompt-vms.js';
 import { createDebugLogger } from '../../utils/output.js';
 export default class Vminfo extends Command {
   static description = 'VM info';
-  static aliases = ['vm:show'];
+  static aliases = ['vm:show', 'vm:inspect'];
 
   static flags = {
     ...Command.flags,
