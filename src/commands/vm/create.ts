@@ -5,7 +5,10 @@ import { Flags } from '@oclif/core';
 import Command, { IConfig } from '../../base.js';
 import { IAAS_API_URL } from '../../constants.js';
 import { IGETOperatingSystems } from '../../types/vm.js';
-import checkRegexPattern from '../../utils/name-regex.js';
+import checkRegexPattern, {
+  checkVMNameRegexPattern,
+} from '../../utils/name-regex.js';
+import { createDebugLogger } from '../../utils/output.js';
 
 export default class VmCreate extends Command {
   static flags = {
@@ -14,15 +17,9 @@ export default class VmCreate extends Command {
       char: 'v',
       description: 'VM name',
     }),
-    detach: Flags.boolean({
-      char: 'd',
-      description: 'run command in detach mode',
-    }),
   };
 
-  static override description = 'describe the command here';
-
-  static override examples = ['<%= config.bin %> <%= command.id %>'];
+  static description = 'create a VM';
 
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
@@ -32,23 +29,56 @@ export default class VmCreate extends Command {
   }
 
   public async run(): Promise<void> {
-    const { args, flags } = await this.parse(VmCreate);
+    const { flags } = await this.parse(VmCreate);
+    const debug = createDebugLogger(flags.debug);
 
     this.spinner = ora();
+    try {
+      await this.setGotConfig(flags);
 
-    await this.setGotConfig(flags);
+      const oss = await this.getOperatingSystems();
 
-    const SSHKeys = await this.promptSSHKey();
+      const vmName = await this.promptVMName();
 
-    const oss = await this.getOperatingSystems();
+      const osName = await this.promptOperatingSystems(oss);
 
-    const osName = await this.promptOperatingSystems(oss);
+      const osVersion = await this.promptOperatingSystemVersions(osName, oss);
 
-    const osVersion = await this.promptOperatingSystemVersions(osName, oss);
+      const plan = await this.promptPlan();
 
-    const vmName = await this.promptVMName();
+      const SSHKeys = await this.promptSSHKey();
 
-    const plan = await this.promptPlan();
+      const newSSH =
+        SSHKeys.length > 0
+          ? {
+              config: {
+                SSHKeys: SSHKeys,
+              },
+            }
+          : null;
+      const newVM = {
+        OS: `${osName}-${osVersion}`,
+        name: vmName,
+        plan,
+        ...newSSH,
+      };
+      await this.got.post('vm', {
+        json: newVM,
+      });
+    } catch (error) {
+      debug(error.message);
+
+      if (error.response && error.response.data) {
+        debug(JSON.stringify(error.response.data));
+      }
+      if (error.response && error.response.statusCode === 409) {
+        this.error(
+          `A VM with this name already exists. Please choose a unique name.`,
+        );
+      }
+
+      throw error;
+    }
   }
   async getOperatingSystems(): Promise<IGETOperatingSystems> {
     this.spinner.start('Loading...');
@@ -94,10 +124,12 @@ export default class VmCreate extends Command {
       message: 'Enter VM name: ',
       type: 'input',
       name: 'vmName',
-      validate: (input) => input.length > 2,
+      validate: (input) => input.length > 3 && input.length < 20,
     })) as { vmName: string };
-    if (!checkRegexPattern(vmName)) {
-      this.error('Please enter a valid name for your vm.');
+    if (!checkVMNameRegexPattern(vmName)) {
+      this.error(
+        'Invalid VM name. It must start with a lowercase letter, contain only lowercase letters, numbers, or hyphens, and be between 4 and 19 characters long.',
+      );
     }
 
     return vmName;

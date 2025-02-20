@@ -1,5 +1,5 @@
 import inquirer from 'inquirer';
-import { IVMs } from '../base.js';
+import { IVMs } from '../types/vm.js';
 
 export async function promptVMs(vms: IVMs[]) {
   const { selectedVm } = (await inquirer.prompt({
