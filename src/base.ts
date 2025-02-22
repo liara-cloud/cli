@@ -2,7 +2,6 @@ import os from 'node:os';
 import path from 'node:path';
 import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
-
 import fs from 'fs-extra';
 import WebSocket from 'ws';
 import ora, { Ora } from 'ora';
@@ -18,7 +17,12 @@ import hooks from './interceptors.js';
 import IBrowserLogin from './types/browser-login.js';
 import browserLoginHeader from './utils/browser-login-header.js';
 import IGetNetworkResponse from './types/get-network-response.js';
-
+import {
+  IVMOperations,
+  IGetVMOperationsResponse,
+  IGetVMsResponse,
+  IVMs,
+} from './types/vm.js';
 import {
   DEV_MODE,
   REGIONS_API_URL,
@@ -26,6 +30,7 @@ import {
   GLOBAL_CONF_PATH,
   GLOBAL_CONF_VERSION,
 } from './constants.js';
+import { NoVMsFoundError } from './errors/vm-error.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -147,6 +152,7 @@ export interface IGetBucketsResponse {
   status: string;
   buckets: IBucket[];
 }
+
 export interface IMailboxes {
   plan: {
     name: string;
@@ -232,6 +238,14 @@ export default abstract class extends Command {
   }
 
   async catch(error: any) {
+    if (error.response && error.response.statusCode === 401) {
+      throw new Error(`Authentication failed.  
+Please log in using the 'liara login' command.
+
+If you are using an API token for authentication, please consider updating your API token.  
+`);
+    }
+
     if (error.code === 'ECONNREFUSED' || error.code === 'ECONNRESET') {
       this.error(`Could not connect to ${
         (error.config && error.config.baseURL) || 'https://api.liara.ir'
@@ -465,5 +479,52 @@ Please use 'liara account add' to add this account, first.`);
     }
 
     return network;
+  }
+  async getVms(
+    errorMessage: string,
+    filter?: (vm: IVMs) => any,
+  ): Promise<IVMs[]> {
+    this.spinner.start('Loading...');
+    try {
+      const { vms } = await this.got('vm').json<IGetVMsResponse>();
+      if (vms.length === 0) {
+        throw new NoVMsFoundError(
+          "You didn't create any VMs yet.\ncreate a VM using liara VM create command.",
+        );
+      }
+
+      const filteredVms = filter ? vms.filter(filter) : vms;
+      if (filteredVms.length === 0) {
+        throw new NoVMsFoundError(errorMessage);
+      }
+
+      this.spinner.stop();
+      return filteredVms;
+    } catch (error) {
+      this.spinner.stop();
+
+      if (error instanceof NoVMsFoundError) {
+        throw new Error(error.message);
+      }
+      if (error.response && error.response.statusCode == 401) {
+        throw error;
+      }
+      throw error;
+    }
+  }
+  async getVMOperations(vm: IVMs): Promise<IVMOperations[]> {
+    try {
+      const { operations } = await this.got(
+        `vm/operation/${vm._id}`,
+      ).json<IGetVMOperationsResponse>();
+      return operations;
+    } catch (error) {
+      if (error.response && error.response.statusCode == 401) {
+        throw error;
+      }
+      throw new Error(
+        'There was something wrong while fetching your VMs operations.',
+      );
+    }
   }
 }
