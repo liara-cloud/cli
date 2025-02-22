@@ -21,7 +21,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/7.4.2 linux-x64 node-v22.13.1
+@liara/cli/8.0.0-beta.1 linux-x64 node-v22.13.1
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -94,6 +94,17 @@ USAGE
 * [`liara start`](#liara-start)
 * [`liara stop`](#liara-stop)
 * [`liara version`](#liara-version)
+* [`liara vm create`](#liara-vm-create)
+* [`liara vm delete`](#liara-vm-delete)
+* [`liara vm info`](#liara-vm-info)
+* [`liara vm list`](#liara-vm-list)
+* [`liara vm power off`](#liara-vm-power-off)
+* [`liara vm restart`](#liara-vm-restart)
+* [`liara vm rm`](#liara-vm-rm)
+* [`liara vm show`](#liara-vm-show)
+* [`liara vm shutdown`](#liara-vm-shutdown)
+* [`liara vm start`](#liara-vm-start)
+* [`liara vm stop`](#liara-vm-stop)
 * [`liara zone ch`](#liara-zone-ch)
 * [`liara zone check`](#liara-zone-check)
 * [`liara zone create`](#liara-zone-create)
@@ -133,7 +144,7 @@ DESCRIPTION
   add an account
 ```
 
-_See code: [src/commands/account/add.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/account/add.ts)_
+_See code: [src/commands/account/add.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/account/add.ts)_
 
 ## `liara account list`
 
@@ -168,7 +179,7 @@ ALIASES
   $ liara account ls
 ```
 
-_See code: [src/commands/account/list.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/account/list.ts)_
+_See code: [src/commands/account/list.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/account/list.ts)_
 
 ## `liara account ls`
 
@@ -225,7 +236,7 @@ ALIASES
   $ liara account rm
 ```
 
-_See code: [src/commands/account/remove.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/account/remove.ts)_
+_See code: [src/commands/account/remove.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/account/remove.ts)_
 
 ## `liara account rm`
 
@@ -268,7 +279,7 @@ DESCRIPTION
   select an account
 ```
 
-_See code: [src/commands/account/use.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/account/use.ts)_
+_See code: [src/commands/account/use.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/account/use.ts)_
 
 ## `liara app create`
 
@@ -300,7 +311,7 @@ ALIASES
   $ liara create
 ```
 
-_See code: [src/commands/app/create.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/app/create.ts)_
+_See code: [src/commands/app/create.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/app/create.ts)_
 
 ## `liara app delete`
 
@@ -327,7 +338,7 @@ ALIASES
   $ liara app rm
 ```
 
-_See code: [src/commands/app/delete.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/app/delete.ts)_
+_See code: [src/commands/app/delete.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/app/delete.ts)_
 
 ## `liara app list`
 
@@ -362,7 +373,7 @@ ALIASES
   $ liara app ls
 ```
 
-_See code: [src/commands/app/list.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/app/list.ts)_
+_See code: [src/commands/app/list.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/app/list.ts)_
 
 ## `liara app logs`
 
@@ -392,7 +403,7 @@ ALIASES
   $ liara logs
 ```
 
-_See code: [src/commands/app/logs.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/app/logs.ts)_
+_See code: [src/commands/app/logs.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/app/logs.ts)_
 
 ## `liara app ls`
 
@@ -475,7 +486,7 @@ ALIASES
   $ liara restart
 ```
 
-_See code: [src/commands/app/restart.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/app/restart.ts)_
+_See code: [src/commands/app/restart.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/app/restart.ts)_
 
 ## `liara app rm`
 
@@ -527,7 +538,7 @@ ALIASES
   $ liara shell
 ```
 
-_See code: [src/commands/app/shell.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/app/shell.ts)_
+_See code: [src/commands/app/shell.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/app/shell.ts)_
 
 ## `liara app start`
 
@@ -552,7 +563,7 @@ ALIASES
   $ liara start
 ```
 
-_See code: [src/commands/app/start.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/app/start.ts)_
+_See code: [src/commands/app/start.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/app/start.ts)_
 
 ## `liara app stop`
 
@@ -577,7 +588,7 @@ ALIASES
   $ liara stop
 ```
 
-_See code: [src/commands/app/stop.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/app/stop.ts)_
+_See code: [src/commands/app/stop.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/app/stop.ts)_
 
 ## `liara autocomplete [SHELL]`
 
@@ -636,7 +647,7 @@ ALIASES
   $ liara bucket create
 ```
 
-_See code: [src/commands/bucket/create.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/bucket/create.ts)_
+_See code: [src/commands/bucket/create.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/bucket/create.ts)_
 
 ## `liara bucket delete`
 
@@ -663,7 +674,7 @@ ALIASES
   $ liara bucket delete
 ```
 
-_See code: [src/commands/bucket/delete.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/bucket/delete.ts)_
+_See code: [src/commands/bucket/delete.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/bucket/delete.ts)_
 
 ## `liara bucket list`
 
@@ -698,7 +709,7 @@ ALIASES
   $ liara bucket ls
 ```
 
-_See code: [src/commands/bucket/list.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/bucket/list.ts)_
+_See code: [src/commands/bucket/list.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/bucket/list.ts)_
 
 ## `liara bucket ls`
 
@@ -783,7 +794,7 @@ DESCRIPTION
   create a database backup
 ```
 
-_See code: [src/commands/db/backup/create.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/db/backup/create.ts)_
+_See code: [src/commands/db/backup/create.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/db/backup/create.ts)_
 
 ## `liara db backup dl`
 
@@ -837,7 +848,7 @@ ALIASES
   $ liara db backup dl
 ```
 
-_See code: [src/commands/db/backup/download.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/db/backup/download.ts)_
+_See code: [src/commands/db/backup/download.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/db/backup/download.ts)_
 
 ## `liara db backup list`
 
@@ -873,7 +884,7 @@ ALIASES
   $ liara db backup ls
 ```
 
-_See code: [src/commands/db/backup/list.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/db/backup/list.ts)_
+_See code: [src/commands/db/backup/list.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/db/backup/list.ts)_
 
 ## `liara db backup ls`
 
@@ -937,7 +948,7 @@ DESCRIPTION
   create a new database
 ```
 
-_See code: [src/commands/db/create.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/db/create.ts)_
+_See code: [src/commands/db/create.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/db/create.ts)_
 
 ## `liara db list`
 
@@ -972,7 +983,7 @@ ALIASES
   $ liara db ls
 ```
 
-_See code: [src/commands/db/list.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/db/list.ts)_
+_See code: [src/commands/db/list.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/db/list.ts)_
 
 ## `liara db ls`
 
@@ -1032,7 +1043,7 @@ ALIASES
   $ liara db rm
 ```
 
-_See code: [src/commands/db/remove.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/db/remove.ts)_
+_See code: [src/commands/db/remove.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/db/remove.ts)_
 
 ## `liara db resize`
 
@@ -1057,7 +1068,7 @@ DESCRIPTION
   resize a database
 ```
 
-_See code: [src/commands/db/resize.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/db/resize.ts)_
+_See code: [src/commands/db/resize.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/db/resize.ts)_
 
 ## `liara db rm`
 
@@ -1104,7 +1115,7 @@ DESCRIPTION
   start a database
 ```
 
-_See code: [src/commands/db/start.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/db/start.ts)_
+_See code: [src/commands/db/start.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/db/start.ts)_
 
 ## `liara db stop`
 
@@ -1126,7 +1137,7 @@ DESCRIPTION
   stop a database
 ```
 
-_See code: [src/commands/db/stop.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/db/stop.ts)_
+_See code: [src/commands/db/stop.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/db/stop.ts)_
 
 ## `liara delete`
 
@@ -1189,7 +1200,7 @@ DESCRIPTION
   deploy an app
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/deploy.ts)_
 
 ## `liara disk create`
 
@@ -1214,7 +1225,7 @@ DESCRIPTION
   create a disk
 ```
 
-_See code: [src/commands/disk/create.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/disk/create.ts)_
+_See code: [src/commands/disk/create.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/disk/create.ts)_
 
 ## `liara env list`
 
@@ -1250,7 +1261,7 @@ ALIASES
   $ liara env ls
 ```
 
-_See code: [src/commands/env/list.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/env/list.ts)_
+_See code: [src/commands/env/list.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/env/list.ts)_
 
 ## `liara env ls`
 
@@ -1311,7 +1322,7 @@ DESCRIPTION
   specifying environment variables to an app
 ```
 
-_See code: [src/commands/env/set.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/env/set.ts)_
+_See code: [src/commands/env/set.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/env/set.ts)_
 
 ## `liara env unset [ENV]`
 
@@ -1338,7 +1349,7 @@ DESCRIPTION
   remove environment variables from an app
 ```
 
-_See code: [src/commands/env/unset.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/env/unset.ts)_
+_See code: [src/commands/env/unset.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/env/unset.ts)_
 
 ## `liara help [COMMAND]`
 
@@ -1391,7 +1402,7 @@ EXAMPLES
   $ liara init
 ```
 
-_See code: [src/commands/init.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/init.ts)_
+_See code: [src/commands/init.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/init.ts)_
 
 ## `liara login`
 
@@ -1418,7 +1429,7 @@ DESCRIPTION
   login to your account
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/login.ts)_
 
 ## `liara logs`
 
@@ -1474,7 +1485,7 @@ ALIASES
   $ liara mail create
 ```
 
-_See code: [src/commands/mail/create.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/mail/create.ts)_
+_See code: [src/commands/mail/create.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/mail/create.ts)_
 
 ## `liara mail delete`
 
@@ -1501,7 +1512,7 @@ ALIASES
   $ liara mail delete
 ```
 
-_See code: [src/commands/mail/delete.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/mail/delete.ts)_
+_See code: [src/commands/mail/delete.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/mail/delete.ts)_
 
 ## `liara mail list`
 
@@ -1536,7 +1547,7 @@ ALIASES
   $ liara mail ls
 ```
 
-_See code: [src/commands/mail/list.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/mail/list.ts)_
+_See code: [src/commands/mail/list.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/mail/list.ts)_
 
 ## `liara mail ls`
 
@@ -1600,7 +1611,7 @@ ALIASES
   $ liara mail send
 ```
 
-_See code: [src/commands/mail/send.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/mail/send.ts)_
+_See code: [src/commands/mail/send.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/mail/send.ts)_
 
 ## `liara network create`
 
@@ -1622,7 +1633,7 @@ DESCRIPTION
   create network
 ```
 
-_See code: [src/commands/network/create.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/network/create.ts)_
+_See code: [src/commands/network/create.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/network/create.ts)_
 
 ## `liara network list`
 
@@ -1657,7 +1668,7 @@ ALIASES
   $ liara network ls
 ```
 
-_See code: [src/commands/network/list.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/network/list.ts)_
+_See code: [src/commands/network/list.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/network/list.ts)_
 
 ## `liara network ls`
 
@@ -1725,7 +1736,7 @@ ALIASES
   $ liara plan ls
 ```
 
-_See code: [src/commands/plan/list.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/plan/list.ts)_
+_See code: [src/commands/plan/list.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/plan/list.ts)_
 
 ## `liara plan ls`
 
@@ -1874,6 +1885,318 @@ FLAG DESCRIPTIONS
 
 _See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v2.2.18/src/commands/version.ts)_
 
+## `liara vm create`
+
+create a VM
+
+```
+USAGE
+  $ liara vm create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         VM name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  create a VM
+```
+
+_See code: [src/commands/vm/create.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/vm/create.ts)_
+
+## `liara vm delete`
+
+delete a VM
+
+```
+USAGE
+  $ liara vm delete [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-f]
+
+FLAGS
+  -f, --force              force the deletion
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         VM name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  delete a VM
+
+ALIASES
+  $ liara vm delete
+  $ liara vm rm
+```
+
+_See code: [src/commands/vm/delete.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/vm/delete.ts)_
+
+## `liara vm info`
+
+VM info
+
+```
+USAGE
+  $ liara vm info [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>] [-v <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         VM name
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  VM info
+
+ALIASES
+  $ liara vm show
+```
+
+_See code: [src/commands/vm/info.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/vm/info.ts)_
+
+## `liara vm list`
+
+list available VMs
+
+```
+USAGE
+  $ liara vm list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  list available VMs
+```
+
+_See code: [src/commands/vm/list.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/vm/list.ts)_
+
+## `liara vm power off`
+
+stop a VM
+
+```
+USAGE
+  $ liara vm power off [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-f] [-d]
+
+FLAGS
+  -d, --detach             run command in detach mode
+  -f, --force              force the deletion
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         VM name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  stop a VM
+
+ALIASES
+  $ liara vm stop
+  $ liara vm power off
+  $ liara vm shutdown
+```
+
+## `liara vm restart`
+
+Restart the VM
+
+```
+USAGE
+  $ liara vm restart [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-d]
+
+FLAGS
+  -d, --detach             run command in detach mode
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         VM name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  Restart the VM
+```
+
+_See code: [src/commands/vm/restart.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/vm/restart.ts)_
+
+## `liara vm rm`
+
+delete a VM
+
+```
+USAGE
+  $ liara vm rm [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-f]
+
+FLAGS
+  -f, --force              force the deletion
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         VM name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  delete a VM
+
+ALIASES
+  $ liara vm delete
+  $ liara vm rm
+```
+
+## `liara vm show`
+
+VM info
+
+```
+USAGE
+  $ liara vm show [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>] [-v <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         VM name
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  VM info
+
+ALIASES
+  $ liara vm show
+```
+
+## `liara vm shutdown`
+
+stop a VM
+
+```
+USAGE
+  $ liara vm shutdown [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-f] [-d]
+
+FLAGS
+  -d, --detach             run command in detach mode
+  -f, --force              force the deletion
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         VM name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  stop a VM
+
+ALIASES
+  $ liara vm stop
+  $ liara vm power off
+  $ liara vm shutdown
+```
+
+## `liara vm start`
+
+start the VM
+
+```
+USAGE
+  $ liara vm start [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-d]
+
+FLAGS
+  -d, --detach             run command in detach mode
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         VM name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  start the VM
+```
+
+_See code: [src/commands/vm/start.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/vm/start.ts)_
+
+## `liara vm stop`
+
+stop a VM
+
+```
+USAGE
+  $ liara vm stop [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-f] [-d]
+
+FLAGS
+  -d, --detach             run command in detach mode
+  -f, --force              force the deletion
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         VM name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  stop a VM
+
+ALIASES
+  $ liara vm stop
+  $ liara vm power off
+  $ liara vm shutdown
+```
+
+_See code: [src/commands/vm/stop.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/vm/stop.ts)_
+
 ## `liara zone ch`
 
 check zone status
@@ -1942,7 +2265,7 @@ ALIASES
   $ liara zone ch
 ```
 
-_See code: [src/commands/zone/check.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/zone/check.ts)_
+_See code: [src/commands/zone/check.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/zone/check.ts)_
 
 ## `liara zone create`
 
@@ -1964,7 +2287,7 @@ DESCRIPTION
   create a new zone
 ```
 
-_See code: [src/commands/zone/create.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/zone/create.ts)_
+_See code: [src/commands/zone/create.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/zone/create.ts)_
 
 ## `liara zone del`
 
@@ -2038,7 +2361,7 @@ ALIASES
   $ liara zone rm
 ```
 
-_See code: [src/commands/zone/delete.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/zone/delete.ts)_
+_See code: [src/commands/zone/delete.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/zone/delete.ts)_
 
 ## `liara zone get`
 
@@ -2071,7 +2394,7 @@ DESCRIPTION
   inspect zone details
 ```
 
-_See code: [src/commands/zone/get.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/zone/get.ts)_
+_See code: [src/commands/zone/get.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/zone/get.ts)_
 
 ## `liara zone list`
 
@@ -2106,7 +2429,7 @@ ALIASES
   $ liara zone ls
 ```
 
-_See code: [src/commands/zone/list.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/zone/list.ts)_
+_See code: [src/commands/zone/list.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/zone/list.ts)_
 
 ## `liara zone ls`
 
@@ -2174,7 +2497,7 @@ DESCRIPTION
   create a new dns record
 ```
 
-_See code: [src/commands/zone/record/create.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/zone/record/create.ts)_
+_See code: [src/commands/zone/record/create.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/zone/record/create.ts)_
 
 ## `liara zone record get`
 
@@ -2208,7 +2531,7 @@ DESCRIPTION
   get a DNS record
 ```
 
-_See code: [src/commands/zone/record/get.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/zone/record/get.ts)_
+_See code: [src/commands/zone/record/get.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/zone/record/get.ts)_
 
 ## `liara zone record list`
 
@@ -2244,7 +2567,7 @@ ALIASES
   $ liara zone record ls
 ```
 
-_See code: [src/commands/zone/record/list.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/zone/record/list.ts)_
+_See code: [src/commands/zone/record/list.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/zone/record/list.ts)_
 
 ## `liara zone record ls`
 
@@ -2315,7 +2638,7 @@ ALIASES
   $ liara zone record rm
 ```
 
-_See code: [src/commands/zone/record/remove.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/zone/record/remove.ts)_
+_See code: [src/commands/zone/record/remove.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/zone/record/remove.ts)_
 
 ## `liara zone record rm`
 
@@ -2393,7 +2716,7 @@ DESCRIPTION
   update a DNS record
 ```
 
-_See code: [src/commands/zone/record/update.ts](https://github.com/liara-ir/liara-cli/blob/v7.4.2/src/commands/zone/record/update.ts)_
+_See code: [src/commands/zone/record/update.ts](https://github.com/liara-ir/liara-cli/blob/v8.0.0-beta.1/src/commands/zone/record/update.ts)_
 
 ## `liara zone rm`
 
