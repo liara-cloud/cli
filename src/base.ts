@@ -77,6 +77,10 @@ export interface IProject {
   project_id: string;
   created_at: string;
   isDeployed: boolean;
+  network?: {
+    _id: string; 
+    name: string;
+  }; 
 }
 
 export interface IGetProjectsResponse {
