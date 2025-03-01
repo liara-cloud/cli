@@ -71,7 +71,7 @@ export default class VmCreate extends Command {
       });
       if (flags.detach) {
         this.spinner.succeed(
-          `vm "${vmName}" creation request submitted successfully in detach mode.Use "liara vm info" to view connection details.`,
+          `vm "${vmName}" creation request submitted successfully in detach mode. Use "liara vm info" to view connection details.`,
         );
         return;
       }
@@ -81,7 +81,7 @@ export default class VmCreate extends Command {
 
         if (vmState === 'CREATED') {
           this.spinner.succeed(
-            `vm "${vmName}" is created successfully.Use "liara vm info" to view connection details.`,
+            `vm "${vmName}" is created successfully. Use "liara vm info" to view connection details.`,
           );
           clearInterval(intervalID);
         }
