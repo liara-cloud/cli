@@ -48,7 +48,9 @@ export default class VmStart extends Command {
         : await promptVMs(vms);
       await createAction(vm._id, 'start', this.got);
       if (flags.detach) {
-        this.spinner.succeed(`Start signal has been sent for vm "${vm.name}"`);
+        this.spinner.succeed(
+          `Start signal has been sent for vm "${vm.name}".Use "liara vm info" to view connection details.`,
+        );
         return;
       }
       this.spinner.start(`vm "${vm.name}" is starting...`);
@@ -62,7 +64,9 @@ export default class VmStart extends Command {
         if (latestOperation.state === 'SUCCEEDED') {
           this.spinner.stop();
 
-          this.spinner.succeed(`vm "${vm.name}" has been started'`);
+          this.spinner.succeed(
+            `vm "${vm.name}" has been started.Use "liara vm info" to view connection details.'`,
+          );
 
           clearInterval(intervalID);
         }
