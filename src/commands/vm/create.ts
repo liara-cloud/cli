@@ -9,7 +9,6 @@ import checkRegexPattern, {
   checkVMNameRegexPattern,
 } from '../../utils/name-regex.js';
 import { createDebugLogger } from '../../utils/output.js';
-import { promptVMs } from '../../utils/prompt-vms.js';
 
 export default class VmCreate extends Command {
   static flags = {
