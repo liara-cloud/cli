@@ -1,6 +1,5 @@
 import { Args, Flags } from '@oclif/core';
 import Command, { IConfig } from '../../base.js';
-import { IVMs } from '../../types/vm.js';
 import { IAAS_API_URL } from '../../constants.js';
 import ora from 'ora';
 import { createAction } from '../../utils/create-vm-actions.js';
@@ -12,14 +11,14 @@ export default class VmStart extends Command {
     ...Command.flags,
     vm: Flags.string({
       char: 'v',
-      description: 'VM name',
+      description: 'vm name',
     }),
     detach: Flags.boolean({
       char: 'd',
       description: 'run command in detach mode',
     }),
   };
-  static override description = 'start the VM';
+  static override description = 'start a vm';
 
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
@@ -37,22 +36,24 @@ export default class VmStart extends Command {
     await this.setGotConfig(flags);
     try {
       const vms = await this.getVms(
-        'No VMs found in the shutdown state.',
+        'No vms found in the shutdown state.',
         (vm) => vm.power === 'POWERED_OFF' && vm.state !== 'DELETING',
       );
 
       const vm = flags.vm
         ? vms.find((vm) => vm.name === flags.vm) ||
           (() => {
-            throw new Error('VM is not ruuning or does not exists.');
+            throw new Error('vm is not ruuning or does not exists.');
           })()
         : await promptVMs(vms);
       await createAction(vm._id, 'start', this.got);
       if (flags.detach) {
-        this.spinner.succeed(`Start signal has been sent for VM "${vm.name}"`);
+        this.spinner.succeed(
+          `Start signal has been sent for vm "${vm.name}".Use "liara vm info" to view connection details.`,
+        );
         return;
       }
-      this.spinner.start(`VM "${vm.name}" is starting...`);
+      this.spinner.start(`vm "${vm.name}" is starting...`);
       const intervalID = setInterval(async () => {
         const operations = await this.getVMOperations(vm);
 
@@ -63,12 +64,14 @@ export default class VmStart extends Command {
         if (latestOperation.state === 'SUCCEEDED') {
           this.spinner.stop();
 
-          this.spinner.succeed(`VM "${vm.name}" has been started'`);
+          this.spinner.succeed(
+            `vm "${vm.name}" has been started.Use "liara vm info" to view connection details.'`,
+          );
 
           clearInterval(intervalID);
         }
         if (latestOperation.state === 'FAILED') {
-          this.spinner.fail(`Failed to start the VM "${vm.name}".`);
+          this.spinner.fail(`Failed to start the vm "${vm.name}".`);
           clearInterval(intervalID);
         }
       }, 2000);
@@ -80,10 +83,10 @@ export default class VmStart extends Command {
       }
 
       if (error.response && error.response.statusCode === 404) {
-        this.error(`Could not find the VM.`);
+        this.error(`Could not find the vm.`);
       }
       if (error.response && error.response.statusCode === 400) {
-        this.error(`Invalid VM ID.`);
+        this.error(`Invalid vm ID.`);
       }
 
       throw error;

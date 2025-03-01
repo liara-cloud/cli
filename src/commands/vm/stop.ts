@@ -7,13 +7,13 @@ import ora from 'ora';
 import { promptVMs } from '../../utils/prompt-vms.js';
 import { createAction } from '../../utils/create-vm-actions.js';
 export default class VmStop extends Command {
-  static description = 'stop a VM';
+  static description = 'stop a vm';
 
   static flags = {
     ...Command.flags,
     vm: Flags.string({
       char: 'v',
-      description: 'VM name',
+      description: 'vm name',
     }),
     force: Flags.boolean({
       char: 'f',
@@ -56,7 +56,7 @@ export default class VmStop extends Command {
         return;
       }
 
-      this.spinner.start(`VM "${vm.name}" is shutting down/stopping...`);
+      this.spinner.start(`vm "${vm.name}" is shutting down/stopping...`);
       const intervalID = setInterval(async () => {
         const operations = await this.getVMOperations(vm);
 
@@ -68,13 +68,13 @@ export default class VmStop extends Command {
           this.spinner.stop();
 
           this.spinner.succeed(
-            `VM "${vm.name}" has been ${flags.force ? 'stopped.' : 'shut down.'}`,
+            `vm "${vm.name}" has been ${flags.force ? 'stopped.' : 'shut down.'}`,
           );
 
           clearInterval(intervalID);
         }
         if (latestOperation.state === 'FAILED') {
-          this.spinner.fail(`Failed to shutdown/stop the VM "${vm.name}".`);
+          this.spinner.fail(`Failed to shutdown/stop the vm "${vm.name}".`);
           clearInterval(intervalID);
         }
       }, 2000);
@@ -86,10 +86,10 @@ export default class VmStop extends Command {
       }
 
       if (error.response && error.response.statusCode === 404) {
-        this.error(`Could not find the VM.`);
+        this.error(`Could not find the vm.`);
       }
       if (error.response && error.response.statusCode === 400) {
-        this.error(`Invalid VM ID.`);
+        this.error(`Invalid vm ID.`);
       }
 
       throw error;
@@ -101,7 +101,7 @@ export default class VmStop extends Command {
     try {
       if (vmFlag) {
         const vms = await this.getVms(
-          'VM does not exist.',
+          'vm does not exist.',
           (vm: IVMs) => vm.name === vmFlag,
         );
         this.spinner.stop();
@@ -109,7 +109,7 @@ export default class VmStop extends Command {
       }
 
       const vms = await this.getVms(
-        'No running VMs were found.',
+        'No running vm found.',
         (vm: IVMs) => vm.state !== 'DELETING' && vm.power === 'POWERED_ON',
       );
       this.spinner.stop();

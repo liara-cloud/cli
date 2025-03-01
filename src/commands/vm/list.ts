@@ -3,14 +3,13 @@ import Command, { IConfig } from '../../base.js';
 import { IAAS_API_URL } from '../../constants.js';
 import ora from 'ora';
 import * as shamsi from 'shamsi-date-converter';
-import { IGetVMResponse, IVMs } from '../../types/vm.js';
 export default class VmList extends Command {
   static flags = {
     ...Command.flags,
     ...ux.table.flags(),
   };
 
-  static override description = 'list available VMs';
+  static override description = 'list available vms';
 
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
@@ -26,7 +25,7 @@ export default class VmList extends Command {
     this.spinner = ora();
 
     const vms = await this.getVms(
-      'There are no active VMs.',
+      'There are no active vms.',
       (vm) => vm.state !== 'DELETING',
     );
 
