@@ -4,22 +4,27 @@ import { Flags } from '@oclif/core';
 
 import Command, { IConfig } from '../../base.js';
 import { IAAS_API_URL } from '../../constants.js';
-import { IGETOperatingSystems } from '../../types/vm.js';
+import { IGETOperatingSystems, IGetVMsResponse, IVMs } from '../../types/vm.js';
 import checkRegexPattern, {
   checkVMNameRegexPattern,
 } from '../../utils/name-regex.js';
 import { createDebugLogger } from '../../utils/output.js';
+import { promptVMs } from '../../utils/prompt-vms.js';
 
 export default class VmCreate extends Command {
   static flags = {
     ...Command.flags,
     vm: Flags.string({
       char: 'v',
-      description: 'VM name',
+      description: 'vm name',
+    }),
+    detach: Flags.boolean({
+      char: 'd',
+      description: 'run command in detach mode',
     }),
   };
 
-  static description = 'create a VM';
+  static description = 'create a vm';
 
   async setGotConfig(config: IConfig): Promise<void> {
     await super.setGotConfig(config);
@@ -65,9 +70,21 @@ export default class VmCreate extends Command {
       await this.got.post('vm', {
         json: newVM,
       });
-      this.log(
-        `VM "${vmName}" has been created. To use the VM, start it first with the command: \`liara vm start\`.`,
-      );
+      if (flags.detach) {
+        this.spinner.succeed(
+          `vm "${vmName}" created successfully in detach mode.`,
+        );
+        return;
+      }
+      this.spinner.start(`creating vm "${vmName}"...`);
+      const intervalID = setInterval(async () => {
+        const vmState = await this.getVmState(vmName);
+
+        if (vmState === 'CREATED') {
+          this.spinner.succeed(`vm "${vmName}" is created successfully.`);
+          clearInterval(intervalID);
+        }
+      }, 2000);
     } catch (error) {
       debug(error.message);
 
@@ -76,7 +93,7 @@ export default class VmCreate extends Command {
       }
       if (error.response && error.response.statusCode === 409) {
         this.error(
-          `A VM with this name already exists. Please choose a unique name.`,
+          `A vm with this name already exists. Please choose a unique name.`,
         );
       }
 
@@ -101,7 +118,7 @@ export default class VmCreate extends Command {
     const { os } = (await inquirer.prompt({
       name: 'os',
       type: 'list',
-      message: 'Select a OS:',
+      message: 'Select an OS:',
       choices: [...Object.keys(oss).map((platform) => platform)],
     })) as { os: string };
 
@@ -115,7 +132,7 @@ export default class VmCreate extends Command {
     const { osVersion } = (await inquirer.prompt({
       name: 'osVersion',
       type: 'list',
-      message: `Select ${osName} versions:`,
+      message: `Select the ${osName[0].toUpperCase() + osName.slice(1)} version:`,
       choices: [...oss[osName].map((version) => version)],
     })) as { osVersion: string };
 
@@ -124,14 +141,14 @@ export default class VmCreate extends Command {
 
   async promptVMName() {
     const { vmName } = (await inquirer.prompt({
-      message: 'Enter VM name: ',
+      message: 'Enter vm name: ',
       type: 'input',
       name: 'vmName',
       validate: (input) => input.length > 3 && input.length < 20,
     })) as { vmName: string };
     if (!checkVMNameRegexPattern(vmName)) {
       this.error(
-        'Invalid VM name. It must start with a lowercase letter, contain only lowercase letters, numbers, or hyphens, and be between 4 and 19 characters long.',
+        'Invalid vm name. It must start with a lowercase letter, contain only lowercase letters, numbers, or hyphens, and be between 4 and 19 characters long.',
       );
     }
 
@@ -202,5 +219,12 @@ export default class VmCreate extends Command {
     })) as { shouldContinue: boolean };
     if (shouldContinue) this.SSHConfirmationCount++;
     return shouldContinue;
+  }
+
+  async getVmState(vmName: string) {
+    const { vms } = await this.got('vm').json<IGetVMsResponse>();
+
+    const vm = vms.filter((vm) => vm.name === vmName)[0];
+    return vm.state;
   }
 }

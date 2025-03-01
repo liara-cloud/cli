@@ -6,7 +6,7 @@ import { IGetVMResponse, IVMs } from '../../types/vm.js';
 import { promptVMs } from '../../utils/prompt-vms.js';
 import { createDebugLogger } from '../../utils/output.js';
 export default class Vminfo extends Command {
-  static description = 'VM info';
+  static description = 'show vm information';
   static aliases = ['vm:show', 'vm:inspect'];
 
   static flags = {
@@ -14,7 +14,7 @@ export default class Vminfo extends Command {
     ...ux.Table.table.flags(),
     vm: Flags.string({
       char: 'v',
-      description: 'VM name',
+      description: 'vm name',
     }),
   };
 
@@ -70,10 +70,10 @@ export default class Vminfo extends Command {
         debug(JSON.stringify(error.response.data));
       }
       if (error.response && error.response.statusCode === 404) {
-        this.error(`Could not find the VM.`);
+        this.error(`Could not find the vm.`);
       }
       if (error.response && error.response.statusCode === 400) {
-        this.error(`Invalid VM ID.`);
+        this.error(`Invalid vm ID.`);
       }
       throw error;
     }
@@ -83,7 +83,7 @@ export default class Vminfo extends Command {
     try {
       if (vmFlag) {
         const vms = await this.getVms(
-          'VM does not exist.',
+          'vm does not exist.',
           (vm: IVMs) => vm.name === vmFlag,
         );
         const vm = await this.got
@@ -94,7 +94,7 @@ export default class Vminfo extends Command {
       }
 
       const vms = await this.getVms(
-        'No running VMs were found.',
+        'No running vm found.',
         (vm: IVMs) => vm.state !== 'DELETING',
       );
       const selectedVm = await promptVMs(vms);
