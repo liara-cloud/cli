@@ -239,10 +239,10 @@ export default abstract class extends Command {
 
   async catch(error: any) {
     if (error.response && error.response.statusCode === 401) {
-      throw new Error(`Authentication failed.  
+      throw new Error(`Authentication failed.
 Please log in using the 'liara login' command.
 
-If you are using an API token for authentication, please consider updating your API token.  
+If you are using an API token for authentication, please consider updating your API token.
 `);
     }
 
@@ -257,7 +257,10 @@ Please check your network connection.`);
     this.error(error.message);
   }
 
-  async setGotConfig(config: IConfig): Promise<void> {
+  async setGotConfig(
+    config: IConfig,
+    baseURL: string | null = null,
+  ): Promise<void> {
     const gotConfig: Partial<ExtendOptions> = {
       headers: {
         'User-Agent': this.config.userAgent,
@@ -304,6 +307,10 @@ Please check your network connection.`);
 
     const actualBaseURL = REGIONS_API_URL[config.region];
     gotConfig.prefixUrl = DEV_MODE ? 'http://localhost:3000' : actualBaseURL;
+
+    if (baseURL) {
+      gotConfig.prefixUrl = baseURL;
+    }
 
     if (DEV_MODE) {
       this.log(`[dev] The actual base url is: ${actualBaseURL}`);

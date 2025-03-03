@@ -13,5 +13,5 @@ test('http configuration', async () => {
   console.log(configs.defaults.options);
   expect(configs.defaults.options.timeout.request).toBe(10000);
   expect(configs.defaults.options.headers.authorization).toBe('Bearer test');
-  expect(configs.defaults.options.prefixUrl).toBe('https://api.iran.liara.ir/');
+  expect(configs.defaults.options.prefixUrl).toBe('https://api.liara.ir/');
 });

@@ -71,7 +71,7 @@ jest.mock('../src/constants.ts', () => ({
   },
 
   REGIONS_API_URL: {
-    iran: 'https://api.iran.liara.ir',
+    iran: 'https://api.liara.ir',
     germany: 'https://api.liara.ir',
   },
 }));
@@ -121,40 +121,40 @@ describe('reading global configuration', () => {
     expect(content.accounts).toBeDefined();
 
     expect(content.accounts.test1.email).toBe(
-      newContentCredentials.accounts.test1.email
+      newContentCredentials.accounts.test1.email,
     );
     expect(content.accounts.test1.avatar).toBe(
-      newContentCredentials.accounts.test1.avatar
+      newContentCredentials.accounts.test1.avatar,
     );
     expect(content.accounts.test1.region).toBe(
-      newContentCredentials.accounts.test1.region
+      newContentCredentials.accounts.test1.region,
     );
     expect(content.accounts.test1.current).toBe(
-      newContentCredentials.accounts.test1.current
+      newContentCredentials.accounts.test1.current,
     );
     expect(content.accounts.test1.fullname).toBe(
-      newContentCredentials.accounts.test1.fullname
+      newContentCredentials.accounts.test1.fullname,
     );
     expect(content.accounts.test1.api_token).toBe(
-      newContentCredentials.accounts.test1.api_token
+      newContentCredentials.accounts.test1.api_token,
     );
     expect(content.accounts.test2.email).toBe(
-      newContentCredentials.accounts.test2.email
+      newContentCredentials.accounts.test2.email,
     );
     expect(content.accounts.test2.avatar).toBe(
-      newContentCredentials.accounts.test2.avatar
+      newContentCredentials.accounts.test2.avatar,
     );
     expect(content.accounts.test2.region).toBe(
-      newContentCredentials.accounts.test2.region
+      newContentCredentials.accounts.test2.region,
     );
     expect(content.accounts.test2.current).toBe(
-      newContentCredentials.accounts.test2.current
+      newContentCredentials.accounts.test2.current,
     );
     expect(content.accounts.test2.fullname).toBe(
-      newContentCredentials.accounts.test2.fullname
+      newContentCredentials.accounts.test2.fullname,
     );
     expect(content.accounts.test2.api_token).toBe(
-      newContentCredentials.accounts.test2.api_token
+      newContentCredentials.accounts.test2.api_token,
     );
   });
   test('not only .liara-auth.json not exists but also .liara.json not exists too', async () => {
@@ -196,10 +196,10 @@ describe('reading global configuration', () => {
     expect(content.accounts).toBeDefined();
     expect(content.accounts[accountName]).toBeDefined();
     expect(content.accounts[accountName].api_token).toBe(
-      oldContentCredentialsLogin.api_token
+      oldContentCredentialsLogin.api_token,
     );
     expect(content.accounts[accountName].region).toBe(
-      oldContentCredentialsLogin.region
+      oldContentCredentialsLogin.region,
     );
     expect(content.accounts[accountName].fullname).toBe(data.user.fullname);
     expect(content.accounts[accountName].email).toBe(data.user.email);
@@ -234,21 +234,21 @@ describe('reading global configuration', () => {
     expect(content.accounts['user1'].avatar).toBe(data.user.avatar);
     expect(content.accounts['user1'].fullname).toBe(data.user.fullname);
     expect(content.accounts['user1'].api_token).toBe(
-      oldContentCredentialsAccounts.accounts.user1.api_token
+      oldContentCredentialsAccounts.accounts.user1.api_token,
     );
     expect(content.accounts['user1'].email).toBe(data.user.email);
     expect(content.accounts['user1'].region).toBe(
-      oldContentCredentialsAccounts.accounts.user1.region
+      oldContentCredentialsAccounts.accounts.user1.region,
     );
     expect(content.accounts['user2'].current).toBe(false);
     expect(content.accounts['user2'].avatar).toBe(data.user.avatar);
     expect(content.accounts['user2'].fullname).toBe(data.user.fullname);
     expect(content.accounts['user2'].api_token).toBe(
-      oldContentCredentialsAccounts.accounts.user2.api_token
+      oldContentCredentialsAccounts.accounts.user2.api_token,
     );
     expect(content.accounts['user2'].email).toBe(data.user.email);
     expect(content.accounts['user2'].region).toBe(
-      oldContentCredentialsAccounts.accounts.user2.region
+      oldContentCredentialsAccounts.accounts.user2.region,
     );
   });
 });
