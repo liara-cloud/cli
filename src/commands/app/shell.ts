@@ -41,7 +41,7 @@ export default class AppShell extends Command {
     const config = this.getMergedConfig(flags);
     const CTRL_Q = '\u0011';
 
-    await this.setGotConfig(config, API_IR_URL);
+    await this.setGotConfig(config);
 
     const app = config.app || (await this.promptProject());
     const wsURL = API_IR_URL.replace('https://', 'wss://');

@@ -257,10 +257,7 @@ Please check your network connection.`);
     this.error(error.message);
   }
 
-  async setGotConfig(
-    config: IConfig,
-    baseURL: string | null = null,
-  ): Promise<void> {
+  async setGotConfig(config: IConfig): Promise<void> {
     const gotConfig: Partial<ExtendOptions> = {
       headers: {
         'User-Agent': this.config.userAgent,
@@ -307,10 +304,6 @@ Please check your network connection.`);
 
     const actualBaseURL = REGIONS_API_URL[config.region];
     gotConfig.prefixUrl = DEV_MODE ? 'http://localhost:3000' : actualBaseURL;
-
-    if (baseURL) {
-      gotConfig.prefixUrl = baseURL;
-    }
 
     if (DEV_MODE) {
       this.log(`[dev] The actual base url is: ${actualBaseURL}`);

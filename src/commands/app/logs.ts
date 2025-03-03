@@ -71,12 +71,16 @@ export default class AppLogs extends Command {
 
     this.debug = createDebugLogger(flags.debug);
 
-    await this.setGotConfig(flags, API_IR_URL);
+    await this.setGotConfig(flags);
 
     const projectConfig = this.readProjectConfig(process.cwd());
 
     const project =
       flags.app || projectConfig.app || (await this.promptProject());
+
+    this.got = this.got.extend({
+      prefixUrl: API_IR_URL,
+    });
 
     const {
       project: { planID, bundlePlanID, network },
