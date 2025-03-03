@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import Command from '../../base.js';
 import { Flags, Errors } from '@oclif/core';
 import ILiaraJSON from '../../types/liara-json.js';
-import { REGIONS_API_URL, FALLBACK_REGION } from '../../constants.js';
+import { API_IR_URL } from '../../constants.js';
 import { createWebSocketStream } from 'ws';
 
 interface IFlags {
@@ -41,13 +41,10 @@ export default class AppShell extends Command {
     const config = this.getMergedConfig(flags);
     const CTRL_Q = '\u0011';
 
-    await this.setGotConfig(config);
+    await this.setGotConfig(config, API_IR_URL);
 
     const app = config.app || (await this.promptProject());
-    const wsURL = REGIONS_API_URL[config.region || FALLBACK_REGION].replace(
-      'https://',
-      'wss://',
-    );
+    const wsURL = API_IR_URL.replace('https://', 'wss://');
 
     const teamID = flags['team-id'] ? flags['team-id'] : '';
     const ws = this.createProxiedWebsocket(

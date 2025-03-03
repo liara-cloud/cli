@@ -11,6 +11,7 @@ import Command, { IProjectDetailsResponse } from '../../base.js';
 import ILiaraJSON from '../../types/liara-json.js';
 import { createDebugLogger } from '../../utils/output.js';
 import { BundlePlanError } from '../../errors/bundle-plan.js';
+import { API_IR_URL } from '../../constants.js';
 
 interface Entry {
   metaData: {
@@ -70,7 +71,7 @@ export default class AppLogs extends Command {
 
     this.debug = createDebugLogger(flags.debug);
 
-    await this.setGotConfig(flags);
+    await this.setGotConfig(flags, API_IR_URL);
 
     const projectConfig = this.readProjectConfig(process.cwd());
 
@@ -170,7 +171,7 @@ export default class AppLogs extends Command {
       this.debug(error.response.body ? error.response.body : error.response);
       const genericErrorMessage: string = `'We encountered an issue and were unable to retrieve the logs.
        Solutions:
-       1) Check console logs from https://console.liara.ir/apps/${appName}/logs 
+       1) Check console logs from https://console.liara.ir/apps/${appName}/logs
        2) Try ' liara logs -f --since="1 minute ago" ' command to see app logs.
        3) Enable --debug for more details.
        4) Try again later.

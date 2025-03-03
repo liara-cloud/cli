@@ -8,9 +8,11 @@ export const GLOBAL_CONF_PATH = path.join(os.homedir(), '.liara-auth.json');
 export const GLOBAL_CONF_VERSION = '1';
 
 export const REGIONS_API_URL: { [key: string]: string } = {
-  iran: 'https://api.iran.liara.ir',
+  iran: 'https://api.liara.ir',
   germany: 'https://api.liara.ir',
 };
+
+export const API_IR_URL = 'https://api.iran.liara.ir';
 
 export const IAAS_API_URL = 'https://iaas-api.liara.ir';
 
