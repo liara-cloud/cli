@@ -16,11 +16,11 @@ export const API_IR_URL = 'https://api.iran.liara.ir';
 
 export const IAAS_API_URL = 'https://iaas-api.liara.ir';
 
-export const MAIL_SERVICE_URL = 'https://mail-service.iran.liara.ir';
+export const MAIL_SERVICE_URL = 'https://mail-service.liara.ir';
 
 export const MAIL_SERVICE_URL_DEV = 'http://localhost:6336';
 
-export const OBJECT_STORAGE_API_URL = 'https://storage-service.iran.liara.ir';
+export const OBJECT_STORAGE_API_URL = 'https://storage-service.liara.ir';
 
 export const OBJECT_STORAGE_API_URL_DEV = 'http://localhost:3001';
 
