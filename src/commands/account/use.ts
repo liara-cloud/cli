@@ -16,7 +16,7 @@ export default class AccountUse extends Command {
   async run() {
     const { flags } = await this.parse(AccountUse);
     const liara_json = await this.readGlobalConfig();
-    console.log(liara_json);
+
     if (
       !liara_json ||
       !liara_json.accounts ||
