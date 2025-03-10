@@ -3,7 +3,7 @@ import nock from 'nock';
 import { expect } from 'chai';
 import { networks } from '../../fixtures/networks/fixture.ts';
 
-describe.skip('app:create', function () {
+describe('app:create', function () {
   const api = nock('https://api.iran.liara.ir');
 
   beforeEach(() => {
@@ -15,7 +15,7 @@ describe.skip('app:create', function () {
     nock.cleanAll();
   });
 
-  it.skip('creates an app with the specified flags', async () => {
+  it('creates an app with the specified flags', async () => {
     api
       .post('/v1/projects/', {
         name: 'test-app',
@@ -47,7 +47,7 @@ describe.skip('app:create', function () {
     expect(stdout).to.equal(`App test-app created.\n`);
   });
 
-  it.skip('throws an error if app name already exists', async () => {
+  it('throws an error if app name already exists', async () => {
     api
       .post('/v1/projects/', {
         name: 'test-app',
@@ -86,7 +86,7 @@ describe.skip('app:create', function () {
     );
   });
 
-  it.skip('throws an error if the network is not found', async () => {
+  it('throws an error if the network is not found', async () => {
     const { error } = await runCommand([
       'app:create',
       '--app',
@@ -106,7 +106,7 @@ describe.skip('app:create', function () {
     expect(error?.message).to.equal('Network not-found not found.');
   });
 
-  it.skip('thorws an error if user select a feature plan that is not available for free plan', async () => {
+  it('thorws an error if user select a feature plan that is not available for free plan', async () => {
     const { error } = await runCommand([
       'app:create',
       '--app',
@@ -128,7 +128,7 @@ describe.skip('app:create', function () {
     );
   });
 
-  it.skip('throws an error if the user does not have enough balance', async () => {
+  it('throws an error if the user does not have enough balance', async () => {
     api
       .post('/v1/projects/', {
         name: 'test-app',

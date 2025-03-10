@@ -1,7 +1,7 @@
 import { runCommand } from '@oclif/test';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { accounts } from '../../fixtures/accounts/fixture.ts';
+import { accounts, currentAccounts } from '../../fixtures/accounts/fixture.ts';
 import Login from '../../../src/commands/login.ts';
 import fs from 'fs-extra';
 import path from 'path';
@@ -28,7 +28,7 @@ describe('login', async () => {
     sinon.restore();
   });
 
-  it('should write account infos if .liara-auth.json is empty', async () => {
+  it('should create a new config file with accounts when none exist', async () => {
     sinon
       .stub(Login.prototype, 'readGlobalConfig')
       .resolves({ version: '1', accounts: {} });
@@ -55,7 +55,6 @@ describe('login', async () => {
       },
       version: '1',
     });
-
     expect(
       fsStub.calledWithExactly(
         path.join(os.homedir(), '.liara-auth.json'),
@@ -64,20 +63,15 @@ describe('login', async () => {
     ).to.be.true;
   });
 
-  it('should write account infos if .liara-auth.json is not empty', async () => {
-    const accountObj = accounts.slice(2, 4).reduce((acc, account) => {
-      acc[`${account.email.split('@')[0]}_${account.region}`] = account;
-      return acc;
-    }, {});
-
+  it('should merge new accounts into existing config without overwriting', async () => {
     sinon
       .stub(Login.prototype, 'readGlobalConfig')
-      .resolves({ version: '1', accounts: accountObj });
+      .resolves({ version: '1', accounts: currentAccounts });
 
     await runCommand(['login']);
 
     const expectedAccounts = {
-      ...accountObj,
+      ...currentAccounts,
       [`${accounts[0].email.split('@')[0]}_${accounts[0].region}`]: {
         email: accounts[0].email,
         region: accounts[0].region,
@@ -120,7 +114,7 @@ describe('login', async () => {
 
     expect(AccountUseStub.calledWithExactly(currentAccountName));
   });
-  it('should pass the flags to account add command if -i flag is used', async () => {
+  it('should delegate credentials to account:add in interactive mode (-i)', async () => {
     await runCommand([
       'login',
       '-i',
