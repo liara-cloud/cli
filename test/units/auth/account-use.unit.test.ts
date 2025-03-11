@@ -15,15 +15,15 @@ describe('account:use', async () => {
   beforeEach(async () => {
     fsStub = sinon.stub(fs, 'writeFileSync');
     promptAccount = sinon.stub(AccountUse.prototype, 'promptName');
-    liaraAuthConfigFile = sinon
-      .stub(AccountUse.prototype, 'readGlobalConfig')
-      .resolves({ version: '1', accounts: currentAccounts });
+    liaraAuthConfigFile = sinon.stub(AccountUse.prototype, 'readGlobalConfig');
   });
 
   afterEach(async () => {
     sinon.restore();
   });
   it('should throw an error when the specified account does not exist', async () => {
+    liaraAuthConfigFile.resolves({ version: '1', accounts: currentAccounts });
+
     const { error } = await runCommand([
       'account:use',
       '--account',
@@ -36,6 +36,8 @@ describe('account:use', async () => {
   });
 
   it('should switch the current account and persist changes to config', async () => {
+    liaraAuthConfigFile.resolves({ version: '1', accounts: currentAccounts });
+
     const { error } = await runCommand([
       'account:use',
       '--account',
@@ -54,5 +56,19 @@ describe('account:use', async () => {
       ),
     ).to.be.true;
     expect(error).to.be.undefined;
+  });
+
+  it('should throw an error if .liara-auth.json does not exist', async () => {
+    liaraAuthConfigFile.resolves(undefined);
+
+    const { error } = await runCommand([
+      'account:use',
+      '--account',
+      'test4_iran',
+    ]);
+
+    expect(error?.message).to.equal(
+      "Please add your accounts via 'liara account:add' command, first.",
+    );
   });
 });
