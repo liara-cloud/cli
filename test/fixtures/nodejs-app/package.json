@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "simple web server with expressjs",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
+  "scripts": {},
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1"
