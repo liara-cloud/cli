@@ -3,6 +3,7 @@ import sinon from 'sinon';
 import { runCommand } from '@oclif/test';
 import deploy from '../../../src/commands/deploy.ts';
 import nock from 'nock';
+import { projects, getNodeProject } from '../../fixtures/projects/fixture.ts';
 
 describe('deploy', () => {
   const api = nock('https://api.iran.liara.ir');
@@ -44,6 +45,25 @@ describe('deploy', () => {
 
     expect(error?.message).to.equal(
       '`cache` parameter field must be a boolean.',
+    );
+  });
+
+  it('should throw an error if platform is node and start command is not provided in package.json.', async () => {
+    getConfigs.returns({
+      platform: 'node',
+      path: 'test/fixtures/nodejs-app',
+      app: getNodeProject.project.project_id,
+    });
+
+    api
+      .get(`/v1/projects/${getNodeProject.project.project_id}`)
+      .query({ teamID: '' })
+
+      .reply(200, getNodeProject);
+
+    const { stdout } = await runCommand(['deploy', '--debug']);
+    expect(stdout).to.contains(
+      `Error: A NodeJS app must be runnable with 'npm start'`,
     );
   });
 });
