@@ -21,13 +21,13 @@ export const projects: IGetProjectsResponse = {
     },
     {
       _id: '64c7f1a2b3e8c91d0e5f7b2c',
-      project_id: 'proj67890',
+      project_id: 'testdocker',
       type: 'docker',
-      status: 'INACTIVE',
+      status: 'ACTIVE',
       scale: 1,
-      planID: 'small-g2',
+      planID: 'medium-g2',
       bundlePlanID: 'standard',
-      created_at: '2023-10-01T09:15:30Z',
+      created_at: '2025-03-16T10:00:19.277Z',
       isDeployed: false,
       network: {
         _id: '64c7f1a2b3e8c91d0e5f7b2d',
@@ -59,5 +59,30 @@ export const getNodeProject: IProjectDetailsResponse = {
     hourlyPrice: 137.5,
     isDeployed: true,
     reservedDiskSpace: 0,
+  },
+};
+
+export const getDockerProject: IProjectDetailsResponse = {
+  project: {
+    _id: '65435435432565kihvudoifjoip',
+    project_id: 'testdocker',
+    type: 'docker',
+    status: 'ACTIVE',
+    readOnlyRootFilesystem: false,
+    defaultSubdomain: true,
+    zeroDowntime: true,
+    scale: 1,
+    envs: [],
+    planID: 'medium-g2',
+    bundlePlanID: 'standard',
+    network: {
+      _id: '64c7f1a2b3e8c91d0e5f7b2d',
+      name: 'network-xyz789',
+    },
+    created_at: '2025-03-16T10:00:19.277Z',
+    hourlyPrice: 206.9,
+    isDeployed: false,
+    fixedIPStatus: 'ACTIVE',
+    reservedDiskSpace: 2,
   },
 };
