@@ -1,13 +1,13 @@
 import { runCommand } from '@oclif/test';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { accounts, currentAccounts } from '../../fixtures/accounts/fixture.ts';
-import Login from '../../../src/commands/login.ts';
+import { accounts, currentAccounts } from '../fixtures/accounts/fixture.ts';
+import Login from '../../src/commands/login.ts';
 import fs from 'fs-extra';
 import path from 'path';
 import os from 'node:os';
-import AccountUse from '../../../src/commands/account/use.ts';
-import AccountAdd from '../../../src/commands/account/add.ts';
+import AccountUse from '../../src/commands/account/use.ts';
+import AccountAdd from '../../src/commands/account/add.ts';
 
 describe('login', async () => {
   let fsStub: sinon.SinonStub;

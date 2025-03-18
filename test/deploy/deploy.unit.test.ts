@@ -1,13 +1,13 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { runCommand } from '@oclif/test';
-import deploy from '../../../src/commands/deploy.ts';
+import deploy from '../../src/commands/deploy.ts';
 import nock from 'nock';
 import {
   projects,
   getNodeProject,
   getDockerProject,
-} from '../../fixtures/projects/fixture.ts';
+} from '../fixtures/projects/fixture.ts';
 
 describe('deploy', () => {
   const api = nock('https://api.iran.liara.ir');

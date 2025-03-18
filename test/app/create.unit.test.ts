@@ -1,7 +1,7 @@
 import { runCommand } from '@oclif/test';
 import nock from 'nock';
 import { expect } from 'chai';
-import { networks } from '../../fixtures/networks/fixture.ts';
+import { networks } from '../fixtures/networks/fixture.ts';
 
 describe('app:create', function () {
   const api = nock('https://api.iran.liara.ir');
