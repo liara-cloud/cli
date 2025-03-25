@@ -21,9 +21,6 @@ describe('create-archive', async () => {
   it('should create an archive and ignore files and directories listed in .gitignore', async () => {
     const sourcePath = prepareTmpDirectory();
 
-    fs.writeFileSync('test/fixtures/simple-gitignore/ignore_1.html', 'test');
-    fs.writeFileSync('test/fixtures/simple-gitignore/ignore_2.html', 'test');
-
     const originFiles = getAllFiles('test/fixtures/simple-gitignore');
 
     await createArchive(sourcePath, 'test/fixtures/simple-gitignore', 'php');
@@ -37,10 +34,10 @@ describe('create-archive', async () => {
 
     const extractedFiles = getAllFiles(`${sourcePath}-dir`);
 
-    expect(extractedFiles).to.deep.equal(
-      originFiles.filter(
-        (val) => val != 'ignore_1.html' && val != 'ignore_2.html',
-      ),
+    expect(extractedFiles.sort()).to.deep.equal(
+      originFiles
+        .filter((val) => val != 'ignore_1.html' && val != 'ignore_2.html')
+        .sort(),
     );
   });
 
@@ -60,10 +57,10 @@ describe('create-archive', async () => {
 
     const extractedFiles = getAllFiles(`${sourcePath}-dir`);
 
-    expect(extractedFiles).to.deep.equal(
-      originFiles.filter(
-        (val) => val != 'ignore_1.html' && val != 'ignore_2.html',
-      ),
+    expect(extractedFiles.sort()).to.deep.equal(
+      originFiles
+        .filter((val) => val != 'ignore_1.html' && val != 'ignore_2.html')
+        .sort(),
     );
   });
 
@@ -83,13 +80,15 @@ describe('create-archive', async () => {
 
     const extractedFiles = getAllFiles(`${sourcePath}-dir`);
 
-    expect(extractedFiles).to.deep.equal(
-      originFiles.filter(
-        (val) =>
-          val != 'ignore_1.html' &&
-          val != 'ignore_2.html' &&
-          val != '.dockerignore',
-      ),
+    expect(extractedFiles.sort()).to.deep.equal(
+      originFiles
+        .filter(
+          (val) =>
+            val != 'ignore_1.html' &&
+            val != 'ignore_2.html' &&
+            val != '.dockerignore',
+        )
+        .sort(),
     );
   });
 
@@ -112,8 +111,6 @@ describe('create-archive', async () => {
   it('should ignore files listed in .liaraignore and disregard .gitignore and .dockerignore if present', async () => {
     const sourcePath = prepareTmpDirectory();
 
-    fs.writeFileSync('test/fixtures/simple-gitignore/ignore_2.html', 'test');
-
     const originFiles = getAllFiles('test/fixtures/multiple-ignores');
 
     await createArchive(sourcePath, 'test/fixtures/multiple-ignores', 'php');
@@ -127,10 +124,10 @@ describe('create-archive', async () => {
 
     const extractedFiles = getAllFiles(`${sourcePath}-dir`);
 
-    expect(extractedFiles).to.deep.equal(
-      originFiles.filter(
-        (val) => val != 'ignore_1.html' && val != '.dockerignore',
-      ),
+    expect(extractedFiles.sort()).to.deep.equal(
+      originFiles
+        .filter((val) => val != 'ignore_1.html' && val != '.dockerignore')
+        .sort(),
     );
   });
 
@@ -150,10 +147,10 @@ describe('create-archive', async () => {
 
     const extractedFiles = getAllFiles(`${sourcePath}-dir`);
 
-    expect(extractedFiles).to.deep.equal(
-      originFiles.filter(
-        (val) => val != 'ignore.me' && val != 'sub1/hello.html',
-      ),
+    expect(extractedFiles.sort()).to.deep.equal(
+      originFiles
+        .filter((val) => val != 'ignore.me' && val != 'sub1/hello.html')
+        .sort(),
     );
   });
 
