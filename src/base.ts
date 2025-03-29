@@ -77,6 +77,10 @@ export interface IProject {
   project_id: string;
   created_at: string;
   isDeployed: boolean;
+  network?: {
+    _id: string;
+    name: string;
+  };
 }
 
 export interface IGetProjectsResponse {
@@ -123,14 +127,14 @@ export interface IProjectDetails {
   bundlePlanID: string;
   fixedIPStatus: string;
   created_at: string;
-  node: {
-    _id: string;
-    IP: string;
-  };
   hourlyPrice: number;
   isDeployed: boolean;
   reservedDiskSpace: number;
-  network: string;
+  readOnlyRootFilesystem: boolean;
+  network: {
+    _id: string;
+    name: string;
+  };
 }
 
 export interface IProjectDetailsResponse {

@@ -7,6 +7,7 @@ import AccountAdd from './account/add.js';
 import AccountUse from './account/use.js';
 import { createDebugLogger } from '../utils/output.js';
 import { GLOBAL_CONF_PATH, GLOBAL_CONF_VERSION } from '../constants.js';
+import ora from 'ora';
 
 export default class Login extends Command {
   static description = 'login to your account';
@@ -26,6 +27,7 @@ export default class Login extends Command {
   };
 
   async run() {
+    this.spinner = ora();
     const { flags } = await this.parse(Login);
     const debug = createDebugLogger(flags.debug);
 
@@ -75,7 +77,7 @@ export default class Login extends Command {
           JSON.stringify({
             accounts: currentAccounts,
             version: GLOBAL_CONF_VERSION,
-          })
+          }),
         );
 
         this.spinner.succeed('You have logged in successfully.');
@@ -93,7 +95,7 @@ export default class Login extends Command {
         debug(`${error.message}\n`);
 
         this.spinner.fail(
-          'Cannot open browser. Browser unavailable or lacks permissions.'
+          'Cannot open browser. Browser unavailable or lacks permissions.',
         );
       }
     }
