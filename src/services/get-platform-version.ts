@@ -168,7 +168,7 @@ function getPythonVersion(projectPath: string, debug: DebugLogger) {
 }
 
 function getNodeVersion(projectPath: string, debug: DebugLogger) {
-  const supportedNodeVersion = ['14', '16', '18', '20'];
+  const supportedNodeVersion = ['8', '10', '12', '14', '16', '18', '20'];
 
   const packageJson = path.join(projectPath, 'package.json');
   const packageJsonData = fs.readJsonSync(packageJson);
@@ -287,6 +287,7 @@ async function getRequiredDotNetVersion(
     '6.0',
     '7.0',
     '8.0',
+    '9.0',
   ];
 
   try {
