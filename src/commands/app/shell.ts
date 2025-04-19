@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'fs-extra';
-import Command from '../../base.js';
+import Command, { IGetProjectsResponse } from '../../base.js';
 import { Flags, Errors } from '@oclif/core';
 import ILiaraJSON from '../../types/liara-json.js';
 import { API_IR_URL } from '../../constants.js';
@@ -42,6 +42,24 @@ export default class AppShell extends Command {
     await this.setGotConfig(config);
 
     const app = config.app || (await this.promptProject());
+
+    // This is a temporary piece of code to check if the app is compatible with the new infrastructure
+    // and if not, it will show an error message and exit the process.
+    // This will be removed in the future.
+    const projects = await this.got('v1/projects').json();
+    const project = (projects as IGetProjectsResponse).projects.find(
+      (project) => project.project_id === app,
+    );
+    if (!project!.network) {
+      console.error(
+        '❌ This version of Liara CLI no longer supports apps running on the old infrastructure.\n' +
+          '➡️  Please migrate your app to the new infrastructure or use an older version of the CLI.\n\n' +
+          '🔧 To install the last supported version:\n' +
+          '   $ npm i -g @liara/cli@8.1.0\n',
+      );
+      process.exit(1);
+    }
+
     const wsURL = API_IR_URL.replace('https://', 'wss://');
 
     const teamID = flags['team-id'] ? flags['team-id'] : '';
