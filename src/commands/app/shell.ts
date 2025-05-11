@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import Command, { IGetProjectsResponse } from '../../base.js';
 import { Flags, Errors } from '@oclif/core';
 import ILiaraJSON from '../../types/liara-json.js';
-import { API_IR_URL } from '../../constants.js';
+import { API_IR_URL, DEV_MODE } from '../../constants.js';
 
 interface IFlags {
   path?: string;
@@ -45,7 +45,7 @@ export default class AppShell extends Command {
 
     // This is a temporary piece of code to check if the app is compatible with the new infrastructure
     // and if not, it will show an error message and exit the process.
-    // This will be removed in the future.
+    // This will be removed in the future. #OLD_INFRASTRUCTURE
     const projects = await this.got('v1/projects').json();
     const project = (projects as IGetProjectsResponse).projects.find(
       (project) => project.project_id === app,
@@ -60,7 +60,9 @@ export default class AppShell extends Command {
       process.exit(1);
     }
 
-    const wsURL = API_IR_URL.replace('https://', 'wss://');
+    const wsURL = !DEV_MODE
+      ? API_IR_URL.replace('https://', 'wss://')
+      : 'ws://localhost:3000';
 
     const teamID = flags['team-id'] ? flags['team-id'] : '';
     const ws = this.createProxiedWebsocket(

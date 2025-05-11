@@ -78,24 +78,28 @@ export default class AppLogs extends Command {
     const project =
       flags.app || projectConfig.app || (await this.promptProject());
 
-    this.got = this.got.extend({
-      prefixUrl: API_IR_URL,
-    });
-
     const {
       project: { planID, bundlePlanID, network },
     } = await this.got(
       `v1/projects/${project}`,
     ).json<IProjectDetailsResponse>();
 
+    // #OLD_INFRASTRUCTURE
+    if (!network) {
+      console.error(
+        '❌ This version of Liara CLI no longer supports apps running on the old infrastructure.\n' +
+          '➡️  Please migrate your app to the new infrastructure or use an older version of the CLI.\n\n' +
+          '🔧 To install the last supported version:\n' +
+          '   $ npm i -g @liara/cli@8.1.0\n',
+      );
+      process.exit(1);
+    }
+
     const { plans } = await this.got('v1/me').json<{ plans: any }>();
 
     const maxSince: number =
       now -
-      (network
-        ? plans.projectBundlePlans[planID][bundlePlanID].maxLogsRetention *
-          86400
-        : plans.projectBundlePlans.g1.default.maxLogsRetention * 86400);
+      plans.projectBundlePlans[planID][bundlePlanID].maxLogsRetention * 86400;
 
     let start: number = flags.since
       ? this.getStart(`${flags.since}`)
@@ -104,9 +108,7 @@ export default class AppLogs extends Command {
     if (start < maxSince) {
       console.error(
         new Errors.CLIError(
-          !network
-            ? BundlePlanError.legacy_max_logs_period()
-            : BundlePlanError.max_logs_period(bundlePlanID),
+          BundlePlanError.max_logs_period(bundlePlanID),
         ).render(),
       );
       process.exit(2);
