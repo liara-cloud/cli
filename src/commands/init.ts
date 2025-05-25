@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs-extra';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-import { Args, Config, Flags } from '@oclif/core';
+import { Flags } from '@oclif/core';
 
 import Command, { IProject } from '../base.js';
 import { getPort } from '../utils/get-port.js';
@@ -19,17 +19,17 @@ import IGetTeamsResponse from '../types/get-teams.js';
 import ITeam from '../types/team.js';
 import TeamNotFoundError from '../errors/team-error.js';
 
+type DiskConfig = { disk: string; path: string };
+
 export default class Init extends Command {
-  static override description = 'create a liara.json file';
+  static description = 'create a liara.json file';
+  static examples = ['<%= config.bin %> <%= command.id %>'];
 
-  static override examples = ['<%= config.bin %> <%= command.id %>'];
-
-  static override flags = {
+  static flags = {
     ...Command.flags,
     y: Flags.boolean({
       char: 'y',
       description: 'create an example file',
-      aliases: [],
     }),
     name: Flags.string({
       char: 'n',
@@ -62,69 +62,47 @@ export default class Init extends Command {
     }),
   };
 
-  public async run(): Promise<void> {
-    const { args, flags } = await this.parse(Init);
+  private async handleError(error: unknown, fallbackMessage: string): Promise<never> {
+    if (error instanceof TeamNotFoundError) {
+      throw error;
+    }
 
+    if (error instanceof Error && 'response' in error && error.response.statusCode === 401) {
+      throw new Error(`Authentication failed.  
+Please log in using the 'liara login' command.
+
+If you are using an API token for authentication, please consider updating your API token.  
+You can still create a sample 'liara.json' file using the 'liara init -y' command.`);
+    }
+
+    throw new Error(fallbackMessage);
+  }
+
+  public async run(): Promise<void> {
     try {
+      const { flags } = await this.parse(Init);
       await this.setGotConfig(flags);
 
-      this.log(
-        chalk.yellow(`This command interactively creates a basic liara.json configuration file.
-It includes only the essential settings; additional configurations must be added manually.
-📚 For more details on each field and its usage, visit: https://docs.liara.ir/paas/liarajson/.
-
-Afterwards, use liara deploy to deploy your app.
-
-🔑 Press ^C at any time to quit.
-`),
-      );
-
-      this.spinner = ora();
+      this.showWelcomeMessage();
 
       if (flags.y) {
-        try {
-          const dirName = path.basename(process.cwd());
-
-          const platform = detectPlatform(process.cwd());
-          const diskConfig: { disk: string; path: string }[] = [];
-          const configs = this.setLiaraJsonConfigs(
-            getPort(platform) || 3000,
-            dirName,
-            'iran',
-            platform,
-            supportedVersions(platform)?.defaultVersion,
-            diskConfig,
-          );
-          await this.createLiaraJsonFile(configs);
-
-          this.exit(0);
-        } catch (error) {
-          this.spinner.stop();
-          throw error;
-        }
+        await this.createExampleConfig();
+        return;
       }
+
       const team = await this.getTeam(flags['team-id']);
-      const projects = await this.getPlatformsInfo();
+      const projects = await this.getProjects();
       const appName = await this.promptProjectName(projects, flags.name);
-      const buildLocation = await this.buildLocationPrompt(
-        flags['build-location'],
-      );
-      const platform = await this.findPlatform(
-        projects,
-        appName,
-        flags.platform,
-      );
-      const port = await this.getAppPort(platform, flags.port, projects);
+      const buildLocation = await this.promptBuildLocation(flags['build-location']);
+      const platform = await this.determinePlatform(projects, appName, flags.platform);
+      const port = await this.determinePort(platform, flags.port, projects);
       const version = await this.promptPlatformVersion(platform, flags.version);
       const disks = await this.getAppDisks(appName, projects);
-      const diskConfigs = await this.promptDiskConfig(
-        disks,
-        flags.disk,
-        flags.path,
-      );
+      const diskConfigs = await this.promptDiskConfig(disks, flags.disk, flags.path);
       const cron = await this.promptCron(platform);
       const healthCheck = await this.promptHealthCheck();
-      const configs = this.setLiaraJsonConfigs(
+
+      const configs = this.buildConfigObject(
         port,
         appName,
         buildLocation,
@@ -133,445 +111,379 @@ Afterwards, use liara deploy to deploy your app.
         diskConfigs,
         healthCheck,
         cron,
-        team,
+        team
       );
 
       await this.createLiaraJsonFile(configs);
     } catch (error) {
-      this.spinner.stop();
+      this.spinner?.stop();
       throw error;
     }
   }
 
-  async getPlatformsInfo(): Promise<IProject[]> {
+  private showWelcomeMessage(): void {
+    this.log(chalk.yellow(`This command interactively creates a basic liara.json configuration file.
+It includes only the essential settings; additional configurations must be added manually.
+📚 For more details on each field and its usage, visit: https://docs.liara.ir/paas/liarajson/.
+
+Afterwards, use liara deploy to deploy your app.
+
+🔑 Press ^C at any time to quit.`));
+  }
+
+  private async createExampleConfig(): Promise<void> {
     try {
-      this.spinner.start('Loading...');
+      const dirName = path.basename(process.cwd());
+      const platform = detectPlatform(process.cwd());
+      const configs = this.buildConfigObject(
+        getPort(platform) || 3000,
+        dirName,
+        'iran',
+        platform,
+        supportedVersions(platform)?.defaultVersion
+      );
+      await this.createLiaraJsonFile(configs);
+    } catch (error) {
+      this.spinner?.stop();
+      throw error;
+    }
+  }
 
-      const { projects } =
-        await this.got('v1/projects').json<IGetProjectsResponse>();
-
-      this.spinner.stop();
+  private async getProjects(): Promise<IProject[]> {
+    this.spinner = ora('Loading...').start();
+    
+    try {
+      const { projects } = await this.got('v1/projects').json<IGetProjectsResponse>();
+      this.spinner?.stop();
       return projects as IProject[];
     } catch (error) {
-      if (error.response && error.response.statusCode === 401) {
-        throw new Error(`Authentication failed.  
-Please log in using the 'liara login' command.
-
-If you are using an API token for authentication, please consider updating your API token.  
-You can still create a sample 'liara.json' file using the 'liara init -y' command.
-`);
-      }
-
-      throw new Error(`There was something wrong while fetching your apps,
+      this.spinner?.stop();
+      return this.handleError(error, `There was something wrong while fetching your apps,
         You can still use 'liara init' with its flags. Use 'liara init --help' for more details.`);
     }
   }
-  async promptProjectName(
-    projects: IProject[],
-    flagValue: string | undefined,
-  ): Promise<string> {
-    if (flagValue) {
-      return flagValue;
-    }
 
-    if (projects.length == 0) {
-      const { project } = (await inquirer.prompt({
+  private async promptProjectName(
+    projects: IProject[],
+    flagValue?: string
+  ): Promise<string> {
+    if (flagValue) return flagValue;
+
+    if (projects.length === 0) {
+      const { project } = await inquirer.prompt<{ project: string }>({
         name: 'project',
         type: 'input',
         message: 'Enter app name:',
-      })) as { project: string };
+      });
       return project;
     }
 
-    const { project } = (await inquirer.prompt({
+    const { project } = await inquirer.prompt<{ project: string }>({
       name: 'project',
       type: 'list',
       message: 'Select an app:',
-      choices: [...projects.map((project) => project.project_id)],
-    })) as { project: string };
+      choices: projects.map(p => p.project_id),
+    });
     return project;
   }
 
-  async findPlatform(
+  private async determinePlatform(
     projects: IProject[],
     appName: string,
-    flagsValue: string | undefined,
+    flagValue?: string
   ): Promise<string> {
-    if (projects.length == 0) {
-      const platform = await this.promptPlatform();
-      return platform;
-    }
+    if (flagValue) return flagValue;
+    if (projects.length === 0) return this.promptPlatform();
 
-    if (flagsValue) {
-      return flagsValue;
-    }
-
-    const project = projects.find((project) => {
-      return project.project_id === appName;
-    });
-
-    if (!project) {
-      return 'static';
-    }
-    return project!.type;
+    const project = projects.find(p => p.project_id === appName);
+    return project?.type || 'static';
   }
 
-  async getAppPort(
+  private async determinatePort(
     platform: string,
-    flagValue: number | undefined,
-    projects: IProject[],
+    flagValue?: number,
+    projects?: IProject[]
   ): Promise<number> {
-    if (flagValue) {
-      return flagValue;
-    }
-
+    if (flagValue) return flagValue;
+    
     const defaultPort = getPort(platform);
-
-    if (!defaultPort) {
-      const port = await promptPort(platform);
-      return port;
-    }
-    return defaultPort;
+    return defaultPort ?? promptPort(platform);
   }
 
-  async buildLocationPrompt(flagValue: string | undefined): Promise<string> {
-    if (flagValue) {
-      return flagValue;
-    }
+  private async promptBuildLocation(flagValue?: string): Promise<string> {
+    if (flagValue) return flagValue;
 
-    const { location } = (await inquirer.prompt({
+    const { location } = await inquirer.prompt<{ location: string }>({
       message: 'Specify the build location: ',
       name: 'location',
       type: 'list',
       default: 'iran',
       choices: ['iran', 'germany'],
-    })) as { location: string };
+    });
     return location;
   }
 
-  async promptPlatformVersion(
+  private async promptPlatformVersion(
     platform: string,
-    flagValue: string | undefined,
+    flagValue?: string
   ): Promise<string | undefined> {
-    if (flagValue) {
-      return flagValue;
-    }
+    if (flagValue) return flagValue;
 
     const versions = supportedVersions(platform);
+    if (!versions) return undefined;
 
-    if (versions) {
-      let message: string | undefined;
-      if (['flask', 'django'].includes(platform)) {
-        message = 'Select python version';
-      }
+    const messages: Record<string, string> = {
+      flask: 'Select python version',
+      django: 'Select python version',
+      laravel: 'Select php version',
+      next: 'Select node version',
+    };
 
-      if (platform === 'laravel') {
-        message = 'Select php version';
-      }
-
-      if (platform === 'next') {
-        message = 'Select node version';
-      }
-
-      if (!message) {
-        message = `Selcet ${platform} version: `;
-      }
-
-      const { version } = (await inquirer.prompt({
-        message: message || 'Select platform version',
-        name: 'version',
-        type: 'list',
-        default: versions.defaultVersion,
-        choices: versions.allVersions,
-      })) as { version: string };
-      return version;
-    }
+    const { version } = await inquirer.prompt<{ version: string }>({
+      message: messages[platform] || `Select ${platform} version:`,
+      name: 'version',
+      type: 'list',
+      default: versions.defaultVersion,
+      choices: versions.allVersions,
+    });
+    return version;
   }
 
-  async createLiaraJsonFile(configs: ILiaraJSON) {
+  private async createLiaraJsonFile(configs: ILiaraJSON): Promise<void> {
+    this.spinner = ora('Loading...').start();
+    
     try {
-      this.spinner.start('Loading...');
-
-      await fs.writeFile(
-        `${process.cwd()}/liara.json`,
-        JSON.stringify(configs, null, 2),
-      );
-      this.spinner.succeed('liara.json is successfully created!');
+      await fs.writeJson(`${process.cwd()}/liara.json`, configs, { spaces: 2 });
+      this.spinner?.succeed('liara.json is successfully created!');
     } catch (error) {
+      this.spinner?.stop();
       throw new Error('There was a problem while creating liara.json!');
     }
   }
 
-  setLiaraJsonConfigs(
+  private buildConfigObject(
     port: number,
     appName: string,
     buildLocation: string,
     platform: string,
-    platformVersion: string | undefined,
-    diskConfigs: { disk: string; path: string }[] | undefined,
-    healthCheck?: IHealthConfig | undefined,
-    cron?: string[] | undefined,
-    team?: ITeam | undefined,
+    platformVersion?: string,
+    diskConfigs?: DiskConfig[],
+    healthCheck?: IHealthConfig,
+    cron?: string[],
+    team?: ITeam
   ): ILiaraJSON {
-    const versionKey = this.setVersionKey(platform, platformVersion);
-
-    const configs: ILiaraJSON = {
+    const versionKey = this.getVersionKey(platform, platformVersion);
+    const config: ILiaraJSON = {
       port,
       platform,
       app: appName,
-      build: {
-        location: buildLocation,
-      },
+      build: { location: buildLocation },
     };
-    if (team) {
-      configs['team-id'] = team._id;
-    }
-    if (cron) {
-      configs['cron'] = cron;
-    }
-    if (healthCheck) {
-      configs['healthCheck'] = healthCheck;
-    }
-    if (platformVersion) {
-      (configs as Record<string, any>)[platform] = {
-        [versionKey!]: platformVersion,
-      };
+
+    if (team) config['team-id'] = team._id;
+    if (cron) config.cron = cron;
+    if (healthCheck) config.healthCheck = healthCheck;
+    
+    if (platformVersion && versionKey) {
+      (config as Record<string, any>)[platform] = { [versionKey]: platformVersion };
     }
 
     if (diskConfigs) {
-      configs['disks'] = diskConfigs.map((config) => {
-        return { name: config.disk, mountTo: config.path };
-      });
+      config.disks = diskConfigs.map(({ disk, path }) => ({ name: disk, mountTo: path }));
     }
-    return configs;
+
+    return config;
   }
 
-  setVersionKey(
-    platform: string,
-    platformVersion: string | undefined,
-  ): string | undefined {
-    if (platformVersion) {
-      if (['flask', 'django'].includes(platform)) {
-        return 'pythonVersion';
-      }
+  private getVersionKey(platform: string, version?: string): string | undefined {
+    if (!version) return undefined;
 
-      if (platform == 'laravel') {
-        return 'phpVersion';
-      }
+    const versionKeys: Record<string, string> = {
+      flask: 'pythonVersion',
+      django: 'pythonVersion',
+      laravel: 'phpVersion',
+      next: 'nodeVersion',
+    };
 
-      if (platform == 'next') {
-        return 'nodeVersion';
-      }
-      return 'version';
-    }
+    return versionKeys[platform] || 'version';
   }
-  async getTeam(teamId: string | undefined): Promise<ITeam | undefined> {
+
+  private async getTeam(teamId?: string): Promise<ITeam | undefined> {
+    this.spinner = ora('Loading...').start();
+    
     try {
-      this.spinner.start('Loading...');
-      const teams = await this.got(`v2/teams`).json<IGetTeamsResponse>();
-      this.spinner.stop();
+      const { teams } = await this.got('v2/teams').json<IGetTeamsResponse>();
+      this.spinner?.stop();
+
       if (teamId) {
-        const team = teams.teams.find((team) => team._id === teamId);
-        if (!team) {
-          throw new TeamNotFoundError(
-            `You don't have a team with ID '${teamId}'`,
-          );
-        }
+        const team = teams.find(t => t._id === teamId);
+        if (!team) throw new TeamNotFoundError(`You don't have a team with ID '${teamId}'`);
         return team;
       }
     } catch (error) {
-      if (error instanceof TeamNotFoundError) {
-        throw new Error(error.message);
-      }
-      if (error.response && error.response.statusCode === 401) {
-        throw new Error(`Authentication failed.  
-Please log in using the 'liara login' command.
-
-If you are using an API token for authentication, please consider updating your API token.  
-You can still create a sample 'liara.json' file using the 'liara init -y' command.
-`);
-      }
+      this.spinner?.stop();
+      return this.handleError(error, 'Failed to fetch teams');
     }
   }
-  async getAppDisks(
-    AppName: string,
-    projects: IProject[],
+
+  private async getAppDisks(
+    appName: string,
+    projects: IProject[]
   ): Promise<IDisk[] | undefined> {
+    if (projects.length === 0) return undefined;
+
+    this.spinner = ora('Loading...').start();
+    
     try {
-      if (projects.length != 0) {
-        this.spinner.start('Loading...');
+      const project = projects.find(p => p.project_id === appName);
+      if (!project) return undefined;
 
-        const project = projects.find((project) => {
-          return project.project_id === AppName;
-        });
-
-        const disks = await this.got(
-          `v1/projects/${project?._id}/disks`,
-        ).json<IGetDiskResponse>();
-
-        this.spinner.stop();
-        return disks.disks;
-      }
+      const { disks } = await this.got(`v1/projects/${project._id}/disks`).json<IGetDiskResponse>();
+      this.spinner?.stop();
+      return disks;
     } catch (error) {
-      if (error.response && error.response.statusCode === 401) {
-        throw new Error(`Authentication failed.  
-Please log in using the 'liara login' command.
-
-If you are using an API token for authentication, please consider updating your API token.  
-You can still create a sample 'liara.json' file using the 'liara init -y' command.
-`);
-      }
-
-      throw new Error(`There was something wrong while fetching your app info,
+      this.spinner?.stop();
+      return this.handleError(error, `There was something wrong while fetching your app info,
          You can still use 'liara init' with it's flags. Use 'liara init --help' for command details.`);
     }
   }
 
-  async promptPlatform() {
-    const { platform } = (await inquirer.prompt({
+  private async promptPlatform(): Promise<string> {
+    const { platform } = await inquirer.prompt<{ platform: string }>({
       name: 'platform',
       type: 'list',
       message: 'Select a platform:',
-      choices: [...AVAILABLE_PLATFORMS.map((platform) => platform)],
-    })) as { platform: string };
+      choices: [...AVAILABLE_PLATFORMS],
+    });
     return platform;
   }
 
-  async promptDiskConfig(
-    disks: IDisk[] | undefined,
-    diskNameFlag: string | undefined,
-    diskPathFlage: string | undefined,
-  ): Promise<{ disk: string; path: string }[] | undefined> {
-    let diskConfig = [];
-
-    if (diskNameFlag && diskPathFlage) {
-      return [
-        {
-          disk: diskNameFlag,
-          path: diskPathFlage,
-        },
-      ];
+  private async promptDiskConfig(
+    disks?: IDisk[],
+    diskNameFlag?: string,
+    diskPathFlag?: string
+  ): Promise<DiskConfig[] | undefined> {
+    if (diskNameFlag && diskPathFlag) {
+      return [{ disk: diskNameFlag, path: diskPathFlag }];
     }
 
-    const { setDisk } = (await inquirer.prompt({
+    const { setDisk } = await inquirer.prompt<{ setDisk: boolean }>({
       message: 'Configure disks? (Default: No)',
       type: 'confirm',
       name: 'setDisk',
       default: false,
-    })) as { setDisk: boolean };
+    });
 
-    if (setDisk) {
-      if (!disks || disks.length == 0) {
-        const { diskName } = (await inquirer.prompt({
+    if (!setDisk) return undefined;
+
+    if (!disks?.length) {
+      const { diskName, path } = await inquirer.prompt<{ diskName: string; path: string }>([
+        {
           message: 'Enter Disk name: ',
           name: 'diskName',
           type: 'input',
-        })) as { diskName: string };
-
-        const { path } = (await inquirer.prompt({
+        },
+        {
           message: 'Specify the mount location: ',
           name: 'path',
           type: 'input',
-        })) as { path: string };
-
-        diskConfig = [{ disk: diskName, path: path }];
-        return diskConfig;
-      }
-
-      let shouldContinue = true;
-
-      while (shouldContinue && disks.length != 0) {
-        const { diskName } = (await inquirer.prompt({
-          message: 'Select a Disk: ',
-          name: 'diskName',
-          choices: disks,
-          type: 'list',
-        })) as { diskName: string };
-
-        const index = disks.findIndex((disk) => disk.name === diskName);
-        disks.splice(index, 1);
-
-        const { path } = (await inquirer.prompt({
-          message: `Mount path for ${diskName}: `,
-          name: 'path',
-          type: 'input',
-        })) as { path: string };
-
-        diskConfig.push({ disk: diskName, path });
-
-        if (disks.length != 0) {
-          const continueAnswer = (await inquirer.prompt({
-            message: 'Add another disk? (Default: No)',
-            type: 'confirm',
-            default: false,
-            name: 'shouldContinue',
-          })) as { shouldContinue: boolean };
-          shouldContinue = continueAnswer.shouldContinue;
-        }
-      }
-      return diskConfig;
+        },
+      ]);
+      return [{ disk: diskName, path }];
     }
-  }
-  async promptCron(platform: string) {
-    if (
-      ['next', 'laravel', 'django', 'php', 'python', 'flask', 'go'].includes(
-        platform,
-      )
-    ) {
-      const { setCronAnswer } = (await inquirer.prompt({
-        message: 'Configure cron? (Default: No)',
-        type: 'confirm',
-        name: 'setCronAnswer',
-        default: false,
-      })) as { setCronAnswer: boolean };
 
-      if (setCronAnswer) {
-        const { cron } = (await inquirer.prompt({
-          message: 'cron: ',
-          type: 'input',
-          name: 'cron',
-        })) as { cron: string };
-        return cron.split(',').map((value) => value.trim());
+    const diskConfigs: DiskConfig[] = [];
+    let remainingDisks = [...disks];
+
+    while (remainingDisks.length > 0) {
+      const { diskName } = await inquirer.prompt<{ diskName: string }>({
+        message: 'Select a Disk: ',
+        name: 'diskName',
+        choices: remainingDisks,
+        type: 'list',
+      });
+
+      const { path } = await inquirer.prompt<{ path: string }>({
+        message: `Mount path for ${diskName}: `,
+        name: 'path',
+        type: 'input',
+      });
+
+      diskConfigs.push({ disk: diskName, path });
+      remainingDisks = remainingDisks.filter(d => d.name !== diskName);
+
+      if (remainingDisks.length > 0) {
+        const { shouldContinue } = await inquirer.prompt<{ shouldContinue: boolean }>({
+          message: 'Add another disk? (Default: No)',
+          type: 'confirm',
+          default: false,
+          name: 'shouldContinue',
+        });
+        if (!shouldContinue) break;
       }
     }
+
+    return diskConfigs;
   }
-  async promptHealthCheck(): Promise<IHealthConfig | undefined> {
-    const { setHealtCheckAnswer } = (await inquirer.prompt({
+
+  private async promptCron(platform: string): Promise<string[] | undefined> {
+    const supportedPlatforms = new Set(['next', 'laravel', 'django', 'php', 'python', 'flask', 'go']);
+    if (!supportedPlatforms.has(platform)) return undefined;
+
+    const { setCronAnswer } = await inquirer.prompt<{ setCronAnswer: boolean }>({
+      message: 'Configure cron? (Default: No)',
+      type: 'confirm',
+      name: 'setCronAnswer',
+      default: false,
+    });
+
+    if (!setCronAnswer) return undefined;
+
+    const { cron } = await inquirer.prompt<{ cron: string }>({
+      message: 'cron: ',
+      type: 'input',
+      name: 'cron',
+    });
+
+    return cron.split(',').map(v => v.trim());
+  }
+
+  private async promptHealthCheck(): Promise<IHealthConfig | undefined> {
+    const { setHealtCheckAnswer } = await inquirer.prompt<{ setHealtCheckAnswer: boolean }>({
       message: 'Configure healthcheck? (Default: No)',
       type: 'confirm',
       name: 'setHealtCheckAnswer',
       default: false,
-    })) as { setHealtCheckAnswer: boolean };
+    });
 
-    if (setHealtCheckAnswer) {
-      const healthcheckConfigs = (await inquirer.prompt([
-        {
-          message: 'command: ',
-          type: 'input',
-          name: 'command',
-        },
-        {
-          message: 'interval(ms): ',
-          type: 'input',
-          name: 'interval',
-        },
-        {
-          message: 'timeout(ms): ',
-          type: 'input',
-          name: 'timeout',
-        },
-        {
-          message: 'retries: ',
-          type: 'input',
-          name: 'retries',
-        },
-        {
-          message: 'startPeriod(ms): ',
-          type: 'input',
-          name: 'startPeriod',
-        },
-      ])) as IHealthConfig;
-      return healthcheckConfigs;
-    }
+    if (!setHealtCheckAnswer) return undefined;
+
+    return inquirer.prompt<IHealthConfig>([
+      {
+        message: 'command: ',
+        type: 'input',
+        name: 'command',
+      },
+      {
+        message: 'interval(ms): ',
+        type: 'input',
+        name: 'interval',
+      },
+      {
+        message: 'timeout(ms): ',
+        type: 'input',
+        name: 'timeout',
+      },
+      {
+        message: 'retries: ',
+        type: 'input',
+        name: 'retries',
+      },
+      {
+        message: 'startPeriod(ms): ',
+        type: 'input',
+        name: 'startPeriod',
+      },
+    ]);
   }
 }
