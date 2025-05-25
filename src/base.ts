@@ -14,201 +14,45 @@ import getPort, { portNumbers } from 'get-port';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
 import hooks from './interceptors.js';
-import IBrowserLogin from './types/browser-login.js';
 import browserLoginHeader from './utils/browser-login-header.js';
-import IGetNetworkResponse from './types/get-network-response.js';
 import {
+  IBrowserLogin,
+  IGetNetworkResponse,
   IVMOperations,
   IGetVMOperationsResponse,
   IGetVMsResponse,
   IVMs,
-} from './types/vm.js';
-import {
-  DEV_MODE,
-  REGIONS_API_URL,
-  FALLBACK_REGION,
-  GLOBAL_CONF_PATH,
-  GLOBAL_CONF_VERSION,
-} from './constants.js';
-import { NoVMsFoundError } from './errors/vm-error.js';
+  IAccount,
+  IAccounts,
+  IGlobalLiaraConfig,
+  IConfig,
+  IProject,
+  IGetProjectsResponse,
+  IDomains,
+  IGetDomainsResponse,
+  IEnvs,
+  IProjectDetails,
+  IProjectDetailsResponse,
+  IBucket,
+  IGetBucketsResponse,
+  IMailboxes,
+  IGetMailboxesResponse,
+  IMailPlan,
+  IGetMailsAccounts,
+  IGetMailsAccountsResponse,
+  Files,
+} from './types';
+import { NoVMsFoundError } from './errors';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const packageJson = fs.readJSONSync(path.join(__dirname, '..', 'package.json'));
-updateNotifier({ pkg: packageJson }).notify({ isGlobal: true });
+const IS_WINDOWS = os.platform() === 'win32';
+const PACKAGE_JSON = fs.readJSONSync(path.join(__dirname, '..', 'package.json'));
 
-const isWin = os.platform() === 'win32';
+// Initialize update notifier
+updateNotifier({ pkg: PACKAGE_JSON }).notify({ isGlobal: true });
 
-export interface IAccount {
-  email: string;
-  api_token?: string;
-  'api-token'?: string;
-  region: string;
-  fullname: string;
-  avatar: string;
-  current: boolean;
-  accountName?: string;
-}
-
-export interface IAccounts {
-  [key: string]: IAccount;
-}
-
-export interface IGlobalLiaraConfig {
-  version: string;
-  accounts: IAccounts;
-}
-
-export interface IConfig {
-  'api-token'?: string;
-  account?: string;
-  region?: string;
-  image?: string;
-  'team-id'?: string;
-}
-
-export interface IProject {
-  _id: string;
-  planID: string;
-  bundlePlanID: string;
-  scale: number;
-  type: string;
-  status: string;
-  project_id: string;
-  created_at: string;
-  isDeployed: boolean;
-  network?: string;
-}
-
-export interface IGetProjectsResponse {
-  projects: IProject[];
-}
-
-export interface IDomains {
-  _id: string;
-  name: string;
-  type: string;
-  project: {
-    _id: string;
-    project_id: string;
-  };
-  status: string;
-  certificatesStatus: string;
-  redirectTo: string;
-  redirectStatus: number;
-  created_at: string;
-  CNameRecord: string;
-}
-
-export interface IGetDomainsResponse {
-  domains: IDomains[];
-}
-
-export interface IEnvs {
-  key: string;
-  value: string;
-  encrypted: boolean;
-  _id: string;
-}
-
-export interface IProjectDetails {
-  _id: string;
-  project_id: string;
-  type: string;
-  status: string;
-  defaultSubdomain: boolean;
-  zeroDowntime: boolean;
-  scale: number;
-  envs: IEnvs[];
-  planID: string;
-  bundlePlanID: string;
-  fixedIPStatus: string;
-  created_at: string;
-  node: {
-    _id: string;
-    IP: string;
-  };
-  hourlyPrice: number;
-  isDeployed: boolean;
-  reservedDiskSpace: number;
-  network: string;
-}
-
-export interface IProjectDetailsResponse {
-  project: IProjectDetails;
-}
-
-export interface IBucket {
-  id: string;
-  name: string;
-  plan: number;
-  status: string;
-  permission: string;
-  project_id: string;
-  createdAt: string;
-  updatedAt: boolean;
-}
-
-export interface IGetBucketsResponse {
-  status: string;
-  buckets: IBucket[];
-}
-
-export interface IMailboxes {
-  plan: {
-    name: string;
-  };
-  domain: string;
-  recordsStatus: string;
-  mode: string;
-  status: string;
-  createdAt: string;
-  id: string;
-  smtp_server: string;
-  smtp_port: number;
-}
-
-export interface IGetMailboxesResponse {
-  status: string;
-  data: {
-    mailServers: IMailboxes[];
-  };
-}
-
-export interface IMailPlan {
-  available: boolean;
-  maxAccount: number;
-  maxForwarder: number;
-  maxInbound: string;
-  maxInboundMailRetention: number;
-  maxOutboundMailRetention: number;
-  maxOutboundPerDay: number;
-  maxOutboundPerMonth: number;
-  name: string;
-  price: number;
-}
-
-export interface IGetMailsAccounts {
-  name: string;
-  createdAt: string;
-  id: string;
-}
-
-export interface IGetMailsAccountsResponse {
-  status: string;
-  data: {
-    accounts: IGetMailsAccounts[];
-    domain: string;
-  };
-}
-
-export interface Files {
-  content_type: string | null;
-  data: string;
-  name: string;
-}
-
-export default abstract class extends Command {
+export default abstract class LiaraCommand extends Command {
   static flags = {
     help: Flags.help({ char: 'h' }),
     dev: Flags.boolean({ description: 'run in dev mode', hidden: true }),
@@ -216,10 +60,6 @@ export default abstract class extends Command {
     'api-token': Flags.string({
       description: 'your api token to use for authentication',
     }),
-    // region: Flags.string({
-    //   description: 'the region you want to deploy your app to',
-    //   options: ['iran', 'germany'],
-    // }),
     account: Flags.string({
       description: 'temporarily switch to a different account',
     }),
@@ -228,37 +68,50 @@ export default abstract class extends Command {
     }),
   };
 
-  got = got.extend();
-  spinner!: Ora;
+  protected spinner: Ora = ora();
+  protected got = got.extend();
+
+  /**
+   * Reads the global configuration file
+   */
   async readGlobalConfig(): Promise<IGlobalLiaraConfig> {
-    const content = fs.readJSONSync(GLOBAL_CONF_PATH, { throws: false }) || {
-      version: GLOBAL_CONF_VERSION,
-      accounts: {},
-    };
-    return content;
+    try {
+      const content = await fs.readJSON(GLOBAL_CONF_PATH) || {
+        version: GLOBAL_CONF_VERSION,
+        accounts: {},
+      };
+      return content;
+    } catch (error) {
+      return {
+        version: GLOBAL_CONF_VERSION,
+        accounts: {},
+      };
+    }
   }
 
   async catch(error: any) {
-    if (error.response && error.response.statusCode === 401) {
+    if (error.response?.statusCode === 401) {
       throw new Error(`Authentication failed.
 Please log in using the 'liara login' command.
 
-If you are using an API token for authentication, please consider updating your API token.
-`);
+If you are using an API token for authentication, please consider updating your API token.`);
     }
 
     if (error.code === 'ECONNREFUSED' || error.code === 'ECONNRESET') {
       this.error(`Could not connect to ${
-        (error.config && error.config.baseURL) || 'https://api.liara.ir'
+        error.config?.baseURL || 'https://api.liara.ir'
       }.
 Please check your network connection.`);
     }
 
-    if (error.oclif && error.oclif.exit === 0) return;
+    if (error.oclif?.exit === 0) return;
     this.error(error.message);
   }
 
-  async setGotConfig(config: IConfig): Promise<void> {
+  /**
+   * Configures the got instance with proper settings
+   */
+  async configureGotClient(config: IConfig): Promise<void> {
     const gotConfig: Partial<ExtendOptions> = {
       headers: {
         'User-Agent': this.config.userAgent,
@@ -280,15 +133,23 @@ Please check your network connection.`);
       },
     };
 
+    this.configureProxy(gotConfig);
+    await this.setAuthentication(config, gotConfig);
+    this.setBaseUrl(config, gotConfig);
+
+    this.got = got.extend({ hooks, ...gotConfig });
+  }
+
+  private configureProxy(gotConfig: Partial<ExtendOptions>) {
     const proxy = process.env.http_proxy || process.env.https_proxy;
-    if (proxy && !isWin) {
+    if (proxy && !IS_WINDOWS) {
       this.log(`Using proxy server ${proxy}`);
-
       const agent = new HttpsProxyAgent(proxy);
-
       gotConfig.agent = { https: agent };
     }
+  }
 
+  private async setAuthentication(config: IConfig, gotConfig: Partial<ExtendOptions>) {
     if (!config['api-token'] || !config.region) {
       const { api_token, region } = config.account
         ? await this.getAccount(config.account)
@@ -300,9 +161,10 @@ Please check your network connection.`);
 
     // @ts-ignore
     gotConfig.headers.Authorization = `Bearer ${config['api-token']}`;
-
     config.region = config.region || FALLBACK_REGION;
+  }
 
+  private setBaseUrl(config: IConfig, gotConfig: Partial<ExtendOptions>) {
     const actualBaseURL = REGIONS_API_URL[config.region];
     gotConfig.prefixUrl = DEV_MODE ? 'http://localhost:3000' : actualBaseURL;
 
@@ -310,42 +172,38 @@ Please check your network connection.`);
       this.log(`[dev] The actual base url is: ${actualBaseURL}`);
       this.log(`[dev] but in dev mode we use http://localhost:3000`);
     }
-
-    this.got = got.extend({ hooks, ...gotConfig });
   }
 
-  createProxiedWebsocket(endpoint: string) {
+  createProxiedWebsocket(endpoint: string): WebSocket {
     const proxy = process.env.http_proxy || process.env.https_proxy;
-    if (proxy && !isWin) {
+    if (proxy && !IS_WINDOWS) {
       const agent = new HttpsProxyAgent(proxy);
       return new WebSocket(endpoint, { agent });
     }
-
     return new WebSocket(endpoint);
   }
 
-  async promptProject() {
-    this.spinner = ora();
+  /**
+   * Prompts user to select a project
+   */
+  async promptProject(): Promise<string> {
     this.spinner.start('Loading...');
+    
     try {
-      const { projects } =
-        await this.got('v1/projects').json<IGetProjectsResponse>();
-
+      const { projects } = await this.got('v1/projects').json<IGetProjectsResponse>();
       this.spinner.stop();
 
       if (!projects.length) {
-        this.warn(
-          'Please go to https://console.liara.ir/apps and create an app, first.',
-        );
+        this.warn('Please go to https://console.liara.ir/apps and create an app, first.');
         this.exit(1);
       }
 
-      const { project } = (await inquirer.prompt({
+      const { project } = await inquirer.prompt<{ project: string }>({
         name: 'project',
         type: 'list',
         message: 'Please select an app:',
-        choices: [...projects.map((project) => project.project_id)],
-      })) as { project: string };
+        choices: projects.map(p => p.project_id),
+      });
 
       return project;
     } catch (error) {
@@ -353,14 +211,29 @@ Please check your network connection.`);
       throw error;
     }
   }
+
+  /**
+   * Gets the current active account
+   */
   async getCurrentAccount(): Promise<IAccount> {
     const accounts = (await this.readGlobalConfig()).accounts;
-    const accName = Object.keys(accounts).find(
-      (account) => accounts[account].current,
+    const accountName = Object.keys(accounts).find(
+      account => accounts[account].current,
     );
-    return { ...accounts[accName || ''], accountName: accName };
+    
+    if (!accountName) {
+      throw new Error('No active account found');
+    }
+
+    return { 
+      ...accounts[accountName], 
+      accountName 
+    };
   }
 
+  /**
+   * Gets a specific account by name
+   */
   async getAccount(accountName: string): Promise<IAccount> {
     const accounts = (await this.readGlobalConfig()).accounts;
 
@@ -372,108 +245,100 @@ Please use 'liara account add' to add this account, first.`);
     return accounts[accountName];
   }
 
-  async browser(browser?: string) {
-    this.spinner = ora();
-
+  /**
+   * Handles browser-based authentication
+   */
+  async browserLogin(browser?: string): Promise<IBrowserLogin[]> {
     this.spinner.start('Opening browser...');
-
     const port = await getPort({ port: portNumbers(3001, 3100) });
 
-    const query = `cli=v1&callbackURL=localhost:${port}/callback&client=cli`;
+    const query = new URLSearchParams({
+      cli: 'v1',
+      callbackURL: `localhost:${port}/callback`,
+      client: 'cli',
+    }).toString();
 
-    const url = `https://console.liara.ir/login?${Buffer.from(query).toString(
-      'base64',
-    )}`;
-
+    const url = `https://console.liara.ir/login?${Buffer.from(query).toString('base64')}`;
     const app = browser ? { app: { name: apps[browser as AppName] } } : {};
 
     const cp = await open(url, app);
 
     return new Promise<IBrowserLogin[]>(async (resolve, reject) => {
-      cp.on('error', async (err) => {
-        reject(err);
-      });
-
+      cp.on('error', reject);
       cp.on('exit', (code) => {
         if (code === 0) {
           this.spinner.succeed('Browser opened.');
-
           this.spinner.start('Waiting for login');
         }
       });
 
       const buffers: Uint8Array[] = [];
-
       const server = createServer(async (req, res) => {
-        if (req.method === 'OPTIONS') {
-          res.writeHead(204, browserLoginHeader);
-          res.end();
-          return;
-        }
-
-        if (req.url === '/callback' && req.method === 'POST') {
-          for await (const chunk of req) {
-            buffers.push(chunk);
+        try {
+          if (req.method === 'OPTIONS') {
+            res.writeHead(204, browserLoginHeader);
+            res.end();
+            return;
           }
 
-          const { data } = JSON.parse(
-            Buffer.concat(buffers).toString() || '[]',
-          );
+          if (req.url === '/callback' && req.method === 'POST') {
+            for await (const chunk of req) {
+              buffers.push(chunk);
+            }
 
-          res.writeHead(200, browserLoginHeader);
-          res.end();
+            const { data } = JSON.parse(Buffer.concat(buffers).toString() || '[]');
+            res.writeHead(200, browserLoginHeader);
+            res.end();
 
-          this.spinner.stop();
-
-          server.close();
-          resolve(data);
+            this.spinner.stop();
+            server.close();
+            resolve(data);
+          }
+        } catch (error) {
+          reject(error);
         }
       }).listen(port);
     });
   }
 
+  /**
+   * Prompts user to select a network
+   */
   async promptNetwork() {
-    this.spinner = ora();
     this.spinner.start('Loading...');
-
+    
     try {
-      const { networks } =
-        await this.got('v1/networks').json<IGetNetworkResponse>();
-
+      const { networks } = await this.got('v1/networks').json<IGetNetworkResponse>();
       this.spinner.stop();
 
-      if (networks.length === 0) {
-        this.warn(
-          "Please create network via 'liara network:create' command, first.",
-        );
+      if (!networks.length) {
+        this.warn("Please create network via 'liara network:create' command, first.");
         this.exit(1);
       }
 
-      const { networkName } = (await inquirer.prompt({
+      const { networkName } = await inquirer.prompt<{ networkName: string }>({
         name: 'networkName',
         type: 'list',
         message: 'Please select a network:',
-        choices: [
-          ...networks.map((network) => {
-            return {
-              name: network.name,
-            };
-          }),
-        ],
-      })) as { networkName: string };
+        choices: networks.map(network => ({
+          name: network.name,
+          value: network.name,
+        })),
+      });
 
-      return networks.find((network) => network.name === networkName);
+      return networks.find(network => network.name === networkName);
     } catch (error) {
       this.spinner.stop();
       throw error;
     }
   }
 
+  /**
+   * Gets a network by name
+   */
   async getNetwork(name: string) {
-    const { networks } =
-      await this.got('v1/networks').json<IGetNetworkResponse>();
-
-    const network = networks.find((network) => network.name === name);
+    const { networks } = await this.got('v1/networks').json<IGetNetworkResponse>();
+    const network = networks.find(n => n.name === name);
 
     if (!network) {
       this.error(`Network ${name} not found.`);
@@ -481,21 +346,28 @@ Please use 'liara account add' to add this account, first.`);
 
     return network;
   }
-  async getVms(
+
+  /**
+   * Gets VMs with optional filtering
+   */
+  async getVMs(
     errorMessage: string,
-    filter?: (vm: IVMs) => any,
+    filter?: (vm: IVMs) => boolean,
   ): Promise<IVMs[]> {
     this.spinner.start('Loading...');
+    
     try {
       const { vms } = await this.got('vm').json<IGetVMsResponse>();
-      if (vms.length === 0) {
+      
+      if (!vms.length) {
         throw new NoVMsFoundError(
-          "You didn't create any VMs yet.\ncreate a VM using liara VM create command.",
+          "You didn't create any VMs yet.\nCreate a VM using liara VM create command.",
         );
       }
 
       const filteredVms = filter ? vms.filter(filter) : vms;
-      if (filteredVms.length === 0) {
+      
+      if (!filteredVms.length) {
         throw new NoVMsFoundError(errorMessage);
       }
 
@@ -505,27 +377,33 @@ Please use 'liara account add' to add this account, first.`);
       this.spinner.stop();
 
       if (error instanceof NoVMsFoundError) {
-        throw new Error(error.message);
-      }
-      if (error.response && error.response.statusCode == 401) {
         throw error;
       }
-      throw error;
+      
+      if (error.response?.statusCode === 401) {
+        throw error;
+      }
+      
+      throw new Error('Failed to fetch VMs');
     }
   }
+
+  /**
+   * Gets operations for a specific VM
+   */
   async getVMOperations(vm: IVMs): Promise<IVMOperations[]> {
     try {
       const { operations } = await this.got(
         `vm/operation/${vm._id}`,
       ).json<IGetVMOperationsResponse>();
+      
       return operations;
     } catch (error) {
-      if (error.response && error.response.statusCode == 401) {
+      if (error.response?.statusCode === 401) {
         throw error;
       }
-      throw new Error(
-        'There was something wrong while fetching your VMs operations.',
-      );
+      
+      throw new Error('Failed to fetch VM operations');
     }
   }
 }
