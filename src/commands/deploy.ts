@@ -1,5 +1,4 @@
 import path from 'node:path';
-
 import fs from 'fs-extra';
 import chalk from 'chalk';
 import bytes from 'bytes';
@@ -45,337 +44,332 @@ import IGetProjectsResponse from '../types/get-project-response.js';
 import ReachedMaxSourceSizeError from '../errors/max-source-size.js';
 import getPlatformVersion from '../services/get-platform-version.js';
 
+type DeploymentState = 'BUILDING' | 'PUSHING' | 'PUSHED' | 'DEPLOYING' | 'UNHEALTHY';
+
 export default class Deploy extends Command {
-  static description = 'deploy an app';
+  static description = 'Deploy an application to Liara';
 
   static flags = {
     ...Command.flags,
-    path: Flags.string({ description: 'app path in your computer' }),
-    platform: Flags.string({
-      description: 'the platform your app needs to run',
-    }),
+    path: Flags.string({ description: 'Application directory path' }),
+    platform: Flags.string({ description: 'Application platform/runtime' }),
     app: Flags.string({
       char: 'a',
-      description: 'app id',
+      description: 'Application ID',
       parse: async (app) => app.toLowerCase(),
     }),
     port: Flags.integer({
       char: 'p',
-      description: 'the port that your app listens to',
+      description: 'Port that your application listens to',
     }),
-    image: Flags.string({ char: 'i', description: 'docker image to deploy' }),
+    image: Flags.string({ 
+      char: 'i', 
+      description: 'Pre-built Docker image to deploy' 
+    }),
     detach: Flags.boolean({
-      description: 'run build in background',
+      description: 'Run build in background without logs',
       default: false,
     }),
     'no-app-logs': Flags.boolean({
-      description: 'do not stream app logs after deployment',
+      description: 'Skip streaming application logs after deployment',
       default: false,
     }),
-    args: Flags.string({
-      description: 'docker image entrypoint args',
-    }),
+    args: Flags.string({ description: 'Docker image entrypoint arguments' }),
     'build-arg': Flags.string({
-      description: 'docker image build args',
+      description: 'Docker build arguments',
       multiple: true,
     }),
-    message: Flags.string({ char: 'm', description: 'the release message' }),
+    message: Flags.string({ 
+      char: 'm', 
+      description: 'Release message/description' 
+    }),
     disks: Flags.string({
       char: 'd',
-      description: 'mount a disk',
+      description: 'Mount a disk (format: name:mountPath)',
       multiple: true,
     }),
     'no-cache': Flags.boolean({
-      description: 'do not use cache when building the image',
+      description: 'Disable build cache',
     }),
     dockerfile: Flags.string({
       char: 'f',
-      description: 'name of the Dockerfile (default is "PATH/Dockerfile")',
+      description: 'Custom Dockerfile path',
     }),
     'build-location': Flags.string({
       char: 'b',
-      description: `name of the build's location`,
+      description: 'Build location/region',
       options: ['iran', 'germany'],
     }),
   };
 
-  spinner!: Ora;
+  private spinner: Ora;
+  private debug: (...args: any[]) => void;
 
-  async run() {
+  async run(): Promise<void> {
     const { flags } = await this.parse(Deploy);
+    const config = this.getMergedConfig(flags);
+    
+    this.initializeDebugger(flags);
+    this.validateInitialConfig(config);
 
-    const config: IDeploymentConfig = this.getMergedConfig(flags);
+    try {
+      await this.executeDeployment(config);
+    } catch (error) {
+      await this.handleDeploymentError(error, config);
+    }
+  }
 
-    const debug = createDebugLogger(flags.debug);
-    this.debug = debug;
+  private initializeDebugger(flags: IFlags): void {
+    this.debug = createDebugLogger(flags.debug);
     this.spinner = ora();
+  }
 
+  private validateInitialConfig(config: IDeploymentConfig): void {
     if (!config.image) {
-      try {
-        checkPath(config.path);
-      } catch (error) {
-        this.error(error.message);
-      }
-
+      checkPath(config.path);
       this.dontDeployEmptyProjects(config.path);
     }
+  }
 
+  private async executeDeployment(config: IDeploymentConfig): Promise<void> {
     await this.setGotConfig(config);
-
     this.validateDeploymentConfig(config);
 
     if (!config.app) {
       config.app = await this.promptProject();
     }
 
-    if (config.disks) {
-      this.logKeyValue('Disks');
-      for (const disk of config.disks) {
-        console.log(`  ${disk.name} ${chalk.blue('->')} ${disk.mountTo}`);
-      }
+    this.logDeploymentConfiguration(config);
+
+    const { project } = await this.fetchProjectDetails(config.app);
+    const bundlePlanID = project.bundlePlanID;
+
+    if (!config.image) {
+      config.platform = await this.determinePlatform(config, project);
+      config.port = await this.determinePort(config);
+    } else {
+      config.platform = 'docker';
     }
 
-    config.buildCache = !(config['no-cache'] || config.build?.cache === false);
+    const response = await this.deploy(config);
 
-    this.debug(
-      `Using Build Cache: ${config.buildCache ? 'Enabled' : 'Disabled'}`,
-    );
+    if (config.detach) {
+      this.log(chalk.green('Deployment created successfully.'));
+      return;
+    }
 
-    config.dockerfile = config.dockerfile || config.build?.dockerfile;
+    await this.monitorDeployment(config, response.releaseID);
+    await this.displayDeploymentResults(config, project);
+  }
+
+  private async fetchProjectDetails(appId: string): Promise<{ project: IProjectDetailsResponse['project'] }> {
+    const response = await this.got(`v1/projects/${appId}`).json<IProjectDetailsResponse>();
+    return { project: response.project };
+  }
+
+  private async determinePlatform(config: IDeploymentConfig, project: IProjectDetailsResponse['project']): Promise<string> {
+    if (!config.platform) {
+      try {
+        return project.type;
+      } catch (error) {
+        this.error(error.message);
+      }
+    }
+    this.validatePlatform(config.platform, config.path);
+    return config.platform;
+  }
+
+  private async determinePort(config: IDeploymentConfig): Promise<number> {
+    if (!config.port) {
+      return getPort(config.platform) || await promptPort(config.platform);
+    }
+    validatePort(config.port);
+    return config.port;
+  }
+
+  private logDeploymentConfiguration(config: IDeploymentConfig): void {
+    this.logKeyValue('App', config.app);
+    this.logKeyValue('Path', config.path);
+    this.logKeyValue('Platform', config.platform);
+    
+    if (config.port) {
+      this.logKeyValue('Port', String(config.port));
+    }
+
+    if (config.disks) {
+      this.logKeyValue('Disks');
+      config.disks.forEach(disk => {
+        console.log(`  ${disk.name} ${chalk.blue('->')} ${disk.mountTo}`);
+      });
+    }
+
+    this.debug(`Build Cache: ${config.buildCache ? 'Enabled' : 'Disabled'}`);
+    
     if (config.dockerfile) {
       this.debug(`Using Custom Dockerfile: ${config.dockerfile}`);
     }
 
-    config['build-location'] =
-      config['build-location'] || config.build?.location;
     if (config['build-location']) {
-      this.debug(`Declared build location: ${config['build-location']}`);
-    }
-
-    const buildArgs = config.build?.args || config['build-arg'];
-
-    if (Array.isArray(buildArgs)) {
-      const firstPriority = buildArgsParser(config['build-arg'] || []);
-      const secondPriority = buildArgsParser(config.build?.args || []);
-
-      // @ts-ignore
-      config['build-arg'] = { ...secondPriority, ...firstPriority };
-    }
-
-    let bundlePlanID: string;
-    try {
-      const { project } = await this.got(
-        `v1/projects/${config.app}`,
-      ).json<IProjectDetailsResponse>();
-      bundlePlanID = project.bundlePlanID;
-      if (!config.image) {
-        if (!config.platform) {
-          try {
-            config.platform = project.type;
-          } catch (error) {
-            return this.error(error.message);
-          }
-        }
-
-        this.validatePlatform(config.platform, config.path);
-      } else {
-        config.platform = 'docker';
-      }
-      if (!config.port) {
-        config.port =
-          getPort(config.platform) || (await promptPort(config.platform));
-      }
-      this.logKeyValue('App', config.app);
-      this.logKeyValue('Path', config.path);
-      this.logKeyValue('Platform', config.platform);
-      this.logKeyValue('Port', String(config.port));
-      const response = await this.deploy(config);
-
-      if (flags.detach) {
-        this.log(chalk.green('Deployment created successfully.'));
-      } else {
-        !config.image && (await this.showBuildLogs(response.releaseID));
-        config.image && (await this.showReleaseLogs(response.releaseID));
-
-        this.log();
-        this.log(chalk.green('Deployment finished successfully.'));
-        this.log(chalk.white('Open up the url below in your browser:'));
-        this.log();
-
-        const defaultSubdomain: string =
-          config.region === 'iran' && !Boolean(project.network)
-            ? '.iran.liara.run'
-            : '.liara.run';
-        const urlLogMessage = DEV_MODE
-          ? // tslint:disable-next-line: no-http-string
-            `    ${`http://${config.app}.liara.localhost`}`
-          : `    ${`https://${config.app}${defaultSubdomain}`}`;
-
-        const { domains } = await this.got(
-          `v1/domains?project=${config.app}`,
-        ).json<IGetDomainsResponse>();
-
-        if (!domains.length || project.defaultSubdomain)
-          this.log(urlLogMessage);
-
-        const firstFiveDomains = domains.reverse().slice(0, 5);
-
-        for (const domain of firstFiveDomains) {
-          const protocol: string =
-            domain.certificatesStatus === 'ACTIVE' ? 'https' : 'http';
-
-          this.log(chalk.white(`    ${protocol}://${domain.name}`));
-        }
-
-        this.log();
-
-        if (flags['no-app-logs']) {
-          process.exit(0);
-        }
-
-        this.log('Reading app logs...');
-        await Logs.run([
-          '--app',
-          config.app,
-          '--since',
-          '10s ago',
-          '--follow',
-          '--timestamps',
-          '--colorize',
-          '--api-token',
-          config['api-token'] || '',
-          '--team-id',
-          config['team-id'] || '',
-        ]);
-      }
-    } catch (error) {
-      this.log();
-      this.spinner.stop();
-      error.response && debug(error.response.body);
-      !error.response && debug(error);
-      const responseBody =
-        error.response &&
-        error.response.statusCode >= 400 &&
-        error.response.statusCode < 500
-          ? JSON.parse(error.response.body || '{}')
-          : {};
-
-      if (error.message === 'TIMEOUT') {
-        this.error('Build timed out. It took about 20 minutes.');
-      }
-
-      if (
-        error.response &&
-        error.response.statusCode === 404 &&
-        responseBody.message === 'project_not_found'
-      ) {
-        const message = `App does not exist.
-Please open up https://console.liara.ir/apps and create the app, first.`;
-        return this.error(message);
-      }
-
-      if (
-        error.response &&
-        error.response.statusCode === 404 &&
-        responseBody.message === 'Not Found'
-      ) {
-        const message = `Project name has conflict with the app specified in liara.json file.`;
-        return this.error(message);
-      }
-
-      if (
-        error.response &&
-        error.response.statusCode === 400 &&
-        responseBody.message === 'frozen_project'
-      ) {
-        const message = `App is frozen (not enough balance).
-Please open up https://console.liara.ir/apps and unfreeze the app.`;
-        return this.error(message);
-      }
-
-      if (error.response && error.response.statusCode === 408) {
-        const message =
-          "Oops! It seems like there's a disruption, and the request has timed out (Error 408). Please check your internet connection and try again.";
-
-        return this.error(message);
-      }
-
-      if (
-        error.response &&
-        error.response.statusCode === 428 &&
-        responseBody?.data?.code === 'max_deployment_count_in_day'
-      ) {
-        return this.error(
-          BundlePlanError.max_deploy_per_day(bundlePlanID!) ||
-            `You have reached the maximum number of deployments for today. Please try again tomorrow.`,
-        );
-      }
-
-      if (
-        error.response &&
-        error.response.statusCode === 428 &&
-        responseBody?.data?.code === 'germany_builder_not_allowed'
-      ) {
-        const message = `To use builder locations, upgrade your feature bundle plan, first. 
-Then try again.
-https://console.liara.ir/apps/${config.app}/resize`;
-
-        return this.error(
-          BundlePlanError.germany_builder_not_allowed(bundlePlanID!) || message,
-        );
-      }
-
-      if (
-        error.response &&
-        error.response.statusCode >= 400 &&
-        error.response.statusCode < 500 &&
-        responseBody.message
-      ) {
-        const message = `CODE ${error.response.statusCode}: ${responseBody.message}`;
-        return this.error(message);
-      }
-
-      if (error.response && error.response.statusCode === 401) {
-        // tslint:disable-next-line: no-console
-        console.error(
-          new Errors.CLIError(`Authentication failed.
-Please login via 'liara login' command.
-
-If you are using API token for authentication, please consider updating your API token.
-You may also want to switch to another region. Your current region is: ${chalk.cyan(
-            config.region!,
-          )}`).render(),
-        );
-        process.exit(2);
-      }
-
-      if (error instanceof CreateArchiveException) {
-        return this.error(error.message);
-      }
-
-      if (error instanceof ReleaseFailed) {
-        return this.error(error.message);
-      }
-
-      if (
-        error instanceof ReachedMaxSourceSizeError ||
-        (error.response && error.response.statusCode === 413)
-      ) {
-        this.error(
-          BundlePlanError.max_source_size(bundlePlanID!) || error.message,
-        );
-      }
-
-      this.log(chalk.gray(this.config.userAgent));
-      this.log();
-      return this.error(`Deployment failed.
-Additionally, you can also retry the build with the debug flag:
-    $ ${chalk.cyan('liara deploy --debug')}`);
+      this.debug(`Build Location: ${config['build-location']}`);
     }
   }
 
-  async deploy(config: IDeploymentConfig) {
-    let body: { [k: string]: any } = {
+  private async monitorDeployment(config: IDeploymentConfig, releaseID: string): Promise<void> {
+    if (!config.image) {
+      await this.showBuildLogs(releaseID);
+    } else {
+      await this.showReleaseLogs(releaseID);
+    }
+  }
+
+  private async displayDeploymentResults(config: IDeploymentConfig, project: IProjectDetailsResponse['project']): Promise<void> {
+    this.log(chalk.green('\nDeployment finished successfully.'));
+    this.log(chalk.white('Open up the URL below in your browser:\n'));
+
+    const defaultSubdomain = config.region === 'iran' && !project.network 
+      ? '.iran.liara.run' 
+      : '.liara.run';
+
+    const urlLogMessage = DEV_MODE
+      ? `    http://${config.app}.liara.localhost`
+      : `    https://${config.app}${defaultSubdomain}`;
+
+    const { domains } = await this.got(`v1/domains?project=${config.app}`)
+      .json<IGetDomainsResponse>();
+
+    if (!domains.length || project.defaultSubdomain) {
+      this.log(urlLogMessage);
+    }
+
+    domains.reverse().slice(0, 5).forEach(domain => {
+      const protocol = domain.certificatesStatus === 'ACTIVE' ? 'https' : 'http';
+      this.log(chalk.white(`    ${protocol}://${domain.name}`));
+    });
+
+    this.log();
+
+    if (!config['no-app-logs']) {
+      await this.streamApplicationLogs(config);
+    }
+  }
+
+  private async streamApplicationLogs(config: IDeploymentConfig): Promise<void> {
+    this.log('Reading app logs...');
+    await Logs.run([
+      '--app', config.app,
+      '--since', '10s ago',
+      '--follow',
+      '--timestamps',
+      '--colorize',
+      '--api-token', config['api-token'] || '',
+      '--team-id', config['team-id'] || '',
+    ]);
+  }
+
+  private async handleDeploymentError(error: any, config: IDeploymentConfig): Promise<void> {
+    this.spinner.stop();
+    
+    if (error.response) {
+      this.debug(error.response.body);
+      await this.handleApiError(error, config);
+    } else {
+      this.debug(error);
+      await this.handleGenericError(error);
+    }
+  }
+
+  private async handleApiError(error: any, config: IDeploymentConfig): Promise<void> {
+    const statusCode = error.response.statusCode;
+    const responseBody = statusCode >= 400 && statusCode < 500 
+      ? JSON.parse(error.response.body || '{}') 
+      : {};
+
+    const errorHandlers = {
+      404: () => this.handleNotFoundError(responseBody, config),
+      400: () => this.handleBadRequestError(responseBody),
+      408: () => this.error("Request timed out. Check your internet connection."),
+      428: () => this.handlePreconditionError(responseBody, config),
+      401: () => this.handleUnauthorizedError(config),
+      413: () => this.error("Payload too large. Reduce your deployment size."),
+    };
+
+    if (errorHandlers[statusCode]) {
+      return errorHandlers[statusCode]();
+    }
+
+    if (statusCode >= 400 && statusCode < 500 && responseBody.message) {
+      return this.error(`CODE ${statusCode}: ${responseBody.message}`);
+    }
+
+    this.log(chalk.gray(this.config.userAgent));
+    this.log();
+    this.error(`Deployment failed. Retry with --debug for more details.`);
+  }
+
+  private handleNotFoundError(responseBody: any, config: IDeploymentConfig): void {
+    if (responseBody.message === 'project_not_found') {
+      this.error(`App does not exist. Create it at https://console.liara.ir/apps`);
+    } else if (responseBody.message === 'Not Found') {
+      this.error(`Project name conflicts with liara.json configuration.`);
+    }
+  }
+
+  private handleBadRequestError(responseBody: any): void {
+    if (responseBody.message === 'frozen_project') {
+      this.error(`App is frozen due to insufficient balance.`);
+    }
+  }
+
+  private handlePreconditionError(responseBody: any, config: IDeploymentConfig): void {
+    const errorCode = responseBody?.data?.code;
+    
+    const preconditionErrors = {
+      'max_deployment_count_in_day': BundlePlanError.max_deploy_per_day(config.bundlePlanID) ||
+        'Maximum daily deployments reached. Try again tomorrow.',
+      'germany_builder_not_allowed': BundlePlanError.germany_builder_not_allowed(config.bundlePlanID) ||
+        `Upgrade your plan to use builder locations: https://console.liara.ir/apps/${config.app}/resize`,
+    };
+
+    if (preconditionErrors[errorCode]) {
+      this.error(preconditionErrors[errorCode]);
+    }
+  }
+
+  private handleUnauthorizedError(config: IDeploymentConfig): void {
+    console.error(new Errors.CLIError(
+      `Authentication failed. Run 'liara login' or update your API token.\nCurrent region: ${chalk.cyan(config.region!)}`
+    ).render());
+    process.exit(2);
+  }
+
+  private async handleGenericError(error: any): Promise<void> {
+    const errorHandlers = {
+      CreateArchiveException: () => this.error(error.message),
+      ReleaseFailed: () => this.error(error.message),
+      ReachedMaxSourceSizeError: () => this.error(error.message),
+      BuildFailed: () => this.error('Build failed. Check logs for details.'),
+      BuildTimeout: () => this.error('Build timed out after 20 minutes.'),
+    };
+
+    if (errorHandlers[error.constructor.name]) {
+      return errorHandlers[error.constructor.name]();
+    }
+
+    this.error(`Deployment failed. Retry with --debug for details.`);
+  }
+
+  async deploy(config: IDeploymentConfig): Promise<ICreatedRelease> {
+    const deploymentBody = await this.prepareDeploymentBody(config);
+    
+    if (config.image) {
+      return this.createRelease(config.app as string, deploymentBody);
+    }
+
+    return this.deployFromSource(config, deploymentBody);
+  }
+
+  private async prepareDeploymentBody(config: IDeploymentConfig): Promise<Record<string, any>> {
+    const body: Record<string, any> = {
       build: {
         cache: config.buildCache,
         args: config['build-arg'],
@@ -392,311 +386,217 @@ Additionally, you can also retry the build with the debug flag:
 
     if (config.image) {
       body.image = config.image;
-      return this.createRelease(config.app as string, body);
+      return body;
     }
 
     body.gitInfo = await collectGitInfo(config.path, this.debug);
-
-    // @ts-ignore
     body.platformConfig = config[config.platform] || {};
-    body = await this.__detectPlatformVersion(config, body);
+    
+    await this.detectPlatformVersion(config, body);
 
     if (config.healthCheck) {
-      body.healthCheck = config.healthCheck;
-
-      if (typeof config.healthCheck.command === 'string') {
-        body.healthCheck.command = config.healthCheck.command.split(' ');
-      }
-    }
-
-    this.spinner.start('Creating an archive...');
-
-    const sourcePath = prepareTmpDirectory();
-    try {
-      await createArchive(sourcePath, config.path, config.platform, this.debug);
-    } finally {
-      this.spinner.stop();
-    }
-
-    const { size: sourceSize } = fs.statSync(sourcePath);
-
-    this.logKeyValue(
-      'Compressed size',
-      `${bytes(sourceSize)} ${chalk.cyanBright(
-        '(use .gitignore to reduce the size)',
-      )}`,
-    );
-
-    if (sourceSize > MAX_SOURCE_SIZE) {
-      try {
-        fs.removeSync(sourcePath);
-      } catch (error) {
-        this.debug(error.stack);
-      } finally {
-        // eslint-disable-next-line no-unsafe-finally
-        throw new ReachedMaxSourceSizeError();
-      }
-    }
-
-    const sourceID = await this.upload(
-      config.app as string,
-      sourcePath,
-      sourceSize,
-    );
-
-    this.debug(`sourceID: ${sourceID}`);
-
-    body.sourceID = sourceID;
-    return this.createRelease(config.app as string, body);
-  }
-
-  createRelease(project: string, body: { [k: string]: any }) {
-    return this.got
-      .post(`v2/projects/${project}/releases`, { json: body })
-      .json<ICreatedRelease>();
-  }
-
-  async showBuildLogs(releaseID: string) {
-    while (true) {
-      try {
-        const { release } = await this.got(`v1/releases/${releaseID}`).json<{
-          release: IRelease;
-        }>();
-
-        if (!release.queue) {
-          break;
-        }
-
-        this.spinner.start(
-          `Waiting for the build, ${release.queue} people(s) ahead...`,
-        );
-
-        await new Promise((resolve) => setTimeout(resolve, 3000));
-      } catch (error) {
-        // tslint:disable-next-line: no-console
-        console.error(error.output.line);
-        throw new Error('Build failed.');
-      }
-    }
-
-    this.spinner.start('Building...');
-
-    let isCanceled = false;
-    let isPushingStart = false;
-
-    const removeInterupListener = onInterupt(async () => {
-      // Force close
-      if (isCanceled) process.exit(3);
-
-      this.spinner.start('\nCanceling the build...');
-      isCanceled = true;
-
-      const retryOptions = {
-        retries: 3,
-        onRetry: (error: any, attempt: number) => {
-          this.debug(error.stack);
-          this.log(`${attempt}: Could not cancel, retrying...`);
-        },
-      };
-      await cancelDeployment(this.got, releaseID, retryOptions);
-      this.spinner.warn('Build canceled.');
-      process.exit(3);
-    });
-
-    try {
-      await buildLogs(this.got, releaseID, isCanceled, (output) => {
-        if (output.state === 'PUSHED') {
-          this.spinner.succeed('Image pushed.');
-        }
-
-        if (output.state === 'DEPLOYING') {
-          this.spinner.start("Checking container's health ...");
-        }
-
-        if (output.state === 'UNHEALTHY') {
-          this.spinner.warn(
-            'App deployed, but the container is unhealthy. Please check its logs.',
-          );
-        }
-
-        if (output.state === 'BUILDING' && output.line) {
-          this.spinner.clear().frame();
-          process.stdout.write(output.line);
-        }
-
-        if (output.state === 'PUSHING') {
-          if (!isPushingStart) {
-            removeInterupListener();
-            this.spinner.succeed('Build finished.');
-            isPushingStart = !isPushingStart;
-          }
-          if (output.line) {
-            this.spinner.clear().frame();
-            this.spinner.start(output.line);
-          }
-        }
-      });
-      this.spinner.succeed('Release created.');
-    } catch (error) {
-      if (error instanceof BuildFailed) {
-        // tslint:disable-next-line: no-console
-        console.error(error.output.line);
-        throw new Error('Build failed.');
-      }
-
-      if (error instanceof BuildCanceled) {
-        this.spinner.warn('Build canceled.');
-        process.exit(3);
-      }
-
-      if (error instanceof BuildTimeout) {
-        this.spinner.fail();
-        throw new Error('TIMEOUT');
-      }
-
-      if (error instanceof DeployException) {
-        this.spinner.fail();
-        throw new Error(this.parseFailReason(error.message));
-      }
-
-      if (error instanceof ReleaseFailed) {
-        this.spinner.fail();
-        this.error('Release failed.');
-      }
-
-      this.debug(error.stack);
-    }
-  }
-
-  async __detectPlatformVersion(config: any, body: any) {
-    if (body.platformConfig.pythonVersion) {
-      // django, flask
-      this.logKeyValue('Python version', body.platformConfig.pythonVersion);
-      return body;
-    }
-    if (body.platformConfig.version) {
-      // node, dotnet, php, python, go
-      this.logKeyValue(
-        `${config.platform} version`,
-        body.platformConfig.version,
-      );
-      return body;
-    }
-    if (body.platformConfig.phpVersion) {
-      // laravel
-      this.logKeyValue('PHP version', body.platformConfig.phpVersion);
-      return body;
-    } else {
-      this.debug('No version specified in liara.json');
-
-      this.debug('Auto-detecting version...');
-      let platformVersion: string | null = null;
-      switch (config.platform) {
-        case 'django':
-        case 'flask':
-          platformVersion = await getPlatformVersion(
-            config.platform,
-            config.path,
-            this.debug,
-          );
-          if (platformVersion) {
-            this.logKeyValue('Auto-detected Python version', platformVersion);
-            body.platformConfig.pythonVersion = platformVersion;
-          }
-          break;
-        case 'php':
-        case 'laravel':
-          platformVersion = await getPlatformVersion(
-            config.platform,
-            config.path,
-            this.debug,
-          );
-          if (platformVersion) {
-            this.logKeyValue('Auto-detected php version', platformVersion);
-            if (config.platform === 'php') {
-              body.platformConfig.version = platformVersion;
-            } else {
-              body.platformConfig.phpVersion = platformVersion;
-            }
-          }
-          break;
-        case 'python':
-        case 'node':
-        case 'dotnet':
-        case 'go':
-          platformVersion = await getPlatformVersion(
-            config.platform,
-            config.path,
-            this.debug,
-          );
-          if (platformVersion) {
-            this.logKeyValue(
-              `Auto-detected ${config.platform} version`,
-              platformVersion,
-            );
-            body.platformConfig.version = platformVersion;
-          }
-          break;
-
-        default:
-          this.debug(
-            `Can not auto-detect version for ${config.platform} platform`,
-          );
-          break;
-      }
-      if (!platformVersion) {
-        this.debug('No version for this platform found. Using default version');
-      }
+      body.healthCheck = this.normalizeHealthCheck(config.healthCheck);
     }
 
     return body;
   }
 
-  async showReleaseLogs(releaseID: string) {
-    this.spinner.start('Creating a new release...');
+  private normalizeHealthCheck(healthCheck: any): any {
+    const normalized = { ...healthCheck };
+    
+    if (typeof healthCheck.command === 'string') {
+      normalized.command = healthCheck.command.split(' ');
+    }
+    
+    return normalized;
+  }
 
-    return new Promise<void>((resolve, reject) => {
+  private async deployFromSource(config: IDeploymentConfig, body: Record<string, any>): Promise<ICreatedRelease> {
+    this.spinner.start('Creating an archive...');
+    
+    const sourcePath = prepareTmpDirectory();
+    try {
+      await createArchive(sourcePath, config.path, config.platform, this.debug);
+      this.spinner.stop();
+      
+      const { size: sourceSize } = fs.statSync(sourcePath);
+      this.logKeyValue('Compressed size', this.formatSourceSize(sourceSize));
+      
+      this.validateSourceSize(sourceSize, sourcePath);
+      
+      const sourceID = await this.uploadSource(config.app as string, sourcePath, sourceSize);
+      body.sourceID = sourceID;
+      
+      return this.createRelease(config.app as string, body);
+    } finally {
+      this.cleanupSourceArchive(sourcePath);
+    }
+  }
+
+  private formatSourceSize(size: number): string {
+    return `${bytes(size)} ${chalk.cyanBright('(use .gitignore to reduce size)')}`;
+  }
+
+  private validateSourceSize(size: number, sourcePath: string): void {
+    if (size > MAX_SOURCE_SIZE) {
+      fs.removeSync(sourcePath);
+      throw new ReachedMaxSourceSizeError();
+    }
+  }
+
+  private cleanupSourceArchive(sourcePath: string): void {
+    try {
+      fs.unlinkSync(sourcePath);
+    } catch (error) {
+      this.debug(`Failed to cleanup source archive: ${error}`);
+    }
+  }
+
+  private async uploadSource(project: string, sourcePath: string, sourceSize: number): Promise<string> {
+    const bar = new ProgressBar('Uploading [:bar] :percent :etas', {
+      total: sourceSize,
+      width: 20,
+      complete: '=',
+      incomplete: ' ',
+      clear: true,
+    });
+
+    try {
+      const response = await upload(project, this.got, sourcePath)
+        .on('uploadProgress', progress => bar.tick(progress.transferred - bar.curr))
+        .json<{ sourceID: string }>();
+
+      this.spinner.succeed('Upload finished.');
+      this.debug(`Upload response: ${JSON.stringify(response)}`);
+      return response.sourceID;
+    } catch (error) {
+      this.spinner.fail('Upload failed.');
+      throw error;
+    }
+  }
+
+  async showBuildLogs(releaseID: string): Promise<void> {
+    await this.waitForBuildQueue(releaseID);
+    
+    this.spinner.start('Building...');
+    
+    let isCanceled = false;
+    const cleanup = onInterupt(() => this.handleBuildInterrupt(releaseID, isCanceled));
+
+    try {
+      await this.monitorBuildProgress(releaseID, isCanceled);
+      this.spinner.succeed('Release created.');
+    } finally {
+      cleanup();
+    }
+  }
+
+  private async waitForBuildQueue(releaseID: string): Promise<void> {
+    while (true) {
+      const { release } = await this.got(`v1/releases/${releaseID}`).json<{ release: IRelease }>();
+      
+      if (!release.queue) break;
+      
+      this.spinner.start(`Build queue: ${release.queue} ahead...`);
+      await new Promise(resolve => setTimeout(resolve, 3000));
+    }
+  }
+
+  private async handleBuildInterrupt(releaseID: string, isCanceled: boolean): Promise<void> {
+    if (isCanceled) process.exit(3);
+    
+    isCanceled = true;
+    this.spinner.start('\nCanceling build...');
+    
+    try {
+      await cancelDeployment(this.got, releaseID, { 
+        retries: 3,
+        onRetry: (error, attempt) => {
+          this.debug(error.stack);
+          this.log(`Retry ${attempt}: Cancel failed, retrying...`);
+        }
+      });
+      this.spinner.warn('Build canceled.');
+      process.exit(3);
+    } catch (error) {
+      this.spinner.fail('Failed to cancel build.');
+      process.exit(1);
+    }
+  }
+
+  private async monitorBuildProgress(releaseID: string, isCanceled: boolean): Promise<void> {
+    let isPushing = false;
+    
+    await buildLogs(this.got, releaseID, isCanceled, (output) => {
+      switch (output.state as DeploymentState) {
+        case 'PUSHED':
+          this.spinner.succeed('Image pushed.');
+          break;
+          
+        case 'DEPLOYING':
+          this.spinner.start("Checking container health...");
+          break;
+          
+        case 'UNHEALTHY':
+          this.spinner.warn('Container deployed but unhealthy. Check logs.');
+          break;
+          
+        case 'BUILDING':
+          if (output.line) {
+            this.spinner.clear().frame();
+            process.stdout.write(output.line);
+          }
+          break;
+          
+        case 'PUSHING':
+          if (!isPushing) {
+            isPushing = true;
+            this.spinner.succeed('Build finished.');
+          }
+          if (output.line) {
+            this.spinner.clear().frame();
+            this.spinner.start(output.line);
+          }
+          break;
+      }
+    });
+  }
+
+  async showReleaseLogs(releaseID: string): Promise<void> {
+    this.spinner.start('Creating release...');
+    
+    return new Promise((resolve, reject) => {
       const poller = new Poller();
-
+      
       poller.onPoll(async () => {
         try {
-          const { release } = await this.got(`v1/releases/${releaseID}`).json<{
-            release: IRelease;
-          }>();
+          const { release } = await this.got(`v1/releases/${releaseID}`)
+            .json<{ release: IRelease }>();
 
-          if (release.state === 'FAILED') {
-            this.spinner.fail();
-            if (release.failReason) {
-              return reject(
-                new DeployException(this.parseFailReason(release.failReason)),
-              );
-            }
-
-            return reject(new Error('Release failed.'));
-          } else if (release.state === 'UNHEALTHY') {
-            this.spinner.warn(
-              'App deployed, but the container is unhealthy. Please check its logs.',
-            );
-            return reject(
-              new ReleaseFailed(
-                'Release is not healthy. Check logs from web panel',
-              ),
-            );
-          } else if (release.state === 'READY') {
-            this.spinner.succeed('Release is healthy.');
-            return resolve();
+          switch (release.state) {
+            case 'FAILED':
+              this.spinner.fail();
+              return reject(new DeployException(this.parseFailReason(release.failReason || 'Release failed')));
+              
+            case 'UNHEALTHY':
+              this.spinner.warn('Container deployed but unhealthy. Check logs.');
+              return reject(new ReleaseFailed('Container unhealthy. Check web panel logs.'));
+              
+            case 'READY':
+              this.spinner.succeed('Release healthy.');
+              return resolve();
           }
         } catch (error) {
           this.debug(error.stack);
         }
-
+        
         poller.poll();
       });
-
+      
       poller.poll();
     });
   }
-
+}
   parseFailReason(reason: string) {
     const [errorName, ...data] = reason.split(' ');
 
