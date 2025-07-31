@@ -264,22 +264,16 @@ export default class Deploy extends Command {
         this.error('Build timed out. It took about 20 minutes.');
       }
 
-      if (
-        error.response &&
-        error.response.statusCode === 404 &&
-        responseBody.message === 'project_not_found'
-      ) {
-        const message = `App does not exist.
-Please open up https://console.liara.ir/apps and create the app, first.`;
-        return this.error(message);
-      }
+      if (error.response && error.response.statusCode === 404) {
+        const message = `Could not find the app.
+Please review the following checklist:
 
-      if (
-        error.response &&
-        error.response.statusCode === 404 &&
-        responseBody.message === 'Not Found'
-      ) {
-        const message = `Project name has conflict with the app specified in liara.json file.`;
+  1. If you're deploying to a team, ensure the --team-id flag is included.
+  2. Make sure you're logged into the correct account.
+  3. Confirm that the app has been created.
+  4. Check for any typos in the app name specified in liara.json.
+
+If the issue persists, please submit a ticket at https://console.liara.ir/tickets for further assistance.`;
         return this.error(message);
       }
 

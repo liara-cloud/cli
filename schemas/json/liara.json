@@ -12,6 +12,87 @@
       },
       "type": "object"
     },
+    "default_10": {
+      "properties": {
+        "mirror": {
+          "type": "boolean"
+        },
+        "sourceMap": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "default_11": {
+      "properties": {
+        "mirror": {
+          "type": "boolean"
+        },
+        "npmAudit": {
+          "type": "boolean"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "default_12": {
+      "properties": {
+        "mirror": {
+          "type": "boolean"
+        },
+        "modifyConfig": {
+          "type": "boolean"
+        },
+        "nodeVersion": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "default_13": {
+      "properties": {
+        "mirror": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "default_14": {
+      "properties": {
+        "composerMirror": {
+          "type": "boolean"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "default_15": {
+      "properties": {
+        "cgoEnabled": {
+          "type": "boolean"
+        },
+        "mainFile": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
     "default_2": {
       "properties": {
         "args": {
@@ -33,14 +114,6 @@
       "type": "object"
     },
     "default_3": {
-      "properties": {
-        "version": {
-          "type": "number"
-        }
-      },
-      "type": "object"
-    },
-    "default_4": {
       "properties": {
         "command": {
           "anyOf": [
@@ -70,22 +143,152 @@
       },
       "type": "object"
     },
-    "default_5": {
+    "default_4": {
       "properties": {
         "buildAssets": {
+          "type": "boolean"
+        },
+        "composerMirror": {
           "type": "boolean"
         },
         "configCache": {
           "type": "boolean"
         },
+        "installDevDependencies": {
+          "type": "boolean"
+        },
+        "modifyHtaccess": {
+          "type": "boolean"
+        },
+        "modifyImagickPolicy": {
+          "type": "boolean"
+        },
+        "npmMirror": {
+          "type": "boolean"
+        },
+        "phpVersion": {
+          "type": "string"
+        },
+        "reverb": {
+          "type": "boolean"
+        },
+        "reverbPath": {
+          "type": "string"
+        },
         "routeCache": {
           "type": "boolean"
+        },
+        "ssr": {
+          "type": "boolean"
+        },
+        "timezone": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "default_5": {
+      "properties": {
+        "mirror": {
+          "type": "boolean"
+        },
+        "sourceMap": {
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "default_6": {
+      "properties": {
+        "csprojectFile": {
+          "type": "string"
+        },
+        "finalDllName": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "version": {
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "default_7": {
+      "properties": {
+        "collectStatic": {
+          "type": "boolean"
+        },
+        "compileMessages": {
+          "type": "boolean"
+        },
+        "geospatial": {
+          "type": "boolean"
+        },
+        "mirror": {
+          "type": "boolean"
+        },
+        "modifySettings": {
+          "type": "boolean"
+        },
+        "nodeVersion": {
+          "type": "string"
+        },
+        "pipTimeout": {
+          "type": "number"
+        },
+        "pythonVersion": {
+          "type": "string"
+        },
+        "settingsFile": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "default_8": {
+      "properties": {
+        "mirror": {
+          "type": "boolean"
+        },
+        "timezone": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "default_9": {
+      "properties": {
+        "appModule": {
+          "type": "string"
+        },
+        "mirror": {
+          "type": "boolean"
+        },
+        "nodeVersion": {
+          "type": "string"
+        },
+        "pythonVersion": {
+          "type": "string"
+        },
+        "timezone": {
+          "type": "string"
         }
       },
       "type": "object"
     }
   },
   "properties": {
+    "angular": {
+      "$ref": "#/definitions/default_5"
+    },
     "app": {
       "type": "string"
     },
@@ -110,20 +313,50 @@
       },
       "type": "array"
     },
+    "djnago": {
+      "$ref": "#/definitions/default_7"
+    },
+    "dotnet": {
+      "$ref": "#/definitions/default_6"
+    },
+    "flask": {
+      "$ref": "#/definitions/default_9"
+    },
+    "go": {
+      "$ref": "#/definitions/default_15"
+    },
     "healthCheck": {
-      "$ref": "#/definitions/default_4"
+      "$ref": "#/definitions/default_3"
     },
     "laravel": {
-      "$ref": "#/definitions/default_5"
+      "$ref": "#/definitions/default_4"
+    },
+    "next": {
+      "$ref": "#/definitions/default_12"
     },
     "node": {
-      "$ref": "#/definitions/default_3"
+      "$ref": "#/definitions/default_11"
+    },
+    "php": {
+      "$ref": "#/definitions/default_14"
     },
     "platform": {
       "type": "string"
     },
     "port": {
       "type": "number"
+    },
+    "python": {
+      "$ref": "#/definitions/default_8"
+    },
+    "react": {
+      "$ref": "#/definitions/default_10"
+    },
+    "team-id": {
+      "type": "string"
+    },
+    "vue": {
+      "$ref": "#/definitions/default_13"
     }
   },
   "type": "object"

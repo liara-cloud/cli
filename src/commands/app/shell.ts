@@ -1,10 +1,9 @@
 import path from 'node:path';
 import fs from 'fs-extra';
-import Command from '../../base.js';
+import Command, { IGetProjectsResponse } from '../../base.js';
 import { Flags, Errors } from '@oclif/core';
 import ILiaraJSON from '../../types/liara-json.js';
-import { API_IR_URL } from '../../constants.js';
-import { createWebSocketStream } from 'ws';
+import { API_IR_URL, DEV_MODE } from '../../constants.js';
 
 interface IFlags {
   path?: string;
@@ -39,42 +38,87 @@ export default class AppShell extends Command {
   async run() {
     const { flags } = await this.parse(AppShell);
     const config = this.getMergedConfig(flags);
-    const CTRL_Q = '\u0011';
 
     await this.setGotConfig(config);
 
     const app = config.app || (await this.promptProject());
-    const wsURL = API_IR_URL.replace('https://', 'wss://');
+
+    // This is a temporary piece of code to check if the app is compatible with the new infrastructure
+    // and if not, it will show an error message and exit the process.
+    // This will be removed in the future. #OLD_INFRASTRUCTURE
+    const projects = await this.got('v1/projects').json();
+    const project = (projects as IGetProjectsResponse).projects.find(
+      (project) => project.project_id === app,
+    );
+    if (!project!.network) {
+      console.error(
+        '❌ This version of Liara CLI no longer supports apps running on the old infrastructure.\n' +
+          '➡️  Please migrate your app to the new infrastructure or use an older version of the CLI.\n\n' +
+          '🔧 To install the last supported version:\n' +
+          '   $ npm i -g @liara/cli@8.1.0\n',
+      );
+      process.exit(1);
+    }
+
+    const wsURL = !DEV_MODE
+      ? API_IR_URL.replace('https://', 'wss://')
+      : 'ws://localhost:3000';
 
     const teamID = flags['team-id'] ? flags['team-id'] : '';
     const ws = this.createProxiedWebsocket(
       `${wsURL}/v1/exec?token=${config['api-token']}&cmd=${flags.command}&project_id=${app}&teamID=${teamID}`,
     );
 
-    const duplex = createWebSocketStream(ws, { encoding: 'utf8' });
-    const isRaw = process.stdin.isTTY;
-
     const clearStdinEffects = () => {
+      if (process.stdin.isTTY) {
+        process.stdin.setRawMode(false);
+        process.stdin.pause();
+      }
       process.stdin.removeAllListeners();
-      isRaw && process.stdin.setRawMode(isRaw);
-      process.stdin.resume();
+      process.stdout.removeAllListeners();
     };
 
-    ws.on('open', () => {
-      isRaw && process.stdin.setRawMode(true);
+    ws.on('open', async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      process.stdin.setEncoding('utf8');
-      process.stdin.resume();
-      process.stdin.pipe(duplex);
-      duplex.pipe(process.stdout);
+      ws.send(
+        JSON.stringify({
+          action: 'start',
+          cols: process.stdout.columns,
+          rows: process.stdout.rows,
+        }),
+      );
 
-      process.stdin.on('data', function (key) {
-        if (key.toString() === CTRL_Q) {
-          clearStdinEffects();
-          ws.terminate();
-          process.exit(0);
-        }
-      });
+      if (process.stdin.isTTY) {
+        process.stdin.setRawMode(true);
+        process.stdin.resume();
+        process.stdin.setEncoding('utf-8');
+
+        process.stdin.on('data', (data) => {
+          ws.send(JSON.stringify({ type: 'input', data: data }));
+        });
+
+        process.stdout.on('resize', () => {
+          ws.send(
+            JSON.stringify({
+              type: 'resize',
+              cols: process.stdout.columns,
+              rows: process.stdout.rows,
+            }),
+          );
+        });
+      } else {
+        console.error(
+          new Errors.CLIError(
+            `Not running in a terminal, cannot set raw mode.`,
+          ).render(),
+        );
+      }
+    });
+
+    ws.on('message', (data) => {
+      // @ts-ignore
+      process.stdout.write(data);
     });
 
     ws.on('close', () => {
