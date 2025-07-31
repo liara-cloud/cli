@@ -4,7 +4,7 @@ import { expect } from 'chai';
 import { networks } from '../fixtures/networks/fixture.ts';
 
 describe('app:create', function () {
-  const api = nock('https://api.iran.liara.ir');
+  const api = nock('https://api.liara.ir');
 
   beforeEach(() => {
     api.get('/v1/networks').query({ teamID: '' }).reply(200, networks);

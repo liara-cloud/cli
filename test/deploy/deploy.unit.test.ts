@@ -3,14 +3,14 @@ import sinon from 'sinon';
 import { runCommand } from '@oclif/test';
 import deploy from '../../src/commands/deploy.ts';
 import nock from 'nock';
+import fs from 'fs-extra';
 import {
-  projects,
   getNodeProject,
   getDockerProject,
 } from '../fixtures/projects/fixture.ts';
 
 describe('deploy', () => {
-  const api = nock('https://api.iran.liara.ir');
+  const api = nock('https://api.liara.ir');
 
   let getConfigs: sinon.SinonStub;
   beforeEach(() => {
@@ -20,10 +20,11 @@ describe('deploy', () => {
     sinon.restore();
   });
   it('should thorw an error when project path is empty and image flag is specified', async () => {
+    fs.mkdirSync('test/fixtures/empty-project');
     getConfigs.returns({ path: 'test/fixtures/empty-project' });
 
     const { error } = await runCommand(['deploy']);
-
+    fs.rmdirSync('test/fixtures/empty-project');
     expect(error?.message).to.equal('Directory is empty!');
   });
 
