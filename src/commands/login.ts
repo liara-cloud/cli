@@ -39,11 +39,6 @@ export default class Login extends Command {
       '--from-login',
     ];
 
-    if (flags.region) {
-      sendFlag.push('--region', flags.region);
-      this.log(`You're logging into "${flags.region}" region:`);
-    }
-
     if (!flags.interactive) {
       try {
         const accounts = await this.browser(flags.browser);
@@ -54,7 +49,7 @@ export default class Login extends Command {
         let currentAccount;
 
         for (const account of accounts) {
-          const name = `${account.email.split('@')[0]}_${account.region}`;
+          const name = `${account.email.split('@')[0]}`;
 
           if (account.current) {
             currentAccount = name;
@@ -62,7 +57,6 @@ export default class Login extends Command {
 
           currentAccounts[name] = {
             email: account.email,
-            region: account.region,
             avatar: account.avatar,
             api_token: account.token,
             fullname: account.fullname,
