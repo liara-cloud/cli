@@ -72,20 +72,25 @@ export default class AccountAdd extends Command {
     const email = flags.email || (await this.promptEmail());
     const userStatus = await this.checkIfExists({ email }, debug);
     const password = flags.password || (await this.promptPassword());
-const totp = userStatus.twoFAEnabled 
-  ? await this.promptTwoFA() 
-  : undefined;
+    const totp = userStatus.twoFAEnabled ? await this.promptTwoFA() : undefined;
 
     if (flags['from-login']) {
       flags.account = `${email.split('@')[0]}`;
     }
 
     const name = flags.account || (await this.promptName(email));
-    const twoFAState = 
-    const body= {email,password,userStatus.twoFAEnabled ? twoFAType:"totp": undefined,totp}
-    const account = await this.login({email,password,twoFAType:"totp",totp},debug)
-    flags['from-login'] && (await AccountUse.run(['--account', name]));
 
+    const twoFAState = userStatus.twoFAEnabled
+      ? { twoFAType: 'totp', totp }
+      : undefined;
+    const account = await this.login({ email, password, ...twoFAState }, debug);
+    this.addNewAccountToConfig(currentAccounts, {
+      name,
+      ...account,
+      current: false,
+    });
+
+    flags['from-login'] && (await AccountUse.run(['--account', name]));
     const { accountName } = await this.getCurrentAccount();
     this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`);
     accountName && this.log(`> Current account is: ${accountName}`);
@@ -138,7 +143,7 @@ If the issue persists, please submit a ticket at https://console.liara.ir/ticket
     body: {
       email: string;
       password: string;
-      twoFAType?: 'totp' | 'recoveryCode';
+      twoFAType?: string;
       totp?: string;
       recoveryCode?: string;
     },
@@ -281,5 +286,21 @@ If the issue persists, please submit a ticket at https://console.liara.ir/ticket
         .error(`Checking email address failed. Please check your internet connection and try again.
 If the issue persists, please submit a ticket at https://console.liara.ir/tickets for further assistance.`);
     }
+  }
+  async promptTwoFA() {
+    const { totp } = (await inquirer.prompt({
+      name: 'Two-Factor Authentication Code',
+      type: 'password',
+      message: 'Enter your Two-Factor Authentication Code:',
+      validate(input) {
+        if (input.length === 0) {
+          return false;
+        }
+
+        return true;
+      },
+    })) as { totp: string };
+
+    return totp;
   }
 }
