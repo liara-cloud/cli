@@ -18,6 +18,7 @@ export default class Login extends Command {
     interactive: Flags.boolean({
       char: 'i',
       description: 'login with username/password',
+      default: false,
     }),
     browser: Flags.string({
       description: 'browser to open',
@@ -39,7 +40,7 @@ export default class Login extends Command {
       '--from-login',
     ];
 
-    if (!flags.interactive) {
+    if (flags.interactive === false && !flags['api-token']) {
       try {
         const accounts = await this.browser(flags.browser);
 
@@ -69,7 +70,7 @@ export default class Login extends Command {
           JSON.stringify({
             accounts: currentAccounts,
             version: GLOBAL_CONF_VERSION,
-          })
+          }),
         );
 
         this.spinner.succeed('You have logged in successfully.');
@@ -87,7 +88,7 @@ export default class Login extends Command {
         debug(`${error.message}\n`);
 
         this.spinner.fail(
-          'Cannot open browser. Browser unavailable or lacks permissions.'
+          'Cannot open browser. Browser unavailable or lacks permissions.',
         );
       }
     }

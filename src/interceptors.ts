@@ -8,7 +8,9 @@ const hooks: Partial<Hooks> = {
       if (response && response.statusCode === 401) {
         console.error(
           new Errors.CLIError(`Authentication failed.
-Please login via 'liara login' command.`).render()
+Please log in using the 'liara login' command.
+
+If you are using an API token for authentication, please consider updating your API token.`).render(),
         );
         process.exit(2);
       }

@@ -47,12 +47,6 @@ export default class AccountAdd extends Command {
 
     this.got = got.extend({ prefixUrl: REGIONS_API_URL['iran'], hooks });
 
-    // first we need to check if we have api token,
-    // if /me gives user, its all good, if i should give answer and prompt the credentials
-    // then we need to check if he has email flag or password flag
-    // CHECK IF EXISTS
-    //twoFA
-    //login with twoFA
     if (flags['api-token']) {
       const user = await this.getMe(flags);
       if (!user) {
@@ -70,10 +64,15 @@ export default class AccountAdd extends Command {
       return;
     }
     const email = flags.email || (await this.promptEmail());
+    if (!validateEmail(email)) {
+      throw new Error(
+        `Email validation failed. Please enter a valid email, e.g. info@liara.ir`,
+      );
+    }
+
     const userStatus = await this.checkIfExists({ email }, debug);
     const password = flags.password || (await this.promptPassword());
     const totp = userStatus.twoFAEnabled ? await this.promptTwoFA() : undefined;
-
     if (flags['from-login']) {
       flags.account = `${email.split('@')[0]}`;
     }
@@ -83,7 +82,9 @@ export default class AccountAdd extends Command {
     const twoFAState = userStatus.twoFAEnabled
       ? { twoFAType: 'totp', totp }
       : undefined;
-    const account = await this.login({ email, password, ...twoFAState }, debug);
+
+    const userInfo = { email, password, ...twoFAState };
+    const account = await this.login(userInfo, debug);
     this.addNewAccountToConfig(currentAccounts, {
       name,
       ...account,
@@ -246,6 +247,7 @@ If the issue persists, please submit a ticket at https://console.liara.ir/ticket
   }
 
   async promptPassword(): Promise<string> {
+    this.log();
     const { password } = (await inquirer.prompt({
       name: 'password',
       type: 'password',
@@ -270,27 +272,10 @@ If the issue persists, please submit a ticket at https://console.liara.ir/ticket
     return user;
   }
 
-  async checkPasswordSet(email: string): Promise<string> {
-    try {
-      const { exists, socialCompleted, twoFAEnabled } = await this.got
-        .post('v1/login/check-if-exists', { json: { email } })
-        .json<{
-          exists: boolean;
-          socialCompleted: boolean;
-          twoFAEnabled: boolean;
-        }>();
-
-      return email;
-    } catch {
-      this
-        .error(`Checking email address failed. Please check your internet connection and try again.
-If the issue persists, please submit a ticket at https://console.liara.ir/tickets for further assistance.`);
-    }
-  }
   async promptTwoFA() {
     const { totp } = (await inquirer.prompt({
-      name: 'Two-Factor Authentication Code',
-      type: 'password',
+      name: 'totp',
+      type: 'input',
       message: 'Enter your Two-Factor Authentication Code:',
       validate(input) {
         if (input.length === 0) {
