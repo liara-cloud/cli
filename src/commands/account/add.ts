@@ -19,6 +19,7 @@ import {
   GLOBAL_CONF_PATH,
   GLOBAL_CONF_VERSION,
 } from '../../constants.js';
+import ora from 'ora';
 
 export default class AccountAdd extends Command {
   static description = 'add an account';
@@ -42,11 +43,11 @@ export default class AccountAdd extends Command {
   async run() {
     const { flags } = await this.parse(AccountAdd);
     const debug = createDebugLogger(flags.debug);
+    this.spinner = ora();
     const liara_json = await this.readGlobalConfig();
     const currentAccounts = liara_json.accounts;
 
-    this.got = got.extend({ prefixUrl: REGIONS_API_URL['iran'], hooks });
-
+    this.got = got.extend({ prefixUrl: REGIONS_API_URL['iran'] });
     if (flags['api-token']) {
       const user = await this.getMe(flags);
       if (!user) {
@@ -63,11 +64,14 @@ export default class AccountAdd extends Command {
       flags['from-login'] && (await AccountUse.run(['--account', name]));
       return;
     }
+
     const email = flags.email || (await this.promptEmail());
     if (!validateEmail(email)) {
-      throw new Error(
+      this.log();
+      this.spinner.fail(
         `Email validation failed. Please enter a valid email, e.g. info@liara.ir`,
       );
+      process.exit(1);
     }
 
     const userStatus = await this.checkIfExists({ email }, debug);
@@ -84,7 +88,8 @@ export default class AccountAdd extends Command {
       : undefined;
 
     const userInfo = { email, password, ...twoFAState };
-    const account = await this.login(userInfo, debug);
+    debug2(userInfo);
+    const account = await this.login(userInfo);
     this.addNewAccountToConfig(currentAccounts, {
       name,
       ...account,
@@ -98,81 +103,77 @@ export default class AccountAdd extends Command {
   }
   async checkIfExists(body: { email: string }, debug: DebugLogger) {
     try {
-      const data = await retry(
-        async () => {
-          try {
-            const data = await this.got
-              .post('v1/login/check-if-exists', {
-                json: body,
-                headers: { Authorization: undefined },
-              })
-              .json<{
-                status: string;
-                exists: boolean;
-                socialCompleted: boolean;
-                twoFAEnabled: boolean;
-              }>();
-            return data;
-          } catch (error) {
-            debug('retrying...');
-            throw error;
-          }
-        },
-        { retries: 3 },
-      );
-      if (!data.socialCompleted) {
-        throw new Error(`This email has not yet set a password for the account.
-Before proceeding, please set a password using the following link: https://console.liara.ir/settings/security
-After setting your password, please run 'liara login' or 'liara account:add' again.`);
-      }
-      if (!exists) {
-        throw new Error(
-          `This email has not been registered before.
-Before proceeding, please sign up using the following link: https://console.liara.ir`,
+      const data = await this.got
+        .post('v1/login/check-if-exists', {
+          json: body,
+          headers: { Authorization: undefined },
+        })
+        .json<{
+          status: string;
+          exists: boolean;
+          socialCompleted: boolean;
+          twoFAEnabled: boolean;
+        }>();
+
+      if (!data.exists) {
+        this.log();
+        this.spinner.fail(
+          `The email you entered isn’t registered.
+To continue, please sign up at: https://console.liara.ir`,
         );
+        process.exit(1);
+      }
+      if (!data.socialCompleted) {
+        this.log();
+        this.spinner.fail(`No password is set for this account.
+Set one here: https://console.liara.ir/settings/security
+Then run 'liara login' or 'liara account:add' again.`);
+        process.exit(1);
       }
       return data;
     } catch (error) {
       debug(error);
-      this
-        .error(`Checking email address failed. Please check your internet connection and try again.
+      this.error(`Please check your internet connection and try again.
 If the issue persists, please submit a ticket at https://console.liara.ir/tickets for further assistance.`);
     }
   }
 
-  async login(
-    body: {
-      email: string;
-      password: string;
-      twoFAType?: string;
-      totp?: string;
-      recoveryCode?: string;
-    },
-    debug: DebugLogger,
-  ) {
-    const data = (await retry(
-      async () => {
-        try {
-          const data = await this.got
-            .post('v1/login', {
-              json: body,
-              headers: { Authorization: undefined },
-            })
-            .json<IAccount>();
-          return data;
-        } catch (error) {
-          debug('retrying...');
-          throw error;
-        }
-      },
-      { retries: 3 },
-    )) as {
-      api_token: string;
-      avatar: string;
-      fullname: string;
-      email: string;
-    };
-    return data;
+  async login(body: {
+    email: string;
+    password: string;
+    twoFAType?: string;
+    totp?: string;
+    recoveryCode?: string;
+  }) {
+    try {
+      const data = await this.got
+        .post('v1/login', {
+          json: body,
+          headers: { Authorization: undefined },
+        })
+        .json<IAccount>();
+
+      return {
+        email: data.email,
+        api_token: data.api_token!,
+        fullname: data.fullname,
+        current: data.current,
+        avatar: data.avatar,
+      };
+    } catch (error) {
+      if (error.response.statusCode == 401) {
+        this.spinner.fail(`\nAuthentication failed.
+The credentials you entered is incorrect.
+If you’ve forgotten your password or twoFA, reset it at https://console.liara.ir
+        `);
+        process.exit(1);
+      }
+      this.spinner.fail(`\nAuthentication failed.
+If the issue persists, please open a ticket at https://console.liara.ir/tickets
+Error: ${error.response.statusMessage} (${error.response.statusCode})
+        `);
+      process.exit(1);
+    }
   }
 
   addNewAccountToConfig(
@@ -288,4 +289,10 @@ If the issue persists, please submit a ticket at https://console.liara.ir/ticket
 
     return totp;
   }
+}
+
+function debug2(log: any) {
+  console.log('====================================');
+  console.log(log);
+  console.log('====================================');
 }
