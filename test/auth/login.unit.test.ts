@@ -36,17 +36,15 @@ describe('login', async () => {
 
     const expectedData = JSON.stringify({
       accounts: {
-        [`${accounts[0].email.split('@')[0]}_${accounts[0].region}`]: {
+        [`${accounts[0].email.split('@')[0]}`]: {
           email: accounts[0].email,
-          region: accounts[0].region,
           avatar: accounts[0].avatar,
           api_token: accounts[0].token,
           fullname: accounts[0].fullname,
           current: false,
         },
-        [`${accounts[1].email.split('@')[0]}_${accounts[1].region}`]: {
+        [`${accounts[1].email.split('@')[0]}`]: {
           email: accounts[1].email,
-          region: accounts[1].region,
           avatar: accounts[1].avatar,
           api_token: accounts[1].token,
           fullname: accounts[1].fullname,
@@ -72,17 +70,15 @@ describe('login', async () => {
 
     const expectedAccounts = {
       ...currentAccounts,
-      [`${accounts[0].email.split('@')[0]}_${accounts[0].region}`]: {
+      [`${accounts[0].email.split('@')[0]}`]: {
         email: accounts[0].email,
-        region: accounts[0].region,
         avatar: accounts[0].avatar,
         api_token: accounts[0].token,
         fullname: accounts[0].fullname,
         current: false,
       },
-      [`${accounts[1].email.split('@')[0]}_${accounts[1].region}`]: {
+      [`${accounts[1].email.split('@')[0]}`]: {
         email: accounts[1].email,
-        region: accounts[1].region,
         avatar: accounts[1].avatar,
         api_token: accounts[1].token,
         fullname: accounts[1].fullname,
