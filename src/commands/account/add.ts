@@ -1,6 +1,6 @@
 import got from 'got';
 import chalk from 'chalk';
-import fs from 'fs-extra';
+import fs, { exists } from 'fs-extra';
 import retry from 'async-retry';
 import inquirer from 'inquirer';
 import { Flags } from '@oclif/core';
@@ -9,9 +9,9 @@ import { validate as validateEmail } from 'email-validator';
 
 import AccountUse from './use.js';
 import hooks from '../../interceptors.js';
-import Command, { IAccount } from '../../base.js';
+import Command, { IAccount, IAccounts } from '../../base.js';
 import eraseLines from '../../utils/erase-lines.js';
-import { createDebugLogger } from '../../utils/output.js';
+import { createDebugLogger, DebugLogger } from '../../utils/output.js';
 
 import {
   FALLBACK_REGION,
@@ -45,61 +45,121 @@ export default class AccountAdd extends Command {
     const liara_json = await this.readGlobalConfig();
     const currentAccounts = liara_json.accounts;
 
-    const region = flags.region || FALLBACK_REGION;
+    this.got = got.extend({ prefixUrl: REGIONS_API_URL['iran'], hooks });
 
-    this.got = got.extend({ prefixUrl: REGIONS_API_URL[region], hooks });
-
-    let api_token;
-    let fullname;
-    let avatar;
-
-    const user = flags['api-token'] ? await this.getMe(flags) : null;
-
-    if (user) {
-      flags.email = user.email;
-      api_token = flags['api-token'];
-      fullname = user.fullname;
-      avatar = user.avatar;
+    if (flags['api-token']) {
+      const user = await this.getMe(flags);
+      if (!user) {
+        throw new Error(
+          'api token is not creditable, please get your api token from https://console.liara.ir/API.',
+        );
+      }
+      const name = flags.account || (await this.promptName(user.email));
+      this.addNewAccountToConfig(currentAccounts, {
+        name,
+        ...user,
+        api_token: flags['api-token'],
+      });
+      flags['from-login'] && (await AccountUse.run(['--account', name]));
+      return;
+    }
+    const email = flags.email || (await this.promptEmail());
+    if (!validateEmail(email)) {
+      throw new Error(
+        `Email validation failed. Please enter a valid email, e.g. info@liara.ir`,
+      );
     }
 
-    if (!flags.email) {
-      let emailIsValid = false;
-      do {
-        flags.email = await this.promptEmail();
-        emailIsValid = validateEmail(flags.email);
-        if (!emailIsValid) {
-          process.stdout.write(eraseLines(1));
-        }
-      } while (!emailIsValid);
-
-      this.log();
-    }
-
-    const body = {
-      email: await this.checkPasswordSet(flags.email),
-      password:
-        flags.password ||
-        (!flags['api-token'] && (await this.promptPassword())),
-    };
-
+    const userStatus = await this.checkIfExists({ email }, debug);
+    const password = flags.password || (await this.promptPassword());
+    const totp = userStatus.twoFAEnabled ? await this.promptTwoFA() : undefined;
     if (flags['from-login']) {
-      flags.account = `${flags.email.split('@')[0]}_${region}`;
+      flags.account = `${email.split('@')[0]}`;
     }
 
-    const name = flags.account || (await this.promptName(flags.email, region));
+    const name = flags.account || (await this.promptName(email));
 
-    const data = (await retry(
-      async () => {
-        try {
-          if (!flags['api-token']) {
+    const twoFAState = userStatus.twoFAEnabled
+      ? { twoFAType: 'totp', totp }
+      : undefined;
+
+    const userInfo = { email, password, ...twoFAState };
+    const account = await this.login(userInfo, debug);
+    this.addNewAccountToConfig(currentAccounts, {
+      name,
+      ...account,
+      current: false,
+    });
+
+    flags['from-login'] && (await AccountUse.run(['--account', name]));
+    const { accountName } = await this.getCurrentAccount();
+    this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`);
+    accountName && this.log(`> Current account is: ${accountName}`);
+  }
+  async checkIfExists(body: { email: string }, debug: DebugLogger) {
+    try {
+      const data = await retry(
+        async () => {
+          try {
             const data = await this.got
-              .post('v1/login', {
+              .post('v1/login/check-if-exists', {
                 json: body,
                 headers: { Authorization: undefined },
               })
-              .json<IAccount>();
+              .json<{
+                status: string;
+                exists: boolean;
+                socialCompleted: boolean;
+                twoFAEnabled: boolean;
+              }>();
             return data;
+          } catch (error) {
+            debug('retrying...');
+            throw error;
           }
+        },
+        { retries: 3 },
+      );
+      if (!data.socialCompleted) {
+        throw new Error(`This email has not yet set a password for the account.
+Before proceeding, please set a password using the following link: https://console.liara.ir/settings/security
+After setting your password, please run 'liara login' or 'liara account:add' again.`);
+      }
+      if (!exists) {
+        throw new Error(
+          `This email has not been registered before.
+Before proceeding, please sign up using the following link: https://console.liara.ir`,
+        );
+      }
+      return data;
+    } catch (error) {
+      debug(error);
+      this
+        .error(`Checking email address failed. Please check your internet connection and try again.
+If the issue persists, please submit a ticket at https://console.liara.ir/tickets for further assistance.`);
+    }
+  }
+
+  async login(
+    body: {
+      email: string;
+      password: string;
+      twoFAType?: string;
+      totp?: string;
+      recoveryCode?: string;
+    },
+    debug: DebugLogger,
+  ) {
+    const data = (await retry(
+      async () => {
+        try {
+          const data = await this.got
+            .post('v1/login', {
+              json: body,
+              headers: { Authorization: undefined },
+            })
+            .json<IAccount>();
+          return data;
         } catch (error) {
           debug('retrying...');
           throw error;
@@ -112,15 +172,27 @@ export default class AccountAdd extends Command {
       fullname: string;
       email: string;
     };
+    return data;
+  }
 
+  addNewAccountToConfig(
+    currentAccounts: IAccounts,
+    newAccount: {
+      name: string;
+      email: string;
+      api_token: string;
+      fullname: string;
+      current: boolean;
+      avatar: string;
+    },
+  ) {
     const accounts = {
       ...currentAccounts,
-      [name]: {
-        email: body.email || data.email,
-        api_token: api_token || data.api_token,
-        region,
-        fullname: fullname || data.fullname,
-        avatar: avatar || data.avatar,
+      [newAccount.name]: {
+        email: newAccount.email,
+        api_token: newAccount.api_token,
+        fullname: newAccount.fullname,
+        avatar: newAccount.avatar,
         current: false,
       },
     };
@@ -129,20 +201,14 @@ export default class AccountAdd extends Command {
       GLOBAL_CONF_PATH,
       JSON.stringify({ accounts, version: GLOBAL_CONF_VERSION }),
     );
-
-    flags['from-login'] && (await AccountUse.run(['--account', name]));
-
-    const { accountName } = await this.getCurrentAccount();
-    this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`);
-    accountName && this.log(`> Current account is: ${accountName}`);
   }
 
-  async promptName(email: string, region: string): Promise<string> {
+  async promptName(email: string): Promise<string> {
     const { name } = (await inquirer.prompt({
       name: 'name',
       type: 'input',
       message: 'Enter an optional name for this account:',
-      default: `${email.split('@')[0]}_${region}`,
+      default: `${email.split('@')[0]}`,
     })) as { name: string };
     const liara_json = await this.readGlobalConfig();
     const currentAccounts = liara_json.accounts;
@@ -181,6 +247,7 @@ export default class AccountAdd extends Command {
   }
 
   async promptPassword(): Promise<string> {
+    this.log();
     const { password } = (await inquirer.prompt({
       name: 'password',
       type: 'password',
@@ -205,30 +272,20 @@ export default class AccountAdd extends Command {
     return user;
   }
 
-  async checkPasswordSet(email: string): Promise<string> {
-    try {
-      const { exists, socialCompleted } = await this.got
-        .post('v1/login/check-if-exists', { json: { email } })
-        .json<{ exists: boolean; socialCompleted: boolean }>();
+  async promptTwoFA() {
+    const { totp } = (await inquirer.prompt({
+      name: 'totp',
+      type: 'input',
+      message: 'Enter your Two-Factor Authentication Code:',
+      validate(input) {
+        if (input.length === 0) {
+          return false;
+        }
 
-      if (!exists) {
-        this.error(
-          `This email has not been registered before.
-Before proceeding, please sign up using the following link: https://console.liara.ir`,
-        );
-      }
+        return true;
+      },
+    })) as { totp: string };
 
-      if (!socialCompleted) {
-        this.error(`This email has not yet set a password for the account.
-Before proceeding, please set a password using the following link: https://console.liara.ir/settings/security
-After setting your password, please run 'liara login' or 'liara account:add' again.`);
-      }
-
-      return email;
-    } catch {
-      this
-        .error(`Checking email address failed. Please check your internet connection and try again.
-If the issue persists, please submit a ticket at https://console.liara.ir/tickets for further assistance.`);
-    }
+    return totp;
   }
 }
