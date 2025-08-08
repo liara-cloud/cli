@@ -7,14 +7,16 @@ export default function getAllFiles(
   filePaths: string[] = [],
 ): string[] {
   const items = fs.readdirSync(dir);
-  items.forEach((item) => {
-    const itemPath = path.join(dir, item);
-    if (fs.statSync(itemPath).isDirectory()) {
-      getAllFiles(itemPath, baseDir, filePaths);
-    } else {
+  if (items.length != 0) {
+    items.forEach((item) => {
+      const itemPath = path.join(dir, item);
+      if (fs.statSync(itemPath).isDirectory()) {
+        getAllFiles(itemPath, baseDir, filePaths);
+        return;
+      }
       const relativePath = path.relative(baseDir, itemPath);
       filePaths.push(relativePath);
-    }
-  });
+    });
+  }
   return filePaths;
 }
