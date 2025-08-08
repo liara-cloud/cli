@@ -128,6 +128,10 @@ export interface IProjectDetails {
   fixedIPStatus: string;
   created_at: string;
   hourlyPrice: number;
+  node: {
+    _id: string;
+    IP: string;
+  };
   isDeployed: boolean;
   reservedDiskSpace: number;
   readOnlyRootFilesystem: boolean;
