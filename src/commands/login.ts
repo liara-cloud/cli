@@ -7,6 +7,7 @@ import AccountAdd from './account/add.js';
 import AccountUse from './account/use.js';
 import { createDebugLogger } from '../utils/output.js';
 import { GLOBAL_CONF_PATH, GLOBAL_CONF_VERSION } from '../constants.js';
+import ora from 'ora';
 
 export default class Login extends Command {
   static description = 'login to your account';
@@ -27,6 +28,7 @@ export default class Login extends Command {
   };
 
   async run() {
+    this.spinner = ora();
     const { flags } = await this.parse(Login);
     const debug = createDebugLogger(flags.debug);
 
