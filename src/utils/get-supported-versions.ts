@@ -19,7 +19,10 @@ const versions: IVersions = {
       '9.0',
     ],
   },
-  node: { defaultVersion: '20', allVersions: ['14', '16', '18', '20', '22'] },
+  node: {
+    defaultVersion: '20',
+    allVersions: ['14', '16', '18', '20', '22', '24'],
+  },
   next: { defaultVersion: '20', allVersions: ['20', '22'] },
   laravel: {
     defaultVersion: '7.4',
