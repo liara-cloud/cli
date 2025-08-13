@@ -51,7 +51,7 @@ export default class AccountAdd extends Command {
     if (flags['api-token']) {
       const user = await this.getMe(flags);
       if (!user) {
-        throw new Error(
+        this.error(
           'api token is not creditable, please get your api token from https://console.liara.ir/API.',
         );
       }
@@ -68,10 +68,9 @@ export default class AccountAdd extends Command {
     const email = flags.email || (await this.promptEmail());
     if (!validateEmail(email)) {
       this.log();
-      this.spinner.fail(
-        `Email validation failed. Please enter a valid email, e.g. info@liara.ir`,
+      this.error(
+        `Email validation failed. Please enter a valid email, e.g. me@example.com`,
       );
-      process.exit(1);
     }
 
     const userStatus = await this.checkIfExists({ email }, debug);
@@ -88,7 +87,7 @@ export default class AccountAdd extends Command {
       : undefined;
 
     const userInfo = { email, password, ...twoFAState };
-    debug2(userInfo);
+    // debug2(userInfo);
     const account = await this.login(userInfo);
     this.addNewAccountToConfig(currentAccounts, {
       name,
@@ -117,18 +116,16 @@ export default class AccountAdd extends Command {
 
       if (!data.exists) {
         this.log();
-        this.spinner.fail(
+        this.error(
           `The email you entered isn’t registered.
 To continue, please sign up at: https://console.liara.ir`,
         );
-        process.exit(1);
       }
       if (!data.socialCompleted) {
         this.log();
-        this.spinner.fail(`No password is set for this account.
+        this.error(`No password is set for this account.
 Set one here: https://console.liara.ir/settings/security
 Then run 'liara login' or 'liara account:add' again.`);
-        process.exit(1);
       }
       return data;
     } catch (error) {
@@ -161,18 +158,19 @@ If the issue persists, please submit a ticket at https://console.liara.ir/ticket
         avatar: data.avatar,
       };
     } catch (error) {
-      if (error.response.statusCode == 401) {
-        this.spinner.fail(`\nAuthentication failed.
+      if (
+        error.response.statusCode == 401 ||
+        error.response.statusCode == 400
+      ) {
+        this.error(`Authentication failed.
 The credentials you entered is incorrect.
-If you’ve forgotten your password or twoFA, reset it at https://console.liara.ir
+If you’ve forgotten or lost your password/twoFA, reset it at https://console.liara.ir
         `);
-        process.exit(1);
       }
-      this.spinner.fail(`\nAuthentication failed.
+      this.error(`Authentication failed.
 If the issue persists, please open a ticket at https://console.liara.ir/tickets
 Error: ${error.response.statusMessage} (${error.response.statusCode})
         `);
-      process.exit(1);
     }
   }
 
@@ -289,10 +287,4 @@ Error: ${error.response.statusMessage} (${error.response.statusCode})
 
     return totp;
   }
-}
-
-function debug2(log: any) {
-  console.log('====================================');
-  console.log(log);
-  console.log('====================================');
 }
