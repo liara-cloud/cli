@@ -19,6 +19,7 @@ import {
   GLOBAL_CONF_PATH,
   GLOBAL_CONF_VERSION,
 } from '../../constants.js';
+import ora from 'ora';
 
 export default class AccountAdd extends Command {
   static description = 'add an account';
@@ -42,15 +43,15 @@ export default class AccountAdd extends Command {
   async run() {
     const { flags } = await this.parse(AccountAdd);
     const debug = createDebugLogger(flags.debug);
+    this.spinner = ora();
     const liara_json = await this.readGlobalConfig();
     const currentAccounts = liara_json.accounts;
 
-    this.got = got.extend({ prefixUrl: REGIONS_API_URL['iran'], hooks });
-
+    this.got = got.extend({ prefixUrl: REGIONS_API_URL['iran'] });
     if (flags['api-token']) {
       const user = await this.getMe(flags);
       if (!user) {
-        throw new Error(
+        this.error(
           'api token is not creditable, please get your api token from https://console.liara.ir/API.',
         );
       }
@@ -63,10 +64,12 @@ export default class AccountAdd extends Command {
       flags['from-login'] && (await AccountUse.run(['--account', name]));
       return;
     }
+
     const email = flags.email || (await this.promptEmail());
     if (!validateEmail(email)) {
-      throw new Error(
-        `Email validation failed. Please enter a valid email, e.g. info@liara.ir`,
+      this.log();
+      this.error(
+        `Email validation failed. Please enter a valid email, e.g. me@example.com`,
       );
     }
 
@@ -84,7 +87,8 @@ export default class AccountAdd extends Command {
       : undefined;
 
     const userInfo = { email, password, ...twoFAState };
-    const account = await this.login(userInfo, debug);
+    // debug2(userInfo);
+    const account = await this.login(userInfo);
     this.addNewAccountToConfig(currentAccounts, {
       name,
       ...account,
@@ -98,81 +102,76 @@ export default class AccountAdd extends Command {
   }
   async checkIfExists(body: { email: string }, debug: DebugLogger) {
     try {
-      const data = await retry(
-        async () => {
-          try {
-            const data = await this.got
-              .post('v1/login/check-if-exists', {
-                json: body,
-                headers: { Authorization: undefined },
-              })
-              .json<{
-                status: string;
-                exists: boolean;
-                socialCompleted: boolean;
-                twoFAEnabled: boolean;
-              }>();
-            return data;
-          } catch (error) {
-            debug('retrying...');
-            throw error;
-          }
-        },
-        { retries: 3 },
-      );
-      if (!data.socialCompleted) {
-        throw new Error(`This email has not yet set a password for the account.
-Before proceeding, please set a password using the following link: https://console.liara.ir/settings/security
-After setting your password, please run 'liara login' or 'liara account:add' again.`);
-      }
-      if (!exists) {
-        throw new Error(
-          `This email has not been registered before.
-Before proceeding, please sign up using the following link: https://console.liara.ir`,
+      const data = await this.got
+        .post('v1/login/check-if-exists', {
+          json: body,
+          headers: { Authorization: undefined },
+        })
+        .json<{
+          status: string;
+          exists: boolean;
+          socialCompleted: boolean;
+          twoFAEnabled: boolean;
+        }>();
+
+      if (!data.exists) {
+        this.log();
+        this.error(
+          `The email you entered isn’t registered.
+To continue, please sign up at: https://console.liara.ir`,
         );
+      }
+      if (!data.socialCompleted) {
+        this.log();
+        this.error(`No password is set for this account.
+Set one here: https://console.liara.ir/settings/security
+Then run 'liara login' or 'liara account:add' again.`);
       }
       return data;
     } catch (error) {
       debug(error);
-      this
-        .error(`Checking email address failed. Please check your internet connection and try again.
+      this.error(`Please check your internet connection and try again.
 If the issue persists, please submit a ticket at https://console.liara.ir/tickets for further assistance.`);
     }
   }
 
-  async login(
-    body: {
-      email: string;
-      password: string;
-      twoFAType?: string;
-      totp?: string;
-      recoveryCode?: string;
-    },
-    debug: DebugLogger,
-  ) {
-    const data = (await retry(
-      async () => {
-        try {
-          const data = await this.got
-            .post('v1/login', {
-              json: body,
-              headers: { Authorization: undefined },
-            })
-            .json<IAccount>();
-          return data;
-        } catch (error) {
-          debug('retrying...');
-          throw error;
-        }
-      },
-      { retries: 3 },
-    )) as {
-      api_token: string;
-      avatar: string;
-      fullname: string;
-      email: string;
-    };
-    return data;
+  async login(body: {
+    email: string;
+    password: string;
+    twoFAType?: string;
+    totp?: string;
+    recoveryCode?: string;
+  }) {
+    try {
+      const data = await this.got
+        .post('v1/login', {
+          json: body,
+          headers: { Authorization: undefined },
+        })
+        .json<IAccount>();
+
+      return {
+        email: data.email,
+        api_token: data.api_token!,
+        fullname: data.fullname,
+        current: data.current,
+        avatar: data.avatar,
+      };
+    } catch (error) {
+      if (
+        error.response.statusCode == 401 ||
+        error.response.statusCode == 400
+      ) {
+        this.error(`Authentication failed.
+The credentials you entered is incorrect.
+If you’ve forgotten or lost your password/twoFA, reset it at https://console.liara.ir
+        `);
+      }
+      this.error(`Authentication failed.
+If the issue persists, please open a ticket at https://console.liara.ir/tickets
+Error: ${error.response.statusMessage} (${error.response.statusCode})
+        `);
+    }
   }
 
   addNewAccountToConfig(
