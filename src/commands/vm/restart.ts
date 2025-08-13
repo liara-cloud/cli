@@ -43,7 +43,7 @@ export default class VmRestart extends Command {
       const vm = flags.vm
         ? vms.find((vm) => vm.name === flags.vm) ||
           (() => {
-            throw new Error('vm is not ruuning or does not exists.');
+            this.error('vm is not running or does not exists.');
           })()
         : await promptVMs(vms);
       await createAction(vm._id, 'reboot', this.got);
