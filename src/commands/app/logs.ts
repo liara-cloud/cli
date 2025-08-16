@@ -164,16 +164,6 @@ export default class AppLogs extends Command {
         process.exit(2);
       }
 
-      if (error.response && error.response.statusCode === 428) {
-        this.debug(error.response.body);
-        const message = `To view more logs, upgrade your feature bundle plan, first.
-                            Then try again.
-                            https://console.liara.ir/apps/${appName}/resize`;
-        // tslint:disable-next-line: no-console
-        console.error(new Errors.CLIError(message).render());
-        process.exit(2);
-      }
-
       this.debug(error.response.body ? error.response.body : error.response);
       const genericErrorMessage: string = `'We encountered an issue and were unable to retrieve the logs.
        Solutions:

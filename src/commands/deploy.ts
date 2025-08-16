@@ -167,6 +167,13 @@ export default class Deploy extends Command {
       const { project } = await this.got(
         `v1/projects/${config.app}`,
       ).json<IProjectDetailsResponse>();
+
+      if (!project.scale) {
+        return this.error(
+          `The ${config.app} app isn’t running. Please start the app first.`,
+        );
+      }
+
       bundlePlanID = project.bundlePlanID;
       if (!config.image) {
         if (!config.platform) {
