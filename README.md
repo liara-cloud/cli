@@ -21,7 +21,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/9.3.2-beta.1 linux-x64 node-v20.12.0
+@liara/cli/9.2.0 linux-x64 node-v22.13.1
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -76,6 +76,7 @@ USAGE
 * [`liara env set [ENV]`](#liara-env-set-env)
 * [`liara env unset [ENV]`](#liara-env-unset-env)
 * [`liara help [COMMAND]`](#liara-help-command)
+* [`liara init`](#liara-init)
 * [`liara login`](#liara-login)
 * [`liara logs`](#liara-logs)
 * [`liara mail create`](#liara-mail-create)
@@ -93,6 +94,18 @@ USAGE
 * [`liara start`](#liara-start)
 * [`liara stop`](#liara-stop)
 * [`liara version`](#liara-version)
+* [`liara vm create`](#liara-vm-create)
+* [`liara vm delete`](#liara-vm-delete)
+* [`liara vm info`](#liara-vm-info)
+* [`liara vm inspect`](#liara-vm-inspect)
+* [`liara vm list`](#liara-vm-list)
+* [`liara vm power off`](#liara-vm-power-off)
+* [`liara vm restart`](#liara-vm-restart)
+* [`liara vm rm`](#liara-vm-rm)
+* [`liara vm show`](#liara-vm-show)
+* [`liara vm shutdown`](#liara-vm-shutdown)
+* [`liara vm start`](#liara-vm-start)
+* [`liara vm stop`](#liara-vm-stop)
 * [`liara zone ch`](#liara-zone-ch)
 * [`liara zone check`](#liara-zone-check)
 * [`liara zone create`](#liara-zone-create)
@@ -116,7 +129,7 @@ add an account
 
 ```
 USAGE
-  $ liara account add [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>] [-e <value>] [-p
+  $ liara account add [-h] [--debug] [--api-token <value>] [-a <value>] [--team-id <value>] [-e <value>] [-p
     <value>]
 
 FLAGS
@@ -126,14 +139,13 @@ FLAGS
   -p, --password=<value>   your password
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   add an account
 ```
 
-_See code: [src/commands/account/add.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/account/add.ts)_
+_See code: [src/commands/account/add.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/account/add.ts)_
 
 ## `liara account list`
 
@@ -141,7 +153,7 @@ list available accounts
 
 ```
 USAGE
-  $ liara account list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara account list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -158,9 +170,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available accounts
@@ -169,7 +180,7 @@ ALIASES
   $ liara account ls
 ```
 
-_See code: [src/commands/account/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/account/list.ts)_
+_See code: [src/commands/account/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/account/list.ts)_
 
 ## `liara account ls`
 
@@ -177,7 +188,7 @@ list available accounts
 
 ```
 USAGE
-  $ liara account ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara account ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -194,9 +205,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available accounts
@@ -211,15 +221,14 @@ remove an account
 
 ```
 USAGE
-  $ liara account remove [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+  $ liara account remove [-h] [--debug] [--api-token <value>] [-a <value>] [--team-id <value>]
 
 FLAGS
   -a, --account=<value>    account name
   -h, --help               Show CLI help.
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   remove an account
@@ -228,7 +237,7 @@ ALIASES
   $ liara account rm
 ```
 
-_See code: [src/commands/account/remove.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/account/remove.ts)_
+_See code: [src/commands/account/remove.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/account/remove.ts)_
 
 ## `liara account rm`
 
@@ -236,15 +245,14 @@ remove an account
 
 ```
 USAGE
-  $ liara account rm [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+  $ liara account rm [-h] [--debug] [--api-token <value>] [-a <value>] [--team-id <value>]
 
 FLAGS
   -a, --account=<value>    account name
   -h, --help               Show CLI help.
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   remove an account
@@ -259,21 +267,20 @@ select an account
 
 ```
 USAGE
-  $ liara account use [-h] [--debug] [--api-token <value>] [--region iran|germany] [-a <value>]
+  $ liara account use [-h] [--debug] [--api-token <value>] [-a <value>] [--team-id <value>]
 
 FLAGS
   -a, --account=<value>    account name
   -h, --help               Show CLI help.
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   select an account
 ```
 
-_See code: [src/commands/account/use.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/account/use.ts)_
+_See code: [src/commands/account/use.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/account/use.ts)_
 
 ## `liara app create`
 
@@ -281,8 +288,8 @@ create an app
 
 ```
 USAGE
-  $ liara app create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>] [--platform <value>] [--plan <value>] [--feature-plan <value>] [-n <value>] [-r true|false]
+  $ liara app create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
+    [--platform <value>] [--plan <value>] [--feature-plan <value>] [-n <value>] [-r true|false]
 
 FLAGS
   -a, --app=<value>           app id
@@ -296,8 +303,7 @@ FLAGS
       --feature-plan=<value>  feature bundle plan
       --plan=<value>          plan
       --platform=<value>      platform
-      --region=<option>       the region you want to deploy your app to
-                              <options: iran|germany>
+      --team-id=<value>       your team id
 
 DESCRIPTION
   create an app
@@ -306,7 +312,7 @@ ALIASES
   $ liara create
 ```
 
-_See code: [src/commands/app/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/app/create.ts)_
+_See code: [src/commands/app/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/app/create.ts)_
 
 ## `liara app delete`
 
@@ -314,8 +320,7 @@ delete an app
 
 ```
 USAGE
-  $ liara app delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>]
+  $ liara app delete [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -323,8 +328,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   delete an app
@@ -335,7 +339,7 @@ ALIASES
   $ liara app rm
 ```
 
-_See code: [src/commands/app/delete.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/app/delete.ts)_
+_See code: [src/commands/app/delete.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/app/delete.ts)_
 
 ## `liara app list`
 
@@ -343,7 +347,7 @@ list available apps
 
 ```
 USAGE
-  $ liara app list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara app list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -360,9 +364,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available apps
@@ -371,7 +374,7 @@ ALIASES
   $ liara app ls
 ```
 
-_See code: [src/commands/app/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/app/list.ts)_
+_See code: [src/commands/app/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/app/list.ts)_
 
 ## `liara app logs`
 
@@ -379,8 +382,8 @@ fetch the logs of an app
 
 ```
 USAGE
-  $ liara app logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>] [-s <value>] [-t] [-f] [-c]
+  $ liara app logs [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
+    [-s <value>] [-t] [-f] [-c]
 
 FLAGS
   -a, --app=<value>        app id
@@ -392,8 +395,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   fetch the logs of an app
@@ -402,7 +404,7 @@ ALIASES
   $ liara logs
 ```
 
-_See code: [src/commands/app/logs.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/app/logs.ts)_
+_See code: [src/commands/app/logs.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/app/logs.ts)_
 
 ## `liara app ls`
 
@@ -410,7 +412,7 @@ list available apps
 
 ```
 USAGE
-  $ liara app ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara app ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -427,9 +429,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available apps
@@ -444,8 +445,7 @@ delete an app
 
 ```
 USAGE
-  $ liara app remove [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>]
+  $ liara app remove [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -453,8 +453,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   delete an app
@@ -471,8 +470,7 @@ restart an app
 
 ```
 USAGE
-  $ liara app restart [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>]
+  $ liara app restart [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -480,8 +478,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   restart an app
@@ -490,7 +487,7 @@ ALIASES
   $ liara restart
 ```
 
-_See code: [src/commands/app/restart.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/app/restart.ts)_
+_See code: [src/commands/app/restart.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/app/restart.ts)_
 
 ## `liara app rm`
 
@@ -498,8 +495,7 @@ delete an app
 
 ```
 USAGE
-  $ liara app rm [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>]
+  $ liara app rm [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -507,8 +503,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   delete an app
@@ -525,8 +520,8 @@ run a command in a running applet
 
 ```
 USAGE
-  $ liara app shell [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>] [-c <value>]
+  $ liara app shell [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
+    [-c <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -535,8 +530,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   run a command in a running applet
@@ -545,7 +539,7 @@ ALIASES
   $ liara shell
 ```
 
-_See code: [src/commands/app/shell.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/app/shell.ts)_
+_See code: [src/commands/app/shell.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/app/shell.ts)_
 
 ## `liara app start`
 
@@ -553,8 +547,7 @@ start an app
 
 ```
 USAGE
-  $ liara app start [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>]
+  $ liara app start [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -562,8 +555,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   start an app
@@ -572,7 +564,7 @@ ALIASES
   $ liara start
 ```
 
-_See code: [src/commands/app/start.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/app/start.ts)_
+_See code: [src/commands/app/start.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/app/start.ts)_
 
 ## `liara app stop`
 
@@ -580,8 +572,7 @@ stop an app
 
 ```
 USAGE
-  $ liara app stop [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>]
+  $ liara app stop [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -589,8 +580,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   stop an app
@@ -599,7 +589,7 @@ ALIASES
   $ liara stop
 ```
 
-_See code: [src/commands/app/stop.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/app/stop.ts)_
+_See code: [src/commands/app/stop.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/app/stop.ts)_
 
 ## `liara autocomplete [SHELL]`
 
@@ -630,7 +620,7 @@ EXAMPLES
   $ liara autocomplete --refresh-cache
 ```
 
-_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v3.0.15/src/commands/autocomplete/index.ts)_
+_See code: [@oclif/plugin-autocomplete](https://github.com/oclif/plugin-autocomplete/blob/v3.1.11/src/commands/autocomplete/index.ts)_
 
 ## `liara bucket create`
 
@@ -638,7 +628,7 @@ create a bucket
 
 ```
 USAGE
-  $ liara bucket create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--name
+  $ liara bucket create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--name
     <value>] [--permission <value>] [--plan <value>]
 
 FLAGS
@@ -649,8 +639,7 @@ FLAGS
       --name=<value>        name
       --permission=<value>  permission
       --plan=<value>        plan
-      --region=<option>     the region you want to deploy your app to
-                            <options: iran|germany>
+      --team-id=<value>     your team id
 
 DESCRIPTION
   create a bucket
@@ -659,7 +648,7 @@ ALIASES
   $ liara bucket create
 ```
 
-_See code: [src/commands/bucket/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/bucket/create.ts)_
+_See code: [src/commands/bucket/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/bucket/create.ts)_
 
 ## `liara bucket delete`
 
@@ -667,8 +656,8 @@ delete a bucket
 
 ```
 USAGE
-  $ liara bucket delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-b
-    <value>] [-f]
+  $ liara bucket delete [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-b <value>]
+    [-f]
 
 FLAGS
   -b, --bucket=<value>     bucket name
@@ -677,8 +666,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   delete a bucket
@@ -687,7 +675,7 @@ ALIASES
   $ liara bucket delete
 ```
 
-_See code: [src/commands/bucket/delete.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/bucket/delete.ts)_
+_See code: [src/commands/bucket/delete.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/bucket/delete.ts)_
 
 ## `liara bucket list`
 
@@ -695,7 +683,7 @@ list available buckets
 
 ```
 USAGE
-  $ liara bucket list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara bucket list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -712,9 +700,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available buckets
@@ -723,7 +710,7 @@ ALIASES
   $ liara bucket ls
 ```
 
-_See code: [src/commands/bucket/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/bucket/list.ts)_
+_See code: [src/commands/bucket/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/bucket/list.ts)_
 
 ## `liara bucket ls`
 
@@ -731,7 +718,7 @@ list available buckets
 
 ```
 USAGE
-  $ liara bucket ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara bucket ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -748,9 +735,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available buckets
@@ -765,8 +751,8 @@ create an app
 
 ```
 USAGE
-  $ liara create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>] [--platform <value>] [--plan <value>] [--feature-plan <value>] [-n <value>] [-r true|false]
+  $ liara create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
+    [--platform <value>] [--plan <value>] [--feature-plan <value>] [-n <value>] [-r true|false]
 
 FLAGS
   -a, --app=<value>           app id
@@ -780,8 +766,7 @@ FLAGS
       --feature-plan=<value>  feature bundle plan
       --plan=<value>          plan
       --platform=<value>      platform
-      --region=<option>       the region you want to deploy your app to
-                              <options: iran|germany>
+      --team-id=<value>       your team id
 
 DESCRIPTION
   create an app
@@ -796,8 +781,7 @@ create a database backup
 
 ```
 USAGE
-  $ liara db backup create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
-    <value>]
+  $ liara db backup create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -805,14 +789,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   create a database backup
 ```
 
-_See code: [src/commands/db/backup/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/db/backup/create.ts)_
+_See code: [src/commands/db/backup/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/db/backup/create.ts)_
 
 ## `liara db backup dl`
 
@@ -820,8 +803,8 @@ download a database backup
 
 ```
 USAGE
-  $ liara db backup dl [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
-    <value>] [-b <value>] [-o <value>]
+  $ liara db backup dl [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
+    [-b <value>] [-o <value>]
 
 FLAGS
   -b, --backup=<value>     select which backup to download
@@ -831,8 +814,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   download a database backup
@@ -847,8 +829,8 @@ download a database backup
 
 ```
 USAGE
-  $ liara db backup download [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
-    <value>] [-b <value>] [-o <value>]
+  $ liara db backup download [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
+    [-b <value>] [-o <value>]
 
 FLAGS
   -b, --backup=<value>     select which backup to download
@@ -858,8 +840,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   download a database backup
@@ -868,7 +849,7 @@ ALIASES
   $ liara db backup dl
 ```
 
-_See code: [src/commands/db/backup/download.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/db/backup/download.ts)_
+_See code: [src/commands/db/backup/download.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/db/backup/download.ts)_
 
 ## `liara db backup list`
 
@@ -876,9 +857,9 @@ list backups for a database
 
 ```
 USAGE
-  $ liara db backup list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
-    <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml
-    |  | ] [--sort <value>]
+  $ liara db backup list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
+    [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ]
+    [--sort <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -894,9 +875,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list backups for a database
@@ -905,7 +885,7 @@ ALIASES
   $ liara db backup ls
 ```
 
-_See code: [src/commands/db/backup/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/db/backup/list.ts)_
+_See code: [src/commands/db/backup/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/db/backup/list.ts)_
 
 ## `liara db backup ls`
 
@@ -913,9 +893,9 @@ list backups for a database
 
 ```
 USAGE
-  $ liara db backup ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
-    <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml
-    |  | ] [--sort <value>]
+  $ liara db backup ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
+    [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ]
+    [--sort <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -931,9 +911,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list backups for a database
@@ -948,9 +927,8 @@ create a new database
 
 ```
 USAGE
-  $ liara db create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
-    <value>] [--plan <value>] [--public-network] [--feature-plan <value>] [-t <value>] [-v <value>] [-y] [--network
-    <value>]
+  $ liara db create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
+    [--plan <value>] [--public-network] [--feature-plan <value>] [-t <value>] [-v <value>] [-y] [--network <value>]
 
 FLAGS
   -h, --help                  Show CLI help.
@@ -965,14 +943,13 @@ FLAGS
       --network=<value>       network
       --plan=<value>          plan
       --public-network        use public network or not
-      --region=<option>       the region you want to deploy your app to
-                              <options: iran|germany>
+      --team-id=<value>       your team id
 
 DESCRIPTION
   create a new database
 ```
 
-_See code: [src/commands/db/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/db/create.ts)_
+_See code: [src/commands/db/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/db/create.ts)_
 
 ## `liara db list`
 
@@ -980,7 +957,7 @@ list available databases
 
 ```
 USAGE
-  $ liara db list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara db list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -997,9 +974,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available databases
@@ -1008,7 +984,7 @@ ALIASES
   $ liara db ls
 ```
 
-_See code: [src/commands/db/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/db/list.ts)_
+_See code: [src/commands/db/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/db/list.ts)_
 
 ## `liara db ls`
 
@@ -1016,7 +992,7 @@ list available databases
 
 ```
 USAGE
-  $ liara db ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara db ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -1033,9 +1009,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available databases
@@ -1050,8 +1025,8 @@ remove a database
 
 ```
 USAGE
-  $ liara db remove [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
-    <value>] [-y]
+  $ liara db remove [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
+    [-y]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -1060,8 +1035,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   remove a database
@@ -1070,7 +1044,7 @@ ALIASES
   $ liara db rm
 ```
 
-_See code: [src/commands/db/remove.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/db/remove.ts)_
+_See code: [src/commands/db/remove.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/db/remove.ts)_
 
 ## `liara db resize`
 
@@ -1078,8 +1052,8 @@ resize a database
 
 ```
 USAGE
-  $ liara db resize [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
-    <value>] [--plan <value>] [-d <value>]
+  $ liara db resize [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
+    [--plan <value>] [-d <value>]
 
 FLAGS
   -d, --disk=<value>       extend disk size or not
@@ -1089,14 +1063,13 @@ FLAGS
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
       --plan=<value>       new plan name
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   resize a database
 ```
 
-_See code: [src/commands/db/resize.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/db/resize.ts)_
+_See code: [src/commands/db/resize.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/db/resize.ts)_
 
 ## `liara db rm`
 
@@ -1104,8 +1077,8 @@ remove a database
 
 ```
 USAGE
-  $ liara db rm [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
-    <value>] [-y]
+  $ liara db rm [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
+    [-y]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -1114,8 +1087,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   remove a database
@@ -1130,8 +1102,7 @@ start a database
 
 ```
 USAGE
-  $ liara db start [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
-    <value>]
+  $ liara db start [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -1139,14 +1110,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   start a database
 ```
 
-_See code: [src/commands/db/start.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/db/start.ts)_
+_See code: [src/commands/db/start.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/db/start.ts)_
 
 ## `liara db stop`
 
@@ -1154,8 +1124,7 @@ stop a database
 
 ```
 USAGE
-  $ liara db stop [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
-    <value>]
+  $ liara db stop [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -1163,14 +1132,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   stop a database
 ```
 
-_See code: [src/commands/db/stop.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/db/stop.ts)_
+_See code: [src/commands/db/stop.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/db/stop.ts)_
 
 ## `liara delete`
 
@@ -1178,8 +1146,7 @@ delete an app
 
 ```
 USAGE
-  $ liara delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>]
+  $ liara delete [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -1187,8 +1154,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   delete an app
@@ -1205,9 +1171,9 @@ deploy an app
 
 ```
 USAGE
-  $ liara deploy [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--path
+  $ liara deploy [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--path
     <value>] [--platform <value>] [-a <value>] [-p <value>] [-i <value>] [--detach] [--no-app-logs] [--args <value>]
-    [--build-arg <value>] [-m <value>] [-d <value>] [--no-cache] [-f <value>] [-b iran|germany]
+    [--build-arg <value>...] [-m <value>] [-d <value>...] [--no-cache] [-f <value>] [-b iran|germany]
 
 FLAGS
   -a, --app=<value>              app id
@@ -1229,14 +1195,13 @@ FLAGS
       --no-cache                 do not use cache when building the image
       --path=<value>             app path in your computer
       --platform=<value>         the platform your app needs to run
-      --region=<option>          the region you want to deploy your app to
-                                 <options: iran|germany>
+      --team-id=<value>          your team id
 
 DESCRIPTION
   deploy an app
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/deploy.ts)_
 
 ## `liara disk create`
 
@@ -1244,8 +1209,8 @@ create a disk
 
 ```
 USAGE
-  $ liara disk create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>] [-n <value>] [-s <value>]
+  $ liara disk create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
+    [-n <value>] [-s <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -1255,14 +1220,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   create a disk
 ```
 
-_See code: [src/commands/disk/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/disk/create.ts)_
+_See code: [src/commands/disk/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/disk/create.ts)_
 
 ## `liara env list`
 
@@ -1270,9 +1234,9 @@ list environment variables of an app
 
 ```
 USAGE
-  $ liara env list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml
-    |  | ] [--sort <value>]
+  $ liara env list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
+    [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ]
+    [--sort <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -1288,9 +1252,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list environment variables of an app
@@ -1299,7 +1262,7 @@ ALIASES
   $ liara env ls
 ```
 
-_See code: [src/commands/env/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/env/list.ts)_
+_See code: [src/commands/env/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/env/list.ts)_
 
 ## `liara env ls`
 
@@ -1307,9 +1270,9 @@ list environment variables of an app
 
 ```
 USAGE
-  $ liara env ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml
-    |  | ] [--sort <value>]
+  $ liara env ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
+    [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ]
+    [--sort <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -1325,9 +1288,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list environment variables of an app
@@ -1342,8 +1304,8 @@ specifying environment variables to an app
 
 ```
 USAGE
-  $ liara env set [ENV...] [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>]
-    [-a <value>] [-f]
+  $ liara env set [ENV...] [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a
+    <value>] [-f]
 
 ARGUMENTS
   ENV...  key=value pair
@@ -1355,14 +1317,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   specifying environment variables to an app
 ```
 
-_See code: [src/commands/env/set.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/env/set.ts)_
+_See code: [src/commands/env/set.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/env/set.ts)_
 
 ## `liara env unset [ENV]`
 
@@ -1370,8 +1331,8 @@ remove environment variables from an app
 
 ```
 USAGE
-  $ liara env unset [ENV...] [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>]
-    [-a <value>] [-f]
+  $ liara env unset [ENV...] [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a
+    <value>] [-f]
 
 ARGUMENTS
   ENV...  key
@@ -1383,14 +1344,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   remove environment variables from an app
 ```
 
-_See code: [src/commands/env/unset.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/env/unset.ts)_
+_See code: [src/commands/env/unset.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/env/unset.ts)_
 
 ## `liara help [COMMAND]`
 
@@ -1410,7 +1370,40 @@ DESCRIPTION
   Display help for liara.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.0.21/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.20/src/commands/help.ts)_
+
+## `liara init`
+
+create a liara.json file
+
+```
+USAGE
+  $ liara init [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-y] [-n
+    <value>] [-p <value>] [-P <value>] [-v <value>] [--build-location <value>] [-d <value> --path <value>]
+
+FLAGS
+  -P, --platform=<value>        the platform your app needs to run on
+  -d, --disk=<value>            the name of the disk
+  -h, --help                    Show CLI help.
+  -n, --name=<value>            the name of the app
+  -p, --port=<value>            the port your app listens to
+  -v, --version=<value>         the version of the platform
+  -y, --y                       create an example file
+      --account=<value>         temporarily switch to a different account
+      --api-token=<value>       your api token to use for authentication
+      --build-location=<value>  name of the build's location
+      --debug                   show debug logs
+      --path=<value>            the path where the disk should be mounted
+      --team-id=<value>         your team id
+
+DESCRIPTION
+  create a liara.json file
+
+EXAMPLES
+  $ liara init
+```
+
+_See code: [src/commands/init.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/init.ts)_
 
 ## `liara login`
 
@@ -1418,8 +1411,8 @@ login to your account
 
 ```
 USAGE
-  $ liara login [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-e
-    <value>] [-p <value>] [-i] [--browser chrome|firefox|edge]
+  $ liara login [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-e <value>]
+    [-p <value>] [-i] [--browser chrome|firefox|edge]
 
 FLAGS
   -e, --email=<value>      your email
@@ -1431,14 +1424,13 @@ FLAGS
       --browser=<option>   browser to open
                            <options: chrome|firefox|edge>
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   login to your account
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/login.ts)_
 
 ## `liara logs`
 
@@ -1446,8 +1438,8 @@ fetch the logs of an app
 
 ```
 USAGE
-  $ liara logs [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>] [-s <value>] [-t] [-f] [-c]
+  $ liara logs [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
+    [-s <value>] [-t] [-f] [-c]
 
 FLAGS
   -a, --app=<value>        app id
@@ -1459,8 +1451,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   fetch the logs of an app
@@ -1475,7 +1466,7 @@ create a mail server
 
 ```
 USAGE
-  $ liara mail create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--domain
+  $ liara mail create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--domain
     <value>] [--plan <value>] [--mode <value>]
 
 FLAGS
@@ -1486,8 +1477,7 @@ FLAGS
       --domain=<value>     domain
       --mode=<value>       mode
       --plan=<value>       plan
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   create a mail server
@@ -1496,7 +1486,7 @@ ALIASES
   $ liara mail create
 ```
 
-_See code: [src/commands/mail/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/mail/create.ts)_
+_See code: [src/commands/mail/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/mail/create.ts)_
 
 ## `liara mail delete`
 
@@ -1504,8 +1494,8 @@ delete an mail server
 
 ```
 USAGE
-  $ liara mail delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-m
-    <value>] [-f]
+  $ liara mail delete [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-m <value>]
+    [-f]
 
 FLAGS
   -f, --force              force the deletion
@@ -1514,8 +1504,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   delete an mail server
@@ -1524,7 +1513,7 @@ ALIASES
   $ liara mail delete
 ```
 
-_See code: [src/commands/mail/delete.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/mail/delete.ts)_
+_See code: [src/commands/mail/delete.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/mail/delete.ts)_
 
 ## `liara mail list`
 
@@ -1532,7 +1521,7 @@ list available mail servers
 
 ```
 USAGE
-  $ liara mail list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara mail list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -1549,9 +1538,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available mail servers
@@ -1560,7 +1548,7 @@ ALIASES
   $ liara mail ls
 ```
 
-_See code: [src/commands/mail/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/mail/list.ts)_
+_See code: [src/commands/mail/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/mail/list.ts)_
 
 ## `liara mail ls`
 
@@ -1568,7 +1556,7 @@ list available mail servers
 
 ```
 USAGE
-  $ liara mail ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara mail ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -1585,9 +1573,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available mail servers
@@ -1602,8 +1589,8 @@ send an email
 
 ```
 USAGE
-  $ liara mail send [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--mail
-    <value>] [--from <value>] [--to <value>] [--subject <value>] [--text <value>] [--attachments <value>]
+  $ liara mail send [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--mail
+    <value>] [--from <value>] [--to <value>] [--subject <value>] [--text <value>] [--attachments <value>...]
 
 FLAGS
   -h, --help                    Show CLI help.
@@ -1613,9 +1600,8 @@ FLAGS
       --debug                   show debug logs
       --from=<value>            from
       --mail=<value>            mail server id
-      --region=<option>         the region you want to deploy your app to
-                                <options: iran|germany>
       --subject=<value>         subject
+      --team-id=<value>         your team id
       --text=<value>            text
       --to=<value>              to
 
@@ -1626,7 +1612,7 @@ ALIASES
   $ liara mail send
 ```
 
-_See code: [src/commands/mail/send.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/mail/send.ts)_
+_See code: [src/commands/mail/send.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/mail/send.ts)_
 
 ## `liara network create`
 
@@ -1634,8 +1620,7 @@ create network
 
 ```
 USAGE
-  $ liara network create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
-    <value>]
+  $ liara network create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -1643,14 +1628,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   create network
 ```
 
-_See code: [src/commands/network/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/network/create.ts)_
+_See code: [src/commands/network/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/network/create.ts)_
 
 ## `liara network list`
 
@@ -1658,7 +1642,7 @@ list available networks
 
 ```
 USAGE
-  $ liara network list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara network list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -1675,9 +1659,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available networks
@@ -1686,7 +1669,7 @@ ALIASES
   $ liara network ls
 ```
 
-_See code: [src/commands/network/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/network/list.ts)_
+_See code: [src/commands/network/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/network/list.ts)_
 
 ## `liara network ls`
 
@@ -1694,7 +1677,7 @@ list available networks
 
 ```
 USAGE
-  $ liara network ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara network ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -1711,9 +1694,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available networks
@@ -1728,7 +1710,7 @@ list available plans
 
 ```
 USAGE
-  $ liara plan list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara plan list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -1745,9 +1727,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available plans
@@ -1756,7 +1737,7 @@ ALIASES
   $ liara plan ls
 ```
 
-_See code: [src/commands/plan/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/plan/list.ts)_
+_See code: [src/commands/plan/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/plan/list.ts)_
 
 ## `liara plan ls`
 
@@ -1764,7 +1745,7 @@ list available plans
 
 ```
 USAGE
-  $ liara plan ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara plan ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -1781,9 +1762,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list available plans
@@ -1798,8 +1778,7 @@ restart an app
 
 ```
 USAGE
-  $ liara restart [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>]
+  $ liara restart [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -1807,8 +1786,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   restart an app
@@ -1823,8 +1801,8 @@ run a command in a running applet
 
 ```
 USAGE
-  $ liara shell [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>] [-c <value>]
+  $ liara shell [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
+    [-c <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -1833,8 +1811,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   run a command in a running applet
@@ -1849,8 +1826,7 @@ start an app
 
 ```
 USAGE
-  $ liara start [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>]
+  $ liara start [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -1858,8 +1834,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   start an app
@@ -1874,8 +1849,7 @@ stop an app
 
 ```
 USAGE
-  $ liara stop [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-a
-    <value>]
+  $ liara stop [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-a <value>]
 
 FLAGS
   -a, --app=<value>        app id
@@ -1883,8 +1857,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   stop an app
@@ -1911,7 +1884,358 @@ FLAG DESCRIPTIONS
     Additionally shows the architecture, node version, operating system, and versions of plugins that the CLI is using.
 ```
 
-_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v2.0.17/src/commands/version.ts)_
+_See code: [@oclif/plugin-version](https://github.com/oclif/plugin-version/blob/v2.2.18/src/commands/version.ts)_
+
+## `liara vm create`
+
+create a vm
+
+```
+USAGE
+  $ liara vm create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-d]
+
+FLAGS
+  -d, --detach             run command in detach mode
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         vm name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  create a vm
+```
+
+_See code: [src/commands/vm/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/vm/create.ts)_
+
+## `liara vm delete`
+
+delete a vm
+
+```
+USAGE
+  $ liara vm delete [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-f]
+
+FLAGS
+  -f, --force              force the deletion
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         vm name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  delete a vm
+
+ALIASES
+  $ liara vm delete
+  $ liara vm rm
+```
+
+_See code: [src/commands/vm/delete.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/vm/delete.ts)_
+
+## `liara vm info`
+
+show vm information
+
+```
+USAGE
+  $ liara vm info [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>] [-v <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         vm name
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  show vm information
+
+ALIASES
+  $ liara vm show
+  $ liara vm inspect
+```
+
+_See code: [src/commands/vm/info.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/vm/info.ts)_
+
+## `liara vm inspect`
+
+show vm information
+
+```
+USAGE
+  $ liara vm inspect [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>] [-v <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         vm name
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  show vm information
+
+ALIASES
+  $ liara vm show
+  $ liara vm inspect
+```
+
+## `liara vm list`
+
+list available vms
+
+```
+USAGE
+  $ liara vm list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  list available vms
+```
+
+_See code: [src/commands/vm/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/vm/list.ts)_
+
+## `liara vm power off`
+
+stop a vm
+
+```
+USAGE
+  $ liara vm power off [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-f] [-d]
+
+FLAGS
+  -d, --detach             run command in detach mode
+  -f, --force              force the deletion
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         vm name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  stop a vm
+
+ALIASES
+  $ liara vm stop
+  $ liara vm power off
+  $ liara vm shutdown
+```
+
+## `liara vm restart`
+
+restart a vm
+
+```
+USAGE
+  $ liara vm restart [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-d]
+
+FLAGS
+  -d, --detach             run command in detach mode
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         vm name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  restart a vm
+```
+
+_See code: [src/commands/vm/restart.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/vm/restart.ts)_
+
+## `liara vm rm`
+
+delete a vm
+
+```
+USAGE
+  $ liara vm rm [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-f]
+
+FLAGS
+  -f, --force              force the deletion
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         vm name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  delete a vm
+
+ALIASES
+  $ liara vm delete
+  $ liara vm rm
+```
+
+## `liara vm show`
+
+show vm information
+
+```
+USAGE
+  $ liara vm show [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>] [-v <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         vm name
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  show vm information
+
+ALIASES
+  $ liara vm show
+  $ liara vm inspect
+```
+
+## `liara vm shutdown`
+
+stop a vm
+
+```
+USAGE
+  $ liara vm shutdown [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-f] [-d]
+
+FLAGS
+  -d, --detach             run command in detach mode
+  -f, --force              force the deletion
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         vm name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  stop a vm
+
+ALIASES
+  $ liara vm stop
+  $ liara vm power off
+  $ liara vm shutdown
+```
+
+## `liara vm start`
+
+start a vm
+
+```
+USAGE
+  $ liara vm start [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-d]
+
+FLAGS
+  -d, --detach             run command in detach mode
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         vm name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  start a vm
+```
+
+_See code: [src/commands/vm/start.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/vm/start.ts)_
+
+## `liara vm stop`
+
+stop a vm
+
+```
+USAGE
+  $ liara vm stop [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-v <value>]
+    [-f] [-d]
+
+FLAGS
+  -d, --detach             run command in detach mode
+  -f, --force              force the deletion
+  -h, --help               Show CLI help.
+  -v, --vm=<value>         vm name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id
+
+DESCRIPTION
+  stop a vm
+
+ALIASES
+  $ liara vm stop
+  $ liara vm power off
+  $ liara vm shutdown
+```
+
+_See code: [src/commands/vm/stop.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/vm/stop.ts)_
 
 ## `liara zone ch`
 
@@ -1919,9 +2243,9 @@ check zone status
 
 ```
 USAGE
-  $ liara zone ch [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
-    <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml
-    |  | ] [--sort <value>]
+  $ liara zone ch [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-z <value>]
+    [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ]
+    [--sort <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -1937,9 +2261,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   check zone status
@@ -1954,9 +2277,9 @@ check zone status
 
 ```
 USAGE
-  $ liara zone check [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
-    <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml
-    |  | ] [--sort <value>]
+  $ liara zone check [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-z <value>]
+    [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ]
+    [--sort <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -1972,9 +2295,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   check zone status
@@ -1983,7 +2305,7 @@ ALIASES
   $ liara zone ch
 ```
 
-_See code: [src/commands/zone/check.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/zone/check.ts)_
+_See code: [src/commands/zone/check.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/zone/check.ts)_
 
 ## `liara zone create`
 
@@ -1991,8 +2313,7 @@ create a new zone
 
 ```
 USAGE
-  $ liara zone create [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
-    <value>]
+  $ liara zone create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-z <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -2000,14 +2321,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   create a new zone
 ```
 
-_See code: [src/commands/zone/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/zone/create.ts)_
+_See code: [src/commands/zone/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/zone/create.ts)_
 
 ## `liara zone del`
 
@@ -2015,9 +2335,9 @@ delete a zone
 
 ```
 USAGE
-  $ liara zone del [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
-    <value>] [-y] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output
-    csv|json|yaml |  | ] [--sort <value>]
+  $ liara zone del [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-z <value>]
+    [-y] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |
+    | ] [--sort <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -2034,9 +2354,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   delete a zone
@@ -2052,9 +2371,9 @@ delete a zone
 
 ```
 USAGE
-  $ liara zone delete [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
-    <value>] [-y] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output
-    csv|json|yaml |  | ] [--sort <value>]
+  $ liara zone delete [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-z <value>]
+    [-y] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |
+    | ] [--sort <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -2071,9 +2390,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   delete a zone
@@ -2083,7 +2401,7 @@ ALIASES
   $ liara zone rm
 ```
 
-_See code: [src/commands/zone/delete.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/zone/delete.ts)_
+_See code: [src/commands/zone/delete.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/zone/delete.ts)_
 
 ## `liara zone get`
 
@@ -2091,9 +2409,9 @@ inspect zone details
 
 ```
 USAGE
-  $ liara zone get [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
-    <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml
-    |  | ] [--sort <value>]
+  $ liara zone get [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-z <value>]
+    [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ]
+    [--sort <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -2109,15 +2427,14 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   inspect zone details
 ```
 
-_See code: [src/commands/zone/get.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/zone/get.ts)_
+_See code: [src/commands/zone/get.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/zone/get.ts)_
 
 ## `liara zone list`
 
@@ -2125,7 +2442,7 @@ list all zones
 
 ```
 USAGE
-  $ liara zone list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara zone list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -2142,9 +2459,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list all zones
@@ -2153,7 +2469,7 @@ ALIASES
   $ liara zone ls
 ```
 
-_See code: [src/commands/zone/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/zone/list.ts)_
+_See code: [src/commands/zone/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/zone/list.ts)_
 
 ## `liara zone ls`
 
@@ -2161,7 +2477,7 @@ list all zones
 
 ```
 USAGE
-  $ liara zone ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [--columns
+  $ liara zone ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -2178,9 +2494,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list all zones
@@ -2195,8 +2510,8 @@ create a new dns record
 
 ```
 USAGE
-  $ liara zone record create ZONE [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-n
-    <value>] [-t <value>] [-l <value>] [-i <value>] [-s <value>] [-m <value>] [-r <value>] [-x <value>]
+  $ liara zone record create ZONE [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n
+    <value>] [-t <value>] [-l <value>] [-i <value>...] [-s <value>] [-m <value>...] [-r <value>...] [-x <value>...]
 
 ARGUMENTS
   ZONE  zone name (domain)
@@ -2216,14 +2531,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
+      --team-id=<value>    your team id
 
 DESCRIPTION
   create a new dns record
 ```
 
-_See code: [src/commands/zone/record/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/zone/record/create.ts)_
+_See code: [src/commands/zone/record/create.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/zone/record/create.ts)_
 
 ## `liara zone record get`
 
@@ -2231,8 +2545,8 @@ get a DNS record
 
 ```
 USAGE
-  $ liara zone record get [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
-    <value>] [-n <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output
+  $ liara zone record get [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-z <value>]
+    [-n <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output
     csv|json|yaml |  | ] [--sort <value>]
 
 FLAGS
@@ -2250,15 +2564,14 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   get a DNS record
 ```
 
-_See code: [src/commands/zone/record/get.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/zone/record/get.ts)_
+_See code: [src/commands/zone/record/get.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/zone/record/get.ts)_
 
 ## `liara zone record list`
 
@@ -2266,9 +2579,9 @@ list all DNS records
 
 ```
 USAGE
-  $ liara zone record list [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
-    <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml
-    |  | ] [--sort <value>]
+  $ liara zone record list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-z <value>]
+    [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ]
+    [--sort <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -2284,9 +2597,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list all DNS records
@@ -2295,7 +2607,7 @@ ALIASES
   $ liara zone record ls
 ```
 
-_See code: [src/commands/zone/record/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/zone/record/list.ts)_
+_See code: [src/commands/zone/record/list.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/zone/record/list.ts)_
 
 ## `liara zone record ls`
 
@@ -2303,9 +2615,9 @@ list all DNS records
 
 ```
 USAGE
-  $ liara zone record ls [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
-    <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml
-    |  | ] [--sort <value>]
+  $ liara zone record ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-z <value>]
+    [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ]
+    [--sort <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -2321,9 +2633,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   list all DNS records
@@ -2338,8 +2649,8 @@ remove a DNS record
 
 ```
 USAGE
-  $ liara zone record remove [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
-    <value>] [-n <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output
+  $ liara zone record remove [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-z <value>]
+    [-n <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output
     csv|json|yaml |  | ] [--sort <value>]
 
 FLAGS
@@ -2357,9 +2668,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   remove a DNS record
@@ -2368,7 +2678,7 @@ ALIASES
   $ liara zone record rm
 ```
 
-_See code: [src/commands/zone/record/remove.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/zone/record/remove.ts)_
+_See code: [src/commands/zone/record/remove.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/zone/record/remove.ts)_
 
 ## `liara zone record rm`
 
@@ -2376,8 +2686,8 @@ remove a DNS record
 
 ```
 USAGE
-  $ liara zone record rm [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
-    <value>] [-n <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output
+  $ liara zone record rm [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-z <value>]
+    [-n <value>] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output
     csv|json|yaml |  | ] [--sort <value>]
 
 FLAGS
@@ -2395,9 +2705,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   remove a DNS record
@@ -2412,8 +2721,8 @@ update a DNS record
 
 ```
 USAGE
-  $ liara zone record update [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
-    <value>] [-n <value>] [-l <value>] [-i <value>] [-s <value>] [-m <value>] [-r <value>] [-x <value>] [--columns
+  $ liara zone record update [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-z <value>]
+    [-n <value>] [-l <value>] [-i <value>...] [-s <value>] [-m <value>...] [-r <value>...] [-x <value>...] [--columns
     <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
     <value>]
 
@@ -2440,15 +2749,14 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   update a DNS record
 ```
 
-_See code: [src/commands/zone/record/update.ts](https://github.com/liara-ir/liara-cli/blob/v9.3.2-beta.1/src/commands/zone/record/update.ts)_
+_See code: [src/commands/zone/record/update.ts](https://github.com/liara-ir/liara-cli/blob/v9.2.0/src/commands/zone/record/update.ts)_
 
 ## `liara zone rm`
 
@@ -2456,9 +2764,9 @@ delete a zone
 
 ```
 USAGE
-  $ liara zone rm [-h] [--debug] [--api-token <value>] [--region iran|germany] [--account <value>] [-z
-    <value>] [-y] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output
-    csv|json|yaml |  | ] [--sort <value>]
+  $ liara zone rm [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-z <value>]
+    [-y] [--columns <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |
+    | ] [--sort <value>]
 
 FLAGS
   -h, --help               Show CLI help.
@@ -2475,9 +2783,8 @@ FLAGS
       --no-truncate        do not truncate output to fit screen
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
-      --region=<option>    the region you want to deploy your app to
-                           <options: iran|germany>
       --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id
 
 DESCRIPTION
   delete a zone
