@@ -97,6 +97,11 @@ export default class Deploy extends Command {
       description: `name of the build's location`,
       options: ['iran', 'germany'],
     }),
+    'liara-json': Flags.string({
+      description:
+        'name of the liara config file (default is "PATH/liara.json")',
+      default: 'liara.json',
+    }),
   };
 
   spinner!: Ora;
@@ -771,7 +776,10 @@ Additionally, you can also retry the build with the debug flag:
     const defaults = {
       path: flags.path ? flags.path : process.cwd(),
     };
-    const projectConfig = this.readProjectConfig(defaults.path);
+    const projectConfig = this.readProjectConfig(
+      defaults.path,
+      flags['liara-json'],
+    );
 
     const disks = flags.disks
       ? flags.disks.map((el) => {
@@ -791,10 +799,13 @@ Additionally, you can also retry the build with the debug flag:
     };
   }
 
-  readProjectConfig(projectPath: string): ILiaraJSON {
+  readProjectConfig(
+    projectPath: string,
+    liaraJsonFileName: string = 'liara.json',
+  ): ILiaraJSON {
     let content;
 
-    const liaraJSONPath = path.join(projectPath, 'liara.json');
+    const liaraJSONPath = path.join(projectPath, liaraJsonFileName);
 
     const hasLiaraJSONFile = fs.existsSync(liaraJSONPath);
 

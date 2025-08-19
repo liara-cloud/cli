@@ -14,4 +14,5 @@ export default interface IFlags {
   dockerfile?: string;
   'build-location'?: string;
   'team-id'?: string;
+  'liara-json'?: string;
 }

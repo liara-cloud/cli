@@ -177,8 +177,8 @@
     "postpack": "rm -f oclif.manifest.json tsconfig.tsbuildinfo",
     "prepack": "set -ex; rm -rf lib && tsc -b && oclif manifest && oclif readme",
     "test": "node --loader ts-node/esm ./node_modules/.bin/mocha --forbid-only --timeout 5000 \"test/**/*.test.ts\"",
-    "version": "oclif readme && git add README.md",
-    "readme": "oclif readme",
+    "version": "npm run readme && git add README.md",
+    "readme": "set -ex; rm -rf lib && tsc -b && oclif manifest && oclif readme && rm -f oclif.manifest.json tsconfig.tsbuildinfo",
     "prepare": "husky install",
     "schema": "typescript-json-schema ./src/types/liara-json.ts ILiaraJSON -o ./schemas/json/liara.json"
   },
