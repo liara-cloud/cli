@@ -168,7 +168,17 @@ function getPythonVersion(projectPath: string, debug: DebugLogger) {
 }
 
 function getNodeVersion(projectPath: string, debug: DebugLogger) {
-  const supportedNodeVersion = ['8', '10', '12', '14', '16', '18', '20'];
+  const supportedNodeVersion = [
+    '8',
+    '10',
+    '12',
+    '14',
+    '16',
+    '18',
+    '20',
+    '22',
+    '24',
+  ];
 
   const packageJson = path.join(projectPath, 'package.json');
   const packageJsonData = fs.readJsonSync(packageJson);
