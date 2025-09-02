@@ -346,7 +346,7 @@ async function detectGoPlatformVersion(
   projectPath: string,
   debug: DebugLogger,
 ) {
-  const supportedGoVersions = ['1.21', '1.22', '1.23'];
+  const supportedGoVersions = ['1.21', '1.22', '1.23', '1.24', '1.25'];
 
   try {
     const goModFile = await findFile(projectPath, 'go.mod');
