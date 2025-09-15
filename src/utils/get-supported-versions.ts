@@ -6,7 +6,7 @@ interface IVersions {
 }
 const versions: IVersions = {
   dotnet: {
-    defaultVersion: '6.0',
+    defaultVersion: '8.0',
     allVersions: [
       '2.1',
       '2.2',
@@ -20,12 +20,12 @@ const versions: IVersions = {
     ],
   },
   node: {
-    defaultVersion: '20',
+    defaultVersion: '22',
     allVersions: ['14', '16', '18', '20', '22', '24'],
   },
   next: { defaultVersion: '22', allVersions: ['20', '22', '24'] },
   laravel: {
-    defaultVersion: '7.4',
+    defaultVersion: '8.2',
     allVersions: ['8.4', '8.3', '8.2', '8.1', '8.0', '7.4', '7.3', '7.2'],
   },
   php: {
