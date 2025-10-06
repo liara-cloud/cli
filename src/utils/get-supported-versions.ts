@@ -33,16 +33,16 @@ const versions: IVersions = {
     allVersions: ['8.4', '8.3', '8.2', '8.1', '8.0', '7.4', '7.3', '7.2'],
   },
   python: {
-    defaultVersion: '3.11',
-    allVersions: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12'],
+    defaultVersion: '3.12',
+    allVersions: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12', '3.13'],
   },
   django: {
-    defaultVersion: '3.10',
-    allVersions: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12'],
+    defaultVersion: '3.12',
+    allVersions: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12', '3.13'],
   },
   flask: {
-    defaultVersion: '3.10',
-    allVersions: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12'],
+    defaultVersion: '3.12',
+    allVersions: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12', '3.13'],
   },
   go: {
     defaultVersion: '1.24',

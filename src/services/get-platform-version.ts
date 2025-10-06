@@ -118,7 +118,15 @@ function getPythonVersion(projectPath: string, debug: DebugLogger) {
     'virtualenv',
     '.virtualenv',
   ];
-  const supportedPythonVersion = ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12'];
+  const supportedPythonVersion = [
+    '3.7',
+    '3.8',
+    '3.9',
+    '3.10',
+    '3.11',
+    '3.12',
+    '3.13',
+  ];
 
   for (const name of commonVenvNames) {
     const venvDir = path.join(projectPath, name);
