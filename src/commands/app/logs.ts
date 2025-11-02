@@ -11,7 +11,6 @@ import Command, { IProjectDetailsResponse } from '../../base.js';
 import ILiaraJSON from '../../types/liara-json.js';
 import { createDebugLogger } from '../../utils/output.js';
 import { BundlePlanError } from '../../errors/bundle-plan.js';
-import { API_IR_URL } from '../../constants.js';
 
 interface Entry {
   metaData: {
@@ -22,6 +21,46 @@ interface Entry {
 
 interface ILog {
   data: Entry[];
+}
+
+interface IGitInfo {
+  branch: string | null;
+  message: string | null;
+  commit: string | null;
+  committedAt: string | null;
+  remote: string | null;
+  author: {
+    email: string | null;
+    name: string | null;
+  };
+  tags: string[];
+}
+
+interface IRelease {
+  _id: string;
+  type: string;
+  imageName: string;
+  projectType: string;
+  state: string;
+  port: number;
+  buildLocation: string;
+  buildTimeout: number;
+  maxImageLayerSize: number;
+  gitInfo: IGitInfo;
+  client?: string;
+  disks: any[];
+  createdAt: string;
+  finishedAt: string | null;
+  tag: string;
+  sourceAvailable: boolean;
+}
+
+interface IReleasesResponse {
+  total: number;
+  currentRelease: string;
+  readyReleasesCount: number;
+  releases: IRelease[];
+  platform: string;
 }
 
 export default class AppLogs extends Command {
@@ -54,16 +93,21 @@ export default class AppLogs extends Command {
       description: 'colorize log output',
       default: false,
     }),
+    release: Flags.string({
+      char: 'r',
+      description: 'show logs for a specific release (e.g. v1, v2)',
+    }),
   };
 
   static aliases = ['logs'];
 
   #timestamps = false;
   #colorize = false;
+  #releaseTagMap: Map<string, string> = new Map(); // cache to store releaseId with it's tag
 
   async run() {
     const { flags } = await this.parse(AppLogs);
-    const { follow, colorize, timestamps } = flags;
+    const { follow, colorize, timestamps, release } = flags;
     const now = Math.floor(Date.now() / 1000); // current timestamp
 
     this.#timestamps = timestamps;
@@ -114,23 +158,44 @@ export default class AppLogs extends Command {
       process.exit(2);
     }
 
+    // Get releaseId if release flag is provided
+    let releaseId: string | undefined;
+    if (release) {
+      releaseId = await this.getReleaseIdFromTag(project, release);
+      if (!releaseId) {
+        console.error(
+          new Errors.CLIError(
+            `Release "${release}" not found. Please check the release tag and try again.`,
+          ).render(),
+        );
+        process.exit(2);
+      } else {
+        this.#releaseTagMap.set(releaseId, release);
+      }
+      this.debug(`Using releaseId: ${releaseId} for tag: ${release}`);
+    }
+
     let lastLogUnix: number = 0;
 
     while (true) {
-      const logs = await this.fetchLogs(Math.max(start, lastLogUnix), project);
+      const logs = await this.fetchLogs(
+        Math.max(start, lastLogUnix),
+        project,
+        releaseId,
+      );
 
       if (!logs?.length && !follow) {
         break;
       }
 
       for (const log of logs) {
-        this.#printLogLine(log);
+        this.#printLogLine(log.values, log.releaseTag);
       }
 
       const lastLog = logs[logs.length - 1];
 
       if (lastLog) {
-        const unixTime = lastLog[0].slice(0, 10);
+        const unixTime = lastLog.values[0].slice(0, 10);
         lastLogUnix = parseInt(unixTime) + 1;
       }
       await this.sleep(1000);
@@ -141,22 +206,66 @@ export default class AppLogs extends Command {
     }
   }
 
-  fetchLogs = async (since: number, appName: string) => {
+  fetchLogs = async (since: number, appName: string, releaseId?: string) => {
     this.debug('Polling...');
 
     try {
       const url = `v2/projects/${appName}/logs`;
+      const searchParams: any = {
+        start: since,
+        direction: 'forward',
+      };
+
+      if (releaseId) {
+        searchParams.releaseId = releaseId;
+      }
+
       const data = await this.got(url, {
-        searchParams: {
-          start: since,
-          direction: 'forward',
-        },
+        searchParams,
         timeout: {
-          request: 10_000,
+          request: 20_000,
         },
       }).json<ILog>();
 
-      return data?.data[0]?.values || [];
+      // The data array can contain separated groups of log lines, lines within each object are sorted
+      // But when flattening these lines, they are not sorted
+      // We need to flatten all values first, then sort by timestamp
+      if (!data?.data?.length) {
+        return [];
+      }
+
+      // Fetch release tags for all releaseIds in the response
+      const releaseIds = new Set(
+        data.data.map((entry) => entry.metaData.releaseId),
+      );
+
+      for (const rid of releaseIds) {
+        if (!this.#releaseTagMap.has(rid)) {
+          // This function isn’t very important — it’s just used as a safeguard and to ensure proper functionality
+          const tag = await this.getReleaseTagFromId(appName, rid);
+          if (tag) {
+            this.#releaseTagMap.set(rid, tag);
+          }
+        }
+      }
+
+      // Map each log line with its release tag
+      const logsWithRelease = data.data.flatMap((entry) =>
+        (entry.values || []).map((value) => ({
+          values: value,
+          releaseTag:
+            this.#releaseTagMap.get(entry.metaData.releaseId) || 'unknown',
+        })),
+      );
+
+      // Sort all log lines by timestamp (first element of each [timestamp, logLine] tuple)
+      logsWithRelease.sort((a, b) => {
+        const timestampA = BigInt(a.values[0]);
+        const timestampB = BigInt(b.values[0]);
+        return timestampA < timestampB ? -1 : timestampA > timestampB ? 1 : 0;
+      });
+
+      return logsWithRelease;
     } catch (error) {
       if (error.response && error.response.statusCode === 404) {
         // tslint:disable-next-line: no-console
@@ -177,6 +286,80 @@ export default class AppLogs extends Command {
     }
   };
 
+  fetchReleases = async (appName: string): Promise<IReleasesResponse> => {
+    this.debug('Fetching releases...');
+
+    try {
+      const url = `v1/projects/${appName}/releases`;
+      const data = await this.got(url, {
+        searchParams: {
+          page: 1,
+          count: 100, // Get more releases to ensure we find the one user wants
+        },
+        timeout: {
+          request: 10_000,
+        },
+      }).json<IReleasesResponse>();
+
+      return data;
+    } catch (error) {
+      if (error.response && error.response.statusCode === 404) {
+        console.error(new Errors.CLIError('App not found.').render());
+        process.exit(2);
+      }
+
+      this.debug(error.response.body ? error.response.body : error.response);
+      console.error(
+        new Errors.CLIError(
+          'Failed to fetch releases. Please try again later.',
+        ).render(),
+      );
+      process.exit(2);
+    }
+  };
+
+  getReleaseIdFromTag = async (
+    appName: string,
+    tag: string,
+  ): Promise<string | undefined> => {
+    this.debug(`Looking for release with tag: ${tag}`);
+
+    const releasesData = await this.fetchReleases(appName);
+
+    // Find the release with matching tag
+    const release = releasesData.releases.find(
+      (r) => r.tag.toLowerCase() === tag.toLowerCase(),
+    );
+
+    if (release) {
+      this.debug(`Found release: ${release._id} for tag: ${tag}`);
+      return release._id;
+    }
+
+    this.debug(`No release found for tag: ${tag}`);
+    return undefined;
+  };
+
+  getReleaseTagFromId = async (
+    appName: string,
+    releaseId: string,
+  ): Promise<string | undefined> => {
+    this.debug(`Looking for release tag with id: ${releaseId}`);
+
+    const releasesData = await this.fetchReleases(appName);
+
+    // Find the release with matching id
+    const release = releasesData.releases.find((r) => r._id === releaseId);
+
+    if (release) {
+      this.debug(`Found tag: ${release.tag} for releaseId: ${releaseId}`);
+      return release.tag;
+    }
+
+    this.debug(`No release found for id: ${releaseId}`);
+    return undefined;
+  };
+
   async sleep(miliseconds: number) {
     return new Promise((resolve) => setTimeout(resolve, miliseconds));
   }
@@ -186,7 +369,7 @@ export default class AppLogs extends Command {
     return chalk.gray(message);
   }
 
-  #printLogLine(log: [string, string]) {
+  #printLogLine(log: [string, string], releaseTag: string) {
     let message = JSON.parse(log[1])._entry;
     if (this.#colorize) {
       message = colorfulAccessLog(message);
@@ -194,11 +377,12 @@ export default class AppLogs extends Command {
 
     if (this.#timestamps) {
       // iso string is docker's log format when using --timestamps
-      message = `${this.#gray(
+      const timestamp = this.#gray(
         moment
           .unix(parseInt(log[0].substring(0, 10)))
           .format('YYYY-MM-DDTHH:mm:ss'),
-      )} ${message}`;
+      );
+      message = `${this.#gray(releaseTag)} | ${timestamp} | ${message}`;
     }
 
     const socket =
