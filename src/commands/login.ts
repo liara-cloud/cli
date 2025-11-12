@@ -1,102 +1,84 @@
-import fs from 'fs-extra';
-import chalk from 'chalk';
-import { Flags } from '@oclif/core';
+#!/usr/bin/env node
+import { execute } from '@oclif/core';
+import inquirer from 'inquirer';
+import { distance } from 'fastest-levenshtein';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-import Command from '../base.js';
-import AccountAdd from './account/add.js';
-import AccountUse from './account/use.js';
-import { createDebugLogger } from '../utils/output.js';
-import { GLOBAL_CONF_PATH, GLOBAL_CONF_VERSION } from '../constants.js';
-import ora from 'ora';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-export default class Login extends Command {
-  static description = 'login to your account';
+/**
+ * بازگشت تمام فایل‌های دستورات از src/commands
+ */
+function getAllCommands(dirPath, base = '') {
+  let results = [];
+  const files = fs.readdirSync(dirPath);
 
-  static flags = {
-    ...Command.flags,
-    email: Flags.string({ char: 'e', description: 'your email' }),
-    password: Flags.string({ char: 'p', description: 'your password' }),
-    interactive: Flags.boolean({
-      char: 'i',
-      description: 'login with username/password',
-      default: false,
-    }),
-    browser: Flags.string({
-      description: 'browser to open',
-      options: ['chrome', 'firefox', 'edge'],
-    }),
-  };
+  for (const file of files) {
+    const fullPath = path.join(dirPath, file);
+    const stat = fs.statSync(fullPath);
 
-  async run() {
-    this.spinner = ora();
-    const { flags } = await this.parse(Login);
-    const debug = createDebugLogger(flags.debug);
-
-    const sendFlag = [
-      '--api-token',
-      flags['api-token'] || '',
-      '--email',
-      flags.email || '',
-      '--password',
-      flags.password || '',
-      '--from-login',
-    ];
-
-    if (flags.interactive === false && !flags['api-token']) {
-      try {
-        const accounts = await this.browser(flags.browser);
-
-        this.spinner.start('Logging in.');
-        const currentAccounts = (await this.readGlobalConfig()).accounts;
-
-        let currentAccount;
-
-        for (const account of accounts) {
-          const name = `${account.email.split('@')[0]}`;
-
-          if (account.current) {
-            currentAccount = name;
-          }
-
-          currentAccounts[name] = {
-            email: account.email,
-            avatar: account.avatar,
-            api_token: account.token,
-            fullname: account.fullname,
-            current: false,
-          };
-        }
-
-        fs.writeFileSync(
-          GLOBAL_CONF_PATH,
-          JSON.stringify({
-            accounts: currentAccounts,
-            version: GLOBAL_CONF_VERSION,
-          }),
-        );
-
-        this.spinner.succeed('You have logged in successfully.');
-
-        currentAccount && (await AccountUse.run(['--account', currentAccount]));
-
-        const { accountName } = await this.getCurrentAccount();
-
-        this.log(`> Auth credentials saved in ${chalk.bold(GLOBAL_CONF_PATH)}`);
-
-        accountName && this.log(`> Current account is: ${accountName}`);
-
-        return;
-      } catch (error) {
-        debug(`${error.message}\n`);
-
-        this.spinner.fail(
-          'Cannot open browser. Browser unavailable or lacks permissions.',
-        );
-      }
+    if (stat.isDirectory()) {
+      results = results.concat(getAllCommands(fullPath, path.join(base, file)));
+    } else if (file.endsWith('.js') || file.endsWith('.ts')) {
+      const name = path.join(base, file.replace(/\.(js|ts)$/, ''));
+      results.push(name.replace(/\\/g, '/')); // ویندوز فیکس
     }
+  }
 
-    await AccountAdd.run(sendFlag);
+  return results;
+}
 
-    this.log(chalk.green('You have logged in successfully.'));
+// مسیر commands را مشخص می‌کنیم
+const commandsDir = path.join(__dirname, '../src/commands');
+const allCommands = getAllCommands(commandsDir);
+
+try {
+  await execute({ dir: import.meta.url });
+} catch (error) {
+  const msg = error.message || '';
+  const match = msg.match(/command (\w+) not found/);
+
+  if (match) {
+    const wrongCommand = match[1];
+    console.log(`\n✖ Unknown command: "${wrongCommand}"\n`);
+
+    // پیشنهاد نزدیک‌ترین دستورها
+    const suggestions = allCommands
+      .map((cmd) => ({
+        cmd,
+        dist: distance(cmd.split('/').pop(), wrongCommand),
+      }))
+      .sort((a, b) => a.dist - b.dist)
+      .slice(0, 5)
+      .map((item) => item.cmd);
+
+    if (suggestions.length) {
+      console.log('Here are the closest matches:\n');
+      suggestions.forEach((s) => console.log(`  • ${s}`));
+
+      const { choice } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'choice',
+          message: '\nDid you mean one of these?',
+          choices: [...suggestions, 'Cancel'],
+        },
+      ]);
+
+      if (choice !== 'Cancel') {
+        console.log(`\n⚡ Running "${choice}" for you...\n`);
+        process.argv[2] = choice;
+        await execute({ dir: import.meta.url });
+      } else {
+        console.log('\nOperation cancelled.\n');
+      }
+    } else {
+      console.log('\nTip: run "liara --help" for a full command list.\n');
+    }
+  } else {
+    throw error;
   }
 }

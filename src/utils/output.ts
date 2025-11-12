@@ -8,8 +8,8 @@ export function createDebugLogger(debugEnabled = false): DebugLogger {
       // tslint:disable-next-line: no-console
       console.log(
         `${chalk.bold('[debug]')} ${chalk.gray(
-          `[${new Date().toISOString()}]`
-        )} ${str}`
+          `[${new Date().toISOString()}]`,
+        )} ${str}`,
       );
     }
   };

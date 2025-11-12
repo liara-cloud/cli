@@ -19,9 +19,8 @@ export default class NetworkList extends Command {
 
     await this.setGotConfig(flags);
 
-    const { networks } = await this.got(
-      'v1/networks'
-    ).json<IGetNetworkResponse>();
+    const { networks } =
+      await this.got('v1/networks').json<IGetNetworkResponse>();
 
     if (!networks.length) {
       this.error(`No network found. 
@@ -42,7 +41,7 @@ Please create a network first by visiting https://console.liara.ir/apps/create o
         Name: {},
         'Created At': {},
       },
-      flags
+      flags,
     );
   }
 }

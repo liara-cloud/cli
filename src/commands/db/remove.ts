@@ -101,9 +101,8 @@ export default class Remove extends Command {
   }
 
   async getDatabaseByHostname(hostname: string) {
-    const { databases } = await this.got(
-      'v1/databases'
-    ).json<IGetDatabasesResponse>();
+    const { databases } =
+      await this.got('v1/databases').json<IGetDatabasesResponse>();
 
     if (!databases.length) {
       this.error(`Not found any database.
@@ -111,7 +110,7 @@ Please open up https://console.liara.ir/databases and create the database, first
     }
 
     const database = databases.find(
-      (database) => database.hostname === hostname
+      (database) => database.hostname === hostname,
     );
     return database;
   }

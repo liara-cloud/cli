@@ -29,7 +29,7 @@ export default class EnvList extends Command {
         key: {},
         value: {},
       },
-      flags
+      flags,
     );
   }
 }

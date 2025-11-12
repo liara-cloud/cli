@@ -41,10 +41,10 @@ export default class Get extends Command {
 
     try {
       const { data } = await this.got(
-        Get.PATH.replace('{zone}', zone)
+        Get.PATH.replace('{zone}', zone),
       ).json<IZoneGet>();
       const createdAtshamsiData = shamsi.gregorianToJalali(
-        new Date(data.createdAt)
+        new Date(data.createdAt),
       );
 
       const lastCheckAt = new Date(data.lastCheckAt);
@@ -74,7 +74,7 @@ export default class Get extends Command {
           'current name servers': {},
           'name servers': {},
         },
-        flags
+        flags,
       );
     } catch (error) {
       if (error.response && error.response.statusCode === 404) {

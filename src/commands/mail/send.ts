@@ -61,9 +61,8 @@ export default class SendMail extends Command {
 
     await this.setGotConfig(flags);
 
-    const { data } = await this.got(
-      'api/v1/mails'
-    ).json<IGetMailboxesResponse>();
+    const { data } =
+      await this.got('api/v1/mails').json<IGetMailboxesResponse>();
 
     const mailDomain = await this.promptMails();
     const mailId =
@@ -131,15 +130,14 @@ export default class SendMail extends Command {
     this.spinner.start('Loading...');
 
     try {
-      const { data } = await this.got(
-        'api/v1/mails'
-      ).json<IGetMailboxesResponse>();
+      const { data } =
+        await this.got('api/v1/mails').json<IGetMailboxesResponse>();
 
       this.spinner.stop();
 
       if (!data.mailServers.length) {
         this.warn(
-          'Please go to https://console.liara.ir/mail and create a mail server, first.'
+          'Please go to https://console.liara.ir/mail and create a mail server, first.',
         );
         this.exit(1);
       }
@@ -165,14 +163,14 @@ export default class SendMail extends Command {
 
     try {
       const { data } = await this.got(
-        `api/v1/mails/${mailId}/accounts`
+        `api/v1/mails/${mailId}/accounts`,
       ).json<IGetMailsAccountsResponse>();
 
       this.spinner.stop();
 
       if (!data.accounts.length) {
         this.warn(
-          'Please go to https://console.liara.ir/mail and create a mail server account, first.'
+          'Please go to https://console.liara.ir/mail and create a mail server account, first.',
         );
         this.exit(1);
       }

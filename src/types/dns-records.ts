@@ -40,7 +40,7 @@ export interface IDNSRecord {
   type: RecordType;
   ttl: number;
   contents: [
-    IAContent | IALIASContent | IMXContent | ISRVContent | ITXTContent
+    IAContent | IALIASContent | IMXContent | ISRVContent | ITXTContent,
   ];
 }
 

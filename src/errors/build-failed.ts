@@ -1,5 +1,8 @@
 export default class BuildFailed extends Error {
-  constructor(message: string, public output: any) {
+  constructor(
+    message: string,
+    public output: any,
+  ) {
     super(message);
     this.output = output;
 

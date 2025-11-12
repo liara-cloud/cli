@@ -72,15 +72,14 @@ export default class BucketDelete extends Command {
     this.spinner = ora();
     this.spinner.start('Loading...');
     try {
-      const { buckets } = await this.got(
-        'api/v1/buckets'
-      ).json<IGetBucketsResponse>();
+      const { buckets } =
+        await this.got('api/v1/buckets').json<IGetBucketsResponse>();
 
       this.spinner.stop();
 
       if (!buckets.length) {
         this.warn(
-          'Please go to https://console.liara.ir/buckets and create an bucket, first.'
+          'Please go to https://console.liara.ir/buckets and create an bucket, first.',
         );
         this.exit(1);
       }

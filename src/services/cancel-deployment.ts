@@ -7,7 +7,7 @@ export default async (
   retryOptions: {
     retries: number;
     onRetry: (error: any, attempt: number) => void;
-  }
+  },
 ) => {
   await retry(async () => {
     await httpClient.post(`v2/releases/${releaseID}/cancel`);

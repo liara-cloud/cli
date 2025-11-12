@@ -50,7 +50,7 @@ export default class BackUp extends Command {
         .json<IBackups>();
       const tableData = backups.map((backup) => {
         const shamsiData = shamsi.gregorianToJalali(
-          new Date(backup.lastModified)
+          new Date(backup.lastModified),
         );
         return {
           lastModified: `${shamsiData[0]}-${shamsiData[1]}-${shamsiData[2]}`,
@@ -89,9 +89,8 @@ export default class BackUp extends Command {
   }
 
   async getDatabaseByHostname(hostname: string) {
-    const { databases } = await this.got(
-      'v1/databases'
-    ).json<IGetDatabasesResponse>();
+    const { databases } =
+      await this.got('v1/databases').json<IGetDatabasesResponse>();
 
     if (!databases.length) {
       this.error(`Not found any database.
@@ -99,7 +98,7 @@ Please open up https://console.liara.ir/databases and create the database, first
     }
 
     const database = databases.find(
-      (database) => database.hostname === hostname
+      (database) => database.hostname === hostname,
     );
     return database;
   }

@@ -40,7 +40,7 @@ export default class List extends Command {
 
     try {
       const { data } = await this.got(
-        List.PATH.replace('{zone}', zone)
+        List.PATH.replace('{zone}', zone),
       ).json<IDNSRecords>();
 
       const tableData = data.map((record) => {

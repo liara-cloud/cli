@@ -164,7 +164,7 @@ const promptRecordContent = {
         const parsed = combineInput.split(',');
         if (parsed.length != 4) {
           throw Error(
-            'srv flag should be like this: <hostname>,<port>,<priority>,<weight>'
+            'srv flag should be like this: <hostname>,<port>,<priority>,<weight>',
           );
         }
         result.push({
@@ -189,7 +189,7 @@ const promptRecordContent = {
           const parsed = combineInput.split(' ');
           if (parsed.length != 4) {
             throw Error(
-              'srv inputs should be like this: <hostname> <port> <priority> <weight>'
+              'srv inputs should be like this: <hostname> <port> <priority> <weight>',
             );
           }
           result.push({
@@ -407,7 +407,7 @@ export default class Update extends Command {
 
   async getRecordByName(zone: string, name: string) {
     const { data } = await this.got(
-      'api/v1/zones/{zone}/dns-records'.replace('{zone}', zone)
+      'api/v1/zones/{zone}/dns-records'.replace('{zone}', zone),
     ).json<IDNSRecords>();
 
     if (!data.length) {

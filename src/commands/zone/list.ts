@@ -37,7 +37,7 @@ export default class List extends Command {
       const { data } = await this.got(List.PATH).json<IZones>();
       const zonesData = data.map((zone) => {
         const createdAtshamsiData = shamsi.gregorianToJalali(
-          new Date(zone.createdAt)
+          new Date(zone.createdAt),
         );
 
         const lastCheckAt = new Date(zone.lastCheckAt);
@@ -69,7 +69,7 @@ export default class List extends Command {
           'current Name Servers': {},
           'name Servers': {},
         },
-        flags
+        flags,
       );
     } catch (error) {
       this.error(error.message);
