@@ -97,6 +97,10 @@ export default class AppLogs extends Command {
       char: 'r',
       description: 'show logs for a specific release (e.g. v1, v2)',
     }),
+    'last-lines': Flags.boolean({
+      char: 'l',
+      default: false,
+    }),
   };
 
   static aliases = ['logs'];
@@ -182,6 +186,7 @@ export default class AppLogs extends Command {
         Math.max(start, lastLogUnix),
         project,
         releaseId,
+        flags['last-lines'],
       );
 
       if (!logs?.length && !follow) {
@@ -190,6 +195,10 @@ export default class AppLogs extends Command {
 
       for (const log of logs) {
         this.#printLogLine(log.values, log.releaseTag);
+      }
+
+      if (flags['last-lines']) {
+        break;
       }
 
       const lastLog = logs[logs.length - 1];
@@ -206,7 +215,12 @@ export default class AppLogs extends Command {
     }
   }
 
-  fetchLogs = async (since: number, appName: string, releaseId?: string) => {
+  fetchLogs = async (
+    since: number,
+    appName: string,
+    releaseId?: string,
+    last_lines: boolean = false,
+  ) => {
     this.debug('Polling...');
 
     try {
@@ -214,6 +228,7 @@ export default class AppLogs extends Command {
       const searchParams: any = {
         start: since,
         direction: 'forward',
+        last_lines: last_lines,
       };
 
       if (releaseId) {
