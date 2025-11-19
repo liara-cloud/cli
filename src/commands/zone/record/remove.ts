@@ -50,7 +50,7 @@ export default class Remove extends Command {
 
     try {
       await this.got.delete(
-        Remove.PATH.replace('{zone}', zone).replace('{id}', recordID)
+        Remove.PATH.replace('{zone}', zone).replace('{id}', recordID),
       );
       this.log(`Record ${name} removed.`);
     } catch (error) {
@@ -91,7 +91,7 @@ export default class Remove extends Command {
 
   async getRecordIDByName(zone: string, name: string) {
     const { data } = await this.got(
-      'api/v1/zones/{zone}/dns-records'.replace('{zone}', zone)
+      'api/v1/zones/{zone}/dns-records'.replace('{zone}', zone),
     ).json<IDNSRecords>();
 
     if (!data.length) {

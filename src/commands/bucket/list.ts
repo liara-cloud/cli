@@ -29,12 +29,11 @@ export default class BucketList extends Command {
 
     await this.setGotConfig(flags);
 
-    const { buckets } = await this.got(
-      'api/v1/buckets'
-    ).json<IGetBucketsResponse>();
+    const { buckets } =
+      await this.got('api/v1/buckets').json<IGetBucketsResponse>();
     if (buckets.length === 0) {
       this.error(
-        "Please create an bucket via 'liara bucket:create' command, first."
+        "Please create an bucket via 'liara bucket:create' command, first.",
       );
     }
 
@@ -58,7 +57,7 @@ export default class BucketList extends Command {
         Permission: {},
         'Created At': {},
       },
-      flags
+      flags,
     );
   }
 }

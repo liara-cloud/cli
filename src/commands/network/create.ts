@@ -35,7 +35,7 @@ export default class NetworkCreate extends Command {
 
       if (error.response && error.response.statusCode === 409) {
         this.error(
-          `The network already exists. Please use a unique name for your network.`
+          `The network already exists. Please use a unique name for your network.`,
         );
       }
     }

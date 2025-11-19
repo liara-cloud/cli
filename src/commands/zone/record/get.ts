@@ -52,7 +52,7 @@ export default class Get extends Command {
 
     try {
       const { data } = await this.got(
-        Get.PATH.replace('{zone}', zone).replace('{id}', recordID)
+        Get.PATH.replace('{zone}', zone).replace('{id}', recordID),
       ).json<ISingleDNSRecord>();
 
       // @ts-ignore
@@ -140,7 +140,7 @@ export default class Get extends Command {
 
   async getRecordIDByName(zone: string, name: string) {
     const { data } = await this.got(
-      'api/v1/zones/{zone}/dns-records'.replace('{zone}', zone)
+      'api/v1/zones/{zone}/dns-records'.replace('{zone}', zone),
     ).json<IDNSRecords>();
 
     if (!data.length) {

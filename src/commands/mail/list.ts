@@ -29,12 +29,11 @@ export default class MailList extends Command {
 
     await this.setGotConfig(flags);
 
-    const { data } = await this.got(
-      'api/v1/mails'
-    ).json<IGetMailboxesResponse>();
+    const { data } =
+      await this.got('api/v1/mails').json<IGetMailboxesResponse>();
     if (data.mailServers.length === 0) {
       this.error(
-        "Please create a mail server via 'liara mail:create' command, first."
+        "Please create a mail server via 'liara mail:create' command, first.",
       );
     }
 
@@ -60,7 +59,7 @@ export default class MailList extends Command {
         status: {},
         'Created At': {},
       },
-      flags
+      flags,
     );
   }
 }

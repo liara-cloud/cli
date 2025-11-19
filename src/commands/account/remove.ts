@@ -24,7 +24,7 @@ export default class AccountRemove extends Command {
       Object.keys(liara_json.accounts).length === 0
     ) {
       this.error(
-        "Please add your accounts via 'liara account:add' command, first."
+        "Please add your accounts via 'liara account:add' command, first.",
       );
     }
 
@@ -32,7 +32,7 @@ export default class AccountRemove extends Command {
     const selectedAccount = liara_json.accounts[name];
     !selectedAccount &&
       this.error(
-        `Could not find any account associated with this name ${name}.`
+        `Could not find any account associated with this name ${name}.`,
       );
 
     const accounts = liara_json.accounts;
@@ -45,21 +45,21 @@ export default class AccountRemove extends Command {
       JSON.stringify({
         version: GLOBAL_CONF_VERSION,
         accounts,
-      })
+      }),
     );
     this.log(chalk.red('Auth credentials removed.'));
 
     selectedAccount.current &&
       accountsLength > 0 &&
       this.log(
-        chalk.cyan("Please select an acount via 'liara account:use' command.")
+        chalk.cyan("Please select an acount via 'liara account:use' command."),
       );
 
     accountsLength < 1 &&
       this.log(
         chalk.cyan(
-          "There are no more accounts to use. Please add an account via 'liara account:add' command."
-        )
+          "There are no more accounts to use. Please add an account via 'liara account:add' command.",
+        ),
       );
 
     const { accountName } = await this.getCurrentAccount();

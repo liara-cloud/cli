@@ -162,7 +162,7 @@ const promptRecordContent = {
         const parsed = combineInput.split(',');
         if (parsed.length != 4) {
           throw Error(
-            'srv flag should be like this: <hostname>,<port>,<priority>,<weight>'
+            'srv flag should be like this: <hostname>,<port>,<priority>,<weight>',
           );
         }
         result.push({
@@ -187,7 +187,7 @@ const promptRecordContent = {
           const parsed = combineInput.split(' ');
           if (parsed.length != 4) {
             throw Error(
-              'srv inputs should be like this: <hostname> <port> <priority> <weight>'
+              'srv inputs should be like this: <hostname> <port> <priority> <weight>',
             );
           }
           result.push({

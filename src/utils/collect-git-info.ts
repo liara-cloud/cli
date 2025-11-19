@@ -5,18 +5,18 @@ export default async function collectGitInfo(cwd: string, debug: DebugLogger) {
   const branch = await retrieveConfig(
     'git rev-parse --abbrev-ref HEAD',
     cwd,
-    debug
+    debug,
   );
   const message = await retrieveConfig(
     'git log --format="%B" -n 1 HEAD',
     cwd,
-    debug
+    debug,
   );
   const commit = await retrieveConfig('git rev-parse HEAD', cwd, debug);
   const committedAt = await retrieveConfig(
     'git log --format="%ct" -n 1 HEAD',
     cwd,
-    debug
+    debug,
   );
   const tags = await retrieveConfig('git tag --points-at', cwd, debug);
   const remote = await retrieveConfig('git ls-remote --get-url', cwd, debug);
@@ -39,7 +39,7 @@ export default async function collectGitInfo(cwd: string, debug: DebugLogger) {
 function retrieveConfig(
   command: string,
   cwd: string,
-  debug: DebugLogger
+  debug: DebugLogger,
 ): Promise<string | null> {
   return new Promise((resolve) => {
     exec(command, { cwd, windowsHide: true }, (err, stdout) => {

@@ -61,7 +61,7 @@ export default class EnvSet extends Command {
 
   async fetchEnvs(app: string): Promise<IEnv[]> {
     const { project } = await this.got(
-      `v1/projects/${app}`
+      `v1/projects/${app}`,
     ).json<IGetProjectResponse>();
     const envs = project.envs.map((env) => {
       const key = env.key;
