@@ -25,6 +25,7 @@ export default interface ILiaraJSON {
   build?: IBuildConfig;
   healthCheck?: IHealthConfig;
   'team-id'?: string;
+  envs?: { [key: string]: string };
 
   laravel?: ILaravelPlatformConfig;
   angular?: IAngularPlatformConfig;

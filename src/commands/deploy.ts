@@ -140,6 +140,24 @@ export default class Deploy extends Command {
       }
     }
 
+    if (config.envs) {
+      const MAX_SHOW_ENVS = 10;
+      this.logKeyValue('Envs');
+      Object.keys(config.envs)
+        .slice(0, MAX_SHOW_ENVS)
+        .forEach((key) => {
+          console.log(`  ${key} ${chalk.blue('=')} ${config.envs![key]}`);
+        });
+
+      if (Object.keys(config.envs).length > MAX_SHOW_ENVS) {
+        console.log(
+          `  ... and ${
+            Object.keys(config.envs).length - MAX_SHOW_ENVS
+          } more envs`,
+        );
+      }
+    }
+
     config.buildCache = !(config['no-cache'] || config.build?.cache === false);
 
     this.debug(
@@ -201,6 +219,7 @@ export default class Deploy extends Command {
       this.logKeyValue('Path', config.path);
       this.logKeyValue('Platform', config.platform);
       this.logKeyValue('Port', String(config.port));
+
       const response = await this.deploy(config);
 
       if (flags.detach) {
@@ -394,6 +413,7 @@ Additionally, you can also retry the build with the debug flag:
       type: config.platform,
       message: config.message,
       disks: config.disks,
+      envs: config.envs,
     };
 
     if (config.image) {
