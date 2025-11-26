@@ -306,6 +306,7 @@ async function getRequiredDotNetVersion(
     '7.0',
     '8.0',
     '9.0',
+    '10.0',
   ];
 
   try {

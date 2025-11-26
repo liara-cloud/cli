@@ -144,7 +144,7 @@ If the issue persists, please submit a ticket at https://console.liara.ir/ticket
   }) {
     try {
       const data = await this.got
-        .post('v1/login', {
+        .post('v1/login?expiresIn=1y', {
           json: body,
           headers: { Authorization: undefined },
         })
