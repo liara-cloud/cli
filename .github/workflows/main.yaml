@@ -4,6 +4,10 @@ on:
     tags:
       - '*'
 
+permissions:
+  id-token: write  # Required for OIDC (https://docs.npmjs.com/trusted-publishers)
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -15,7 +19,8 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm ci
@@ -34,13 +39,9 @@ jobs:
           fi
 
       - name: Publish to npm (beta)
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_ACCESS_KEY }}
         if: steps.is_tag_beta.outputs.is_beta == 'true'
         run: npm publish --tag beta
 
       - name: Publish to npm
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_ACCESS_KEY }}
         if: steps.is_tag_beta.outputs.is_beta == 'false'
         run: npm publish
