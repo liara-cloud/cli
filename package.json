@@ -2,7 +2,7 @@
   "name": "@liara/cli",
   "description": "The command line interface for Liara",
   "version": "9.4.6",
-  "author": "Mhe <mhemrg120@gmail.com> (http://liara.ir/) @mhemrg",
+  "author": "MHE <mhemrg120@gmail.com> (http://liara.ir/) @mhemrg",
   "type": "module",
   "bin": {
     "liara": "./bin/run.js"
@@ -170,7 +170,7 @@
       ]
     }
   },
-  "repository": "liara-ir/liara-cli",
+  "repository": "https://github.com/liara-cloud/cli",
   "scripts": {
     "lint": "eslint . --ext .ts --config .eslintrc",
     "format": "prettier \"**/*.ts\" \"**/*.js\" \"**/*.json\" --ignore-path ./.prettierignore --write",
