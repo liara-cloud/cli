@@ -67,11 +67,7 @@ jobs:
       - name: Publish to npm (beta)
         if: steps.is_tag_beta.outputs.is_beta == 'true'
         run: npm publish --tag beta
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to npm
         if: steps.is_tag_beta.outputs.is_beta == 'false'
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
