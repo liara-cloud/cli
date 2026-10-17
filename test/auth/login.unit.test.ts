@@ -110,6 +110,31 @@ describe('login', async () => {
 
     expect(AccountUseStub.calledWithExactly(currentAccountName));
   });
+  it('should redirect to console login and not save accounts when an account has no email', async () => {
+    browserStub.resolves([accounts[0], { ...accounts[1], email: null }]);
+    sinon
+      .stub(Login.prototype, 'readGlobalConfig')
+      .resolves({ version: '1', accounts: {} });
+    const openConsoleLoginStub = sinon
+      .stub(Login.prototype, 'openConsoleLogin')
+      .resolves();
+
+    const { error } = await runCommand(['login']);
+
+    expect(error?.message).to.contain('has no email address');
+    expect(error?.message).to.contain('https://console.liara.ir/login');
+    expect(openConsoleLoginStub.calledOnce).to.be.true;
+    expect(fsStub.called).to.be.false;
+    expect(AccountAddStub.called).to.be.false;
+  });
+  it('should fall back to account:add when the browser cannot be opened', async () => {
+    browserStub.rejects(new Error('spawn ENOENT'));
+
+    await runCommand(['login']);
+
+    expect(AccountAddStub.calledOnce).to.be.true;
+    expect(fsStub.called).to.be.false;
+  });
   it('should delegate credentials to account:add in interactive mode (-i)', async () => {
     await runCommand([
       'login',

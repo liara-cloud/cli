@@ -1,5 +1,5 @@
 interface IBrowserLogin {
-  email: string;
+  email: null | string;
   token: string;
   avatar: string;
   region: string;
