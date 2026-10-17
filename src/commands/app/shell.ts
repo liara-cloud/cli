@@ -64,7 +64,7 @@ export default class AppShell extends Command {
       ? API_IR_URL.replace('https://', 'wss://')
       : 'ws://localhost:3000';
 
-    const teamID = flags['team-id'] ? flags['team-id'] : '';
+    const teamID = config['team-id'] || '';
     const ws = this.createProxiedWebsocket(
       `${wsURL}/v1/exec?token=${config['api-token']}&cmd=${flags.command}&project_id=${app}&teamID=${teamID}`,
     );

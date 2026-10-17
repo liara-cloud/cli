@@ -299,7 +299,7 @@ export default class Deploy extends Command {
         const message = `Could not find the app.
 Please review the following checklist:
 
-  1. If you're deploying to a team, ensure the --team-id flag is included.
+  1. If you're deploying to a team, select it via 'liara team:use' or include the --team-id flag.
   2. Make sure you're logged into the correct account.
   3. Confirm that the app has been created.
   4. Check for any typos in the app name specified in liara.json.

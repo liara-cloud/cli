@@ -29,7 +29,7 @@
     "ignore": "5.3.1",
     "inquirer": "^9.3.8",
     "mime": "4.0.6",
-    "moment": "2.30.1",
+    "moment": "2.31.0",
     "open": "10.1.0",
     "ora": "8.1.1",
     "progress": "2.0.3",
@@ -38,7 +38,7 @@
     "tar": "^7.5.9",
     "ua-parser-js": "1.0.38",
     "update-notifier": "7.1.0",
-    "ws": "8.18.0"
+    "ws": "8.22.0"
   },
   "devDependencies": {
     "@oclif/test": "^4.1.11",
@@ -57,7 +57,6 @@
     "@types/ws": "^8.5.13",
     "chai": "^5.2.0",
     "eslint": "^8.53.0",
-    "sinon": "^21.0.1",
     "eslint-config-oclif": "^5.2.2",
     "eslint-config-oclif-typescript": "^3.1.13",
     "husky": "^9.1.7",
@@ -66,6 +65,7 @@
     "oclif": "^4.14.12",
     "prettier": "^3.3.3",
     "pretty-quick": "^4.0.0",
+    "sinon": "^21.0.1",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
@@ -124,6 +124,21 @@
       },
       "account": {
         "description": "display commands for working with accounts"
+      },
+      "team": {
+        "description": "display commands for working with teams"
+      },
+      "team:member": {
+        "description": "display commands for working with team members"
+      },
+      "team:invitation": {
+        "description": "display commands for working with team invitations"
+      },
+      "team:role": {
+        "description": "display commands for working with team roles"
+      },
+      "team:permission": {
+        "description": "display commands for working with permissions of team members on resources"
       },
       "disk": {
         "description": "display commands for working with disks"
