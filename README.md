@@ -21,7 +21,7 @@ $ npm install -g @liara/cli
 $ liara COMMAND
 running command...
 $ liara (--version|-v)
-@liara/cli/9.5.2 linux-x64 node-v22.13.1
+@liara/cli/9.6.0 linux-x64 node-v22.13.1
 $ liara --help [COMMAND]
 USAGE
   $ liara COMMAND
@@ -38,6 +38,7 @@ USAGE
 * [`liara account remove`](#liara-account-remove)
 * [`liara account rm`](#liara-account-rm)
 * [`liara account use`](#liara-account-use)
+* [`liara account whoami`](#liara-account-whoami)
 * [`liara app create`](#liara-app-create)
 * [`liara app delete`](#liara-app-delete)
 * [`liara app list`](#liara-app-list)
@@ -94,6 +95,37 @@ USAGE
 * [`liara shell`](#liara-shell)
 * [`liara start`](#liara-start)
 * [`liara stop`](#liara-stop)
+* [`liara team change-owner`](#liara-team-change-owner)
+* [`liara team create`](#liara-team-create)
+* [`liara team delete`](#liara-team-delete)
+* [`liara team invitation create`](#liara-team-invitation-create)
+* [`liara team invitation delete`](#liara-team-invitation-delete)
+* [`liara team invitation join`](#liara-team-invitation-join)
+* [`liara team invitation list`](#liara-team-invitation-list)
+* [`liara team invitation ls`](#liara-team-invitation-ls)
+* [`liara team invitation rm`](#liara-team-invitation-rm)
+* [`liara team invite`](#liara-team-invite)
+* [`liara team join`](#liara-team-join)
+* [`liara team leave`](#liara-team-leave)
+* [`liara team list`](#liara-team-list)
+* [`liara team ls`](#liara-team-ls)
+* [`liara team member list`](#liara-team-member-list)
+* [`liara team member ls`](#liara-team-member-ls)
+* [`liara team member remove`](#liara-team-member-remove)
+* [`liara team member rm`](#liara-team-member-rm)
+* [`liara team member set-role`](#liara-team-member-set-role)
+* [`liara team permission assign`](#liara-team-permission-assign)
+* [`liara team permission list`](#liara-team-permission-list)
+* [`liara team permission ls`](#liara-team-permission-ls)
+* [`liara team permission revoke`](#liara-team-permission-revoke)
+* [`liara team rename`](#liara-team-rename)
+* [`liara team rm`](#liara-team-rm)
+* [`liara team role create`](#liara-team-role-create)
+* [`liara team role delete`](#liara-team-role-delete)
+* [`liara team role list`](#liara-team-role-list)
+* [`liara team role ls`](#liara-team-role-ls)
+* [`liara team role rm`](#liara-team-role-rm)
+* [`liara team use`](#liara-team-use)
 * [`liara update-port`](#liara-update-port)
 * [`liara version`](#liara-version)
 * [`liara vm create`](#liara-vm-create)
@@ -108,6 +140,7 @@ USAGE
 * [`liara vm shutdown`](#liara-vm-shutdown)
 * [`liara vm start`](#liara-vm-start)
 * [`liara vm stop`](#liara-vm-stop)
+* [`liara whoami`](#liara-whoami)
 * [`liara zone ch`](#liara-zone-ch)
 * [`liara zone check`](#liara-zone-check)
 * [`liara zone create`](#liara-zone-create)
@@ -141,13 +174,13 @@ FLAGS
   -p, --password=<value>   your password
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   add an account
 ```
 
-_See code: [src/commands/account/add.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/account/add.ts)_
+_See code: [src/commands/account/add.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/account/add.ts)_
 
 ## `liara account list`
 
@@ -173,7 +206,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available accounts
@@ -182,7 +215,7 @@ ALIASES
   $ liara account ls
 ```
 
-_See code: [src/commands/account/list.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/account/list.ts)_
+_See code: [src/commands/account/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/account/list.ts)_
 
 ## `liara account ls`
 
@@ -208,7 +241,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available accounts
@@ -230,7 +263,7 @@ FLAGS
   -h, --help               Show CLI help.
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   remove an account
@@ -239,7 +272,7 @@ ALIASES
   $ liara account rm
 ```
 
-_See code: [src/commands/account/remove.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/account/remove.ts)_
+_See code: [src/commands/account/remove.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/account/remove.ts)_
 
 ## `liara account rm`
 
@@ -254,7 +287,7 @@ FLAGS
   -h, --help               Show CLI help.
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   remove an account
@@ -276,13 +309,40 @@ FLAGS
   -h, --help               Show CLI help.
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   select an account
 ```
 
-_See code: [src/commands/account/use.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/account/use.ts)_
+_See code: [src/commands/account/use.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/account/use.ts)_
+
+## `liara account whoami`
+
+show the account and team that commands run as
+
+```
+USAGE
+  $ liara account whoami [--json] [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+GLOBAL FLAGS
+  --json  Format output as json.
+
+DESCRIPTION
+  show the account and team that commands run as
+  The team comes from --team-id, then the team selected via 'liara team:use'. Without either, commands run on your
+  personal account.
+
+ALIASES
+  $ liara account whoami
+```
 
 ## `liara app create`
 
@@ -305,7 +365,7 @@ FLAGS
       --feature-plan=<value>  feature bundle plan
       --plan=<value>          plan
       --platform=<value>      platform
-      --team-id=<value>       your team id
+      --team-id=<value>       your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   create an app
@@ -314,7 +374,7 @@ ALIASES
   $ liara create
 ```
 
-_See code: [src/commands/app/create.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/app/create.ts)_
+_See code: [src/commands/app/create.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/app/create.ts)_
 
 ## `liara app delete`
 
@@ -330,7 +390,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   delete an app
@@ -341,7 +401,7 @@ ALIASES
   $ liara app rm
 ```
 
-_See code: [src/commands/app/delete.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/app/delete.ts)_
+_See code: [src/commands/app/delete.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/app/delete.ts)_
 
 ## `liara app list`
 
@@ -367,7 +427,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available apps
@@ -376,7 +436,7 @@ ALIASES
   $ liara app ls
 ```
 
-_See code: [src/commands/app/list.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/app/list.ts)_
+_See code: [src/commands/app/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/app/list.ts)_
 
 ## `liara app logs`
 
@@ -399,7 +459,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   fetch the logs of an app
@@ -408,7 +468,7 @@ ALIASES
   $ liara logs
 ```
 
-_See code: [src/commands/app/logs.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/app/logs.ts)_
+_See code: [src/commands/app/logs.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/app/logs.ts)_
 
 ## `liara app ls`
 
@@ -434,7 +494,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available apps
@@ -457,7 +517,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   delete an app
@@ -482,7 +542,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   restart an app
@@ -491,7 +551,7 @@ ALIASES
   $ liara restart
 ```
 
-_See code: [src/commands/app/restart.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/app/restart.ts)_
+_See code: [src/commands/app/restart.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/app/restart.ts)_
 
 ## `liara app rm`
 
@@ -507,7 +567,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   delete an app
@@ -534,7 +594,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   run a command in a running applet
@@ -543,7 +603,7 @@ ALIASES
   $ liara shell
 ```
 
-_See code: [src/commands/app/shell.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/app/shell.ts)_
+_See code: [src/commands/app/shell.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/app/shell.ts)_
 
 ## `liara app start`
 
@@ -559,7 +619,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   start an app
@@ -568,7 +628,7 @@ ALIASES
   $ liara start
 ```
 
-_See code: [src/commands/app/start.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/app/start.ts)_
+_See code: [src/commands/app/start.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/app/start.ts)_
 
 ## `liara app stop`
 
@@ -584,7 +644,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   stop an app
@@ -593,7 +653,7 @@ ALIASES
   $ liara stop
 ```
 
-_See code: [src/commands/app/stop.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/app/stop.ts)_
+_See code: [src/commands/app/stop.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/app/stop.ts)_
 
 ## `liara app update-port`
 
@@ -611,7 +671,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   update an app's port
@@ -621,7 +681,7 @@ ALIASES
   $ liara app update-port
 ```
 
-_See code: [src/commands/app/update-port.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/app/update-port.ts)_
+_See code: [src/commands/app/update-port.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/app/update-port.ts)_
 
 ## `liara autocomplete [SHELL]`
 
@@ -671,7 +731,7 @@ FLAGS
       --name=<value>        name
       --permission=<value>  permission
       --plan=<value>        plan
-      --team-id=<value>     your team id
+      --team-id=<value>     your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   create a bucket
@@ -680,7 +740,7 @@ ALIASES
   $ liara bucket create
 ```
 
-_See code: [src/commands/bucket/create.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/bucket/create.ts)_
+_See code: [src/commands/bucket/create.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/bucket/create.ts)_
 
 ## `liara bucket delete`
 
@@ -698,7 +758,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   delete a bucket
@@ -707,7 +767,7 @@ ALIASES
   $ liara bucket delete
 ```
 
-_See code: [src/commands/bucket/delete.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/bucket/delete.ts)_
+_See code: [src/commands/bucket/delete.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/bucket/delete.ts)_
 
 ## `liara bucket list`
 
@@ -733,7 +793,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available buckets
@@ -742,7 +802,7 @@ ALIASES
   $ liara bucket ls
 ```
 
-_See code: [src/commands/bucket/list.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/bucket/list.ts)_
+_See code: [src/commands/bucket/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/bucket/list.ts)_
 
 ## `liara bucket ls`
 
@@ -768,7 +828,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available buckets
@@ -798,7 +858,7 @@ FLAGS
       --feature-plan=<value>  feature bundle plan
       --plan=<value>          plan
       --platform=<value>      platform
-      --team-id=<value>       your team id
+      --team-id=<value>       your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   create an app
@@ -821,13 +881,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   create a database backup
 ```
 
-_See code: [src/commands/db/backup/create.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/db/backup/create.ts)_
+_See code: [src/commands/db/backup/create.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/db/backup/create.ts)_
 
 ## `liara db backup dl`
 
@@ -846,7 +906,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   download a database backup
@@ -872,7 +932,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   download a database backup
@@ -881,7 +941,7 @@ ALIASES
   $ liara db backup dl
 ```
 
-_See code: [src/commands/db/backup/download.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/db/backup/download.ts)_
+_See code: [src/commands/db/backup/download.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/db/backup/download.ts)_
 
 ## `liara db backup list`
 
@@ -908,7 +968,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list backups for a database
@@ -917,7 +977,7 @@ ALIASES
   $ liara db backup ls
 ```
 
-_See code: [src/commands/db/backup/list.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/db/backup/list.ts)_
+_See code: [src/commands/db/backup/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/db/backup/list.ts)_
 
 ## `liara db backup ls`
 
@@ -944,7 +1004,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list backups for a database
@@ -975,13 +1035,13 @@ FLAGS
       --network=<value>       network
       --plan=<value>          plan
       --public-network        use public network or not
-      --team-id=<value>       your team id
+      --team-id=<value>       your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   create a new database
 ```
 
-_See code: [src/commands/db/create.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/db/create.ts)_
+_See code: [src/commands/db/create.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/db/create.ts)_
 
 ## `liara db list`
 
@@ -1007,7 +1067,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available databases
@@ -1016,7 +1076,7 @@ ALIASES
   $ liara db ls
 ```
 
-_See code: [src/commands/db/list.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/db/list.ts)_
+_See code: [src/commands/db/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/db/list.ts)_
 
 ## `liara db ls`
 
@@ -1042,7 +1102,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available databases
@@ -1067,7 +1127,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   remove a database
@@ -1076,7 +1136,7 @@ ALIASES
   $ liara db rm
 ```
 
-_See code: [src/commands/db/remove.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/db/remove.ts)_
+_See code: [src/commands/db/remove.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/db/remove.ts)_
 
 ## `liara db resize`
 
@@ -1095,13 +1155,13 @@ FLAGS
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
       --plan=<value>       new plan name
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   resize a database
 ```
 
-_See code: [src/commands/db/resize.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/db/resize.ts)_
+_See code: [src/commands/db/resize.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/db/resize.ts)_
 
 ## `liara db rm`
 
@@ -1119,7 +1179,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   remove a database
@@ -1142,13 +1202,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   start a database
 ```
 
-_See code: [src/commands/db/start.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/db/start.ts)_
+_See code: [src/commands/db/start.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/db/start.ts)_
 
 ## `liara db stop`
 
@@ -1164,13 +1224,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   stop a database
 ```
 
-_See code: [src/commands/db/stop.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/db/stop.ts)_
+_See code: [src/commands/db/stop.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/db/stop.ts)_
 
 ## `liara delete`
 
@@ -1186,7 +1246,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   delete an app
@@ -1229,13 +1289,13 @@ FLAGS
       --no-cache                 do not use cache when building the image
       --path=<value>             app path in your computer
       --platform=<value>         the platform your app needs to run
-      --team-id=<value>          your team id
+      --team-id=<value>          your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   deploy an app
 ```
 
-_See code: [src/commands/deploy.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/deploy.ts)_
+_See code: [src/commands/deploy.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/deploy.ts)_
 
 ## `liara disk create`
 
@@ -1254,13 +1314,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   create a disk
 ```
 
-_See code: [src/commands/disk/create.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/disk/create.ts)_
+_See code: [src/commands/disk/create.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/disk/create.ts)_
 
 ## `liara env list`
 
@@ -1287,7 +1347,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list environment variables of an app
@@ -1296,7 +1356,7 @@ ALIASES
   $ liara env ls
 ```
 
-_See code: [src/commands/env/list.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/env/list.ts)_
+_See code: [src/commands/env/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/env/list.ts)_
 
 ## `liara env ls`
 
@@ -1323,7 +1383,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list environment variables of an app
@@ -1351,13 +1411,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   specifying environment variables to an app
 ```
 
-_See code: [src/commands/env/set.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/env/set.ts)_
+_See code: [src/commands/env/set.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/env/set.ts)_
 
 ## `liara env unset [ENV]`
 
@@ -1378,13 +1438,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   remove environment variables from an app
 ```
 
-_See code: [src/commands/env/unset.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/env/unset.ts)_
+_See code: [src/commands/env/unset.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/env/unset.ts)_
 
 ## `liara help [COMMAND]`
 
@@ -1428,7 +1488,7 @@ FLAGS
       --build-location=<value>  name of the build's location
       --debug                   show debug logs
       --path=<value>            the path where the disk should be mounted
-      --team-id=<value>         your team id
+      --team-id=<value>         your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   create a liara.json file
@@ -1437,7 +1497,7 @@ EXAMPLES
   $ liara init
 ```
 
-_See code: [src/commands/init.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/init.ts)_
+_See code: [src/commands/init.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/init.ts)_
 
 ## `liara login`
 
@@ -1458,13 +1518,13 @@ FLAGS
       --browser=<option>   browser to open
                            <options: chrome|firefox|edge>
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   login to your account
 ```
 
-_See code: [src/commands/login.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/login.ts)_
 
 ## `liara logs`
 
@@ -1487,7 +1547,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   fetch the logs of an app
@@ -1513,7 +1573,7 @@ FLAGS
       --domain=<value>     domain
       --mode=<value>       mode
       --plan=<value>       plan
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   create a mail server
@@ -1522,7 +1582,7 @@ ALIASES
   $ liara mail create
 ```
 
-_See code: [src/commands/mail/create.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/mail/create.ts)_
+_See code: [src/commands/mail/create.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/mail/create.ts)_
 
 ## `liara mail delete`
 
@@ -1540,7 +1600,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   delete an mail server
@@ -1549,7 +1609,7 @@ ALIASES
   $ liara mail delete
 ```
 
-_See code: [src/commands/mail/delete.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/mail/delete.ts)_
+_See code: [src/commands/mail/delete.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/mail/delete.ts)_
 
 ## `liara mail list`
 
@@ -1575,7 +1635,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available mail servers
@@ -1584,7 +1644,7 @@ ALIASES
   $ liara mail ls
 ```
 
-_See code: [src/commands/mail/list.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/mail/list.ts)_
+_See code: [src/commands/mail/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/mail/list.ts)_
 
 ## `liara mail ls`
 
@@ -1610,7 +1670,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available mail servers
@@ -1637,7 +1697,7 @@ FLAGS
       --from=<value>            from
       --mail=<value>            mail server id
       --subject=<value>         subject
-      --team-id=<value>         your team id
+      --team-id=<value>         your team id (defaults to the team selected via 'liara team:use')
       --text=<value>            text
       --to=<value>              to
 
@@ -1648,7 +1708,7 @@ ALIASES
   $ liara mail send
 ```
 
-_See code: [src/commands/mail/send.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/mail/send.ts)_
+_See code: [src/commands/mail/send.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/mail/send.ts)_
 
 ## `liara network create`
 
@@ -1664,13 +1724,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   create network
 ```
 
-_See code: [src/commands/network/create.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/network/create.ts)_
+_See code: [src/commands/network/create.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/network/create.ts)_
 
 ## `liara network list`
 
@@ -1696,7 +1756,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available networks
@@ -1705,7 +1765,7 @@ ALIASES
   $ liara network ls
 ```
 
-_See code: [src/commands/network/list.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/network/list.ts)_
+_See code: [src/commands/network/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/network/list.ts)_
 
 ## `liara network ls`
 
@@ -1731,7 +1791,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available networks
@@ -1764,7 +1824,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available plans
@@ -1773,7 +1833,7 @@ ALIASES
   $ liara plan ls
 ```
 
-_See code: [src/commands/plan/list.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/plan/list.ts)_
+_See code: [src/commands/plan/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/plan/list.ts)_
 
 ## `liara plan ls`
 
@@ -1799,7 +1859,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available plans
@@ -1822,7 +1882,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   restart an app
@@ -1847,7 +1907,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   run a command in a running applet
@@ -1870,7 +1930,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   start an app
@@ -1893,7 +1953,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   stop an app
@@ -1901,6 +1961,874 @@ DESCRIPTION
 ALIASES
   $ liara stop
 ```
+
+## `liara team change-owner`
+
+transfer the ownership of a team to another member
+
+```
+USAGE
+  $ liara team change-owner [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-m <value>]
+    [-y]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -m, --member=<value>     email or ID of the new owner
+  -y, --yes                say yes to continue prompt
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  transfer the ownership of a team to another member
+```
+
+_See code: [src/commands/team/change-owner.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/change-owner.ts)_
+
+## `liara team create`
+
+create a team
+
+```
+USAGE
+  $ liara team create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
+    [--color PURPLE_FIRE|GOLDEN_NATURE|WOLF_AND_MIST|CARBON_SEA|WINTER_FOG|RED_SEA]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -n, --name=<value>       team name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --color=<option>     team color
+                           <options: PURPLE_FIRE|GOLDEN_NATURE|WOLF_AND_MIST|CARBON_SEA|WINTER_FOG|RED_SEA>
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  create a team
+```
+
+_See code: [src/commands/team/create.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/create.ts)_
+
+## `liara team delete`
+
+delete a team
+
+```
+USAGE
+  $ liara team delete [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-y]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -y, --yes                say yes to continue prompt
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  delete a team
+
+ALIASES
+  $ liara team rm
+```
+
+_See code: [src/commands/team/delete.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/delete.ts)_
+
+## `liara team invitation create`
+
+invite someone to a team by email
+
+```
+USAGE
+  $ liara team invitation create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-e <value>]
+    [-r <value> | --role-id <value>]
+
+FLAGS
+  -e, --email=<value>      email to invite
+  -h, --help               Show CLI help.
+  -r, --role=<value>       name or ID of the role
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --role-id=<value>    ID of the role, sent without looking up the team's roles
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  invite someone to a team by email
+
+ALIASES
+  $ liara team invite
+```
+
+_See code: [src/commands/team/invitation/create.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/invitation/create.ts)_
+
+## `liara team invitation delete`
+
+cancel a pending invitation
+
+```
+USAGE
+  $ liara team invitation delete [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-i <value>]
+    [-y]
+
+FLAGS
+  -h, --help                Show CLI help.
+  -i, --invitation=<value>  invited email or invitation ID
+  -y, --yes                 say yes to continue prompt
+      --account=<value>     temporarily switch to a different account
+      --api-token=<value>   your api token to use for authentication
+      --debug               show debug logs
+      --team-id=<value>     your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  cancel a pending invitation
+
+ALIASES
+  $ liara team invitation rm
+```
+
+_See code: [src/commands/team/invitation/delete.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/invitation/delete.ts)_
+
+## `liara team invitation join`
+
+accept an invitation to a team
+
+```
+USAGE
+  $ liara team invitation join [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-t <value>]
+    [-y]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -t, --token=<value>      invitation link or token
+  -y, --yes                say yes to continue prompt
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  accept an invitation to a team
+
+ALIASES
+  $ liara team join
+```
+
+_See code: [src/commands/team/invitation/join.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/invitation/join.ts)_
+
+## `liara team invitation list`
+
+list the pending invitations of a team
+
+```
+USAGE
+  $ liara team invitation list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  list the pending invitations of a team
+
+ALIASES
+  $ liara team invitation ls
+```
+
+_See code: [src/commands/team/invitation/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/invitation/list.ts)_
+
+## `liara team invitation ls`
+
+list the pending invitations of a team
+
+```
+USAGE
+  $ liara team invitation ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  list the pending invitations of a team
+
+ALIASES
+  $ liara team invitation ls
+```
+
+## `liara team invitation rm`
+
+cancel a pending invitation
+
+```
+USAGE
+  $ liara team invitation rm [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-i <value>]
+    [-y]
+
+FLAGS
+  -h, --help                Show CLI help.
+  -i, --invitation=<value>  invited email or invitation ID
+  -y, --yes                 say yes to continue prompt
+      --account=<value>     temporarily switch to a different account
+      --api-token=<value>   your api token to use for authentication
+      --debug               show debug logs
+      --team-id=<value>     your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  cancel a pending invitation
+
+ALIASES
+  $ liara team invitation rm
+```
+
+## `liara team invite`
+
+invite someone to a team by email
+
+```
+USAGE
+  $ liara team invite [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-e <value>]
+    [-r <value> | --role-id <value>]
+
+FLAGS
+  -e, --email=<value>      email to invite
+  -h, --help               Show CLI help.
+  -r, --role=<value>       name or ID of the role
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --role-id=<value>    ID of the role, sent without looking up the team's roles
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  invite someone to a team by email
+
+ALIASES
+  $ liara team invite
+```
+
+## `liara team join`
+
+accept an invitation to a team
+
+```
+USAGE
+  $ liara team join [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-t <value>]
+    [-y]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -t, --token=<value>      invitation link or token
+  -y, --yes                say yes to continue prompt
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  accept an invitation to a team
+
+ALIASES
+  $ liara team join
+```
+
+## `liara team leave`
+
+leave a team
+
+```
+USAGE
+  $ liara team leave [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-y]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -y, --yes                say yes to continue prompt
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  leave a team
+```
+
+_See code: [src/commands/team/leave.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/leave.ts)_
+
+## `liara team list`
+
+list the teams of your account
+
+```
+USAGE
+  $ liara team list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  list the teams of your account
+
+ALIASES
+  $ liara team ls
+```
+
+_See code: [src/commands/team/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/list.ts)_
+
+## `liara team ls`
+
+list the teams of your account
+
+```
+USAGE
+  $ liara team ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  list the teams of your account
+
+ALIASES
+  $ liara team ls
+```
+
+## `liara team member list`
+
+list the members of a team
+
+```
+USAGE
+  $ liara team member list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  list the members of a team
+
+ALIASES
+  $ liara team member ls
+```
+
+_See code: [src/commands/team/member/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/member/list.ts)_
+
+## `liara team member ls`
+
+list the members of a team
+
+```
+USAGE
+  $ liara team member ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  list the members of a team
+
+ALIASES
+  $ liara team member ls
+```
+
+## `liara team member remove`
+
+remove a member from a team
+
+```
+USAGE
+  $ liara team member remove [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-m <value>]
+    [-y]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -m, --member=<value>     email or ID of the member
+  -y, --yes                say yes to continue prompt
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  remove a member from a team
+
+ALIASES
+  $ liara team member rm
+```
+
+_See code: [src/commands/team/member/remove.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/member/remove.ts)_
+
+## `liara team member rm`
+
+remove a member from a team
+
+```
+USAGE
+  $ liara team member rm [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-m <value>]
+    [-y]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -m, --member=<value>     email or ID of the member
+  -y, --yes                say yes to continue prompt
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  remove a member from a team
+
+ALIASES
+  $ liara team member rm
+```
+
+## `liara team member set-role`
+
+change a team member's role
+
+```
+USAGE
+  $ liara team member set-role [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-m <value>]
+    [-r <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -m, --member=<value>     email or ID of the member
+  -r, --role=<value>       name or ID of the role
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  change a team member's role
+```
+
+_See code: [src/commands/team/member/set-role.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/member/set-role.ts)_
+
+## `liara team permission assign`
+
+give a team member a permission on one resource
+
+```
+USAGE
+  $ liara team permission assign [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-m <value>]
+    [-p <value>] [-r <value> | --resource-id <value>]
+
+FLAGS
+  -h, --help                 Show CLI help.
+  -m, --member=<value>       email or ID of the member
+  -p, --permission=<value>   permission as type:name, e.g. project:deploy
+  -r, --resource=<value>     the app name for project and the hostname for database permissions
+      --account=<value>      temporarily switch to a different account
+      --api-token=<value>    your api token to use for authentication
+      --debug                show debug logs
+      --resource-id=<value>  ID of the resource, for any permission type
+      --team-id=<value>      your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  give a team member a permission on one resource
+```
+
+_See code: [src/commands/team/permission/assign.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/permission/assign.ts)_
+
+## `liara team permission list`
+
+list the permissions assigned to team members on resources
+
+```
+USAGE
+  $ liara team permission list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  list the permissions assigned to team members on resources
+
+ALIASES
+  $ liara team permission ls
+```
+
+_See code: [src/commands/team/permission/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/permission/list.ts)_
+
+## `liara team permission ls`
+
+list the permissions assigned to team members on resources
+
+```
+USAGE
+  $ liara team permission ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  list the permissions assigned to team members on resources
+
+ALIASES
+  $ liara team permission ls
+```
+
+## `liara team permission revoke`
+
+revoke a permission assigned to a team member
+
+```
+USAGE
+  $ liara team permission revoke [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-m <value>]
+    [-r <value>] [-p <value>] [-y]
+
+FLAGS
+  -h, --help                Show CLI help.
+  -m, --member=<value>      email of the member
+  -p, --permission=<value>  permission as type:name, e.g. project:deploy
+  -r, --resource=<value>    name of the resource, e.g. the app name
+  -y, --yes                 say yes to continue prompt
+      --account=<value>     temporarily switch to a different account
+      --api-token=<value>   your api token to use for authentication
+      --debug               show debug logs
+      --team-id=<value>     your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  revoke a permission assigned to a team member
+  The flags narrow down the assigned permissions. You'll be asked to pick one if more than one matches.
+```
+
+_See code: [src/commands/team/permission/revoke.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/permission/revoke.ts)_
+
+## `liara team rename`
+
+rename a team
+
+```
+USAGE
+  $ liara team rename [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -n, --name=<value>       new team name
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  rename a team
+```
+
+_See code: [src/commands/team/rename.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/rename.ts)_
+
+## `liara team rm`
+
+delete a team
+
+```
+USAGE
+  $ liara team rm [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-y]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -y, --yes                say yes to continue prompt
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  delete a team
+
+ALIASES
+  $ liara team rm
+```
+
+## `liara team role create`
+
+create a custom role in a team
+
+```
+USAGE
+  $ liara team role create [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-n <value>]
+    [-p <value>...]
+
+FLAGS
+  -h, --help                   Show CLI help.
+  -n, --name=<value>           role name
+  -p, --permission=<value>...  permission as type:name, e.g. project:deploy
+      --account=<value>        temporarily switch to a different account
+      --api-token=<value>      your api token to use for authentication
+      --debug                  show debug logs
+      --team-id=<value>        your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  create a custom role in a team
+```
+
+_See code: [src/commands/team/role/create.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/role/create.ts)_
+
+## `liara team role delete`
+
+delete a custom role from a team
+
+```
+USAGE
+  $ liara team role delete [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-r <value>]
+    [-y]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -r, --role=<value>       name or ID of the role
+  -y, --yes                say yes to continue prompt
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  delete a custom role from a team
+
+ALIASES
+  $ liara team role rm
+```
+
+_See code: [src/commands/team/role/delete.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/role/delete.ts)_
+
+## `liara team role list`
+
+list the roles of a team
+
+```
+USAGE
+  $ liara team role list [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  list the roles of a team
+
+ALIASES
+  $ liara team role ls
+```
+
+_See code: [src/commands/team/role/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/role/list.ts)_
+
+## `liara team role ls`
+
+list the roles of a team
+
+```
+USAGE
+  $ liara team role ls [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [--columns
+    <value> | -x] [--filter <value>] [--no-header | [--csv | --no-truncate]] [--output csv|json|yaml |  | ] [--sort
+    <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -x, --extended           show extra columns
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --columns=<value>    only show provided columns (comma-separated)
+      --csv                output is csv format [alias: --output=csv]
+      --debug              show debug logs
+      --filter=<value>     filter property by partial string matching, ex: name=foo
+      --no-header          hide table header from output
+      --no-truncate        do not truncate output to fit screen
+      --output=<option>    output in a more machine friendly format
+                           <options: csv|json|yaml>
+      --sort=<value>       property to sort by (prepend '-' for descending)
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  list the roles of a team
+
+ALIASES
+  $ liara team role ls
+```
+
+## `liara team role rm`
+
+delete a custom role from a team
+
+```
+USAGE
+  $ liara team role rm [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>] [-r <value>]
+    [-y]
+
+FLAGS
+  -h, --help               Show CLI help.
+  -r, --role=<value>       name or ID of the role
+  -y, --yes                say yes to continue prompt
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  delete a custom role from a team
+
+ALIASES
+  $ liara team role rm
+```
+
+## `liara team use`
+
+select the team to use by default
+
+```
+USAGE
+  $ liara team use [-h] [--debug] [--api-token <value>] [--account <value>] [--personal |  | [--team <value> |
+    --team-id <value>]]
+
+FLAGS
+  -h, --help               Show CLI help.
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --personal           use your personal account instead of a team
+      --team=<value>       name of the team
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+DESCRIPTION
+  select the team to use by default
+```
+
+_See code: [src/commands/team/use.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/team/use.ts)_
 
 ## `liara update-port`
 
@@ -1918,7 +2846,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   update an app's port
@@ -1964,13 +2892,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   create a vm
 ```
 
-_See code: [src/commands/vm/create.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/vm/create.ts)_
+_See code: [src/commands/vm/create.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/vm/create.ts)_
 
 ## `liara vm delete`
 
@@ -1988,7 +2916,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   delete a vm
@@ -1998,7 +2926,7 @@ ALIASES
   $ liara vm rm
 ```
 
-_See code: [src/commands/vm/delete.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/vm/delete.ts)_
+_See code: [src/commands/vm/delete.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/vm/delete.ts)_
 
 ## `liara vm info`
 
@@ -2025,7 +2953,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   show vm information
@@ -2035,7 +2963,7 @@ ALIASES
   $ liara vm inspect
 ```
 
-_See code: [src/commands/vm/info.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/vm/info.ts)_
+_See code: [src/commands/vm/info.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/vm/info.ts)_
 
 ## `liara vm inspect`
 
@@ -2062,7 +2990,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   show vm information
@@ -2096,13 +3024,13 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list available vms
 ```
 
-_See code: [src/commands/vm/list.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/vm/list.ts)_
+_See code: [src/commands/vm/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/vm/list.ts)_
 
 ## `liara vm power off`
 
@@ -2121,7 +3049,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   stop a vm
@@ -2148,13 +3076,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   restart a vm
 ```
 
-_See code: [src/commands/vm/restart.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/vm/restart.ts)_
+_See code: [src/commands/vm/restart.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/vm/restart.ts)_
 
 ## `liara vm rm`
 
@@ -2172,7 +3100,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   delete a vm
@@ -2207,7 +3135,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   show vm information
@@ -2234,7 +3162,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   stop a vm
@@ -2261,13 +3189,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   start a vm
 ```
 
-_See code: [src/commands/vm/start.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/vm/start.ts)_
+_See code: [src/commands/vm/start.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/vm/start.ts)_
 
 ## `liara vm stop`
 
@@ -2286,7 +3214,7 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   stop a vm
@@ -2297,7 +3225,36 @@ ALIASES
   $ liara vm shutdown
 ```
 
-_See code: [src/commands/vm/stop.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/vm/stop.ts)_
+_See code: [src/commands/vm/stop.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/vm/stop.ts)_
+
+## `liara whoami`
+
+show the account and team that commands run as
+
+```
+USAGE
+  $ liara whoami [--json] [-h] [--debug] [--api-token <value>] [--account <value>] [--team-id <value>]
+
+FLAGS
+  -h, --help               Show CLI help.
+      --account=<value>    temporarily switch to a different account
+      --api-token=<value>  your api token to use for authentication
+      --debug              show debug logs
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
+
+GLOBAL FLAGS
+  --json  Format output as json.
+
+DESCRIPTION
+  show the account and team that commands run as
+  The team comes from --team-id, then the team selected via 'liara team:use'. Without either, commands run on your
+  personal account.
+
+ALIASES
+  $ liara account whoami
+```
+
+_See code: [src/commands/whoami.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/whoami.ts)_
 
 ## `liara zone ch`
 
@@ -2324,7 +3281,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   check zone status
@@ -2358,7 +3315,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   check zone status
@@ -2367,7 +3324,7 @@ ALIASES
   $ liara zone ch
 ```
 
-_See code: [src/commands/zone/check.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/zone/check.ts)_
+_See code: [src/commands/zone/check.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/zone/check.ts)_
 
 ## `liara zone create`
 
@@ -2383,13 +3340,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   create a new zone
 ```
 
-_See code: [src/commands/zone/create.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/zone/create.ts)_
+_See code: [src/commands/zone/create.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/zone/create.ts)_
 
 ## `liara zone del`
 
@@ -2417,7 +3374,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   delete a zone
@@ -2453,7 +3410,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   delete a zone
@@ -2463,7 +3420,7 @@ ALIASES
   $ liara zone rm
 ```
 
-_See code: [src/commands/zone/delete.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/zone/delete.ts)_
+_See code: [src/commands/zone/delete.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/zone/delete.ts)_
 
 ## `liara zone get`
 
@@ -2490,13 +3447,13 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   inspect zone details
 ```
 
-_See code: [src/commands/zone/get.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/zone/get.ts)_
+_See code: [src/commands/zone/get.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/zone/get.ts)_
 
 ## `liara zone list`
 
@@ -2522,7 +3479,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list all zones
@@ -2531,7 +3488,7 @@ ALIASES
   $ liara zone ls
 ```
 
-_See code: [src/commands/zone/list.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/zone/list.ts)_
+_See code: [src/commands/zone/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/zone/list.ts)_
 
 ## `liara zone ls`
 
@@ -2557,7 +3514,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list all zones
@@ -2593,13 +3550,13 @@ FLAGS
       --account=<value>    temporarily switch to a different account
       --api-token=<value>  your api token to use for authentication
       --debug              show debug logs
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   create a new dns record
 ```
 
-_See code: [src/commands/zone/record/create.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/zone/record/create.ts)_
+_See code: [src/commands/zone/record/create.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/zone/record/create.ts)_
 
 ## `liara zone record get`
 
@@ -2627,13 +3584,13 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   get a DNS record
 ```
 
-_See code: [src/commands/zone/record/get.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/zone/record/get.ts)_
+_See code: [src/commands/zone/record/get.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/zone/record/get.ts)_
 
 ## `liara zone record list`
 
@@ -2660,7 +3617,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list all DNS records
@@ -2669,7 +3626,7 @@ ALIASES
   $ liara zone record ls
 ```
 
-_See code: [src/commands/zone/record/list.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/zone/record/list.ts)_
+_See code: [src/commands/zone/record/list.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/zone/record/list.ts)_
 
 ## `liara zone record ls`
 
@@ -2696,7 +3653,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   list all DNS records
@@ -2731,7 +3688,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   remove a DNS record
@@ -2740,7 +3697,7 @@ ALIASES
   $ liara zone record rm
 ```
 
-_See code: [src/commands/zone/record/remove.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/zone/record/remove.ts)_
+_See code: [src/commands/zone/record/remove.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/zone/record/remove.ts)_
 
 ## `liara zone record rm`
 
@@ -2768,7 +3725,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   remove a DNS record
@@ -2812,13 +3769,13 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   update a DNS record
 ```
 
-_See code: [src/commands/zone/record/update.ts](https://github.com/liara-cloud/cli/blob/v9.5.2/src/commands/zone/record/update.ts)_
+_See code: [src/commands/zone/record/update.ts](https://github.com/liara-cloud/cli/blob/v9.6.0/src/commands/zone/record/update.ts)_
 
 ## `liara zone rm`
 
@@ -2846,7 +3803,7 @@ FLAGS
       --output=<option>    output in a more machine friendly format
                            <options: csv|json|yaml>
       --sort=<value>       property to sort by (prepend '-' for descending)
-      --team-id=<value>    your team id
+      --team-id=<value>    your team id (defaults to the team selected via 'liara team:use')
 
 DESCRIPTION
   delete a zone
