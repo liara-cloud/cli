@@ -204,7 +204,7 @@ describe('team', function () {
 
       const { stdout } = await runCommand(['team:list', '--output', 'csv']);
 
-      expect(stdout).to.equal('Name,Current\nTeam One,👍\nTeam Two,\n');
+      expect(stdout).to.equal('Name,Current\nTeam One,+\nTeam Two,\n');
     });
 
     it('shows team IDs with --extended', async () => {
@@ -218,7 +218,7 @@ describe('team', function () {
       ]);
 
       expect(stdout).to.equal(
-        'Name,ID,Current\nTeam One,team-1,👍\nTeam Two,team-2,\n',
+        'Name,ID,Current\nTeam One,team-1,+\nTeam Two,team-2,\n',
       );
     });
   });

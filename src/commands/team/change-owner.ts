@@ -2,8 +2,7 @@ import { Flags } from '@oclif/core';
 import Command, { memberLabel } from '../../team-command.js';
 
 export default class TeamChangeOwner extends Command {
-  static description = `transfer the ownership of a team to another member
-The new owner must have the same role as you, and a team's ownership can only be transferred once.`;
+  static description = 'transfer the ownership of a team to another member';
 
   static flags = {
     ...Command.flags,
@@ -25,7 +24,7 @@ The new owner must have the same role as you, and a team's ownership can only be
     if (
       !flags.yes &&
       !(await this.confirm(
-        `Transfer the ownership of "${team.name}" to ${memberLabel(member)}? This can only be done once.`,
+        `Transfer the ownership of "${team.name}" to ${memberLabel(member)}?`,
       ))
     ) {
       this.log('Operation cancelled');

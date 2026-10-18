@@ -26,7 +26,7 @@ const member = {
   _id: MEMBER,
   team: TEAM,
   user,
-  role: { _id: OPERATOR_ROLE, name: 'گرداننده' },
+  role: { _id: OPERATOR_ROLE, name: 'Operator' },
   createdAt: '2026-01-10T08:00:00.000Z',
 };
 
@@ -35,19 +35,19 @@ const roles = {
   roles: [
     {
       _id: OPERATOR_ROLE,
-      name: 'گرداننده',
+      name: 'Operator',
       isCustom: false,
       permissions: [{ name: 'operate', type: 'project' }],
     },
     {
       _id: MANAGER_ROLE,
-      name: 'مدیر',
+      name: 'Manager',
       isCustom: false,
       permissions: [{ name: 'manage', type: 'project' }],
     },
     {
       _id: CUSTOM_ROLE,
-      name: 'توسعه دهنده',
+      name: 'Developer',
       isCustom: true,
       permissions: [{ name: 'deploy', type: 'project' }],
     },
@@ -163,7 +163,6 @@ describe('team management', function () {
       expect(error).to.be.undefined;
       expect(stdout).to.contain('jane@example.com');
       expect(stdout).to.contain('Operator');
-      expect(stdout).not.to.contain('گرداننده');
       expect(stdout).not.to.contain(MEMBER);
     });
 
@@ -224,7 +223,7 @@ describe('team management', function () {
   });
 
   describe('errors', () => {
-    it('shows a message for the API error code', async () => {
+    it('shows a message for the error code', async () => {
       mockTeams();
       api
         .delete(`/v2/teams/${TEAM}/leave`)
@@ -238,51 +237,39 @@ describe('team management', function () {
 
       const { error } = await runCommand(['team:leave', '--yes']);
 
-      expect(error?.message).to.contain('The team owner cannot leave the team');
+      expect(error?.message).to.equal("You can't leave a team you created.");
       expect(fsStub.called).to.be.false;
     });
 
-    it('lets a command override the message of a code', async () => {
+    it('reads an error code sent outside of data', async () => {
       mockTeams();
-      api
-        .post(`/v2/teams/${TEAM}/change-team-name/frontend`)
-        .query({ teamID: TEAM })
-        .reply(403, {
-          statusCode: 403,
-          error: 'Forbidden',
-          message: 'You are not allowed to change team creator',
-          data: { code: 'not_allowed_to_change_team_creator' },
-        });
+      api.delete(`/v2/teams/${TEAM}`).query({ teamID: TEAM }).reply(400, {
+        statusCode: 400,
+        message: 'Cannot delete team with usage in current month',
+        code: 'cannot_delete_team_with_usage_in_current_month',
+      });
 
-      const { error } = await runCommand(['team:rename', '--name', 'frontend']);
+      const { error } = await runCommand(['team:delete', '--yes']);
 
-      expect(error?.message).to.equal(
-        'Only the team owner can rename the team.',
+      expect(error?.message).to.contain(
+        "this month's usage hasn't been invoiced yet",
       );
     });
 
-    it('falls back to the API message for errors without a code', async () => {
+    it('shows the API message for an unknown error code', async () => {
       mockTeams();
-      mockMembers();
-      mockList(`/${TEAM}/roles`, roles);
       api
-        .post(`/v2/teams/${TEAM}/change-member-role/${MEMBER}/${MANAGER_ROLE}`)
+        .delete(`/v2/teams/${TEAM}/leave`)
         .query({ teamID: TEAM })
         .reply(400, {
           statusCode: 400,
-          error: 'Bad Request',
-          message: '"roleID" must be a valid id',
+          message: 'Something new went wrong',
+          data: { code: 'some_new_code' },
         });
 
-      const { error } = await runCommand([
-        'team:member:set-role',
-        '--member',
-        MEMBER,
-        '--role',
-        'manager',
-      ]);
+      const { error } = await runCommand(['team:leave', '--yes']);
 
-      expect(error?.message).to.equal('"roleID" must be a valid id');
+      expect(error?.message).to.equal('Something new went wrong');
     });
   });
 
@@ -303,20 +290,6 @@ describe('team management', function () {
 
       expect(stdout).to.contain('Team backend created.');
       expect(stdout).to.contain(`liara team:use --team "backend"`);
-    });
-
-    it('validates the name before calling the API', async () => {
-      const { error } = await runCommand([
-        'team:create',
-        '--name',
-        'ab',
-        '--color',
-        'CARBON_SEA',
-      ]);
-
-      expect(error?.message).to.equal(
-        'The team name must be between 3 and 50 characters.',
-      );
     });
   });
 
@@ -421,7 +394,7 @@ describe('team management', function () {
       expect(stdout).to.contain('removed from backend');
     });
 
-    it('sets a role by its English name', async () => {
+    it('sets a role by its name', async () => {
       mockTeams();
       mockMembers();
       mockList(`/${TEAM}/roles`, roles);
@@ -459,7 +432,7 @@ describe('team management', function () {
   });
 
   describe('team:invitation', () => {
-    it('invites with a role ID without listing roles', async () => {
+    it('invites with --role-id without listing roles', async () => {
       mockTeams();
       api
         .post(`/v2/teams/${TEAM}/invitations`, {
@@ -473,7 +446,7 @@ describe('team management', function () {
         'team:invite',
         '--email',
         'new.dev@example.com',
-        '--role',
+        '--role-id',
         OPERATOR_ROLE,
       ]);
 
@@ -490,7 +463,7 @@ describe('team management', function () {
             _id: INVITATION,
             team: TEAM,
             email: 'new.dev@example.com',
-            role: { name: 'بازرس' },
+            role: { name: 'Inspector' },
             status: 'pending',
           },
         ],
@@ -519,7 +492,7 @@ describe('team management', function () {
           teamName: 'backend',
           teamColor: 'CARBON_SEA',
           roleID: OPERATOR_ROLE,
-          roleName: 'گرداننده',
+          roleName: 'Operator',
         });
       api
         .post('/v2/teams/invitations/join')
@@ -543,7 +516,7 @@ describe('team management', function () {
       mockList('/permissions', catalog);
       api
         .post(`/v2/teams/${TEAM}/custom-role`, {
-          name: 'توسعه دهنده',
+          name: 'Developer',
           permissions: [
             { type: 'project', name: 'deploy' },
             { type: 'team', name: 'manage' },
@@ -555,33 +528,14 @@ describe('team management', function () {
       const { stdout } = await runCommand([
         'team:role:create',
         '--name',
-        '"توسعه دهنده"',
+        'Developer',
         '--permission',
         'project:deploy',
         '--permission',
         'team:manage',
       ]);
 
-      expect(stdout).to.contain('Role توسعه دهنده created.');
-    });
-
-    it('allows only one permission per type', async () => {
-      mockTeams();
-      mockList('/permissions', catalog);
-
-      const { error } = await runCommand([
-        'team:role:create',
-        '--name',
-        '"توسعه دهنده"',
-        '--permission',
-        'project:deploy',
-        '--permission',
-        'project:view',
-      ]);
-
-      expect(error?.message).to.contain(
-        'Only one permission per type is allowed. Repeated: project',
-      );
+      expect(stdout).to.contain('Role Developer created.');
     });
 
     it('rejects permissions that roles cannot have', async () => {
@@ -591,28 +545,12 @@ describe('team management', function () {
       const { error } = await runCommand([
         'team:role:create',
         '--name',
-        '"توسعه دهنده"',
+        'Developer',
         '--permission',
         'project:create',
       ]);
 
       expect(error?.message).to.contain("Invalid permission 'project:create'");
-    });
-
-    it('requires a Persian role name', async () => {
-      mockTeams();
-
-      const { error } = await runCommand([
-        'team:role:create',
-        '--name',
-        'developer',
-        '--permission',
-        'project:deploy',
-      ]);
-
-      expect(error?.message).to.equal(
-        'The role name can only contain Persian letters and spaces.',
-      );
     });
 
     it('deletes only custom roles', async () => {
@@ -684,11 +622,36 @@ describe('team management', function () {
         'jane@example.com',
         '--permission',
         'team:manage',
-        '--resource',
+        '--resource-id',
         PROJECT,
       ]);
 
       expect(error?.message).to.contain("Invalid permission 'team:manage'");
+    });
+
+    it('assigns a permission by --resource-id without looking it up', async () => {
+      mockTeams();
+      mockMembers();
+      mockList('/permissions', catalog);
+      api
+        .post(`/v2/teams/${TEAM}/${MEMBER}/assign-permission`, {
+          permission: { type: 'project', name: 'view' },
+          resourceID: PROJECT,
+        })
+        .query({ teamID: TEAM })
+        .reply(201);
+
+      const { stdout } = await runCommand([
+        'team:permission:assign',
+        '--member',
+        'jane@example.com',
+        '--permission',
+        'project:view',
+        '--resource-id',
+        PROJECT,
+      ]);
+
+      expect(stdout).to.contain(`now has project:view on ${PROJECT}`);
     });
 
     it('revokes an assigned permission', async () => {

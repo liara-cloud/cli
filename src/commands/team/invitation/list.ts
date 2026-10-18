@@ -1,5 +1,5 @@
 import { ux } from '@oclif/core';
-import Command, { roleLabel } from '../../../team-command.js';
+import Command from '../../../team-command.js';
 
 export default class TeamInvitationList extends Command {
   static description = 'list the pending invitations of a team';
@@ -24,7 +24,7 @@ export default class TeamInvitationList extends Command {
 
     const invitationsData = invitations.map((invitation) => ({
       Email: invitation.email,
-      Role: invitation.role ? roleLabel(invitation.role.name) : '-',
+      Role: invitation.role ? invitation.role.name : '-',
     }));
 
     ux.table(invitationsData, { Email: {}, Role: {} }, flags);

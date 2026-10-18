@@ -1,5 +1,5 @@
 import { ux } from '@oclif/core';
-import Command, { permissionLabel, roleLabel } from '../../../team-command.js';
+import Command, { permissionLabel } from '../../../team-command.js';
 
 export default class TeamRoleList extends Command {
   static description = 'list the roles of a team';
@@ -18,7 +18,7 @@ export default class TeamRoleList extends Command {
     const roles = await this.getRoles();
 
     const rolesData = roles.map((role) => ({
-      Name: roleLabel(role.name),
+      Name: role.name,
       Type: role.isCustom ? 'custom' : 'default',
       Permissions: role.permissions.map(permissionLabel).join(', ') || '-',
     }));

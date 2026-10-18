@@ -2,7 +2,7 @@ import inquirer from 'inquirer';
 import { Flags } from '@oclif/core';
 
 import { ITeamInvitationInfo } from '../../../types/team.js';
-import Command, { roleLabel } from '../../../team-command.js';
+import Command from '../../../team-command.js';
 
 export default class TeamInvitationJoin extends Command {
   static description = 'accept an invitation to a team';
@@ -36,7 +36,7 @@ export default class TeamInvitationJoin extends Command {
     if (
       !flags.yes &&
       !(await this.confirm(
-        `Join the team "${info.teamName}" as ${roleLabel(info.roleName)}?`,
+        `Join the team "${info.teamName}" as ${info.roleName}?`,
       ))
     ) {
       this.log('Operation cancelled');

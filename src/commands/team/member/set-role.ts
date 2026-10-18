@@ -1,5 +1,5 @@
 import { Flags } from '@oclif/core';
-import Command, { memberLabel, roleLabel } from '../../../team-command.js';
+import Command, { memberLabel } from '../../../team-command.js';
 
 export default class TeamMemberSetRole extends Command {
   static description = "change a team member's role";
@@ -12,8 +12,7 @@ export default class TeamMemberSetRole extends Command {
     }),
     role: Flags.string({
       char: 'r',
-      description:
-        'name or ID of the role, e.g. manager, operator, inspector, accountant, guest',
+      description: 'name or ID of the role',
     }),
   };
 
@@ -28,8 +27,6 @@ export default class TeamMemberSetRole extends Command {
       this.teamPath(`/change-member-role/${member._id}/${role._id}`),
     );
 
-    this.log(
-      `Role of ${memberLabel(member)} changed to ${roleLabel(role.name)}.`,
-    );
+    this.log(`Role of ${memberLabel(member)} changed to ${role.name}.`);
   }
 }

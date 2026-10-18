@@ -68,19 +68,6 @@ export const TEAM_COLORS = [
   'RED_SEA',
 ];
 
-// Reserved by the API for the personal account.
-export const PERSONAL_ACCOUNT_NAME = 'حساب شخصی';
-
-// English names of the roles every team is created with.
-export const DEFAULT_TEAM_ROLES: { [name: string]: string } = {
-  مهمان: 'Guest',
-  حسابدار: 'Accountant',
-  بازرس: 'Inspector',
-  گرداننده: 'Operator',
-  مدیر: 'Manager',
-  مالک: 'Owner',
-};
-
 // The field that names each resource type in a team's assigned permissions.
 export const TEAM_RESOURCE_NAME_FIELDS: { [type: string]: string } = {
   project: 'project_id',

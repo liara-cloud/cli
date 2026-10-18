@@ -2,7 +2,7 @@ import inquirer from 'inquirer';
 import { Flags } from '@oclif/core';
 import { validate as validateEmail } from 'email-validator';
 
-import Command, { isObjectId } from '../../../team-command.js';
+import Command from '../../../team-command.js';
 
 export default class TeamInvitationCreate extends Command {
   static description = 'invite someone to a team by email';
@@ -12,8 +12,11 @@ export default class TeamInvitationCreate extends Command {
     email: Flags.string({ char: 'e', description: 'email to invite' }),
     role: Flags.string({
       char: 'r',
-      description:
-        'name or ID of the role, e.g. manager, operator, inspector, accountant, guest',
+      description: 'name or ID of the role',
+      exclusive: ['role-id'],
+    }),
+    'role-id': Flags.string({
+      description: "ID of the role, sent without looking up the team's roles",
     }),
   };
 
@@ -28,12 +31,7 @@ export default class TeamInvitationCreate extends Command {
       this.error(`Invalid email: ${email}`);
     }
 
-    // Listing roles needs team.manage, but inviting only needs team.operate,
-    // so a role ID is used as is.
-    const roleID =
-      flags.role && isObjectId(flags.role)
-        ? flags.role
-        : (await this.resolveRole(flags.role))._id;
+    const roleID = flags['role-id'] || (await this.resolveRole(flags.role))._id;
 
     const { link } = await this.got
       .post(this.teamPath('/invitations'), { json: { email, roleID } })

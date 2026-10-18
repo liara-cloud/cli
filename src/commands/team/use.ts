@@ -100,7 +100,6 @@ export default class TeamUse extends Command {
       this.error(`You don't have a team named '${name}'.`);
     }
 
-    // Team names are unique per owner, so teams shared by others can repeat.
     if (matches.length > 1) {
       this.error(`You have more than one team named '${name}'.
 Please pass its ID via --team-id instead. See 'liara team:list -x'.`);

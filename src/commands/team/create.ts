@@ -3,7 +3,7 @@ import { Flags } from '@oclif/core';
 
 import ITeam from '../../types/team.js';
 import { TEAM_COLORS } from '../../constants.js';
-import Command, { validateTeamName } from '../../team-command.js';
+import Command, { requireInput } from '../../team-command.js';
 
 export default class TeamCreate extends Command {
   static description = 'create a team';
@@ -20,11 +20,6 @@ export default class TeamCreate extends Command {
     await this.setGotConfig({ ...flags, 'team-id': '' });
 
     const name = (flags.name ?? (await this.promptName())).trim();
-    const nameValidation = validateTeamName(name);
-    if (nameValidation !== true) {
-      this.error(nameValidation);
-    }
-
     const color = flags.color || (await this.promptColor());
 
     const team = await this.got
@@ -40,7 +35,7 @@ export default class TeamCreate extends Command {
       name: 'name',
       type: 'input',
       message: 'Enter the team name:',
-      validate: validateTeamName,
+      validate: requireInput,
     })) as { name: string };
 
     return name;

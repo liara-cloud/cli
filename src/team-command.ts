@@ -12,75 +12,54 @@ import ITeam, {
   ITeamRole,
 } from './types/team.js';
 import {
-  DEFAULT_TEAM_ROLES,
   GLOBAL_CONF_PATH,
   GLOBAL_CONF_VERSION,
-  PERSONAL_ACCOUNT_NAME,
   TEAM_RESOURCE_NAME_FIELDS,
 } from './constants.js';
 
 const PAGE_SIZE = 100;
 
-// Messages for the `data.code` of team API errors.
 const TEAM_ERRORS: { [code: string]: string } = {
-  account_verification_required:
-    'Your account is not verified. Please verify it at https://console.liara.ir, first.',
-  already_joined: 'You are already a member of this team.',
+  account_verification_required: 'Please verify your account first.',
+  already_joined: 'You have already joined this team.',
+  bucket_not_found: 'Could not find the bucket.',
   cannot_assign_permission_to_team_creator:
-    'The team owner already has every permission.',
-  cannot_change_team_creator_role: "The team owner's role cannot be changed.",
-  cannot_change_team_creator_to_yourself:
-    'You are already the owner of this team.',
-  cannot_delete_team_with_resources_or_members:
-    'The team still owns resources. Delete them before deleting the team.',
+    "You can't assign permissions to the team owner.",
   cannot_delete_team_with_usage_in_current_month:
-    'The team has been charged for usage this month. It can be deleted after the month ends.',
-  cannot_leave_team_as_creator:
-    "The team owner cannot leave the team. Transfer the ownership via 'liara team:change-owner' or delete the team.",
-  cannot_remove_team_creator: 'The team owner cannot be removed.',
+    "The team can't be deleted because this month's usage hasn't been invoiced yet. Please wait until the invoice is issued next month.",
+  cannot_leave_team_as_creator: "You can't leave a team you created.",
   cannot_revoke_permission_from_team_creator:
-    "The team owner's permissions cannot be revoked.",
-  custom_role_already_exists: 'A role with this name already exists.',
-  custom_role_not_found: 'Could not find the custom role.',
+    "You can't revoke permissions from the team owner.",
+  custom_role_already_exists: 'This role already exists.',
+  custom_role_not_found: 'Could not find the role.',
+  database_not_found: 'Could not find the database.',
   invalid_invitation_token:
-    'The invitation is invalid or has expired. It must be accepted with the account it was sent to.',
-  invitation_already_exists:
-    "This email already has a pending invitation. Cancel it via 'liara team:invitation:delete' to invite again.",
+    'The invitation is not valid. The invited email must be the same as your account email, and invitation links are valid for 3 days only.',
+  invitation_already_exists: 'This user has already been invited.',
   invitation_not_found: 'Could not find the invitation.',
-  max_custom_roles_reached: 'The team has reached its custom role limit.',
+  mail_server_not_found: 'Could not find the mail server.',
+  max_custom_roles_reached:
+    'The team has reached the maximum number of custom roles.',
   max_permissions_reached:
-    'The team has reached its limit of assigned permissions.',
-  max_team_members_reached: 'The team has reached its member limit.',
+    'You have reached the maximum number of assigned permissions.',
+  max_team_members_reached:
+    'The team has reached the maximum number of members.',
   max_teams_reached: 'You have reached the maximum number of teams.',
-  member_not_found: 'Could not find the member.',
-  no_permission: "You don't have permission to do this in the team.",
-  not_allowed_to_change_team_creator:
-    'Only the team owner can transfer the ownership.',
-  not_allowed_to_delete_team: 'Only the team owner can delete the team.',
-  permission_already_exists:
-    'The member already has a permission on this resource. Revoke it first to change the level.',
+  member_not_found: 'Could not find the team member.',
+  no_permission: "You don't have the required permission in the current team.",
+  permission_already_exists: 'This permission has already been assigned.',
   permission_not_found: 'Could not find the permission.',
-  positive_balance: 'A team with a positive balance cannot be deleted.',
-  role_in_use: 'The role is assigned to a member. Change their role first.',
+  positive_balance:
+    "The team can't be deleted because it has credit. Please open a ticket to get a refund first.",
+  project_not_found: 'Could not find the app.',
+  role_in_use: "This role is in use and can't be deleted.",
   role_not_found: 'Could not find the role.',
   target_member_role_should_be_the_same_as_yours:
-    "The new owner must have the same role as you. Give them the Owner role via 'liara team:member:set-role', first.",
-  team_already_exists: 'You already have a team with this name.',
-  team_creator_already_changed:
-    'The ownership of this team has already been transferred once and cannot be transferred again.',
+    'The selected member must have the same role as you.',
+  team_already_exists: 'You have already created a team with this name.',
   team_not_found: 'Could not find the team.',
-  project_not_found: 'Could not find the app in the team.',
-  database_not_found: 'Could not find the database in the team.',
-  zone_not_found: 'Could not find the zone in the team.',
-  bucket_not_found: 'Could not find the bucket in the team.',
-  mail_server_not_found: 'Could not find the mail server in the team.',
-  vm_not_found: 'Could not find the VM in the team.',
-  ai_not_found: 'Could not find the AI workspace in the team.',
+  zone_not_found: 'Could not find the zone.',
 };
-
-export const isObjectId = (value: string) => /^[\da-f]{24}$/i.test(value);
-
-export const roleLabel = (name: string) => DEFAULT_TEAM_ROLES[name] || name;
 
 export const memberLabel = ({ user }: { user: ITeamMember['user'] }) =>
   `${user.fullname} <${user.email}>`;
@@ -93,22 +72,12 @@ export const resourceLabel = (grant: ITeamAssignedPermission) => {
   return resource?.[TEAM_RESOURCE_NAME_FIELDS[grant.type]] || resource?._id;
 };
 
-export const validateTeamName = (name: string): string | true => {
-  const trimmed = name.trim();
-  if (trimmed.length < 3 || trimmed.length > 50) {
-    return 'The team name must be between 3 and 50 characters.';
-  }
-
-  if (trimmed === PERSONAL_ACCOUNT_NAME) {
-    return `"${PERSONAL_ACCOUNT_NAME}" is reserved for the personal account.`;
-  }
-
-  return true;
-};
+export const requireInput = (input: string) =>
+  input.trim().length > 0 || 'This field is required.';
 
 const parseErrorBody = (
   body: unknown,
-): { message?: string; data?: { code?: string } } => {
+): { code?: string; data?: { code?: string }; message?: string } => {
   try {
     return (typeof body === 'string' ? JSON.parse(body) : body) || {};
   } catch {
@@ -117,35 +86,22 @@ const parseErrorBody = (
 };
 
 export default abstract class TeamCommand extends Command {
-  // Overrides TEAM_ERRORS for codes that mean something specific to a command.
-  errorMessages: { [code: string]: string } = {};
-
   team!: ITeam;
 
   async catch(error: any) {
-    if (error.response) {
-      const { message, data } = parseErrorBody(error.response.body);
-      const code = data?.code;
-      const errorMessage =
-        (code && (this.errorMessages[code] || TEAM_ERRORS[code])) || message;
+    if (error.response && error.response.statusCode !== 401) {
+      const { code, data, message } = parseErrorBody(error.response.body);
+      const errorCode = data?.code ?? code;
+      const errorMessage = (errorCode && TEAM_ERRORS[errorCode]) || message;
 
       if (errorMessage) {
         this.error(errorMessage);
       }
     }
 
-    if (error.name === 'TimeoutError') {
-      this.error(
-        'The request timed out. Please make sure your role in the team allows this action.',
-      );
-    }
-
     return super.catch(error);
   }
 
-  // Resolves the team to act on: the --team-id flag, then the team selected via
-  // 'liara team:use', then a prompt. Checking membership here gives a clear
-  // error instead of the API's response for teams the user isn't in.
   async setupTeam(config: IConfig): Promise<ITeam> {
     await this.setGotConfig(config);
 
@@ -259,7 +215,7 @@ Please select another team via 'liara team:use'.`);
       const memberId = await this.promptList(
         'Please select a member:',
         members.map((member) => ({
-          name: `${memberLabel(member)} - ${roleLabel(member.role.name)}`,
+          name: `${memberLabel(member)} - ${member.role.name}`,
           value: member._id,
         })),
       );
@@ -279,7 +235,6 @@ Please select another team via 'liara team:use'.`);
     return member;
   }
 
-  // Finds a role by ID, name or English name of a default role, or prompts for one.
   async resolveRole(value?: string, roles?: ITeamRole[]): Promise<ITeamRole> {
     const candidates = roles || (await this.getRoles());
 
@@ -287,7 +242,7 @@ Please select another team via 'liara team:use'.`);
       const roleId = await this.promptList(
         'Please select a role:',
         candidates.map((role) => ({
-          name: roleLabel(role.name),
+          name: role.name,
           value: role._id,
         })),
       );
@@ -296,10 +251,7 @@ Please select another team via 'liara team:use'.`);
 
     const search = value.trim().toLowerCase();
     const role = candidates.find(
-      (role) =>
-        role._id === value ||
-        role.name === value.trim() ||
-        DEFAULT_TEAM_ROLES[role.name]?.toLowerCase() === search,
+      (role) => role._id === value || role.name.toLowerCase() === search,
     );
 
     if (!role) {
