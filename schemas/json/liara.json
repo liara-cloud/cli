@@ -31,6 +31,9 @@
         "npmAudit": {
           "type": "boolean"
         },
+        "npmCiFallback": {
+          "type": "boolean"
+        },
         "timezone": {
           "type": "string"
         },
@@ -50,6 +53,9 @@
         },
         "nodeVersion": {
           "type": "string"
+        },
+        "npmCiFallback": {
+          "type": "boolean"
         }
       },
       "type": "object"

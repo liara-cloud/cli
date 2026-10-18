@@ -58,3 +58,23 @@ export const MAIL_SERVICE_PLANS = [
 ];
 
 export const MAIL_SERVICE_MODES = ['DEV', 'LIVE'];
+
+export const TEAM_COLORS = [
+  'PURPLE_FIRE',
+  'GOLDEN_NATURE',
+  'WOLF_AND_MIST',
+  'CARBON_SEA',
+  'WINTER_FOG',
+  'RED_SEA',
+];
+
+// The field that names each resource type in a team's assigned permissions.
+export const TEAM_RESOURCE_NAME_FIELDS: { [type: string]: string } = {
+  project: 'project_id',
+  database: 'hostname',
+  zone: 'name',
+  bucket: 'name',
+  mailServer: 'domain',
+  vm: 'name',
+  ai: 'name',
+};

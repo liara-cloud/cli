@@ -39,6 +39,11 @@ updateNotifier({ pkg: packageJson }).notify({ isGlobal: true });
 
 const isWin = os.platform() === 'win32';
 
+export interface IAccountTeam {
+  id: string;
+  name: string;
+}
+
 export interface IAccount {
   email: string;
   api_token?: string;
@@ -48,6 +53,8 @@ export interface IAccount {
   avatar: string;
   current: boolean;
   accountName?: string;
+  // Team selected via 'liara team:use'. When unset, the personal account is used.
+  team?: IAccountTeam;
 }
 
 export interface IAccounts {
@@ -231,7 +238,8 @@ export default abstract class extends Command {
       description: 'temporarily switch to a different account',
     }),
     'team-id': Flags.string({
-      description: 'your team id',
+      description:
+        "your team id (defaults to the team selected via 'liara team:use')",
     }),
   };
 
@@ -297,9 +305,16 @@ Please check your network connection.`);
     }
 
     if (!config['api-token'] || !config.region) {
-      const { api_token, region } = config.account
+      const { api_token, region, team } = config.account
         ? await this.getAccount(config.account)
         : await this.getCurrentAccount();
+
+      // An explicit team-id (flag or liara.json) always wins, and an empty one
+      // means the personal account. The selected team belongs to the saved
+      // account, so it is not applied to an explicitly passed api token.
+      if (config['team-id'] === undefined && !config['api-token']) {
+        config['team-id'] = team?.id;
+      }
 
       config['api-token'] = config['api-token'] || api_token;
       config.region = config.region || region;
@@ -488,6 +503,7 @@ Please use 'liara account add' to add this account, first.`);
 
     return network;
   }
+
   async getVms(
     errorMessage: string,
     filter?: (vm: IVMs) => any,

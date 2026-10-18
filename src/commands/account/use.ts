@@ -49,6 +49,9 @@ export default class AccountUse extends Command {
       }),
     );
     this.log(chalk.green('> Auth credentials changed.'));
+
+    const { team } = selectedAccount;
+    team && this.log(`> Current team is: ${team.name}`);
   }
 
   async promptName(accounts: IAccounts): Promise<string> {
