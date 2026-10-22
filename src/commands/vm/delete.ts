@@ -41,17 +41,15 @@ export default class VmDelete extends Command {
     try {
       const vm = await this.getVm(flags.vm);
 
-      if (flags.force) {
+      if (flags.force || (await this.confirm(vm))) {
         await this.got.delete(`vm/${vm._id}`);
-      } else if (await this.confirm(vm)) {
-        await this.got.delete(`vm/${vm._id}`);
+        this.log(`vm "${vm.name}" deleted.`);
       }
-      this.log(`vm "${vm.name}" deleted.`);
     } catch (error) {
       debug(error.message);
 
-      if (error.response && error.response.data) {
-        debug(JSON.stringify(error.response.data));
+      if (error.response && error.response.body) {
+        debug(JSON.stringify(error.response.body));
       }
 
       if (error.response && error.response.statusCode === 400) {

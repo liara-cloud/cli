@@ -52,17 +52,17 @@ export default class DiskCreate extends Command {
     } catch (error) {
       debug(error.message);
 
-      const err = parseJSON(error.response.body);
+      const err = parseJSON(error.response?.body);
       this.debug(err);
 
-      if (error.response && error.response.data) {
-        debug(JSON.stringify(error.response.data));
+      if (error.response && error.response.body) {
+        debug(JSON.stringify(error.response.body));
       }
 
       if (
         error.response &&
         err.statusCode === 400 &&
-        err.message.includes('not_enough_storage_space')
+        err.message?.includes('not_enough_storage_space')
       ) {
         this.error(
           `Not enough storage space. You can upgrade your plan to get more storage space.`,
@@ -72,7 +72,7 @@ export default class DiskCreate extends Command {
       if (
         error.response &&
         err.statusCode === 400 &&
-        err.message.includes('"size" must be a number')
+        err.message?.includes('"size" must be a number')
       ) {
         this.error('Invalid disk size. Size must be a number.');
       }
@@ -85,7 +85,7 @@ export default class DiskCreate extends Command {
         this.error(BundlePlanError.max_disks_limit(bundlePlanID));
       }
 
-      if (error.response && error.response.status === 400) {
+      if (error.response && error.response.statusCode === 400) {
         this.error(`Invalid disk name.`);
       }
 

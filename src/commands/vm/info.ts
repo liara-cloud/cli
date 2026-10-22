@@ -66,18 +66,22 @@ export default class Vminfo extends Command {
     } catch (error) {
       debug(error.message);
 
-      if (error.response && error.response.data) {
-        debug(JSON.stringify(error.response.data));
+      if (error.response && error.response.body) {
+        debug(JSON.stringify(error.response.body));
       }
+
       if (error.response && error.response.statusCode === 404) {
         this.error(`Could not find the vm.`);
       }
+
       if (error.response && error.response.statusCode === 400) {
         this.error(`Invalid vm ID.`);
       }
+
       throw error;
     }
   }
+
   async getVm(vmFlag: string | undefined) {
     this.spinner.start('Loading...');
     try {

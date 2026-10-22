@@ -39,9 +39,8 @@ export default class MailDelete extends Command {
 
     await this.setGotConfig(flags);
 
-    const { data } = await this.got(
-      'api/v1/mails'
-    ).json<IGetMailboxesResponse>();
+    const { data } =
+      await this.got('api/v1/mails').json<IGetMailboxesResponse>();
 
     const mailDomain = await this.promptMails();
     const mailId =
@@ -61,15 +60,15 @@ export default class MailDelete extends Command {
     } catch (error) {
       debug(error.message);
 
-      if (error.response && error.response.data) {
-        debug(JSON.stringify(error.response.data));
+      if (error.response && error.response.body) {
+        debug(JSON.stringify(error.response.body));
       }
 
-      if (error.response && error.response.status === 404) {
+      if (error.response && error.response.statusCode === 404) {
         this.error(`Could not find the mail server.`);
       }
 
-      if (error.response && error.response.status === 409) {
+      if (error.response && error.response.statusCode === 409) {
         this.error(`Another operation is already running. Please wait.`);
       }
 
@@ -81,15 +80,14 @@ export default class MailDelete extends Command {
     this.spinner = ora();
     this.spinner.start('Loading...');
     try {
-      const { data } = await this.got(
-        'api/v1/mails'
-      ).json<IGetMailboxesResponse>();
+      const { data } =
+        await this.got('api/v1/mails').json<IGetMailboxesResponse>();
 
       this.spinner.stop();
 
       if (!data.mailServers.length) {
         this.warn(
-          'Please go to https://console.liara.ir/mail and create a mail server, first.'
+          'Please go to https://console.liara.ir/mail and create a mail server, first.',
         );
         this.exit(1);
       }

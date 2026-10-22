@@ -50,7 +50,11 @@ export default class AppShell extends Command {
     const project = (projects as IGetProjectsResponse).projects.find(
       (project) => project.project_id === app,
     );
-    if (!project!.network) {
+    if (!project) {
+      this.error(`app '${app}' not found.`);
+    }
+
+    if (!project.network) {
       console.error(
         '❌ This version of Liara CLI no longer supports apps running on the old infrastructure.\n' +
           '➡️  Please migrate your app to the new infrastructure or use an older version of the CLI.\n\n' +

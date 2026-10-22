@@ -89,9 +89,10 @@ export default class VmCreate extends Command {
     } catch (error) {
       debug(error.message);
 
-      if (error.response && error.response.data) {
-        debug(JSON.stringify(error.response.data));
+      if (error.response && error.response.body) {
+        debug(JSON.stringify(error.response.body));
       }
+
       if (error.response && error.response.statusCode === 409) {
         this.error(
           `A vm with this name already exists. Please choose a unique name.`,

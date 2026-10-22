@@ -44,6 +44,7 @@ import CreateArchiveException from '../errors/create-archive.js';
 import IGetProjectsResponse from '../types/get-project-response.js';
 import ReachedMaxSourceSizeError from '../errors/max-source-size.js';
 import getPlatformVersion from '../services/get-platform-version.js';
+import parseJSON from '../utils/json-parse.js';
 
 export default class Deploy extends Command {
   static description = 'deploy an app';
@@ -288,7 +289,7 @@ export default class Deploy extends Command {
         error.response &&
         error.response.statusCode >= 400 &&
         error.response.statusCode < 500
-          ? JSON.parse(error.response.body || '{}')
+          ? parseJSON(error.response.body)
           : {};
 
       if (error.message === 'TIMEOUT') {
