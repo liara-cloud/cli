@@ -2,7 +2,7 @@ import { runCommand } from '@oclif/test';
 import nock from 'nock';
 import sinon from 'sinon';
 import { expect } from 'chai';
-import { AddressInfo } from 'node:net';
+import type { AddressInfo } from 'node:net';
 import { IncomingMessage, Server, createServer } from 'node:http';
 import { Duplex } from 'node:stream';
 import WebSocket, { WebSocketServer } from 'ws';
