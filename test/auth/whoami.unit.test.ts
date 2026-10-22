@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import nock from 'nock';
 import sinon from 'sinon';
 import Whoami from '../../src/commands/whoami.ts';
+import { stubProcessExit } from '../helpers/stubs.ts';
 
 const TEAM = '65f0c1000000000000000001';
 const OTHER_TEAM = '65f0c1000000000000000002';
@@ -164,14 +165,17 @@ Team:    personal account
   });
 
   it('asks to log in again when the token is rejected', async () => {
+    // A 401 makes the CLI print the error and exit with code 2.
+    const { exited } = stubProcessExit();
     readGlobalConfig.resolves(globalConfig());
     api
       .get('/v1/me')
       .query({ teamID: '' })
       .reply(401, { statusCode: 401, message: 'Unauthorized' });
 
-    const { error } = await runCommand(['whoami']);
+    const { stderr } = await runCommand(['whoami']);
 
-    expect(error?.message).to.contain('Authentication failed.');
+    expect(await exited).to.equal(2);
+    expect(stderr).to.contain('Authentication failed.');
   });
 });
