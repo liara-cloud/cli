@@ -55,7 +55,10 @@ export default class AccountAdd extends Command {
           'api token is not creditable, please get your api token from https://console.liara.ir/API.',
         );
       }
-      const name = flags.account || (await this.promptName(user.email));
+      // Accounts without an email (such as phone sign-ups) use their phone or id.
+      const name =
+        flags.account ||
+        (await this.promptName(user.email || user.phone || user._id));
       this.addNewAccountToConfig(currentAccounts, {
         name,
         ...user,
@@ -263,10 +266,10 @@ Error: ${error.response.statusMessage} (${error.response.statusCode})
     return password;
   }
 
-  async getMe(flags: any): Promise<IAccount> {
+  async getMe(flags: any): Promise<IAccount & { _id: string; phone?: string }> {
     const { user } = await this.got('v1/me', {
       headers: { Authorization: `Bearer ${flags['api-token']}` },
-    }).json<{ user: IAccount }>();
+    }).json<{ user: IAccount & { _id: string; phone?: string } }>();
 
     return user;
   }
