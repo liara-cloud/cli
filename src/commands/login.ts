@@ -1,14 +1,19 @@
 import fs from 'fs-extra';
 import chalk from 'chalk';
 import open, { apps, AppName } from 'open';
+import got from 'got';
 import { Flags } from '@oclif/core';
 
-import Command from '../base.js';
+import Command, { IAccount } from '../base.js';
 import AccountAdd from './account/add.js';
 import AccountUse from './account/use.js';
 import IBrowserLogin from '../types/browser-login.js';
 import { createDebugLogger } from '../utils/output.js';
-import { GLOBAL_CONF_PATH, GLOBAL_CONF_VERSION } from '../constants.js';
+import {
+  GLOBAL_CONF_PATH,
+  GLOBAL_CONF_VERSION,
+  REGIONS_API_URL,
+} from '../constants.js';
 import ora from 'ora';
 
 const CONSOLE_LOGIN_URL = 'https://console.liara.ir/login';
@@ -65,33 +70,69 @@ export default class Login extends Command {
 
         let currentAccount;
 
+        // No interceptor hooks here: a rejected token must throw, not exit.
+        const api = got.extend({ prefixUrl: REGIONS_API_URL['iran'] });
+        const saved: string[] = [];
+
         for (const account of accounts) {
-          if (!account.email) {
+          const skippedAccount = account?.email || account?.fullname;
+
+          if (!account?.token) {
             this.spinner.stop();
-
-            await this.openConsoleLogin(flags.browser).catch((error) =>
-              debug(`${error.message}\n`),
+            this.warn(
+              `Skipped the account ${skippedAccount} because the console did not send a token for it.`,
             );
-
-            this.error(
-              `Your account${account.fullname ? ` (${account.fullname})` : ''} has no email address, which is required to log in with the CLI.
-Please add an email to your account at ${CONSOLE_LOGIN_URL} and then run ${chalk.green('liara login')} again.`,
-            );
+            continue;
           }
 
-          const name = `${account.email.split('@')[0]}`;
+          let user;
+
+          try {
+            ({ user } = await api('v1/me', {
+              headers: { Authorization: `Bearer ${account.token}` },
+            }).json<{ user: IAccount & { _id: string; phone?: string } }>());
+          } catch (error) {
+            if (error.response?.statusCode !== 401) {
+              throw error;
+            }
+
+            this.spinner.stop();
+            this.warn(
+              `Skipped the account ${skippedAccount} because its token was rejected. Log out of it at ${CONSOLE_LOGIN_URL}, log in again and then run ${chalk.green('liara login')} again.`,
+            );
+            continue;
+          }
+
+          // Accounts without an email, such as phone sign-ups, use their phone or id.
+          const name = user.email
+            ? user.email.split('@')[0]
+            : user.phone || user._id;
 
           if (account.current) {
             currentAccount = name;
           }
 
           currentAccounts[name] = {
-            email: account.email,
+            email: user.email,
             avatar: account.avatar,
             api_token: account.token,
             fullname: account.fullname,
             current: false,
           };
+          saved.push(name);
+        }
+
+        if (!saved.length) {
+          this.spinner.stop();
+
+          await this.openConsoleLogin(flags.browser).catch((error) =>
+            debug(`${error.message}\n`),
+          );
+
+          this.error(
+            `No valid account was received from the console.
+Please log out and log in again at ${CONSOLE_LOGIN_URL} and then run ${chalk.green('liara login')} again.`,
+          );
         }
 
         fs.writeFileSync(
@@ -104,7 +145,7 @@ Please add an email to your account at ${CONSOLE_LOGIN_URL} and then run ${chalk
 
         this.spinner.succeed('You have logged in successfully.');
 
-        currentAccount && (await AccountUse.run(['--account', currentAccount]));
+        await AccountUse.run(['--account', currentAccount || saved[0]]);
 
         const { accountName } = await this.getCurrentAccount();
 
