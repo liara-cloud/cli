@@ -288,7 +288,7 @@ export default class AppLogs extends Command {
         process.exit(2);
       }
 
-      this.debug(error.response.body ? error.response.body : error.response);
+      this.debug(error.response?.body || error.message);
       const genericErrorMessage: string = `'We encountered an issue and were unable to retrieve the logs.
        Solutions:
        1) Check console logs from https://console.liara.ir/apps/${appName}/logs
@@ -323,7 +323,7 @@ export default class AppLogs extends Command {
         process.exit(2);
       }
 
-      this.debug(error.response.body ? error.response.body : error.response);
+      this.debug(error.response?.body || error.message);
       console.error(
         new Errors.CLIError(
           'Failed to fetch releases. Please try again later.',

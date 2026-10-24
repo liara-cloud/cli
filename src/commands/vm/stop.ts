@@ -81,8 +81,8 @@ export default class VmStop extends Command {
     } catch (error) {
       debug(error.message);
 
-      if (error.response && error.response.data) {
-        debug(JSON.stringify(error.response.data));
+      if (error.response && error.response.body) {
+        debug(JSON.stringify(error.response.body));
       }
 
       if (error.response && error.response.statusCode === 404) {

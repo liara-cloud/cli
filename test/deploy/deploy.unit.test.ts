@@ -8,12 +8,14 @@ import {
   getNodeProject,
   getDockerProject,
 } from '../fixtures/projects/fixture.ts';
+import { stubGlobalConfig } from '../helpers/stubs.ts';
 
 describe('deploy', () => {
   const api = nock('https://api.liara.ir');
 
   let getConfigs: sinon.SinonStub;
   beforeEach(() => {
+    stubGlobalConfig();
     getConfigs = sinon.stub(deploy.prototype, 'getMergedConfig');
   });
   afterEach(() => {
@@ -131,5 +133,29 @@ describe('deploy', () => {
     expect(stdout).to.contain('Platform: docker');
     expect(stdout).to.contain('Port: 7700');
     expect(stdout).to.contain('Deployment created successfully.');
+  });
+
+  it('should throw the source size error when the upload is too large.', async () => {
+    getConfigs.returns({
+      path: 'test/fixtures/simple-gitignore',
+      app: getNodeProject.project.project_id,
+      platform: 'static',
+      detach: true,
+    });
+    api
+      .get(`/v1/projects/${getNodeProject.project.project_id}`)
+      .query({ teamID: '' })
+      .reply(200, getNodeProject);
+    // A proxy answers 413 with an HTML page, not JSON.
+    api
+      .post(`/v2/projects/${getNodeProject.project.project_id}/sources`)
+      .query({ teamID: '' })
+      .reply(413, '<html><h1>413 Request Entity Too Large</h1></html>');
+
+    const { error } = await runCommand(['deploy', '--detach']);
+
+    expect(error?.message).to.equal(
+      'Maximum source size limit reached. Please reduce your source code size.',
+    );
   });
 });

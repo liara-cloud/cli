@@ -38,15 +38,15 @@ export default class UpdatePort extends Command {
     } catch (error) {
       debug(error.message);
 
-      if (error.response && error.response.data) {
-        debug(JSON.stringify(error.response.data));
+      if (error.response && error.response.body) {
+        debug(JSON.stringify(error.response.body));
       }
 
-      if (error.response && error.response.status === 404) {
+      if (error.response && error.response.statusCode === 404) {
         this.error(`Could not find the app.`);
       }
 
-      if (error.response && error.response.status === 409) {
+      if (error.response && error.response.statusCode === 409) {
         this.error(`Another operation is already running. Please wait.`);
       }
 

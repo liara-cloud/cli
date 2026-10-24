@@ -118,7 +118,7 @@ export default class Create extends Command {
     } catch (error) {
       debug(error.message);
 
-      const err = parseJSON(error.response.body);
+      const err = parseJSON(error.response?.body);
 
       if (error.response && error.response.body) {
         debug(JSON.stringify(error.response.body));
@@ -127,7 +127,7 @@ export default class Create extends Command {
       if (
         error.response &&
         err.statusCode === 400 &&
-        err.message.includes('bundlePlan is not available for free plan.')
+        err.message?.includes('bundlePlan is not available for free plan.')
       ) {
         this.error(
           `The selected feature bundle plan is not available for free plan.`,
@@ -149,13 +149,13 @@ export default class Create extends Command {
         error.response.statusCode === 403 &&
         error.response.body
       ) {
-        const body = JSON.parse(error.response.body);
+        const body = parseJSON(error.response.body);
 
-        if (body.data.code === 'free_plan_platform') {
+        if (body.data?.code === 'free_plan_platform') {
           this.error(`The free plan is not available for ${type} database.`);
         }
 
-        if (body.data.code === 'free_plan_count') {
+        if (body.data?.code === 'free_plan_count') {
           this.error(
             `You are allowed to create only one database on the free plan`,
           );

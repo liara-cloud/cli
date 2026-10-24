@@ -333,7 +333,9 @@ Please check your network connection.`);
       this.log(`[dev] but in dev mode we use http://localhost:3000`);
     }
 
-    this.got = got.extend({ hooks, ...gotConfig });
+    // Separate options so got merges the hooks instead of gotConfig.hooks
+    // replacing the shared ones (the 401 handler).
+    this.got = got.extend({ hooks }, gotConfig);
   }
 
   createProxiedWebsocket(endpoint: string) {
