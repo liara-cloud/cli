@@ -59,6 +59,7 @@ export default class AccountAdd extends Command {
       const name =
         flags.account ||
         (await this.promptName(user.email || user.phone || user._id));
+
       this.addNewAccountToConfig(currentAccounts, {
         name,
         ...user,
@@ -104,8 +105,10 @@ export default class AccountAdd extends Command {
     accountName && this.log(`> Current account is: ${accountName}`);
   }
   async checkIfExists(body: { email: string }, debug: DebugLogger) {
+    let data;
+
     try {
-      const data = await this.got
+      data = await this.got
         .post('v1/login/check-if-exists', {
           json: body,
           headers: { Authorization: undefined },
@@ -116,26 +119,28 @@ export default class AccountAdd extends Command {
           socialCompleted: boolean;
           twoFAEnabled: boolean;
         }>();
-
-      if (!data.exists) {
-        this.log();
-        this.error(
-          `The email you entered isn’t registered.
-To continue, please sign up at: https://console.liara.ir`,
-        );
-      }
-      if (!data.socialCompleted) {
-        this.log();
-        this.error(`No password is set for this account.
-Set one here: https://console.liara.ir/settings/security
-Then run 'liara login' or 'liara account:add' again.`);
-      }
-      return data;
     } catch (error) {
       debug(error);
       this.error(`Please check your internet connection and try again.
 If the issue persists, please submit a ticket at https://console.liara.ir/tickets for further assistance.`);
     }
+
+    // Outside the try, which would replace these messages with the one above.
+    if (!data.exists) {
+      this.log();
+      this.error(
+        `The email you entered isn’t registered.
+To continue, please sign up at: https://console.liara.ir`,
+      );
+    }
+
+    if (!data.socialCompleted) {
+      this.log();
+      this.error(`No password is set for this account.
+Set one here: https://console.liara.ir/settings/security
+Then run 'liara login' or 'liara account:add' again.`);
+    }
+    return data;
   }
 
   async login(body: {
@@ -154,7 +159,7 @@ If the issue persists, please submit a ticket at https://console.liara.ir/ticket
         .json<IAccount>();
 
       return {
-        email: data.email,
+        email: body.email,
         api_token: data.api_token!,
         fullname: data.fullname,
         current: data.current,

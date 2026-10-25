@@ -8,7 +8,7 @@ import path from 'path';
 import os from 'node:os';
 import AccountAdd from '../../src/commands/account/add.ts';
 
-describe('account:add --api-token', async () => {
+describe('account:add', async () => {
   let fsStub: sinon.SinonStub;
   let promptStub: sinon.SinonStub;
 
@@ -17,6 +17,26 @@ describe('account:add --api-token', async () => {
       .get('/v1/me')
       .matchHeader('authorization', 'Bearer token')
       .reply(200, { user });
+
+  const mockCheckIfExists = (status: object = {}) =>
+    nock('https://api.liara.ir')
+      .post('/v1/login/check-if-exists', { email: 'jane@example.com' })
+      .reply(200, {
+        status: 'success',
+        exists: true,
+        socialCompleted: true,
+        twoFAEnabled: false,
+        ...status,
+      });
+
+  const passwordLogin = () =>
+    runCommand([
+      'account:add',
+      '--email',
+      'jane@example.com',
+      '--password',
+      'secret',
+    ]);
 
   const expectedFile = (name: string, email: string | null) =>
     JSON.stringify({
@@ -88,5 +108,43 @@ describe('account:add --api-token', async () => {
         expectedFile('jane', 'jane@example.com'),
       ),
     ).to.be.true;
+  });
+
+  it('should save the email of a password login, which the login response leaves out', async () => {
+    mockCheckIfExists();
+    nock('https://api.liara.ir')
+      .post('/v1/login', { email: 'jane@example.com', password: 'secret' })
+      .query({ expiresIn: '1y' })
+      .reply(200, { api_token: 'token', fullname: 'No Email', avatar: '' });
+
+    const { error } = await passwordLogin();
+
+    expect(error).to.be.undefined;
+    expect(
+      fsStub.calledWithExactly(
+        path.join(os.homedir(), '.liara-auth.json'),
+        expectedFile('jane', 'jane@example.com'),
+      ),
+    ).to.be.true;
+  });
+
+  it("should say when the email isn't registered", async () => {
+    mockCheckIfExists({ exists: false, socialCompleted: false });
+
+    const { error } = await passwordLogin();
+
+    expect(error?.message).to.contain(
+      'The email you entered isn’t registered.',
+    );
+    expect(fsStub.called).to.be.false;
+  });
+
+  it('should say when the account has no password, such as an OAuth sign-up', async () => {
+    mockCheckIfExists({ socialCompleted: false });
+
+    const { error } = await passwordLogin();
+
+    expect(error?.message).to.contain('No password is set for this account.');
+    expect(fsStub.called).to.be.false;
   });
 });
