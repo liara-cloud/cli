@@ -1,6 +1,7 @@
 import { runCommand } from '@oclif/test';
 import nock from 'nock';
 import sinon from 'sinon';
+import inquirer from 'inquirer';
 import { expect } from 'chai';
 import { networks } from '../fixtures/networks/fixture.ts';
 import { stubGlobalConfig } from '../helpers/stubs.ts';
@@ -129,5 +130,36 @@ describe('db:create', function () {
     const { error } = await runCommand(flags);
 
     expect(error?.message).to.include(unableToCreate);
+  });
+
+  it('lists a plan with an 8-digit monthly price', async () => {
+    api
+      .get('/v1/me')
+      .query({ teamID: '' })
+      .reply(200, {
+        plans: {
+          databases: {
+            'small-g2': {
+              available: true,
+              supports: ['postgres'],
+              RAM: { amount: 8 },
+              CPU: { amount: 4 },
+              volume: 100,
+              price: 20000,
+            },
+          },
+        },
+      });
+    expectCreate().reply(200);
+    const prompt = sinon.stub(inquirer, 'prompt').resolves({ plan: 'small' });
+
+    const { error } = await runCommand(
+      flags.filter((flag) => flag !== '--plan' && flag !== 'small'),
+    );
+
+    expect(error).to.equal(undefined);
+    expect((prompt.firstCall.args[0] as any).choices[0].name).to.include(
+      `${(14_400_000).toLocaleString()} Tomans/Month`,
+    );
   });
 });

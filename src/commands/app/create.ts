@@ -163,7 +163,7 @@ export default class AppCreate extends Command {
               const planDetails = plans.projectBundlePlans[bundlePlan];
 
               return Object.keys(planDetails)
-                .filter((key) => planDetails[key].available)
+                .filter((key) => key !== 'free' && planDetails[key].available)
                 .map((key) => {
                   const { displayPrice } = planDetails[key];
                   return {
@@ -200,7 +200,7 @@ export default class AppCreate extends Command {
           ...Object.keys(plans.projects)
             .filter((plan) => {
               if (
-                (plan === 'free' || plan.includes('g2')) &&
+                plan.includes('g2') &&
                 plans.projects[plan].available &&
                 plans.projects[plan].region === 'iran'
               ) {
@@ -216,18 +216,7 @@ export default class AppCreate extends Command {
               const storageClass = availablePlan.storageClass;
               return {
                 value: plan,
-                name: `RAM: ${ram}${' '.repeat(
-                  5 - ram.toString().length,
-                )} GB,  CPU: ${cpu}${' '.repeat(
-                  6 - cpu.toString().length,
-                )}Core,  Disk: ${disk}${
-                  ' '.repeat(5 - disk.toString().length) + 'GB'
-                }${storageClass || 'SSD'},  Price: ${price.toLocaleString()}${
-                  price
-                    ? ' '.repeat(7 - Math.floor(price).toString().length) +
-                      'Tomans/Month'
-                    : ''
-                }`,
+                name: `RAM: ${String(ram).padEnd(5)} GB,  CPU: ${String(cpu).padEnd(6)}Core,  Disk: ${String(disk).padEnd(5)}GB${storageClass || 'SSD'},  Price: ${price.toLocaleString().padEnd(10)} Tomans/Month`,
               };
             }),
         ],

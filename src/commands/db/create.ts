@@ -260,20 +260,12 @@ export default class Create extends Command {
               const disk = availablePlan.volume;
               const price = availablePlan.price * 720;
               const storageClass = availablePlan.storageClass;
+              const priceLabel = price
+                ? `${price.toLocaleString().padEnd(10)} Tomans/Month`
+                : price.toLocaleString();
               return {
                 value: plan,
-                name: `RAM: ${ram}${' '.repeat(
-                  5 - ram.toString().length,
-                )} GB,  CPU: ${cpu}${' '.repeat(
-                  6 - cpu.toString().length,
-                )}Core,  Disk: ${disk}${
-                  ' '.repeat(5 - disk.toString().length) + 'GB'
-                }${storageClass || 'SSD'},  Price: ${price.toLocaleString()}${
-                  price
-                    ? ' '.repeat(7 - Math.floor(price).toString().length) +
-                      'Tomans/Month'
-                    : ''
-                }`,
+                name: `RAM: ${String(ram).padEnd(5)} GB,  CPU: ${String(cpu).padEnd(6)}Core,  Disk: ${String(disk).padEnd(5)}GB${storageClass || 'SSD'},  Price: ${priceLabel}`,
               };
             }),
         ],

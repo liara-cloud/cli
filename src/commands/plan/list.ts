@@ -22,21 +22,16 @@ export default class PlanList extends Command {
       const plansData = Object.keys(plans.projects)
         .filter(
           (plan) =>
-            (plan === 'free' || plan.includes('g2')) &&
+            plan.includes('g2') &&
             plans.projects[plan].available &&
             plans.projects[plan].region === 'iran',
         )
         .map((plan) => {
           const Plan = plan;
           const BundlePlan = plans.projectBundlePlans[plan];
-          const BundlePlanDetails = Object.keys(BundlePlan).map((key) => {
-            const { displayPrice } = BundlePlan[key];
-            return { key, displayPrice };
-          });
-
-          const Free = BundlePlanDetails[0].displayPrice.toLocaleString();
-          const Standard = BundlePlanDetails[1].displayPrice.toLocaleString();
-          const Pro = BundlePlanDetails[2].displayPrice.toLocaleString();
+          const Basic = BundlePlan.basic.displayPrice.toLocaleString();
+          const Standard = BundlePlan.standard.displayPrice.toLocaleString();
+          const Pro = BundlePlan.pro.displayPrice.toLocaleString();
 
           const availablePlan = plans.projects[plan];
           const RAM = availablePlan.RAM.amount;
@@ -50,7 +45,7 @@ export default class PlanList extends Command {
             CPU,
             Disk,
             Price,
-            Free,
+            Basic,
             Standard,
             Pro,
           };
@@ -64,7 +59,7 @@ export default class PlanList extends Command {
           CPU: { header: 'CPU(Core)' },
           Disk: { header: 'Disk(GB SSD)' },
           Price: { header: 'Price(Tomans/Month)' },
-          Free: { header: 'Bronze' },
+          Basic: { header: 'Bronze(Tomans/Month)' },
           Standard: { header: 'Silver(Tomans/Month)' },
           Pro: { header: 'Gold(Tomans/Month)' },
         },

@@ -46,16 +46,7 @@ export const AVAILABLE_PLATFORMS = [
 ];
 
 export const OBJ_PERMISSION = ['public', 'private'];
-export const MAIL_SERVICE_PLANS = [
-  'm1',
-  'm2',
-  'm3',
-  'm4',
-  'm5',
-  'm6',
-  'm7',
-  'm8',
-];
+export const MAIL_SERVICE_PLANS = ['m2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8'];
 
 export const MAIL_SERVICE_MODES = ['DEV', 'LIVE'];
 
