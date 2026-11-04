@@ -331,6 +331,66 @@ describe('app:logs', function () {
     });
   }
 
+  describe('when deploy has already loaded the plans', () => {
+    afterEach(() => {
+      AppLogs.maxLogsRetention = undefined;
+    });
+
+    it('does not load them again', async () => {
+      AppLogs.maxLogsRetention = 7;
+      expectProject();
+      expectLogs([]);
+
+      const { error } = await runCommand(['app:logs', '--app', app]);
+
+      expect(error).to.equal(undefined);
+    });
+
+    it('accepts a retention shorter than a day', async () => {
+      AppLogs.maxLogsRetention = 0.05;
+      expectProject();
+      expectLogs([]);
+
+      const { error } = await runCommand([
+        'app:logs',
+        '--app',
+        app,
+        '--since',
+        '"1 hour ago"',
+      ]);
+
+      expect(error).to.equal(undefined);
+    });
+
+    it('still enforces the retention', async () => {
+      AppLogs.maxLogsRetention = 0.05;
+      stubProcessExit();
+      expectProject();
+
+      const { error } = await runCommand([
+        'app:logs',
+        '--app',
+        app,
+        '--since',
+        '"2 hours ago"',
+      ]);
+
+      expect(error?.message).to.equal('process.exit(2)');
+    });
+  });
+
+  it('does not let users set the retention', async () => {
+    const { error } = await runCommand([
+      'app:logs',
+      '--app',
+      app,
+      '--max-logs-retention',
+      '9999',
+    ]);
+
+    expect(error?.message).to.contain('Nonexistent flag');
+  });
+
   it('throws an error if the app runs on the old infrastructure', async () => {
     stubProcessExit();
     expectProject({ ...getNodeProject.project, network: undefined });

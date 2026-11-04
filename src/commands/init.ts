@@ -12,7 +12,10 @@ import { promptPort } from '../utils/prompt-port.js';
 import { AVAILABLE_PLATFORMS } from '../constants.js';
 import IHealthConfig from '../types/health-config.js';
 import detectPlatform from '../utils/detect-platform.js';
-import supportedVersions from '../utils/get-supported-versions.js';
+import supportedVersions, {
+  getDeprecatedVersionMessage,
+  isDeprecatedVersion,
+} from '../utils/get-supported-versions.js';
 import IGetProjectsResponse from '../types/get-project-response.js';
 import { IDisk, IGetDiskResponse } from '../types/get-disk-response.js';
 import IGetTeamsResponse from '../types/get-teams.js';
@@ -254,6 +257,16 @@ You can still create a sample 'liara.json' file using the 'liara init -y' comman
     flagValue: string | undefined,
   ): Promise<string | undefined> {
     if (flagValue) {
+      if (isDeprecatedVersion(platform, flagValue)) {
+        this.error(
+          getDeprecatedVersionMessage(
+            platform,
+            flagValue,
+            'the --version flag',
+          ),
+        );
+      }
+
       return flagValue;
     }
 

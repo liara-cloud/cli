@@ -127,6 +127,8 @@ export interface IProjectDetails {
   type: string;
   status: string;
   defaultSubdomain: boolean;
+  defaultSubdomainExpired?: boolean;
+  keepDefaultSubdomain?: boolean;
   zeroDowntime: boolean;
   scale: number;
   envs: IEnvs[];
