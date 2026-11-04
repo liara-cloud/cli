@@ -1,6 +1,7 @@
 import { runCommand } from '@oclif/test';
 import nock from 'nock';
 import sinon from 'sinon';
+import inquirer from 'inquirer';
 import { expect } from 'chai';
 import { stubGlobalConfig } from '../helpers/stubs.ts';
 import VmCreate from '../../src/commands/vm/create.ts';
@@ -279,6 +280,55 @@ describe('vm commands', function () {
       expect(error?.message).to.equal(
         'A vm with this name already exists. Please choose a unique name.',
       );
+    });
+
+    it('lists a plan with a 9-digit monthly price', async () => {
+      (VmCreate.prototype.promptPlan as sinon.SinonStub).restore();
+      api
+        .get('/plans')
+        .query({ teamID: '' })
+        .reply(200, {
+          plans: {
+            g1: {
+              RAM: { amount: 8 },
+              CPU: { amount: 4 },
+              volume: 100,
+              monthlyPrice: 123_456_789,
+            },
+          },
+        });
+      expectCreate().reply(200);
+      const prompt = sinon.stub(inquirer, 'prompt').resolves({ plan: 'g1' });
+
+      const { error } = await runCommand(['vm:create', '--detach']);
+
+      expect(error).to.equal(undefined);
+      expect((prompt.firstCall.args[0] as any).choices[0].name).to.include(
+        `${(123_456_789).toLocaleString()} Tomans/Month`,
+      );
+    });
+
+    it('does not offer the free plans', async () => {
+      (VmCreate.prototype.promptPlan as sinon.SinonStub).restore();
+      const plan = {
+        RAM: { amount: 1 },
+        CPU: { amount: 1 },
+        volume: 1,
+        monthlyPrice: 0,
+      };
+      api
+        .get('/plans')
+        .query({ teamID: '' })
+        .reply(200, {
+          plans: { free: plan, 'free-windows': plan, g1: plan },
+        });
+      expectCreate().reply(200);
+      const prompt = sinon.stub(inquirer, 'prompt').resolves({ plan: 'g1' });
+
+      await runCommand(['vm:create', '--detach']);
+
+      const { choices } = prompt.firstCall.args[0] as any;
+      expect(choices.map((choice: any) => choice.value)).to.deep.equal(['g1']);
     });
   });
 });

@@ -121,7 +121,10 @@ export default class MailCreate extends Command {
         message: 'Please select a plan:',
         choices: [
           ...Object.keys(plans.mail)
-            .filter((plan) => plans.mail[plan].available)
+            .filter(
+              (plan) =>
+                MAIL_SERVICE_PLANS.includes(plan) && plans.mail[plan].available,
+            )
             .map((plan) => {
               const availablePlan = plans.mail[plan];
               const maxAccount = availablePlan.maxAccount;

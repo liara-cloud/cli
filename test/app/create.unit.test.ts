@@ -1,6 +1,7 @@
 import { runCommand } from '@oclif/test';
 import nock from 'nock';
 import sinon from 'sinon';
+import inquirer from 'inquirer';
 import { expect } from 'chai';
 import { networks } from '../fixtures/networks/fixture.ts';
 import { stubGlobalConfig } from '../helpers/stubs.ts';
@@ -313,5 +314,102 @@ describe('app:create', function () {
     const { stdout } = await runCommand([...createFlags.slice(0, -1), 'false']);
 
     expect(stdout).to.equal('App test-app created.\n');
+  });
+
+  it('lists a plan with an 8-digit monthly price', async () => {
+    api
+      .get('/v1/me')
+      .query({ teamID: '' })
+      .reply(200, {
+        plans: {
+          projects: {
+            'small-g2': {
+              available: true,
+              region: 'iran',
+              RAM: { amount: 8 },
+              CPU: { amount: 4 },
+              volume: 100,
+              price: 20000,
+            },
+          },
+        },
+      });
+    api
+      .post('/v1/projects/', {
+        name: 'test-app',
+        planID: 'small-g2',
+        platform: 'laravel',
+        bundlePlanID: 'standard',
+        network: networks.networks[0]._id,
+        readOnlyRootFilesystem: true,
+      })
+      .query({ teamID: '' })
+      .reply(200);
+    const prompt = sinon
+      .stub(inquirer, 'prompt')
+      .resolves({ plan: 'small-g2' });
+
+    const { error } = await runCommand(
+      createFlags.filter((flag) => flag !== '--plan' && flag !== 'small-g2'),
+    );
+
+    expect(error).to.equal(undefined);
+    expect((prompt.firstCall.args[0] as any).choices[0].name).to.include(
+      `${(14_400_000).toLocaleString()} Tomans/Month`,
+    );
+  });
+
+  it('does not offer the free plan or the free feature bundle', async () => {
+    const plan = {
+      available: true,
+      region: 'iran',
+      RAM: { amount: 1 },
+      CPU: { amount: 1 },
+      volume: 1,
+    };
+    api
+      .get('/v1/me')
+      .twice()
+      .query({ teamID: '' })
+      .reply(200, {
+        plans: {
+          projects: {
+            free: { ...plan, price: 0 },
+            'small-g2': { ...plan, price: 100 },
+          },
+          projectBundlePlans: {
+            'small-g2': {
+              free: { available: true, displayPrice: 0 },
+              standard: { available: true, displayPrice: 100 },
+            },
+          },
+        },
+      });
+    api
+      .post('/v1/projects/', {
+        name: 'test-app',
+        planID: 'small-g2',
+        platform: 'laravel',
+        bundlePlanID: 'standard',
+        network: networks.networks[0]._id,
+        readOnlyRootFilesystem: true,
+      })
+      .query({ teamID: '' })
+      .reply(200);
+    const prompt = sinon.stub(inquirer, 'prompt');
+    prompt.onFirstCall().resolves({ plan: 'small-g2' });
+    prompt.onSecondCall().resolves({ bundlePlan: 'standard' });
+
+    await runCommand(
+      createFlags.filter(
+        (flag) =>
+          !['--plan', 'small-g2', '--feature-plan', 'standard'].includes(flag),
+      ),
+    );
+
+    const offered = (call: sinon.SinonSpyCall) =>
+      (call.args[0] as any).choices.map((choice: any) => choice.value);
+    expect(offered(prompt.firstCall)).to.deep.equal(['small-g2']);
+    expect(offered(prompt.secondCall)).to.deep.equal(['standard']);
   });
 });

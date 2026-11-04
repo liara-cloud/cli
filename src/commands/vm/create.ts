@@ -167,28 +167,22 @@ export default class VmCreate extends Command {
         name: 'plan',
         type: 'list',
         message: 'Please select a plan:',
-        choices: Object.keys(plans).map((planKey) => {
-          const planDetails = plans[planKey];
-          const { RAM, CPU, volume, monthlyPrice } = planDetails;
-          const ram = `RAM: ${RAM.amount}${' '.repeat(
-            4 - RAM.amount.toString().length,
-          )} GB`;
-          const cpu = `CPU: ${CPU.amount}${' '.repeat(
-            4 - CPU.amount.toString().length,
-          )} Core${CPU.amount > 1 ? 's' : ' '}`;
+        choices: Object.keys(plans)
+          .filter((planKey) => !planKey.startsWith('free'))
+          .map((planKey) => {
+            const planDetails = plans[planKey];
+            const { RAM, CPU, volume, monthlyPrice } = planDetails;
+            const ram = `RAM: ${String(RAM.amount).padEnd(4)} GB`;
+            const cpu = `CPU: ${String(CPU.amount).padEnd(4)} Core${CPU.amount > 1 ? 's' : ' '}`;
 
-          const disk = `Disk: ${volume}${' '.repeat(
-            4 - volume.toString().length,
-          )} GB`;
-          const price = `Price: ${monthlyPrice.toLocaleString()}${' '.repeat(
-            10 - monthlyPrice.toLocaleString().length,
-          )} Tomans/Month`;
+            const disk = `Disk: ${String(volume).padEnd(4)} GB`;
+            const price = `Price: ${monthlyPrice.toLocaleString().padEnd(10)} Tomans/Month`;
 
-          return {
-            value: planKey,
-            name: `${ram.padEnd(8)} | ${cpu.padEnd(10)} | ${disk.padEnd(8)} | ${price}`,
-          };
-        }),
+            return {
+              value: planKey,
+              name: `${ram.padEnd(8)} | ${cpu.padEnd(10)} | ${disk.padEnd(8)} | ${price}`,
+            };
+          }),
       })) as { plan: string };
 
       return plan;
