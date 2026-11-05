@@ -437,6 +437,20 @@ describe('deploy', () => {
         );
       });
 
+      // The GitHub Actions workflow in the docs deploys with this flag, so the
+      // job has to finish here instead of following the logs.
+      it('exits without reading the app logs with --no-app-logs', async () => {
+        const { stub: exit } = stubProcessExit();
+        mockProject();
+        mockDomains([domain('example.com')]);
+
+        await runCommand(['deploy', '--no-app-logs']);
+
+        expect(exit.firstCall.args).to.deep.equal([0]);
+        expect((Logs.run as sinon.SinonStub).called).to.equal(false);
+        expect(Logs.releaseId).to.equal(undefined);
+      });
+
       it('does not load the plans with --no-app-logs', async () => {
         stubProcessExit({ throws: false });
         mockProject();
