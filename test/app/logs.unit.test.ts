@@ -248,6 +248,35 @@ describe('app:logs', function () {
     expect(stdout).to.equal('from v2\n');
   });
 
+  describe('when deploy has just created a release', () => {
+    afterEach(() => {
+      AppLogs.releaseId = undefined;
+    });
+
+    it('fetches only the logs of that release', async () => {
+      const t = now() - 60;
+      AppLogs.releaseId = 'release-2';
+      expectProject();
+      expectPlans();
+      expectLogs(
+        [
+          {
+            metaData: { releaseId: 'release-2' },
+            values: [line(t, 'from v2')],
+          },
+        ],
+        (q) => q.releaseId === 'release-2',
+      );
+      expectReleases();
+      expectLogs([], (q) => q.releaseId === 'release-2');
+
+      const { stdout, error } = await runCommand(['app:logs', '--app', app]);
+
+      expect(error).to.equal(undefined);
+      expect(stdout).to.equal('from v2\n');
+    });
+  });
+
   it('throws an error if the release does not exist', async () => {
     stubProcessExit();
     expectProject();

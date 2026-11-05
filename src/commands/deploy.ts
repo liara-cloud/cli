@@ -236,6 +236,10 @@ export default class Deploy extends Command {
         bundlePlan = await this.getBundlePlan(project);
       }
 
+      // The app's startup output is written before the health check finishes,
+      // so the logs shown afterwards have to start from before the deployment.
+      const deployStartedAt = new Date().toISOString();
+
       const response = await this.deploy(config, bundlePlan?.maxSourceSize);
 
       if (flags.detach) {
@@ -265,11 +269,12 @@ export default class Deploy extends Command {
 
         this.log('Reading app logs...');
         Logs.maxLogsRetention = bundlePlan?.maxLogsRetention;
+        Logs.releaseId = response.releaseID;
         await Logs.run([
           '--app',
           config.app,
           '--since',
-          '10s ago',
+          deployStartedAt,
           '--follow',
           '--timestamps',
           '--colorize',
@@ -277,6 +282,7 @@ export default class Deploy extends Command {
           config['api-token'] || '',
           '--team-id',
           config['team-id'] || '',
+          ...(flags.debug ? ['--debug'] : []),
         ]);
       }
     } catch (error) {

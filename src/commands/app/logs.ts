@@ -109,6 +109,9 @@ export default class AppLogs extends Command {
   // streams the logs. It isn't a flag so that it can't be set by users.
   static maxLogsRetention?: number;
 
+  // Also set by `liara deploy`, to show only the release it just created.
+  static releaseId?: string;
+
   #timestamps = false;
   #colorize = false;
   #releaseTagMap: Map<string, string> = new Map(); // cache to store releaseId with it's tag
@@ -172,7 +175,7 @@ export default class AppLogs extends Command {
     }
 
     // Get releaseId if release flag is provided
-    let releaseId: string | undefined;
+    let { releaseId } = AppLogs;
     if (release) {
       releaseId = await this.getReleaseIdFromTag(project, release);
       if (!releaseId) {

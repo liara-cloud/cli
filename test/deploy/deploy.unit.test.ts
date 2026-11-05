@@ -46,6 +46,7 @@ describe('deploy', () => {
   afterEach(() => {
     sinon.restore();
     Logs.maxLogsRetention = undefined;
+    Logs.releaseId = undefined;
   });
   it('should thorw an error when project path is empty and image flag is specified', async () => {
     fs.mkdirSync('test/fixtures/empty-project');
@@ -402,6 +403,38 @@ describe('deploy', () => {
         await runCommand(['deploy']);
 
         expect(Logs.maxLogsRetention).to.equal(undefined);
+      });
+
+      it('shows the logs of the new release from before it was created', async () => {
+        let releaseCreatedAt = 0;
+        (deploy.prototype.deploy as sinon.SinonStub).callsFake(async () => {
+          await new Promise((resolve) => setTimeout(resolve, 5));
+          releaseCreatedAt = Date.now();
+          return { releaseID: 'release-id' };
+        });
+        mockProject();
+        mockDomains([domain('example.com')]);
+
+        await runCommand(['deploy']);
+
+        const args = (Logs.run as sinon.SinonStub).firstCall
+          .args[0] as string[];
+        const since = Date.parse(args[args.indexOf('--since') + 1]);
+
+        expect(Logs.releaseId).to.equal('release-id');
+        expect(since).to.be.below(releaseCreatedAt);
+        expect(args).not.to.include('--debug');
+      });
+
+      it('passes --debug on to the app logs', async () => {
+        mockProject();
+        mockDomains([domain('example.com')]);
+
+        await runCommand(['deploy', '--debug']);
+
+        expect((Logs.run as sinon.SinonStub).firstCall.args[0]).to.include(
+          '--debug',
+        );
       });
 
       it('does not load the plans with --no-app-logs', async () => {
