@@ -5,6 +5,11 @@ import findFile from '../utils/find-file.js';
 import { execSync } from 'node:child_process';
 import { DebugLogger } from '../utils/output.js';
 import { platform } from 'node:os';
+import DeployException from '../errors/deploy-exception.js';
+import supportedVersions, {
+  getDeprecatedVersionMessage,
+  isDeprecatedVersion,
+} from '../utils/get-supported-versions.js';
 
 interface IPlatformConfig {
   [key: string]: string | null;
@@ -102,6 +107,13 @@ async function getPlatformVersion(
   try {
     pureVersion = platformsVersionTrim[platform](dirtyVersion);
     debug(`The version is: ${pureVersion}`);
+
+    // This is only what the developer has installed, not what the app requires.
+    if (isDeprecatedVersion(platform, pureVersion)) {
+      debug(`Ignoring the deprecated local version: ${pureVersion}`);
+      return null;
+    }
+
     return pureVersion;
   } catch (error) {
     debug('Could not trim founded version');
@@ -175,19 +187,40 @@ function getPythonVersion(projectPath: string, debug: DebugLogger) {
   return null;
 }
 
-function getNodeVersion(projectPath: string, debug: DebugLogger) {
-  const supportedNodeVersion = [
-    '8',
-    '10',
-    '12',
-    '14',
-    '16',
-    '18',
-    '20',
-    '22',
-    '24',
-  ];
+// The supported versions a range allows, lowest first, ex: [22, 24] for >=18
+function findSupportedVersions(
+  platform: string,
+  range: string,
+  source: string,
+): string[] {
+  if (!semver.validRange(range, { loose: true })) {
+    return [];
+  }
 
+  const { allVersions } = supportedVersions(platform);
+
+  const rangeVersions = allVersions
+    .filter((version) =>
+      semver.intersects(`${version}.x`, range, { loose: true }),
+    )
+    .sort((a, b) => semver.compare(semver.coerce(a)!, semver.coerce(b)!));
+
+  const isRangeDeprecated =
+    !rangeVersions.length &&
+    allVersions.every((version) =>
+      semver.gtr(semver.coerce(version)!, range, { loose: true }),
+    );
+
+  if (isRangeDeprecated) {
+    throw new DeployException(
+      getDeprecatedVersionMessage(platform, range, source),
+    );
+  }
+
+  return rangeVersions;
+}
+
+function getNodeVersion(projectPath: string, debug: DebugLogger) {
   const packageJson = path.join(projectPath, 'package.json');
   const packageJsonData = fs.readJsonSync(packageJson);
   const requiredNode = packageJsonData.engines?.node;
@@ -196,10 +229,28 @@ function getNodeVersion(projectPath: string, debug: DebugLogger) {
     const pureVersion = semver
       .coerce(requiredNode, { loose: true })
       ?.version.split('.')[0]; // ex: extracts 18 from 18.0.0
-    if (pureVersion && supportedNodeVersion.find((v) => v === pureVersion)) {
+
+    if (
+      pureVersion &&
+      supportedVersions('node').allVersions.includes(pureVersion)
+    ) {
       return pureVersion;
     }
-    debug(`This node version is not suppurted: ${pureVersion}`);
+
+    // Only a range starting from a deprecated version has to change, and it
+    // moves as little as it can, ex: 22 for >=18
+    if (pureVersion && isDeprecatedVersion('node', pureVersion)) {
+      const [closestVersion] = findSupportedVersions(
+        'node',
+        requiredNode,
+        'engines.node in your package.json',
+      );
+      if (closestVersion) {
+        return closestVersion;
+      }
+    }
+
+    debug(`This node version is not suppurted: ${requiredNode}`);
     return -1;
   }
   return null;
@@ -209,19 +260,6 @@ function getRequiredPHPVersion(
   projectPath: string,
   debug: DebugLogger,
 ): string | null {
-  // semver forces us to use the full semver syntax,
-  // but before returning the final result, we remove the last .0 part
-  const supportedPHPVersions = [
-    '8.4.0',
-    '8.3.0',
-    '8.2.0',
-    '8.1.0',
-    '8.0.0',
-    '7.4.0',
-    '7.3.0',
-    '7.2.0',
-  ];
-
   try {
     const composerJson = fs.readJSONSync(
       path.join(projectPath, 'composer.json'),
@@ -229,16 +267,22 @@ function getRequiredPHPVersion(
 
     if (composerJson?.config?.platform?.php) {
       const range = convertSinglePipeToDouble(composerJson.config.platform.php);
-      return normalizeVersion(
-        semver.maxSatisfying(supportedPHPVersions, range),
+      const versions = findSupportedVersions(
+        'php',
+        range,
+        'config.platform.php in your composer.json',
       );
+      return versions.pop() ?? null;
     }
 
     if (composerJson?.require?.php) {
       const range = convertSinglePipeToDouble(composerJson.require.php);
-      return normalizeVersion(
-        semver.maxSatisfying(supportedPHPVersions, range),
+      const versions = findSupportedVersions(
+        'php',
+        range,
+        'require.php in your composer.json',
       );
+      return versions.pop() ?? null;
     }
 
     return null;

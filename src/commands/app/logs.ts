@@ -105,6 +105,13 @@ export default class AppLogs extends Command {
 
   static aliases = ['logs'];
 
+  // Set by `liara deploy`, which has already loaded the plans by the time it
+  // streams the logs. It isn't a flag so that it can't be set by users.
+  static maxLogsRetention?: number;
+
+  // Also set by `liara deploy`, to show only the release it just created.
+  static releaseId?: string;
+
   #timestamps = false;
   #colorize = false;
   #releaseTagMap: Map<string, string> = new Map(); // cache to store releaseId with it's tag
@@ -143,11 +150,16 @@ export default class AppLogs extends Command {
       process.exit(1);
     }
 
-    const { plans } = await this.got('v1/me').json<{ plans: any }>();
+    let { maxLogsRetention } = AppLogs;
 
-    const maxSince: number =
-      now -
-      plans.projectBundlePlans[planID][bundlePlanID].maxLogsRetention * 86400;
+    if (maxLogsRetention === undefined) {
+      const { plans } = await this.got('v1/me').json<{ plans: any }>();
+
+      maxLogsRetention = plans.projectBundlePlans[planID][bundlePlanID]
+        .maxLogsRetention as number;
+    }
+
+    const maxSince: number = now - maxLogsRetention * 86400;
 
     let start: number = flags.since
       ? this.getStart(`${flags.since}`)
@@ -163,7 +175,7 @@ export default class AppLogs extends Command {
     }
 
     // Get releaseId if release flag is provided
-    let releaseId: string | undefined;
+    let { releaseId } = AppLogs;
     if (release) {
       releaseId = await this.getReleaseIdFromTag(project, release);
       if (!releaseId) {

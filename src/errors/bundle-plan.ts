@@ -1,3 +1,5 @@
+import { MAX_SOURCE_SIZE } from '../constants.js';
+
 export const BundlePlanError = {
   max_deploy_per_day(bundlePlan: string) {
     switch (bundlePlan) {
@@ -10,34 +12,17 @@ export const BundlePlanError = {
     }
   },
 
-  max_source_size(bundlePlan: string) {
-    switch (bundlePlan) {
-      case 'free':
-        return `The maximum source size is 128MB on the Free plan. Please reduce your source code size or consider upgrading your feature bundle plan.`;
-      case 'standard':
-        return `The maximum source size is 256MB on the Standard plan. Please reduce your source code size or consider upgrading your feature bundle plan.`;
-      default:
-        return `Maximum source size limit reached. Please reduce your source code size.`;
+  max_source_size(maxSourceSize?: number) {
+    if (!maxSourceSize) {
+      return `Maximum source size limit reached. Please reduce your source code size.`;
     }
-  },
 
-  max_build_time(bundlePlan: string) {
-    switch (bundlePlan) {
-      case 'free':
-        return `The build timed out after 5 minutes on the Free plan. 
-                Solutions:
-                1. Try again later.
-                2. Upgrade your feature bundle plan for more build time.`;
-      case 'standard':
-        return `The build timed out after 10 minutes on the Standard plan.
-                Solutions:
-                1. Try again later.
-                2. Upgrade your feature bundle plan for more build time.`;
-      case 'enterprise':
-        return `The build timed out after 20 minutes. Please Try again later.`;
-      default:
-        return `Build timed out. Please try again or consider upgrading your feature bundle plan for more build time.`;
-    }
+    const upgrade =
+      maxSourceSize * 1024 * 1024 < MAX_SOURCE_SIZE
+        ? ' or consider upgrading your feature bundle plan'
+        : '';
+
+    return `The maximum source size is ${maxSourceSize}MB. Please reduce your source code size${upgrade}.`;
   },
 
   germany_builder_not_allowed(bundlePlan: string) {

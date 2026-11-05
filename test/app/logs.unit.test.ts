@@ -248,6 +248,35 @@ describe('app:logs', function () {
     expect(stdout).to.equal('from v2\n');
   });
 
+  describe('when deploy has just created a release', () => {
+    afterEach(() => {
+      AppLogs.releaseId = undefined;
+    });
+
+    it('fetches only the logs of that release', async () => {
+      const t = now() - 60;
+      AppLogs.releaseId = 'release-2';
+      expectProject();
+      expectPlans();
+      expectLogs(
+        [
+          {
+            metaData: { releaseId: 'release-2' },
+            values: [line(t, 'from v2')],
+          },
+        ],
+        (q) => q.releaseId === 'release-2',
+      );
+      expectReleases();
+      expectLogs([], (q) => q.releaseId === 'release-2');
+
+      const { stdout, error } = await runCommand(['app:logs', '--app', app]);
+
+      expect(error).to.equal(undefined);
+      expect(stdout).to.equal('from v2\n');
+    });
+  });
+
   it('throws an error if the release does not exist', async () => {
     stubProcessExit();
     expectProject();
@@ -330,6 +359,66 @@ describe('app:logs', function () {
       expect(unwrap(stderr)).to.include(message);
     });
   }
+
+  describe('when deploy has already loaded the plans', () => {
+    afterEach(() => {
+      AppLogs.maxLogsRetention = undefined;
+    });
+
+    it('does not load them again', async () => {
+      AppLogs.maxLogsRetention = 7;
+      expectProject();
+      expectLogs([]);
+
+      const { error } = await runCommand(['app:logs', '--app', app]);
+
+      expect(error).to.equal(undefined);
+    });
+
+    it('accepts a retention shorter than a day', async () => {
+      AppLogs.maxLogsRetention = 0.05;
+      expectProject();
+      expectLogs([]);
+
+      const { error } = await runCommand([
+        'app:logs',
+        '--app',
+        app,
+        '--since',
+        '"1 hour ago"',
+      ]);
+
+      expect(error).to.equal(undefined);
+    });
+
+    it('still enforces the retention', async () => {
+      AppLogs.maxLogsRetention = 0.05;
+      stubProcessExit();
+      expectProject();
+
+      const { error } = await runCommand([
+        'app:logs',
+        '--app',
+        app,
+        '--since',
+        '"2 hours ago"',
+      ]);
+
+      expect(error?.message).to.equal('process.exit(2)');
+    });
+  });
+
+  it('does not let users set the retention', async () => {
+    const { error } = await runCommand([
+      'app:logs',
+      '--app',
+      app,
+      '--max-logs-retention',
+      '9999',
+    ]);
+
+    expect(error?.message).to.contain('Nonexistent flag');
+  });
 
   it('throws an error if the app runs on the old infrastructure', async () => {
     stubProcessExit();

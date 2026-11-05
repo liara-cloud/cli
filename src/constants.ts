@@ -27,6 +27,11 @@ export const OBJECT_STORAGE_API_URL_DEV = 'http://localhost:3001';
 export const FALLBACK_REGION = 'iran';
 
 export const MAX_SOURCE_SIZE = 256 * 1024 * 1024; // 256 MiB
+// Apps first deployed after this date lose their default subdomain one week
+// after that deployment.
+export const DEFAULT_SUBDOMAIN_EXPIRY_SINCE = new Date(
+  '2026-08-15T00:00:00.000Z',
+);
 
 export const AVAILABLE_PLATFORMS = [
   'node',

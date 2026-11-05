@@ -10,6 +10,7 @@ import { Flags, Errors } from '@oclif/core';
 
 import Command, {
   IGetDomainsResponse,
+  IProjectDetails,
   IProjectDetailsResponse,
 } from '../base.js';
 
@@ -18,6 +19,7 @@ import IFlags from '../types/flags.js';
 import Poller from '../utils/poller.js';
 import upload from '../services/upload.js';
 import IRelease from '../types/release.js';
+import IBundlePlan from '../types/bundle-plan.js';
 import checkPath from '../utils/check-path.js';
 import onInterupt from '../utils/on-intrupt.js';
 import ILiaraJSON from '../types/liara-json.js';
@@ -35,7 +37,11 @@ import collectGitInfo from '../utils/collect-git-info.js';
 import ICreatedRelease from '../types/created-release.js';
 import { BundlePlanError } from '../errors/bundle-plan.js';
 import buildArgsParser from '../utils/build-args-parser.js';
-import { DEV_MODE, MAX_SOURCE_SIZE } from '../constants.js';
+import {
+  DEFAULT_SUBDOMAIN_EXPIRY_SINCE,
+  DEV_MODE,
+  MAX_SOURCE_SIZE,
+} from '../constants.js';
 import DeployException from '../errors/deploy-exception.js';
 import IDeploymentConfig from '../types/deployment-config.js';
 import { getPort, getDefaultPort } from '../utils/get-port.js';
@@ -45,6 +51,10 @@ import IGetProjectsResponse from '../types/get-project-response.js';
 import ReachedMaxSourceSizeError from '../errors/max-source-size.js';
 import getPlatformVersion from '../services/get-platform-version.js';
 import parseJSON from '../utils/json-parse.js';
+import {
+  getDeprecatedVersionMessage,
+  isDeprecatedVersion,
+} from '../utils/get-supported-versions.js';
 
 export default class Deploy extends Command {
   static description = 'deploy an app';
@@ -187,6 +197,7 @@ export default class Deploy extends Command {
     }
 
     let bundlePlanID: string;
+    let bundlePlan: IBundlePlan | undefined;
     try {
       const { project } = await this.got(
         `v1/projects/${config.app}`,
@@ -221,7 +232,15 @@ export default class Deploy extends Command {
       this.logKeyValue('Platform', config.platform);
       this.logKeyValue('Port', String(config.port));
 
-      const response = await this.deploy(config);
+      if (!flags.detach && !flags['no-app-logs'] && project.network) {
+        bundlePlan = await this.getBundlePlan(project);
+      }
+
+      // The app's startup output is written before the health check finishes,
+      // so the logs shown afterwards have to start from before the deployment.
+      const deployStartedAt = new Date().toISOString();
+
+      const response = await this.deploy(config, bundlePlan?.maxSourceSize);
 
       if (flags.detach) {
         this.log(chalk.green('Deployment created successfully.'));
@@ -231,32 +250,15 @@ export default class Deploy extends Command {
 
         this.log();
         this.log(chalk.green('Deployment finished successfully.'));
-        this.log(chalk.white('Open up the url below in your browser:'));
-        this.log();
 
-        const defaultSubdomain: string =
-          config.region === 'iran' && !Boolean(project.network)
-            ? '.iran.liara.run'
-            : '.liara.run';
-        const urlLogMessage = DEV_MODE
-          ? // tslint:disable-next-line: no-http-string
-            `    ${`http://${config.app}.liara.localhost`}`
-          : `    ${`https://${config.app}${defaultSubdomain}`}`;
-
-        const { domains } = await this.got(
-          `v1/domains?project=${config.app}`,
-        ).json<IGetDomainsResponse>();
-
-        if (!domains.length || project.defaultSubdomain)
-          this.log(urlLogMessage);
-
-        const firstFiveDomains = domains.reverse().slice(0, 5);
-
-        for (const domain of firstFiveDomains) {
-          const protocol: string =
-            domain.certificatesStatus === 'ACTIVE' ? 'https' : 'http';
-
-          this.log(chalk.white(`    ${protocol}://${domain.name}`));
+        // The deployment already succeeded, so a failed lookup must not fail it.
+        try {
+          await this.logAppUrls(config.app, project);
+        } catch (error) {
+          this.debug(error.stack);
+          this.warn(
+            `Could not load the app's URLs. You can find them at https://console.liara.ir/apps/${config.app}/domains`,
+          );
         }
 
         this.log();
@@ -266,11 +268,13 @@ export default class Deploy extends Command {
         }
 
         this.log('Reading app logs...');
+        Logs.maxLogsRetention = bundlePlan?.maxLogsRetention;
+        Logs.releaseId = response.releaseID;
         await Logs.run([
           '--app',
           config.app,
           '--since',
-          '10s ago',
+          deployStartedAt,
           '--follow',
           '--timestamps',
           '--colorize',
@@ -278,6 +282,7 @@ export default class Deploy extends Command {
           config['api-token'] || '',
           '--team-id',
           config['team-id'] || '',
+          ...(flags.debug ? ['--debug'] : []),
         ]);
       }
     } catch (error) {
@@ -293,7 +298,17 @@ export default class Deploy extends Command {
           : {};
 
       if (error.message === 'TIMEOUT') {
-        this.error('Build timed out. It took about 20 minutes.');
+        const allowedTime = bundlePlan
+          ? `the ${bundlePlan.buildTimeout} minutes`
+          : 'the time';
+        const message = `Build timed out. It took longer than ${allowedTime} your feature bundle plan allows.
+Please review the following options:
+
+  1. Upgrade your feature bundle plan: https://console.liara.ir/apps/${config.app}/resize
+  2. Try the Germany build location: liara deploy --build-location germany
+
+If the issue persists, please submit a ticket at https://console.liara.ir/tickets for further assistance.`;
+        return this.error(message);
       }
 
       if (error.response && error.response.statusCode === 404) {
@@ -342,7 +357,7 @@ Please open up https://console.liara.ir/apps and unfreeze the app.`;
         error.response.statusCode === 428 &&
         responseBody?.data?.code === 'germany_builder_not_allowed'
       ) {
-        const message = `To use builder locations, upgrade your feature bundle plan, first. 
+        const message = `To use builder locations, upgrade your feature bundle plan, first.
 Then try again.
 https://console.liara.ir/apps/${config.app}/resize`;
 
@@ -383,12 +398,19 @@ You may also want to switch to another region. Your current region is: ${chalk.c
         return this.error(error.message);
       }
 
-      if (
-        error instanceof ReachedMaxSourceSizeError ||
-        (error.response && error.response.statusCode === 413)
-      ) {
-        this.error(
-          BundlePlanError.max_source_size(bundlePlanID!) || error.message,
+      if (error instanceof DeployException) {
+        return this.error(error.message);
+      }
+
+      if (error instanceof ReachedMaxSourceSizeError) {
+        return this.error(error.message);
+      }
+
+      // Without the bundle plan, the app's limit may be lower than ours, so the
+      // message doesn't name a size.
+      if (error.response && error.response.statusCode === 413) {
+        return this.error(
+          BundlePlanError.max_source_size(bundlePlan?.maxSourceSize),
         );
       }
 
@@ -400,7 +422,28 @@ Additionally, you can also retry the build with the debug flag:
     }
   }
 
-  async deploy(config: IDeploymentConfig) {
+  async getBundlePlan(
+    project: IProjectDetails,
+  ): Promise<IBundlePlan | undefined> {
+    try {
+      // Nothing here may stop the deployment. Without throwHttpErrors, a 401
+      // would exit the process in the interceptor, before the upload.
+      const { plans } = await this.got('v1/me', {
+        retry: { limit: 0 },
+        throwHttpErrors: false,
+      }).json<{ plans: any }>();
+
+      return plans.projectBundlePlans[project.planID]?.[project.bundlePlanID];
+    } catch (error) {
+      this.debug(error.stack);
+      return undefined;
+    }
+  }
+
+  /**
+   * @param maxSourceSize the largest source the app can upload, in MB
+   */
+  async deploy(config: IDeploymentConfig, maxSourceSize?: number) {
     let body: { [k: string]: any } = {
       build: {
         cache: config.buildCache,
@@ -454,14 +497,20 @@ Additionally, you can also retry the build with the debug flag:
       )}`,
     );
 
-    if (sourceSize > MAX_SOURCE_SIZE) {
+    const sourceLimit = maxSourceSize
+      ? maxSourceSize * 1024 * 1024
+      : MAX_SOURCE_SIZE;
+
+    if (sourceSize > sourceLimit) {
       try {
         fs.removeSync(sourcePath);
       } catch (error) {
         this.debug(error.stack);
       } finally {
         // eslint-disable-next-line no-unsafe-finally
-        throw new ReachedMaxSourceSizeError();
+        throw new ReachedMaxSourceSizeError(
+          BundlePlanError.max_source_size(sourceLimit / 1024 / 1024),
+        );
       }
     }
 
@@ -557,6 +606,7 @@ Additionally, you can also retry the build with the debug flag:
             this.spinner.succeed('Build finished.');
             isPushingStart = !isPushingStart;
           }
+
           if (output.line) {
             this.spinner.clear().frame();
             this.spinner.start(output.line);
@@ -583,7 +633,7 @@ Additionally, you can also retry the build with the debug flag:
 
       if (error instanceof DeployException) {
         this.spinner.fail();
-        throw new Error(this.parseFailReason(error.message));
+        throw new DeployException(this.parseFailReason(error.message));
       }
 
       if (error instanceof ReleaseFailed) {
@@ -596,6 +646,25 @@ Additionally, you can also retry the build with the debug flag:
   }
 
   async __detectPlatformVersion(config: any, body: any) {
+    const configuredVersion =
+      body.platformConfig.pythonVersion ||
+      body.platformConfig.version ||
+      body.platformConfig.phpVersion ||
+      body.platformConfig.nodeVersion;
+
+    if (
+      configuredVersion &&
+      isDeprecatedVersion(config.platform, configuredVersion)
+    ) {
+      throw new DeployException(
+        getDeprecatedVersionMessage(
+          config.platform,
+          configuredVersion,
+          'your liara.json',
+        ),
+      );
+    }
+
     if (body.platformConfig.pythonVersion) {
       // django, flask
       this.logKeyValue('Python version', body.platformConfig.pythonVersion);
@@ -724,11 +793,108 @@ Additionally, you can also retry the build with the debug flag:
     });
   }
 
+  async logAppUrls(app: string, project: IProjectDetails) {
+    const { domains } = await this.got(
+      `v1/domains?project=${app}`,
+    ).json<IGetDomainsResponse>();
+
+    const urls = domains
+      .filter((domain) => domain.status === 'ACTIVE')
+      .reverse()
+      .slice(0, 5)
+      .map((domain) => {
+        const protocol: string =
+          domain.certificatesStatus === 'ACTIVE' ? 'https' : 'http';
+
+        return `${protocol}://${domain.name}`;
+      });
+    const hasActiveDomain = urls.length > 0;
+
+    const isSubdomainExpired =
+      project.defaultSubdomainExpired && !project.keepDefaultSubdomain;
+
+    if (project.defaultSubdomain && !isSubdomainExpired) {
+      const defaultSubdomain = project.network
+        ? '.liara.run'
+        : '.iran.liara.run';
+
+      urls.push(
+        DEV_MODE
+          ? // tslint:disable-next-line: no-http-string
+            `http://${app}.liara.localhost`
+          : `https://${app}${defaultSubdomain}`,
+      );
+    }
+
+    if (urls.length) {
+      this.log(chalk.white('Open up the url below in your browser:'));
+      this.log();
+
+      for (const url of urls) {
+        this.log(chalk.white(`    ${url}`));
+      }
+    }
+
+    const domainsPage = `https://console.liara.ir/apps/${app}/domains`;
+
+    if (!urls.length) {
+      const reason = isSubdomainExpired
+        ? 'The default subdomain expired one week after the first deployment and is no longer available.'
+        : 'The default subdomain is disabled.';
+
+      this.warn(
+        `${reason}\nTo make your app reachable, add a domain or finish setting one up at ${domainsPage}`,
+      );
+    } else if (
+      !hasActiveDomain &&
+      !project.keepDefaultSubdomain &&
+      (await this.isDefaultSubdomainExpiring(app))
+    ) {
+      this.warn(
+        `The default subdomain is only valid for one week after the first deployment.\nTo keep your app reachable, add a domain at ${domainsPage}`,
+      );
+    }
+  }
+
+  async isDefaultSubdomainExpiring(app: string): Promise<boolean> {
+    try {
+      const { total } = await this.got(
+        `v1/projects/${app}/releases?page=1&count=1`,
+      ).json<{ total: number }>();
+
+      // Releases are listed newest first, so the last page holds the first one.
+      const { releases } = await this.got(
+        `v1/projects/${app}/releases?page=${total}&count=1`,
+      ).json<{ releases: { createdAt: string }[] }>();
+
+      return new Date(releases[0].createdAt) >= DEFAULT_SUBDOMAIN_EXPIRY_SINCE;
+    } catch (error) {
+      this.debug(error.stack);
+      return false;
+    }
+  }
+
   parseFailReason(reason: string) {
     const [errorName, ...data] = reason.split(' ');
 
     if (errorName === 'disk_not_found') {
       return `Could not find disk \`${data[0]}\`.`;
+    }
+
+    if (errorName === 'APP_CRASHED') {
+      return 'Your app crashed after it started. Please check its logs.';
+    }
+
+    if (errorName === 'DISK_IS_NOT_DIRECTORY') {
+      return 'A disk can only be mounted to a directory, not a file.';
+    }
+
+    if (errorName === 'ENTRYPOINT_NOT_FOUND') {
+      return 'The ENTRYPOINT command was not found. Please check its logs.';
+    }
+
+    if (errorName === 'IMAGE_NOT_FOUND') {
+      return 'Could not find the image. Please make sure it is accessible.';
     }
 
     return reason;
