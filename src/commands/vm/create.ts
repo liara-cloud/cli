@@ -4,7 +4,12 @@ import { Flags } from '@oclif/core';
 
 import Command, { IConfig } from '../../base.js';
 import { IAAS_API_URL } from '../../constants.js';
-import { IGETOperatingSystems, IGetVMsResponse, IVMs } from '../../types/vm.js';
+import {
+  IGETOperatingSystems,
+  IGetVMsResponse,
+  IVMs,
+  IGETOperatingSystemsResponse,
+} from '../../types/vm.js';
 import checkRegexPattern, {
   checkVMNameRegexPattern,
 } from '../../utils/name-regex.js';
@@ -102,14 +107,20 @@ export default class VmCreate extends Command {
       throw error;
     }
   }
+
   async getOperatingSystems(): Promise<IGETOperatingSystems> {
     this.spinner.start('Loading...');
     try {
-      const oss = await this.got('oss').json<IGETOperatingSystems>();
-
+      const oss = await this.got('oss').json<IGETOperatingSystemsResponse>();
       this.spinner.stop();
 
-      return oss;
+      const { 'one-click-apps': oneClickApps, ...rest } = oss;
+      const flatOss: IGETOperatingSystems = {
+        ...oneClickApps,
+        ...(rest as IGETOperatingSystems),
+      };
+
+      return flatOss;
     } catch (error) {
       this.spinner.stop();
       throw error;

@@ -46,3 +46,8 @@ export interface IVMOperations {
 export interface IGETOperatingSystems {
   [key: string]: string[];
 }
+
+export interface IGETOperatingSystemsResponse {
+  'one-click-apps': IGETOperatingSystems;
+  [key: string]: IGETOperatingSystems | string[];
+}
