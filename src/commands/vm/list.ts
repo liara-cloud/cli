@@ -54,5 +54,11 @@ export default class VmList extends Command {
       },
       flags,
     );
+
+    if (vms.some((vm) => vm.state === 'FROZEN')) {
+      this.log(
+        '\nSome vms are frozen. Use "liara vm unfreeze" to activate them.',
+      );
+    }
   }
 }

@@ -259,6 +259,8 @@ describe('vm commands', function () {
         .resolves('22.04');
       sinon.stub(VmCreate.prototype, 'promptPlan').resolves('g1');
       sinon.stub(VmCreate.prototype, 'promptSSHKey').resolves([]);
+      sinon.stub(VmCreate.prototype, 'promptSSHPort').resolves(undefined);
+      sinon.stub(VmCreate.prototype, 'getInitScript').resolves(undefined);
     });
 
     it('submits the vm', async () => {

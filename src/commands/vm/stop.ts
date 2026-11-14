@@ -3,6 +3,7 @@ import Command, { IConfig } from '../../base.js';
 import { IGetVMResponse, IVMs } from '../../types/vm.js';
 import { IAAS_API_URL } from '../../constants.js';
 import { createDebugLogger } from '../../utils/output.js';
+import { FROZEN_VM_MESSAGE } from '../../utils/vm.js';
 import ora from 'ora';
 import { promptVMs } from '../../utils/prompt-vms.js';
 import { createAction } from '../../utils/create-vm-actions.js';
@@ -43,6 +44,10 @@ export default class VmStop extends Command {
 
     try {
       const vm: IVMs = await this.getVm(flags.vm);
+
+      if (vm.state === 'FROZEN') {
+        this.error(FROZEN_VM_MESSAGE);
+      }
 
       if (flags.force) {
         await createAction(vm._id, 'stop', this.got);

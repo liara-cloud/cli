@@ -5,6 +5,7 @@ import ora from 'ora';
 import { createAction } from '../../utils/create-vm-actions.js';
 import { promptVMs } from '../../utils/prompt-vms.js';
 import { createDebugLogger } from '../../utils/output.js';
+import { FROZEN_VM_MESSAGE } from '../../utils/vm.js';
 
 export default class VmRestart extends Command {
   static flags = {
@@ -46,6 +47,9 @@ export default class VmRestart extends Command {
             this.error('vm is not running or does not exists.');
           })()
         : await promptVMs(vms);
+      if (vm.state === 'FROZEN') {
+        this.error(FROZEN_VM_MESSAGE);
+      }
       await createAction(vm._id, 'reboot', this.got);
       if (flags.detach) {
         this.spinner.succeed(
