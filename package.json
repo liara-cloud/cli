@@ -154,6 +154,21 @@
       },
       "zone:record": {
         "description": "display commands for working with dns records"
+      },
+      "vm": {
+        "description": "display commands for working with vms"
+      },
+      "vm:disk": {
+        "description": "display commands for working with vm disks"
+      },
+      "vm:snapshot": {
+        "description": "display commands for working with vm snapshots"
+      },
+      "vm:script": {
+        "description": "display commands for working with vm init scripts"
+      },
+      "vm:ip": {
+        "description": "display commands for working with vm extra IPs"
       }
     }
   },
