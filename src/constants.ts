@@ -74,3 +74,8 @@ export const TEAM_RESOURCE_NAME_FIELDS: { [type: string]: string } = {
   vm: 'name',
   ai: 'name',
 };
+
+// Price of each extra IPv4 address of a vm, used when the plan does not
+// provide a price of its own.
+export const VM_IPV4_MONTHLY_PRICE = 200_000;
+export const VM_IPV4_HOURLY_PRICE = 277;
