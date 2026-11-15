@@ -5,6 +5,7 @@ import ora from 'ora';
 import { IGetVMResponse, IVMs } from '../../types/vm.js';
 import { promptVMs } from '../../utils/prompt-vms.js';
 import { createDebugLogger } from '../../utils/output.js';
+import { getRootUsername } from '../../utils/vm.js';
 export default class Vminfo extends Command {
   static description = 'show vm information';
   static aliases = ['vm:show', 'vm:inspect'];
@@ -42,7 +43,10 @@ export default class Vminfo extends Command {
             OS: vm.OS,
             Power: vm.power,
             Hostname: vm.config.hostname,
+            Username: getRootUsername(vm.OS),
             Password: vm.config.rootPassword,
+            'SSH Port': vm.config.sshPort || 22,
+            'SSH Keys': (vm.config.SSHKeys || []).length,
             IPs: vm.IPs.map((ip) => ip.address).join('\n'),
             CPU: vm.planDetails.CPU.amount + 'Cores',
             RAM: vm.planDetails.RAM.amount + 'GB',
@@ -55,7 +59,10 @@ export default class Vminfo extends Command {
           OS: {},
           Power: {},
           Hostname: {},
+          Username: {},
           Password: {},
+          'SSH Port': {},
+          'SSH Keys': {},
           IPs: {},
           CPU: {},
           RAM: {},
