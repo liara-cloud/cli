@@ -13,7 +13,7 @@ export default class VmOs extends VmCommand {
     ...ux.table.flags(),
   };
 
-  static aliases = ['vm:oss', 'vm:images'];
+  static aliases = ['vm:oss'];
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(VmOs);
